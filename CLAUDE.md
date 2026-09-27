@@ -160,6 +160,12 @@ largest metro first.
   context queries get short timeouts so they can never drop the property's own
   record.
 
+**Who builds what (two Claude sessions work on this repo):** US local data for
+metros #23–#50 (St. Louis onward, in rank order) is being built by the session
+titled "Pradixium 2.0 Beta" on branch `claude/ecstatic-hypatia-coi9oe`. Before
+adding a US metro, check `lib/usLocal/index.js` on `origin/main` and this list,
+so the same metro is never built twice.
+
 ## Lithuania (in progress)
 
 The user's earlier "Italy/Spain/Lithuania data" request meant Lithuania's state
