@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Business Dashboard Preview | Pradixium Business Solutions</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f4f6f9;color:#172131;font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+.banner{background:#eef4ff;color:#2463f5;font-size:12px;text-align:center;padding:8px 16px;font-weight:600;letter-spacing:.3px}
+.banner a{color:#1a4fc4;text-decoration:underline}
+.shell{display:flex;min-height:calc(100vh - 34px)}
+nav{width:210px;flex-shrink:0;background:#141a27;color:#c7cedb;padding:22px 14px;display:flex;flex-direction:column;gap:2px}
+nav .brand{display:flex;align-items:center;gap:9px;padding:0 8px 22px;color:#fff;font-weight:700;font-size:15px;letter-spacing:.4px}
+nav .brand .dot{width:9px;height:9px;border-radius:3px;background:#e0a83b}
+nav a{color:#98a2b5;text-decoration:none;font-size:13px;padding:10px 12px;border-radius:8px;display:flex;align-items:center;gap:9px}
+nav a.active{background:#1f2740;color:#fff;font-weight:600}
+nav a:hover:not(.active){background:#1a2135}
+main{flex:1;padding:28px 34px 60px;max-width:1080px}
+.top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:26px;flex-wrap:wrap;gap:14px}
+.top h1{font-size:21px;margin:0 0 4px}
+.top .sub{font-size:13px;color:#8792a1}
+.btn-primary{background:#2463f5;color:#fff;border:0;font-weight:700;padding:12px 20px;border-radius:9px;font-size:13px;cursor:pointer;text-decoration:none;display:inline-block}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:26px}
+@media(max-width:900px){.stats{grid-template-columns:1fr 1fr}}
+.stat{background:#fff;border:1px solid #e5eaf0;border-radius:12px;padding:16px 18px}
+.stat .n{font-size:24px;font-weight:800}
+.stat .l{font-size:11px;color:#8994a3;letter-spacing:.4px;margin-top:4px;text-transform:uppercase}
+.grid2{display:grid;grid-template-columns:1.5fr 1fr;gap:18px}
+@media(max-width:900px){.grid2{grid-template-columns:1fr}}
+.card{background:#fff;border:1px solid #e5eaf0;border-radius:14px;padding:20px 22px;margin-bottom:18px}
+.card h2{font-size:13px;letter-spacing:1.6px;color:#5f6b7b;text-transform:uppercase;margin:0 0 16px;display:flex;justify-content:space-between;align-items:center}
+.card h2 a{font-size:11px;letter-spacing:0;text-transform:none;color:#2463f5;font-weight:700;text-decoration:none}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{text-align:left;padding:10px 8px;border-bottom:1px solid #eef1f4}
+th{color:#8994a3;font-weight:700;font-size:11px;letter-spacing:.3px}
+.score{font-weight:800}
+.score.hi{color:#1baf7a}
+.score.mid{color:#e0a83b}
+.status{font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px}
+.status.sent{background:#e8f6ee;color:#1baf7a}
+.status.draft{background:#f0f1f3;color:#8792a1}
+.brand-row{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+.logo-slot{width:56px;height:56px;border-radius:10px;background:#f0f1f3;border:1px dashed #c7cedb;display:flex;align-items:center;justify-content:center;font-size:10px;color:#9aa2ad;text-align:center;flex-shrink:0}
+.swatches{display:flex;gap:8px;margin-top:4px}
+.swatch{width:26px;height:26px;border-radius:7px;border:2px solid transparent;cursor:pointer}
+.swatch.active{border-color:#172131}
+.field-label{font-size:12px;font-weight:700;color:#5f6b7b;margin:14px 0 6px}
+.people{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #eef1f4;font-size:13px}
+.people:last-child{border-bottom:0}
+.avatar{width:30px;height:30px;border-radius:50%;background:#dce7ff;color:#2463f5;font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.plan{border:2px solid #e5eaf0;border-radius:12px;padding:16px;margin-bottom:10px}
+.plan.active{border-color:#2463f5;background:#f5f8ff}
+.plan .name{font-weight:800;font-size:14px}
+.plan .price{font-size:12px;color:#8792a1;margin-top:2px}
+.plan ul{margin:10px 0 0;padding-left:18px;font-size:12px;color:#5f6b7b;line-height:1.7}
+.note{font-size:11px;color:#9aa2ad;margin-top:6px;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="banner">PREVIEW — sample data, not connected to any real account · <a href="/mockups/index.html">← Business Solutions</a></div>
+<div class="shell">
+  <nav>
+    <div class="brand"><span class="dot"></span> RIVIERA REALTY <span style="font-size:10px;color:#5f6b8a;font-weight:400">× Pradixium</span></div>
+    <a class="active" href="#">📊 Dashboard</a>
+    <a href="#">📄 Reports</a>
+    <a href="#">👤 Clients</a>
+    <a href="#">🎨 Branding</a>
+    <a href="#">👥 Team</a>
+    <a href="#">💳 Billing &amp; Plan</a>
+  </nav>
+  <main>
+    <div class="top">
+      <div>
+        <h1>Welcome back, Riviera Realty</h1>
+        <div class="sub">Organization account · 4 seats · Growth plan</div>
+      </div>
+      <a class="btn-primary" href="#">+ Generate New Report</a>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="n">37</div><div class="l">Reports this month</div></div>
+      <div class="stat"><div class="n">4 / 5</div><div class="l">Seats used</div></div>
+      <div class="stat"><div class="n">68%</div><div class="l">Client conversion*</div></div>
+      <div class="stat"><div class="n">211</div><div class="l">Reports all-time</div></div>
+    </div>
+
+    <div class="grid2">
+      <div>
+        <div class="card">
+          <h2>Recent Reports <a href="#">View all →</a></h2>
+          <table>
+            <thead><tr><th>Property</th><th>Client</th><th>Score</th><th>Status</th><th>Date</th></tr></thead>
+            <tbody>
+              <tr><td>Rue de Rivoli, Paris</td><td>M. Dubois</td><td class="score hi">82</td><td><span class="status sent">Sent</span></td><td>24 Sep</td></tr>
+              <tr><td>Calle Serrano, Madrid</td><td>A. Torres</td><td class="score mid">61</td><td><span class="status sent">Sent</span></td><td>23 Sep</td></tr>
+              <tr><td>Kensington, London</td><td>J. Wren</td><td class="score hi">77</td><td><span class="status draft">Draft</span></td><td>22 Sep</td></tr>
+              <tr><td>Alfama, Lisbon</td><td>R. Silva</td><td class="score hi">85</td><td><span class="status sent">Sent</span></td><td>20 Sep</td></tr>
+              <tr><td>Plaka, Athens</td><td>N. Papas</td><td class="score mid">58</td><td><span class="status sent">Sent</span></td><td>19 Sep</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <h2>Team &amp; Seats <a href="#">Invite team member →</a></h2>
+          <div class="people"><div class="avatar">SM</div> Sophie Martin — <span style="color:#8792a1">Admin</span></div>
+          <div class="people"><div class="avatar">JL</div> Jules Lemaire — <span style="color:#8792a1">Analyst</span></div>
+          <div class="people"><div class="avatar">CT</div> Clara Tavares — <span style="color:#8792a1">Analyst</span></div>
+          <div class="people"><div class="avatar">RH</div> Rafael Huber — <span style="color:#8792a1">Analyst</span></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <h2>White-Label Branding</h2>
+          <div class="brand-row">
+            <div class="logo-slot">YOUR<br>LOGO</div>
+            <div>
+              <div class="field-label" style="margin-top:0">Organization name on reports</div>
+              <div style="font-size:14px;font-weight:700">Riviera Realty Group</div>
+            </div>
+          </div>
+          <div class="field-label">Brand color</div>
+          <div class="swatches">
+            <div class="swatch active" style="background:#e0a83b"></div>
+            <div class="swatch" style="background:#2463f5"></div>
+            <div class="swatch" style="background:#1baf7a"></div>
+            <div class="swatch" style="background:#c0392b"></div>
+            <div class="swatch" style="background:#4a3aa7"></div>
+          </div>
+          <p class="note">Every report your clients receive carries your logo and color instead of Pradixium's — with a small "Powered by Pradixium" credit line, same convention as any white-label SaaS report.</p>
+          <a class="btn-primary" style="width:100%;text-align:center;margin-top:6px;background:#e0a83b" href="/mockups/whitelabel-report.html">Preview a client report →</a>
+        </div>
+
+        <div class="card">
+          <h2>Plan</h2>
+          <div class="plan">
+            <div class="name">Starter</div>
+            <div class="price">$149/mo — 1 seat</div>
+            <ul><li>25 reports / month</li><li>White-label branding</li></ul>
+          </div>
+          <div class="plan active">
+            <div class="name">Growth <span style="color:#2463f5;font-size:10px;font-weight:700">CURRENT</span></div>
+            <div class="price">$399/mo — 5 seats</div>
+            <ul><li>150 reports / month</li><li>White-label branding</li><li>Team seats &amp; client CRM view</li></ul>
+          </div>
+          <div class="plan">
+            <div class="name">Enterprise</div>
+            <div class="price">Custom — unlimited seats</div>
+            <ul><li>Unlimited reports</li><li>API access</li><li>Dedicated account manager</li></ul>
+          </div>
+          <p class="note">* Conversion and pricing figures are illustrative — nothing here is billed or tracked yet.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pradixium — Property Intelligence Dashboard</title>
+  <link rel="icon" type="image/png" href="data:image/png;base64,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">
+  <style>
+    :root{--navy:#070b17;--navy2:#0b1020;--blue:#2463f5;--blue2:#2f7cff;--ink:#18212d;--muted:#77818e;--line:#e5e9ef;--soft:#f6f8fb;--green:#23a968;--amber:#e9a52d;--red:#d94a4a;--white:#fff;--shadow:0 8px 28px rgba(17,30,52,.08)}
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;background:#f7f9fc;color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;font-size:13px}
+    button,input,select{font:inherit}
+    button{cursor:pointer}
+    .shell{min-height:100vh;display:flex;background:#fff}
+
+    /* LEFT BRAND PANEL */
+    .brand-panel{position:fixed;left:0;top:0;bottom:0;width:342px;background:linear-gradient(160deg,#030611 0%,#080c19 55%,#050814 100%);color:#fff;padding:40px 46px 34px;display:flex;flex-direction:column;z-index:10;overflow:hidden}
+    .brand-panel:after{content:"";position:absolute;width:260px;height:260px;right:-150px;bottom:-140px;border:1px solid rgba(47,124,255,.22);border-radius:50%}
+    .brand-logo{display:flex;align-items:center;gap:13px;margin-bottom:72px}
+    .brand-mark{width:45px;height:58px;position:relative;display:block;filter:drop-shadow(0 0 9px rgba(47,124,255,.22))}
+    .brand-mark img{width:45px;height:62px;display:block;object-fit:contain;image-rendering:auto}
+    .brand-name{font-size:24px;letter-spacing:3.2px;font-weight:500}
+    .brand-copy{margin-top:auto;margin-bottom:auto}
+    .brand-copy h2{font-size:35px;line-height:1.15;font-weight:400;letter-spacing:-1px;margin:0 0 18px}
+    .brand-copy h2 span{color:#2778f7}
+    .brand-copy .rule{width:42px;height:2px;background:#266cf1;margin:0 0 25px}
+    .brand-copy p{font-size:14px;line-height:1.65;color:#b5bdca;max-width:240px;margin:0}
+    .brand-copy p strong{color:#fff;font-weight:500}
+    .brand-features{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin-top:auto}
+    .feature{text-align:center;color:#8e9aac;font-size:8px;letter-spacing:.3px;text-transform:uppercase;line-height:1.35}
+    .feature-icon{width:30px;height:30px;margin:0 auto 9px;color:#3782ff;display:grid;place-items:center;font-size:24px}
+    .feature-icon.globe:before{content:"◎"}
+    .feature-icon.ai:before{content:"♧";font-size:28px}
+    .feature-icon.shield:before{content:"◇";font-size:30px}
+
+    /* APP AREA */
+    .app{margin-left:342px;width:calc(100% - 342px);min-width:0;background:#f7f9fc;min-height:100vh}
+    .topbar{height:74px;background:#fff;border-bottom:1px solid #e9edf2;display:flex;align-items:center;padding:0 29px;gap:30px;position:sticky;top:0;z-index:8}
+    .top-logo{display:none;align-items:center;gap:8px;font-weight:600;letter-spacing:1.5px}
+    .mobile-logo-img{width:18px;height:26px;object-fit:contain;display:block}
+    .topnav{display:flex;align-items:center;gap:29px;height:100%}
+    .topnav a{height:100%;display:flex;align-items:center;color:#303945;text-decoration:none;font-size:11px;position:relative;white-space:nowrap}
+    .topnav a.soon{color:#adb4bd;cursor:default;gap:6px}
+    .topnav a.soon .soon-badge{font-size:7px;font-weight:700;letter-spacing:.3px;color:#8792a1;background:#eef1f4;border-radius:3px;padding:2px 5px;text-transform:uppercase}
+    .topnav a:hover{color:#1d5ff0}
+    .topnav a.active{color:#1d5ff0;font-weight:600}
+    .topnav a.active:after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:#2568ee}
+    .top-actions{margin-left:auto;display:flex;align-items:center;gap:19px}
+    .bell{width:18px;height:18px;border:0;background:none;color:#4b5562;font-size:16px;padding:0}
+    .avatar{width:29px;height:29px;border-radius:50%;background:#17202c;display:grid;place-items:center;position:relative}
+    .avatar:before{content:"";width:7px;height:7px;border:1.4px solid #fff;border-radius:50%;position:absolute;top:6px}
+    .avatar:after{content:"";width:12px;height:6px;border:1.4px solid #fff;border-bottom:0;border-radius:9px 9px 0 0;position:absolute;bottom:6px}
+    .chevron{font-size:11px;color:#586272;margin-left:-13px}
+
+    .workspace{padding:10px 14px 42px;max-width:1500px;margin:0 auto}
+    .status-line{height:39px;background:#fff;border:1px solid #e5e9ef;border-radius:5px;display:flex;align-items:center;padding:0 14px;font-size:9px;color:#647080;margin-bottom:10px}
+    .status-line .ok{color:#18a55f;font-weight:700;margin-right:9px}
+    .status-line .ref{margin-left:auto}
+    .report-btn{margin-left:17px;height:27px;border:1px solid #b9c9e7;background:#fff;border-radius:4px;color:#315a9f;padding:0 12px;font-size:9px}
+
+    .analyze-layout{display:grid;grid-template-columns:190px minmax(0,1fr);gap:10px;align-items:start}
+    .card{background:#fff;border:1px solid #e4e8ee;border-radius:10px;box-shadow:0 4px 18px rgba(15,31,52,.07),0 1px 3px rgba(15,31,52,.05)}
+    .input-card{padding:15px 13px;position:sticky;top:84px}
+    .section-title{font-size:9px;font-weight:800;letter-spacing:.65px;color:#202833;text-transform:uppercase;margin-bottom:13px;display:flex;align-items:center;gap:7px}
+    .section-title:before{content:"";width:3px;height:12px;background:linear-gradient(180deg,#2568ed,#5aa1ff);border-radius:2px;flex-shrink:0}
+    .steps{display:flex;justify-content:space-between;position:relative;margin:0 3px 22px}
+    .steps:before{content:"";position:absolute;left:12px;right:12px;top:10px;height:1px;background:#dce2ea}
+    .step{position:relative;z-index:1;text-align:center;color:#9aa3af;font-size:7px}
+    .step i{width:20px;height:20px;border-radius:50%;background:#f1f3f7;border:1px solid #dfe4ea;display:grid;place-items:center;font-style:normal;margin:auto auto 5px;font-size:8px}
+    .step.active{color:#202833}.step.active i{background:#2164ef;color:#fff;border-color:#2164ef}
+    .input-label{display:block;font-size:8px;color:#6c7581;text-transform:uppercase;letter-spacing:.35px;margin:0 0 5px}
+    .field{width:100%;height:31px;border:1px solid #d9dee6;border-radius:4px;background:#fff;color:#27313d;padding:0 9px;outline:none;font-size:9px;margin-bottom:10px;position:relative;z-index:2;pointer-events:auto;touch-action:manipulation}
+    .field:focus{border-color:#5b8cf1;box-shadow:0 0 0 2px rgba(47,124,255,.08)}
+    .primary{width:100%;height:32px;border:0;border-radius:4px;background:linear-gradient(90deg,#2568ed,#2e79f4);color:#fff;font-size:9px;font-weight:600;box-shadow:0 3px 8px rgba(37,104,237,.18)}
+    .secure{font-size:7px;color:#929ba7;text-align:center;margin-top:10px}
+    .error{color:#c94141;font-size:8px;margin-top:8px;min-height:10px}
+
+    .results-col{min-width:0}
+    #results.hidden{display:none}
+    .complete{height:39px;background:#fff;border:1px solid #e5e9ef;border-radius:5px;display:flex;align-items:center;padding:0 13px;color:#1d9b5c;font-size:8px;font-weight:700;margin-bottom:10px}
+    .complete span{font-weight:400;color:#76808d;margin-left:8px}
+
+    .property-card{padding:0;overflow:hidden}
+    .property-main{display:grid;grid-template-columns:180px minmax(0,1fr) 118px;min-height:177px}
+    .property-visual{background:#07111d;position:relative;overflow:hidden;min-height:177px}
+    .property-visual img{display:block;width:100%;height:100%;min-height:177px;object-fit:cover;object-position:center center}
+    .sun{position:absolute;width:32px;height:32px;border-radius:50%;background:#fff6cf;right:18px;top:18px;box-shadow:0 0 22px rgba(255,245,179,.65)}
+    .pool{position:absolute;left:28px;right:24px;bottom:12px;height:27px;background:linear-gradient(135deg,#9dd5ee,#3b9bd0);transform:skewX(-12deg);opacity:.8}
+    .property-info{padding:18px 15px}
+    .property-info h2{font-size:16px;margin:0 0 8px;font-weight:700;color:#202832}
+    .location{font-size:8px;color:#66717d;margin-bottom:19px}
+    .location:before{content:"⌖";font-size:11px;margin-right:5px;color:#4b5562}
+    .property-meta{display:flex;flex-wrap:wrap;gap:14px;color:#232b34;font-size:8px}
+    .property-meta span:before{margin-right:5px;color:#687482}
+    .property-meta .beds:before{content:"▣"}.property-meta .baths:before{content:"♢"}.property-meta .size:before{content:"⌗"}.property-meta .type:before{content:"◇"}.property-meta .pricem2:before{content:"◈"}
+    .country-picker{position:relative}
+    .country-dropdown{position:absolute;left:0;right:0;top:calc(100% + 2px);z-index:40;background:#fff;border:1px solid #d9dee6;border-radius:6px;box-shadow:0 10px 24px rgba(20,30,45,.14);max-height:210px;overflow-y:auto}
+    .country-dropdown.hidden{display:none}
+    .country-option{padding:8px 12px;font-size:9px;color:#27313d;cursor:pointer}
+    .country-option:hover,.country-option.active{background:#eef3fc}
+    .property-price-row{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid #e8ecf0;margin-top:23px;padding-top:12px;gap:10px}
+    .mini-label{display:block;font-size:7px;color:#7c8692;letter-spacing:.35px;margin-bottom:4px}
+    .mini-value{font-size:12px;font-weight:700;color:#1f2934}
+    .score-panel{border-left:1px solid #e8ecf0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px}
+    .score-ring{width:92px;height:92px;border-radius:50%;background:conic-gradient(#25aa68 0 84%,#e7edf0 84% 100%);display:grid;place-items:center;position:relative;margin-bottom:7px;box-shadow:0 6px 16px rgba(37,104,237,.12)}
+    .score-ring:after{content:"";position:absolute;inset:6px;background:#fff;border-radius:50%;box-shadow:inset 0 1px 2px rgba(15,31,52,.06)}
+    .score-value{position:relative;z-index:1;font-size:27px;font-weight:700;color:#222d38;line-height:1}
+    .score-value small{font-size:7px;font-weight:500;color:#7b8490;display:block;text-align:center;margin-top:3px}
+    .score-title{font-size:7px;color:#66717c;font-weight:800;letter-spacing:.4px;margin-bottom:7px}
+    .score-badge{font-size:9px;font-weight:700;color:#1d8f55;background:#e9f7ef;border:1px solid #8bd0a8;border-radius:4px;padding:4px 14px}
+    .score-sub{font-size:7px;text-align:center;color:#687380;margin-top:7px;line-height:1.4}
+
+    .metric-strip{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid #e5e9ee;border-bottom:1px solid #e5e9ee;background:#fff}
+    .metric-box{padding:12px 13px;border-right:1px solid #e5e9ee;text-align:center}
+    .metric-box:has(#fairValue){background:linear-gradient(180deg,#eef4ff,#fff)}
+    .metric-box:has(#fairValue) strong{color:#1a4fc4}
+    .metric-box:last-child{border-right:0}
+    .metric-box small{display:block;font-size:7px;color:#7b8591;letter-spacing:.35px;margin-bottom:6px}
+    .metric-box strong{font-size:12px;color:#202a35}
+    .metric-box em{display:block;font-size:7px;font-style:normal;margin-top:4px}
+    /* FIX: .metric-strip's 4-column grid is sized for the main Property &
+       Market strip (4 boxes). Closing Costs (2 boxes) and Property Tax (1
+       box) reused the same class but only fill part of those 4 columns,
+       leaving dead space and squeezing a long value into a quarter-width
+       cell — looked lopsided/messy rather than a clean, centered row. */
+    #foreignAccessSection .metric-strip{grid-template-columns:1fr 1fr}
+    #closingCostsSection .metric-strip{grid-template-columns:1fr 1fr}
+    #propertyTaxSection .metric-strip{grid-template-columns:1fr}
+    #currencyControlsSection .metric-strip{grid-template-columns:1fr 1fr}
+    .positive{color:#27945d}.negative{color:#d75a4d}.neutral{color:#707b87}
+
+    .info-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:10px}
+    .info-card{padding:13px;min-height:136px}
+    .info-card .section-title{margin-bottom:10px}
+    .info-card p{font-size:8px;line-height:1.6;color:#232b34;margin:0}
+    .info-card ul{list-style:none;padding:0;margin:0}
+    .info-card li{font-size:8px;color:#232b34;line-height:1.45;padding:3px 0 3px 14px;position:relative}
+    .info-card li:before{content:"✓";position:absolute;left:0;color:#28a86a;font-weight:800}
+    .risks li:before{content:"▲";color:#e2a12e;font-size:7px;top:5px}
+    .action-text{font-size:8px;line-height:1.55;color:#232b34;margin-bottom:12px!important}
+    .secondary{height:29px;padding:0 14px;border:1px solid #d7dde5;background:#fff;border-radius:4px;color:#2463d6;font-size:8px;font-weight:600}
+    .action .secondary{width:100%}
+
+    .data-card{padding:13px;margin-top:10px}
+    .data-card .metric-strip{margin:0;border:1px solid #e4e8ed;border-radius:4px;overflow:hidden}
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+    .data-note{font-size:7px;color:#7b8590;margin:10px 2px 0}
+    .comps-table{width:100%;border-collapse:collapse;font-size:9px}
+    .comps-table th{text-align:left;color:#8a95a4;font-weight:700;font-size:7px;letter-spacing:.3px;padding:6px 8px;border-bottom:1px solid #e5e9ee}
+    .comps-table td{padding:7px 8px;border-bottom:1px solid #eef1f4;color:#202a35}
+    .comps-table tr:last-child td{border-bottom:0}
+    .demand-bar{height:6px;background:#edf1f5;border-radius:5px;margin-top:9px;overflow:hidden}.demand-bar>div{height:100%;width:44%;background:#2872ef;border-radius:5px}
+    .demand-foot{display:flex;justify-content:space-between;font-size:7px;color:#7c8691;margin-top:8px}
+    .demand-foot strong{color:#232b34}
+    .buyer-origin-title{margin-top:15px!important}
+
+    footer{text-align:center;color:#9aa2ad;font-size:7px;letter-spacing:.7px;padding:24px 0 0}
+    footer .footer-cs{display:block;margin-bottom:4px}
+    footer .footer-cs a{color:inherit;text-decoration:none}
+    footer .footer-tool{display:block;margin-top:6px}
+    footer .footer-tool a{color:#8a95a4;text-decoration:underline}
+
+    @media(max-width:1100px){.brand-panel{width:275px;padding:32px 32px}.app{margin-left:275px;width:calc(100% - 275px)}.topnav{gap:17px}.topnav a{font-size:10px}.brand-copy h2{font-size:29px}.property-main{grid-template-columns:150px minmax(0,1fr) 105px}}
+    @media(max-width:850px){.brand-panel{position:relative;width:100%;height:auto;min-height:360px;padding:30px}.app{margin-left:0;width:100%}.shell{display:block}.brand-copy{margin:35px 0}.brand-logo{margin-bottom:0}.brand-features{margin-top:0}.topbar{padding:0 14px;overflow-x:auto}.topnav{display:none}.top-logo{display:block;font-weight:700;letter-spacing:1.4px}.workspace{padding:8px}.analyze-layout{grid-template-columns:1fr}.input-card{position:relative;top:auto}.property-main{grid-template-columns:1fr}.property-visual{min-height:150px}.score-panel{border-left:0;border-top:1px solid #e8ecf0;padding:18px}.metric-strip{grid-template-columns:1fr 1fr}.metric-box:nth-child(2){border-right:0}.metric-box:nth-child(-n+2){border-bottom:1px solid #e5e9ee}.info-grid{grid-template-columns:1fr}.status-line .ref{display:none}}
+    @media(max-width:520px){.brand-panel{min-height:330px;padding:25px}.brand-copy h2{font-size:28px}.brand-copy p{font-size:13px}.workspace{padding:6px}.property-info{padding:14px}.property-price-row{grid-template-columns:1fr}.property-meta{gap:8px}.two-col{grid-template-columns:1fr}.complete{font-size:7px}}
+
+    /* Account gate */
+    .language-picker{position:relative;margin-left:8px}.language-select{height:34px;border:1px solid #dce2ea;border-radius:8px;background:#fff;color:#344154;padding:0 30px 0 10px;font-size:12px;font-weight:650;cursor:pointer;outline:none}.language-select:focus{border-color:#2463d6;box-shadow:0 0 0 3px rgba(36,99,214,.1)}
+    .account-gate{position:fixed;inset:0;background:rgba(15,24,38,.58);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px}.account-gate.hidden{display:none}.auth-card{width:min(430px,100%);background:#fff;border:1px solid #e5e9ef;border-radius:16px;box-shadow:0 24px 70px rgba(18,31,52,.24);padding:28px}.auth-brand{display:flex;align-items:center;gap:9px;font-weight:800;letter-spacing:1.5px;color:#172033;margin-bottom:22px}.auth-brand img{height:28px}.auth-title{font-size:25px;font-weight:750;color:#182232;margin:0 0 7px}.auth-subtitle{font-size:13px;line-height:1.55;color:#687383;margin:0 0 20px}.auth-tabs{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid #e7ebf0;margin-bottom:18px}.auth-tab{border:0;background:transparent;padding:10px 8px;font-weight:700;color:#8a94a2;cursor:pointer;border-bottom:2px solid transparent}.auth-tab.active{color:#2463d6;border-bottom-color:#2463d6}.auth-form{display:grid;gap:11px}.auth-label{font-size:11px;font-weight:700;color:#4c5867}.auth-input{height:43px;border:1px solid #d8dee7;border-radius:8px;padding:0 12px;font-size:14px;outline:none}.auth-input:focus{border-color:#2463d6;box-shadow:0 0 0 3px rgba(36,99,214,.1)}.auth-submit{height:44px;border:0;border-radius:8px;background:#2463d6;color:#fff;font-weight:750;cursor:pointer;margin-top:4px}.auth-note{font-size:10px;line-height:1.5;color:#8a94a2;text-align:center;margin:10px 0 0}.auth-error{min-height:16px;color:#c64747;font-size:11px;font-weight:600}.account-menu{position:absolute;right:18px;top:54px;width:190px;background:#fff;border:1px solid #e3e8ee;border-radius:10px;box-shadow:0 14px 36px rgba(20,30,45,.15);padding:7px;z-index:1000;display:none}.account-menu.open{display:block}.account-menu .account-name{padding:9px 10px 7px;font-size:12px;font-weight:750;color:#263243;border-bottom:1px solid #edf0f3;margin-bottom:4px}.account-menu button{width:100%;text-align:left;border:0;background:#fff;border-radius:7px;padding:9px 10px;font-size:12px;color:#455160;cursor:pointer}.account-menu button:hover{background:#f4f7fb}.top-actions{position:relative}.avatar{cursor:pointer}@media(max-width:520px){.account-gate{padding:14px}.auth-card{padding:23px;border-radius:14px}.auth-title{font-size:22px}}
+          .analysis-loading { margin-top: 10px; font-size: 13px; font-weight: 700; color: #2463f5; text-align: center; }
+        #analyzeButton:disabled { opacity: 0.72; cursor: wait; }
+        #analyzeButton[aria-busy="true"] { pointer-events: none; }
+
+        .rc-badge{display:inline-block;font-size:20px;font-weight:800;letter-spacing:2px;padding:9px 26px;border-radius:10px}
+        .rc-badge.pass{background:#e6f7ee;color:#1c8a51}
+        .rc-badge.fail{background:#fdecec;color:#c0392b}
+        .rc-item{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-top:1px solid #e5eaf0;font-size:13px;line-height:1.5}
+        .rc-item:first-child{border-top:0}
+        .rc-icon{flex-shrink:0;width:19px;height:19px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;margin-top:1px}
+        .rc-icon.pass{background:#25aa68}.rc-icon.warn{background:#e0a52c}.rc-icon.fail{background:#d75a4d}
+        .rc-item strong{display:block;color:#202b3a;margin-bottom:2px}.rc-item span{color:#5f6b7b}
+        #dealDiscoveryBtn{margin-top:10px;border:1px solid #b9c9e7;background:#fff;color:#2463f5;border-radius:8px;padding:9px 16px;font-weight:700;font-size:13px;cursor:pointer}
+        #dealDiscoveryBtn:hover{background:#f4f8ff}
+        #dealDiscoveryBtn[data-added="1"]{border-color:#25aa68;color:#1c8a51;background:#e6f7ee;cursor:default}
+</style>
+</head>
+<body>
+  <div class="account-gate" id="accountGate" aria-modal="true" role="dialog"><div class="auth-card"><div class="auth-brand"><img src="data:image/png;base64,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" alt="Pradixium"><span>PRADIXIUM™</span></div><h1 class="auth-title" id="authTitle">Create your Pradixium account</h1><p class="auth-subtitle" id="authSubtitle">Create an account before using Property Intelligence and generating analysis reports.</p><div class="auth-tabs"><button class="auth-tab active" id="signUpTab" type="button">Create Account</button><button class="auth-tab" id="signInTab" type="button">Sign In</button></div><form class="auth-form" id="authForm"><div id="nameFieldWrap"><label class="auth-label" for="authName">Full Name</label><input class="auth-input" id="authName" autocomplete="name" placeholder="Your name"></div><div><label class="auth-label" for="authEmail">Email</label><input class="auth-input" id="authEmail" type="email" autocomplete="email" placeholder="you@example.com" required></div><div><label class="auth-label" for="authPassword">Password</label><input class="auth-input" id="authPassword" type="password" autocomplete="new-password" placeholder="Create a password" required minlength="6"></div><div class="auth-error" id="authError"></div><button class="auth-submit" id="authSubmit" type="submit">Create Account</button></form><p class="auth-note">Account access is required before analysis. By creating an account you agree to our <a href="/terms.html" target="_blank" rel="noopener">Terms of Service</a> and <a href="/privacy-policy.html" target="_blank" rel="noopener">Privacy Policy</a>.</p></div></div>
+  <div class="shell">
+    <aside class="brand-panel">
+      <div class="brand-logo">
+        <span class="brand-mark" aria-hidden="true"><img src="data:image/png;base64,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" alt="Pradixium"></span>
+        <div class="brand-name">PRADIXIUM™</div>
+      </div>
+
+      <div class="brand-copy">
+        <h2>Know Before <span>You Invest.</span></h2>
+        <div class="rule"></div>
+        <p><strong>AI-powered intelligence</strong> that reveals the true value, risk and potential of property investments across the world.</p>
+      </div>
+
+      <div class="brand-features">
+        <div class="feature"><div class="feature-icon globe"></div>Global Perspective</div>
+        <div class="feature"><div class="feature-icon ai"></div>AI Intelligence</div>
+        <div class="feature"><div class="feature-icon shield"></div>Smarter Decisions</div>
+      </div>
+    </aside>
+
+    <div class="app">
+      <header class="topbar">
+        <div class="top-logo"><img class="mobile-logo-img" src="data:image/png;base64,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" alt="Pradixium logo"><span>PRADIXIUM™</span></div>
+        <nav class="topnav">
+          <a class="soon" role="link" aria-disabled="true" tabindex="-1"><span class="nav-label">Dashboard</span><span class="soon-badge">Soon</span></a>
+          <a href="#" class="active"><span class="nav-label">Analyze</span></a>
+          <a class="soon" role="link" aria-disabled="true" tabindex="-1"><span class="nav-label">Saved Properties</span><span class="soon-badge">Soon</span></a>
+          <a href="/deal-discovery.html"><span class="nav-label">Deal Discovery™</span></a>
+          <a class="soon" role="link" aria-disabled="true" tabindex="-1"><span class="nav-label">Market Insights</span><span class="soon-badge">Soon</span></a>
+        </nav>
+        <div class="top-actions">
+          <div class="language-picker">
+            <select id="languageSelect" class="language-select" aria-label="Language">
+              <option value="en">English</option>
+              <option value="es">Español</option>
+              <option value="fr">Français</option>
+              <option value="it">Italiano</option>
+              <option value="de">Deutsch</option>
+              <option value="nl">Nederlands</option>
+              <option value="vlaams">Vlaams</option>
+              <option value="pt">Português</option>
+              <option value="sv">Svenska</option>
+              <option value="da">Dansk</option>
+              <option value="no">Norsk</option>
+              <option value="pl">Polski</option>
+              <option value="fi">Suomi</option>
+              <option value="zh">中文</option>
+              <option value="ru">Русский</option>
+              <option value="he">עברית</option>
+            </select>
+          </div>
+          <button class="bell" aria-label="Notifications">♧</button>
+          <button class="avatar" id="accountBtn" aria-label="Account" type="button"></button>
+          <span class="chevron">⌄</span>
+          <div class="account-menu" id="accountMenu"><div class="account-name" id="accountName">Account</div><button type="button" id="accountProfileBtn">Profile</button><button type="button" id="accountLogoutBtn">Sign Out</button></div>
+        </div>
+      </header>
+
+      <main class="workspace">
+        <div class="status-line">
+          <span class="ok">✓ Analysis Complete</span>
+          <span>• Ref: <span id="analysisReference">PX-ES-2025-000123</span></span>
+          <span class="ref">• <span id="analysisTimestamp">26 May 2025 11:42</span></span>
+          <button class="report-btn" id="headerReportBtn" type="button">Download Report&nbsp; ↓</button>
+        </div>
+
+        <div class="analyze-layout">
+          <section class="card input-card">
+            <div class="section-title">Analyze Property</div>
+
+            <div class="steps">
+              <div class="step active"><i>1</i>Property</div>
+              <div class="step"><i>2</i>Market</div>
+              <div class="step"><i>3</i>Results</div>
+            </div>
+
+            <label class="input-label" for="propertyUrl">Property URL</label>
+            <input id="propertyUrl" class="field" type="url" placeholder="Paste property listing URL">
+
+            <label class="input-label" for="country">Select Country</label>
+            <div class="country-picker">
+              <input id="country" class="field" type="text" autocomplete="off" placeholder="Start typing a country…">
+              <div id="countryDropdown" class="country-dropdown hidden"></div>
+            </div>
+            <datalist id="countryOptions">
+              <option value="Albania">Albania</option>
+              <option value="Andorra">Andorra</option>
+              <option value="Argentina">Argentina</option>
+              <option value="Armenia">Armenia</option>
+              <option value="Australia">Australia</option>
+              <option value="Austria">Austria</option>
+              <option value="Azerbaijan">Azerbaijan</option>
+              <option value="Bahamas">Bahamas</option>
+              <option value="Barbados">Barbados</option>
+              <option value="Belarus">Belarus</option>
+              <option value="Belgium">Belgium</option>
+              <option value="Bolivia">Bolivia</option>
+              <option value="Bosnia and Herzegovina">Bosnia and Herzegovina</option>
+              <option value="Brazil">Brazil</option>
+              <option value="Bulgaria">Bulgaria</option>
+              <option value="Cambodia">Cambodia</option>
+              <option value="Canada">Canada</option>
+              <option value="Cayman Islands">Cayman Islands</option>
+              <option value="Chile">Chile</option>
+              <option value="Colombia">Colombia</option>
+              <option value="Croatia">Croatia</option>
+              <option value="Cyprus">Cyprus</option>
+              <option value="Czech Republic">Czech Republic</option>
+              <option value="Denmark">Denmark</option>
+              <option value="Dominican Republic">Dominican Republic</option>
+              <option value="Ecuador">Ecuador</option>
+              <option value="Estonia">Estonia</option>
+              <option value="Finland">Finland</option>
+              <option value="France">France</option>
+              <option value="Georgia">Georgia</option>
+              <option value="Germany">Germany</option>
+              <option value="Greece">Greece</option>
+              <option value="Hungary">Hungary</option>
+              <option value="Iceland">Iceland</option>
+              <option value="India">India</option>
+              <option value="Indonesia">Indonesia</option>
+              <option value="Ireland">Ireland</option>
+              <option value="Israel">Israel</option>
+              <option value="Italy">Italy</option>
+              <option value="Jamaica">Jamaica</option>
+              <option value="Japan">Japan</option>
+              <option value="Kazakhstan">Kazakhstan</option>
+              <option value="Kosovo">Kosovo</option>
+              <option value="Kyrgyzstan">Kyrgyzstan</option>
+              <option value="Latvia">Latvia</option>
+              <option value="Liechtenstein">Liechtenstein</option>
+              <option value="Lithuania">Lithuania</option>
+              <option value="Luxembourg">Luxembourg</option>
+              <option value="Maldives">Maldives</option>
+              <option value="Malta">Malta</option>
+              <option value="Mexico">Mexico</option>
+              <option value="Moldova">Moldova</option>
+              <option value="Monaco">Monaco</option>
+              <option value="Montenegro">Montenegro</option>
+              <option value="Netherlands">Netherlands</option>
+              <option value="New Zealand">New Zealand</option>
+              <option value="North Macedonia">North Macedonia</option>
+              <option value="Norway">Norway</option>
+              <option value="Paraguay">Paraguay</option>
+              <option value="Peru">Peru</option>
+              <option value="Poland">Poland</option>
+              <option value="Portugal">Portugal</option>
+              <option value="Puerto Rico">Puerto Rico</option>
+              <option value="Romania">Romania</option>
+              <option value="Russia">Russia</option>
+              <option value="San Marino">San Marino</option>
+              <option value="Serbia">Serbia</option>
+              <option value="Slovakia">Slovakia</option>
+              <option value="Slovenia">Slovenia</option>
+              <option value="South Korea">South Korea</option>
+              <option value="Spain">Spain</option>
+              <option value="Sri Lanka">Sri Lanka</option>
+              <option value="Sweden">Sweden</option>
+              <option value="Switzerland">Switzerland</option>
+              <option value="Tajikistan">Tajikistan</option>
+              <option value="Thailand">Thailand</option>
+              <option value="Trinidad and Tobago">Trinidad and Tobago</option>
+              <option value="Turkmenistan">Turkmenistan</option>
+              <option value="Ukraine">Ukraine</option>
+              <option value="United Arab Emirates">United Arab Emirates</option>
+              <option value="United Kingdom">United Kingdom</option>
+              <option value="United States">United States</option>
+              <option value="Uruguay">Uruguay</option>
+              <option value="Uzbekistan">Uzbekistan</option>
+              <option value="Vietnam">Vietnam</option>
+            </datalist>
+
+            <label class="input-label" for="city">Property Address / City</label>
+            <input id="city" class="field" type="text" placeholder="Enter address, city or postal code">
+
+            <label class="input-label" for="askingPrice">Asking Price (€)</label>
+            <input id="askingPrice" class="field" type="number" placeholder="176000">
+
+            <label class="input-label" for="size">Property Size (m²)</label>
+            <input id="size" class="field" type="number" placeholder="42">
+
+            <label class="input-label" for="propertyType">Property Type</label>
+            <select id="propertyType" class="field">
+              <option value="Apartment">Apartment</option>
+              <option value="House">House / Villa</option>
+              <option value="Townhouse">Townhouse</option>
+              <option value="Commercial">Commercial (income-producing)</option>
+              <option value="Land">Land (development site)</option>
+            </select>
+
+            <div id="residentialFields">
+              <label class="input-label" for="bedrooms">Bedrooms</label>
+              <input id="bedrooms" class="field" type="number" placeholder="1">
+
+              <label class="input-label" for="bathrooms">Bathrooms</label>
+              <input id="bathrooms" class="field" type="number" placeholder="1">
+
+              <label class="input-label" for="monthlyRent">Estimated Monthly Rent (€)</label>
+              <input id="monthlyRent" class="field" type="number" placeholder="623">
+
+              <label class="input-label" for="airbnbNightlyRate">Airbnb Nightly Rate — optional (€)</label>
+              <input id="airbnbNightlyRate" class="field" type="number" placeholder="e.g. 95">
+              <label class="input-label" for="airbnbOccupancy">Airbnb Occupancy — optional (%)</label>
+              <input id="airbnbOccupancy" class="field" type="number" placeholder="e.g. 70" max="100">
+            </div>
+
+            <!-- Pradixium NOI™ — income-producing commercial property. Hidden
+                 unless propertyType is Commercial (engine.js toggles this). -->
+            <div id="commercialFields" style="display:none">
+              <label class="input-label" for="cGrossRent">Annual Gross Rent (€)</label>
+              <input id="cGrossRent" class="field" type="number" placeholder="e.g. 120000">
+              <label class="input-label" for="cVacancyPct">Vacancy &amp; Credit Loss (%)</label>
+              <input id="cVacancyPct" class="field" type="number" placeholder="e.g. 5" max="100">
+              <label class="input-label" for="cOtherIncome">Other Annual Income — optional (€)</label>
+              <input id="cOtherIncome" class="field" type="number" placeholder="e.g. 3000 (parking, signage...)">
+              <label class="input-label" for="cOpex">Annual Operating Expenses (€)</label>
+              <input id="cOpex" class="field" type="number" placeholder="e.g. 40000">
+              <label class="input-label" for="cLoanAmount">Loan Amount — optional (€)</label>
+              <input id="cLoanAmount" class="field" type="number" placeholder="e.g. 700000">
+              <label class="input-label" for="cLoanRate">Loan Interest Rate — optional (%)</label>
+              <input id="cLoanRate" class="field" type="number" placeholder="e.g. 6.5">
+              <label class="input-label" for="cLoanYears">Loan Term — optional (years)</label>
+              <input id="cLoanYears" class="field" type="number" placeholder="e.g. 20">
+            </div>
+
+            <!-- Pradixium NOI™ — Land Development Pro Forma. Hidden unless
+                 propertyType is Land. "askingPrice" above is the land price. -->
+            <div id="landDevFields" style="display:none">
+              <label class="input-label" for="lPlannedUse">Planned Use</label>
+              <select id="lPlannedUse" class="field">
+                <option value="Multifamily">Multifamily / Residential</option>
+                <option value="Office">Office</option>
+                <option value="Retail">Retail</option>
+                <option value="Industrial">Industrial / Logistics</option>
+                <option value="Mixed-Use">Mixed-Use</option>
+              </select>
+              <label class="input-label" for="lBuildableArea">Planned Buildable Area (m² GBA)</label>
+              <input id="lBuildableArea" class="field" type="number" placeholder="e.g. 2500">
+              <label class="input-label" for="lConstructionCost">Construction Cost (€ / m²)</label>
+              <input id="lConstructionCost" class="field" type="number" placeholder="e.g. 1400">
+              <label class="input-label" for="lSoftCostPct">Soft Costs — optional (% of hard cost)</label>
+              <input id="lSoftCostPct" class="field" type="number" placeholder="e.g. 18">
+              <label class="input-label" for="lMarketRent">Projected Market Rent (€ / m² / year)</label>
+              <input id="lMarketRent" class="field" type="number" placeholder="e.g. 220">
+              <label class="input-label" for="lVacancyPct">Projected Stabilized Vacancy (%)</label>
+              <input id="lVacancyPct" class="field" type="number" placeholder="e.g. 8" max="100">
+              <label class="input-label" for="lOpexPct">Projected Operating Expense Ratio (%)</label>
+              <input id="lOpexPct" class="field" type="number" placeholder="e.g. 35" max="100">
+              <label class="input-label" for="lExitCapRate">Exit / Stabilized Cap Rate (%)</label>
+              <input id="lExitCapRate" class="field" type="number" placeholder="e.g. 6.5">
+              <label class="input-label" for="lDevProfitPct">Required Developer Profit Margin — optional (% of cost)</label>
+              <input id="lDevProfitPct" class="field" type="number" placeholder="e.g. 18">
+            </div>
+
+            <button id="analyzeButton" class="primary" type="button">Analyze Property&nbsp; →</button>
+            <div id="analysisLoadingStatus" class="analysis-loading hidden" aria-live="polite"></div>
+            <div id="error" class="error"></div>
+            <div class="secure">⌕ Secure. Private. No commitment.</div>
+          </section>
+
+          <section class="results-col">
+            <div id="results" class="hidden">
+              <div class="complete">✓ ANALYSIS COMPLETE <span>Independent Property Intelligence</span></div>
+
+              <section class="card property-card">
+                <div class="property-main">
+                  <div class="property-visual" aria-label="Pradixium property intelligence banner">
+                    <img src="data:image/jpeg;base64,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" alt="PRADIXIUM™ — Global Property Intelligence">
+                  </div>
+
+                  <div class="property-info">
+                    <div class="section-title">PROPERTY</div>
+                    <h2 id="propertyAddress">—</h2>
+                    <div class="location">Spain</div>
+
+                    <div class="property-meta">
+                      <span class="beds" id="metaBeds">— beds</span>
+                      <span class="baths" id="metaBaths">— baths</span>
+                      <span class="size" id="metaSize">— m²</span>
+                      <span class="type" id="metaType">—</span>
+                      <span class="pricem2" id="metaPriceM2">— /m²</span>
+                    </div>
+
+                    <div class="property-price-row">
+                      <div><span class="mini-label">ASKING PRICE</span><span class="mini-value" id="displayAskingPrice">—</span></div>
+                      <div><span class="mini-label">PRICE / M²</span><span class="mini-value" id="displayPriceM2">—</span></div>
+                      <div><span class="mini-label">EST. RENT</span><span class="mini-value" id="displayRent">—</span></div>
+                    </div>
+
+                    <p id="propertyMeta" style="display:none">—</p>
+                  </div>
+
+                  <div class="score-panel">
+                    <div class="score-ring">
+                      <div class="score-value" id="scoreNumber">—<small>/100</small></div>
+                    </div>
+                    <div class="score-title">PRADIXIUM SCORE™</div>
+                    <div class="score-badge" id="scoreLabel">—</div>
+                    <div class="score-sub">Investment opportunity</div>
+                  </div>
+                </div>
+
+                <div class="metric-strip">
+                  <div class="metric-box"><small>ESTIMATED FAIR VALUE</small><strong id="fairValue">—</strong><em id="fairValueNote" class="neutral">—</em></div>
+                  <div class="metric-box"><small>ASKING PRICE</small><strong id="stripAsking">—</strong><em id="fairDelta">—</em></div>
+                  <div class="metric-box"><small>ESTIMATED RENT</small><strong id="stripRent">—</strong><em id="annualRent" class="neutral">—</em></div>
+                  <div class="metric-box"><small>GROSS YIELD</small><strong id="grossYield">—</strong><em id="netYield" class="positive">— net</em></div>
+                </div>
+
+                <div class="data-card" style="border:0;border-radius:0;border-top:0">
+                  <div class="metric-strip">
+                    <div class="metric-box"><small>NET YIELD</small><strong id="netYield2">—</strong></div>
+                    <div class="metric-box"><small>DEAL RATING</small><strong id="dealRating">—</strong></div>
+                    <div class="metric-box"><small>CONFIDENCE</small><strong id="confidence">—</strong></div>
+                    <div class="metric-box"><small>SUGGESTED OFFER</small><strong id="suggestedOffer">—</strong></div>
+                  </div>
+                </div>
+                <p id="currencyRiskNote" class="data-note">—</p>
+              </section>
+
+              <section class="card data-card" id="realityCheckSection" style="display:none">
+                <div class="section-title">REALITY CHECK™</div>
+                <div style="text-align:center;margin-bottom:16px">
+                  <span id="realityCheckBadge" class="rc-badge">—</span>
+                  <p style="font-size:12px;font-style:italic;color:#8792a1;margin:10px 0 0">Don't buy the dream. Check the reality.</p>
+                </div>
+                <ul id="realityCheckList" style="list-style:none;margin:0;padding:0"></ul>
+                <p class="data-note">Reality Check™ tests the asking price and the story behind it against the real evidence already gathered above — not a new estimate, not an opinion.</p>
+                <button id="dealDiscoveryBtn" type="button">+ Add to Deal Discovery™</button>
+              </section>
+
+              <!-- Pradixium NOI™ — income-producing commercial. Pure
+                   arithmetic on what the user enters (see engine.js's
+                   computeNOI()) — never a modeled market estimate, same
+                   convention as the Airbnb/Cash-on-Cash calculators. -->
+              <section class="card data-card" id="commercialResultsSection" style="display:none">
+                <div class="section-title">PRADIXIUM NOI™ — COMMERCIAL PROPERTY</div>
+                <div class="metric-strip">
+                  <div class="metric-box"><small>NET OPERATING INCOME (NOI)</small><strong id="noiValue">—</strong></div>
+                  <div class="metric-box"><small>CAP RATE</small><strong id="noiCapRate">—</strong></div>
+                </div>
+                <div class="data-card" style="border:0;border-radius:0;border-top:0">
+                  <div class="metric-strip">
+                    <div class="metric-box"><small>EFFECTIVE GROSS INCOME</small><strong id="noiEgi">—</strong></div>
+                    <div class="metric-box"><small>EXPENSE RATIO</small><strong id="noiExpenseRatio">—</strong></div>
+                    <div class="metric-box"><small>DSCR</small><strong id="noiDscr">—</strong></div>
+                    <div class="metric-box"><small>CASH-ON-CASH</small><strong id="noiCashOnCash">—</strong></div>
+                  </div>
+                </div>
+                <p id="noiScoreNote" class="data-note">—</p>
+                <p class="data-note">NOI = Effective Gross Income − Operating Expenses. Pure arithmetic on the numbers you entered — not a modeled market estimate.</p>
+              </section>
+
+              <!-- Pradixium NOI™ — Land Development Pro Forma. -->
+              <section class="card data-card" id="landDevResultsSection" style="display:none">
+                <div class="section-title">PRADIXIUM NOI™ — LAND DEVELOPMENT PRO FORMA</div>
+                <div class="metric-strip">
+                  <div class="metric-box"><small>PROJECTED STABILIZED NOI</small><strong id="devStabilizedNoi">—</strong></div>
+                  <div class="metric-box"><small>YIELD ON COST</small><strong id="devYieldOnCost">—</strong></div>
+                </div>
+                <div class="data-card" style="border:0;border-radius:0;border-top:0">
+                  <div class="metric-strip">
+                    <div class="metric-box"><small>TOTAL DEVELOPMENT COST</small><strong id="devTotalCost">—</strong></div>
+                    <div class="metric-box"><small>DEVELOPMENT SPREAD</small><strong id="devSpread">—</strong></div>
+                    <div class="metric-box"><small>PROJECTED VALUE AT STABILIZATION</small><strong id="devProjectedValue">—</strong></div>
+                    <div class="metric-box"><small>RESIDUAL LAND VALUE</small><strong id="devResidualLandValue">—</strong></div>
+                  </div>
+                </div>
+                <p id="devLandGapNote" class="data-note">—</p>
+                <p class="data-note">Residual Land Value = what this development can actually justify paying for the land, given your assumptions and target return — compare it to the asking price above. Development Spread = Yield on Cost minus your Exit Cap Rate; developers typically want at least 1.5–2.5 percentage points of spread to justify the risk of building instead of buying a stabilized asset. All figures are pure arithmetic on your own assumptions (construction cost, timeline, rents) — not verified market data.</p>
+              </section>
+
+              <section class="card data-card">
+                <div class="section-title">MARKET EVIDENCE</div>
+
+                <div class="metric-strip">
+                  <div class="metric-box"><small id="benchmarkLabel">MARKET BENCHMARK</small><strong id="governmentBenchmark">—</strong></div>
+                  <div class="metric-box"><small>GOVERNMENT VALUE</small><strong id="governmentValue">—</strong></div>
+                  <div class="metric-box"><small>ASKING VS MARKET</small><strong id="governmentGap">—</strong></div>
+                  <div class="metric-box"><small>TRANSACTION VALUE</small><strong id="transactionValue">—</strong></div>
+                </div>
+
+                <div class="two-col">
+                  <div class="card" style="padding:10px"><span class="mini-label">TRANSACTION PERIOD</span><strong id="transactionPeriod">—</strong></div>
+                  <div class="card" style="padding:10px"><span class="mini-label">MARKET AREA</span><strong id="marketArea">—</strong></div>
+                </div>
+
+                <p id="marketSource" class="data-note">Official market evidence.</p>
+              </section>
+
+              <section class="card data-card" id="comparableSalesSection" style="display:none">
+                <div class="section-title">RECENT COMPARABLE SALES</div>
+                <table class="comps-table">
+                  <thead><tr><th>Location</th><th>Type</th><th>Price</th><th>Date</th></tr></thead>
+                  <tbody id="comparableSalesBody"></tbody>
+                </table>
+                <p class="data-note">Real nearby transactions, same property type — not a modeled estimate. Individual sales vary by condition, floor and exact location.</p>
+              </section>
+
+              <section class="card data-card">
+                <div class="section-title">DEMAND INTELLIGENCE</div>
+
+                <div class="metric-strip">
+                  <div class="metric-box"><small>FOREIGN BUYER SHARE</small><strong id="demandForeignShare">—</strong></div>
+                  <div class="metric-box"><small>DEMAND STRENGTH</small><strong id="demandStrength">—</strong></div>
+                  <div class="metric-box"><small>DEMAND GEOGRAPHY</small><strong id="demandGeography">—</strong></div>
+                  <div class="metric-box"><small>REFERENCE PERIOD</small><strong id="demandPeriod">—</strong></div>
+                </div>
+
+                <div class="demand-bar"><div id="demandBar"></div></div>
+
+                <p id="demandText" class="data-note">International buyer demand intelligence will appear here.</p>
+
+                <div class="demand-foot">
+                  <span>SOURCE: <strong id="demandSource">—</strong></span>
+                  <span>DATA LEVEL: <strong id="demandLevel">—</strong></span>
+                </div>
+
+                <div class="section-title buyer-origin-title">TOP BUYER MARKETS</div>
+
+                <div class="metric-strip">
+                  <div class="metric-box"><small>NETHERLANDS</small><strong id="buyerNetherlands">—</strong></div>
+                  <div class="metric-box"><small>UNITED KINGDOM</small><strong id="buyerUnitedKingdom">—</strong></div>
+                  <div class="metric-box"><small>BELGIUM</small><strong id="buyerBelgium">—</strong></div>
+                  <div class="metric-box"><small>REFERENCE</small><strong id="buyerOriginPeriod">—</strong></div>
+                </div>
+
+                <p id="buyerOriginText" class="data-note">International buyer origin intelligence will appear here.</p>
+              </section>
+
+              <section class="card data-card" id="foreignAccessSection" style="display:none">
+                <div class="section-title">FOREIGN BUYER ACCESS™</div>
+
+                <div class="metric-strip">
+                  <div class="metric-box"><small>ACCESS STATUS</small><strong id="foreignAccessStatus">—</strong></div>
+                  <div class="metric-box"><small>EXTRA COST FOR FOREIGNERS</small><strong id="foreignAccessCost">—</strong></div>
+                </div>
+
+                <p id="foreignAccessText" class="data-note">—</p>
+                <p id="foreignAccessSource" class="data-note">—</p>
+                <p class="data-note"><a id="foreignAccessSeeAll" href="/foreign-buyer-check.html" style="color:#2463f5">See all 20 countries →</a></p>
+              </section>
+
+              <section class="card data-card" id="closingCostsSection" style="display:none">
+                <div class="section-title">ESTIMATED TAXES &amp; CLOSING COSTS</div>
+
+                <div class="metric-strip">
+                  <div class="metric-box"><small>TRANSFER TAX / STAMP DUTY</small><strong id="closingCostsTax">—</strong></div>
+                  <div class="metric-box"><small>TOTAL ESTIMATED</small><strong id="closingCostsTotal">—</strong></div>
+                </div>
+
+                <p id="closingCostsFees" class="data-note">—</p>
+                <p id="closingCostsAgency" class="data-note">—</p>
+                <p id="closingCostsSource" class="data-note">—</p>
+              </section>
+
+              <section class="card data-card" id="propertyTaxSection" style="display:none">
+                <div class="section-title">ANNUAL PROPERTY TAX</div>
+
+                <div class="metric-strip">
+                  <div class="metric-box"><small>ESTIMATED ANNUAL TAX</small><strong id="propertyTaxRate">—</strong></div>
+                </div>
+
+                <p id="propertyTaxBasis" class="data-note">—</p>
+                <p id="propertyTaxSource" class="data-note">—</p>
+              </section>
+
+              <section class="card data-card" id="currencyControlsSection" style="display:none">
+                <div class="section-title">CURRENCY &amp; CAPITAL TRANSFER CONTROLS</div>
+
+                <div class="metric-strip">
+                  <div class="metric-box"><small>STATUS</small><strong id="currencyControlsStatus">—</strong></div>
+                  <div class="metric-box"><small>APPROVAL REQUIRED</small><strong id="currencyControlsApproval">—</strong></div>
+                </div>
+
+                <p id="currencyControlsLimit" class="data-note">—</p>
+                <p id="currencyControlsText" class="data-note">—</p>
+                <p id="currencyControlsSource" class="data-note">—</p>
+              </section>
+
+              <section class="info-grid">
+                <div class="card info-card">
+                  <div class="section-title">INVESTMENT HIGHLIGHTS</div>
+                  <ul id="highlights">
+                    <li>Analysis highlights will appear here.</li>
+                  </ul>
+                </div>
+
+                <div class="card info-card risks">
+                  <div class="section-title">KEY RISKS</div>
+                  <ul id="risks">
+                    <li>Investment risks will appear here.</li>
+                  </ul>
+                </div>
+
+                <div class="card info-card action">
+                  <div class="section-title">INVESTOR ACTION</div>
+                  <p id="investorAction" class="action-text">Investment action will appear here.</p>
+                  <button id="createReportBtn" class="primary" type="button">View Full Analysis&nbsp; →</button>
+                  <button id="subscribeReportBtn" class="primary" type="button" style="display:none;margin-top:10px;background:#172131">Start 7-Day Free Trial — then $299/year&nbsp; →</button>
+                  <button id="businessSubscribeBtn" class="primary" type="button" style="display:none;margin-top:10px;background:#fff;color:#2463f5;border:1px solid #2463f5">For Companies &amp; Institutions — $299/month&nbsp; →</button>
+                </div>
+              </section>
+            </div>
+          </section>
+        </div>
+
+        <footer><span class="footer-cs"><a href="mailto:cs@pradixium.com">cs@pradixium.com</a></span><span id="footerText">PRADIXIUM™ — GLOBAL PROPERTY INTELLIGENCE</span><span class="footer-tool"><a href="/foreign-buyer-check.html">Can Foreigners Buy Property Here? Free Checker</a> · <a href="/guides/index.html">Country Guides</a> · <a href="/mockups/index.html">Business Solutions</a> · <a href="/partners.html">Partner Program</a> · <a href="/terms.html">Terms</a> · <a href="/privacy-policy.html">Privacy</a></span></footer>
+      </main>
+    </div>
+  </div>
+
+  <script src="engine.js"></script>
+  <script>
+    (() => {
+      const translations = {
+        en:{dashboard:'Dashboard',analyze:'Analyze',saved:'Saved Properties',comparisons:'Comparisons',insights:'Market Insights',download:'Download Report',analyzeProperty:'Analyze Property',property:'Property',market:'Market',results:'Results',propertyUrl:'Property URL',urlPlaceholder:'Paste property listing URL',country:'Select Country',city:'Property Address / City',cityPlaceholder:'Enter address, city or postal code',askingPrice:'Asking Price (€)',bedrooms:'Bedrooms',bathrooms:'Bathrooms',size:'Size (m²)',rent:'Monthly Rent (€)',condition:'Property Condition',complete:'Analysis Complete',fullAnalysis:'View Full Analysis',investorAction:'INVESTOR ACTION',highlights:'INVESTMENT HIGHLIGHTS',risks:'KEY RISKS',footer:'PRADIXIUM™ — GLOBAL PROPERTY INTELLIGENCE',account:'Account',profile:'Profile',signOut:'Sign Out',createAccount:'Create Account',signIn:'Sign In',close:'Close',printSave:'Print / Save PDF',analyzeFirst:'Please analyze a property first.'},
+        es:{dashboard:'Panel',analyze:'Analizar',saved:'Propiedades guardadas',comparisons:'Comparaciones',insights:'Información del mercado',download:'Descargar informe',analyzeProperty:'Analizar propiedad',property:'Propiedad',market:'Mercado',results:'Resultados',propertyUrl:'URL de la propiedad',urlPlaceholder:'Pega la URL del anuncio',country:'Seleccionar país',city:'Dirección / ciudad',cityPlaceholder:'Introduce dirección, ciudad o código postal',askingPrice:'Precio solicitado (€)',bedrooms:'Dormitorios',bathrooms:'Baños',size:'Tamaño (m²)',rent:'Alquiler mensual (€)',condition:'Estado de la propiedad',complete:'Análisis completado',fullAnalysis:'Ver análisis completo',investorAction:'ACCIÓN DEL INVERSOR',highlights:'ASPECTOS DESTACADOS DE LA INVERSIÓN',risks:'RIESGOS CLAVE',footer:'PRADIXIUM™ — INTELIGENCIA INMOBILIARIA GLOBAL',account:'Cuenta',profile:'Perfil',signOut:'Cerrar sesión',createAccount:'Crear cuenta',signIn:'Iniciar sesión',close:'Cerrar',printSave:'Imprimir / Guardar PDF',analyzeFirst:'Analiza primero una propiedad.'},
+        fr:{dashboard:'Tableau de bord',analyze:'Analyser',saved:'Biens enregistrés',comparisons:'Comparaisons',insights:'Marché',download:'Télécharger le rapport',analyzeProperty:'Analyser le bien',property:'Bien',market:'Marché',results:'Résultats',propertyUrl:'URL du bien',urlPlaceholder:"Collez l’URL de l’annonce",country:'Sélectionner le pays',city:'Adresse / ville',cityPlaceholder:'Saisissez une adresse, ville ou code postal',askingPrice:'Prix demandé (€)',bedrooms:'Chambres',bathrooms:'Salles de bain',size:'Surface (m²)',rent:'Loyer mensuel (€)',condition:'État du bien',complete:'Analyse terminée',fullAnalysis:'Voir l’analyse complète',investorAction:'ACTION INVESTISSEUR',highlights:'POINTS FORTS DE L’INVESTISSEMENT',risks:'RISQUES CLÉS',footer:'PRADIXIUM™ — INTELLIGENCE IMMOBILIÈRE MONDIALE',account:'Compte',profile:'Profil',signOut:'Déconnexion',createAccount:'Créer un compte',signIn:'Se connecter',close:'Fermer',printSave:'Imprimer / Enregistrer PDF',analyzeFirst:'Analysez d’abord un bien.'},
+        it:{dashboard:'Dashboard',analyze:'Analizza',saved:'Proprietà salvate',comparisons:'Confronti',insights:'Mercato',download:'Scarica report',analyzeProperty:'Analizza proprietà',property:'Proprietà',market:'Mercato',results:'Risultati',propertyUrl:'URL proprietà',urlPlaceholder:"Incolla l’URL dell’annuncio",country:'Seleziona paese',city:'Indirizzo / città',cityPlaceholder:'Inserisci indirizzo, città o CAP',askingPrice:'Prezzo richiesto (€)',bedrooms:'Camere',bathrooms:'Bagni',size:'Superficie (m²)',rent:'Affitto mensile (€)',condition:'Condizioni della proprietà',complete:'Analisi completata',fullAnalysis:'Visualizza analisi completa',investorAction:'AZIONE INVESTITORE',highlights:'PUNTI DI FORZA DELL’INVESTIMENTO',risks:'RISCHI PRINCIPALI',footer:'PRADIXIUM™ — INTELLIGENZA IMMOBILIARE GLOBALE',account:'Account',profile:'Profilo',signOut:'Esci',createAccount:'Crea account',signIn:'Accedi',close:'Chiudi',printSave:'Stampa / Salva PDF',analyzeFirst:'Analizza prima una proprietà.'},
+        de:{dashboard:'Dashboard',analyze:'Analysieren',saved:'Gespeicherte Immobilien',comparisons:'Vergleiche',insights:'Marktinformationen',download:'Bericht herunterladen',analyzeProperty:'Immobilie analysieren',property:'Immobilie',market:'Markt',results:'Ergebnisse',propertyUrl:'Immobilien-URL',urlPlaceholder:'Inserats-URL einfügen',country:'Land auswählen',city:'Adresse / Stadt',cityPlaceholder:'Adresse, Stadt oder Postleitzahl eingeben',askingPrice:'Angebotspreis (€)',bedrooms:'Schlafzimmer',bathrooms:'Badezimmer',size:'Größe (m²)',rent:'Monatliche Miete (€)',condition:'Zustand der Immobilie',complete:'Analyse abgeschlossen',fullAnalysis:'Vollständige Analyse anzeigen',investorAction:'INVESTORENAKTION',highlights:'INVESTITIONSHIGHLIGHTS',risks:'WICHTIGE RISIKEN',footer:'PRADIXIUM™ — GLOBALE IMMOBILIENINTELLIGENZ',account:'Konto',profile:'Profil',signOut:'Abmelden',createAccount:'Konto erstellen',signIn:'Anmelden',close:'Schließen',printSave:'Drucken / PDF speichern',analyzeFirst:'Bitte zuerst eine Immobilie analysieren.'},
+        nl:{dashboard:'Dashboard',analyze:'Analyseren',saved:'Opgeslagen woningen',comparisons:'Vergelijkingen',insights:'Marktinformatie',download:'Rapport downloaden',analyzeProperty:'Woning analyseren',property:'Woning',market:'Markt',results:'Resultaten',propertyUrl:'Woning-URL',urlPlaceholder:'Plak de URL van de advertentie',country:'Land selecteren',city:'Adres / stad',cityPlaceholder:'Voer adres, stad of postcode in',askingPrice:'Vraagprijs (€)',bedrooms:'Slaapkamers',bathrooms:'Badkamers',size:'Oppervlakte (m²)',rent:'Maandelijkse huur (€)',condition:'Staat van de woning',complete:'Analyse voltooid',fullAnalysis:'Volledige analyse bekijken',investorAction:'INVESTEERDERSACTIE',highlights:'INVESTERINGSHOOGTEPUNTEN',risks:'BELANGRIJKSTE RISICO’S',footer:'PRADIXIUM™ — GLOBALE VASTGOEDINTELLIGENTIE',account:'Account',profile:'Profiel',signOut:'Uitloggen',createAccount:'Account aanmaken',signIn:'Inloggen',close:'Sluiten',printSave:'Afdrukken / PDF opslaan',analyzeFirst:'Analyseer eerst een woning.'},
+        vlaams:{dashboard:'Dashboard',analyze:'Analyseren',saved:'Bewaarde panden',comparisons:'Vergelijkingen',insights:'Marktinformatie',download:'Rapport downloaden',analyzeProperty:'Pand analyseren',property:'Pand',market:'Markt',results:'Resultaten',propertyUrl:'URL van het pand',urlPlaceholder:'Plak de URL van de advertentie',country:'Land kiezen',city:'Adres / gemeente',cityPlaceholder:'Geef adres, gemeente of postcode in',askingPrice:'Vraagprijs (€)',bedrooms:'Slaapkamers',bathrooms:'Badkamers',size:'Oppervlakte (m²)',rent:'Maandelijkse huur (€)',condition:'Staat van het pand',complete:'Analyse voltooid',fullAnalysis:'Volledige analyse bekijken',investorAction:'ACTIE VOOR DE INVESTEERDER',highlights:'INVESTERINGSHOOGTEPUNTEN',risks:'BELANGRIJKSTE RISICO’S',footer:'PRADIXIUM™ — GLOBALE VASTGOEDINTELLIGENTIE',account:'Account',profile:'Profiel',signOut:'Afmelden',createAccount:'Account aanmaken',signIn:'Aanmelden',close:'Sluiten',printSave:'Afdrukken / PDF bewaren',analyzeFirst:'Analyseer eerst een pand.'},
+        pt:{dashboard:'Painel',analyze:'Analisar',saved:'Imóveis guardados',comparisons:'Comparações',insights:'Informação de mercado',download:'Descarregar relatório',analyzeProperty:'Analisar imóvel',property:'Imóvel',market:'Mercado',results:'Resultados',propertyUrl:'URL do imóvel',urlPlaceholder:'Cole o URL do anúncio',country:'Selecionar país',city:'Morada / cidade',cityPlaceholder:'Introduza morada, cidade ou código postal',askingPrice:'Preço pedido (€)',bedrooms:'Quartos',bathrooms:'Casas de banho',size:'Área (m²)',rent:'Renda mensal (€)',condition:'Estado do imóvel',complete:'Análise concluída',fullAnalysis:'Ver análise completa',investorAction:'AÇÃO DO INVESTIDOR',highlights:'DESTAQUES DO INVESTIMENTO',risks:'RISCOS PRINCIPAIS',footer:'PRADIXIUM™ — INTELIGÊNCIA IMOBILIÁRIA GLOBAL',account:'Conta',profile:'Perfil',signOut:'Terminar sessão',createAccount:'Criar conta',signIn:'Iniciar sessão',close:'Fechar',printSave:'Imprimir / Guardar PDF',analyzeFirst:'Analise primeiro um imóvel.'},
+        sv:{dashboard:'Översikt',analyze:'Analysera',saved:'Sparade objekt',comparisons:'Jämförelser',insights:'Marknadsinsikter',download:'Ladda ner rapport',analyzeProperty:'Analysera fastighet',property:'Fastighet',market:'Marknad',results:'Resultat',propertyUrl:'Fastighetens URL',urlPlaceholder:'Klistra in annonsens URL',country:'Välj land',city:'Adress / stad',cityPlaceholder:'Ange adress, stad eller postnummer',askingPrice:'Begärt pris (€)',bedrooms:'Sovrum',bathrooms:'Badrum',size:'Storlek (m²)',rent:'Månadshyra (€)',condition:'Fastighetens skick',complete:'Analys klar',fullAnalysis:'Visa fullständig analys',investorAction:'INVESTERARÅTGÄRD',highlights:'INVESTERINGENS HÖJDPUNKTER',risks:'VIKTIGA RISKER',footer:'PRADIXIUM™ — GLOBAL FASTIGHETSINTELLIGENS',account:'Konto',profile:'Profil',signOut:'Logga ut',createAccount:'Skapa konto',signIn:'Logga in',close:'Stäng',printSave:'Skriv ut / Spara PDF',analyzeFirst:'Analysera en fastighet först.'},
+        da:{dashboard:'Dashboard',analyze:'Analysér',saved:'Gemte ejendomme',comparisons:'Sammenligninger',insights:'Markedsindsigt',download:'Hent rapport',analyzeProperty:'Analysér ejendom',property:'Ejendom',market:'Marked',results:'Resultater',propertyUrl:'Ejendommens URL',urlPlaceholder:'Indsæt annonce-URL',country:'Vælg land',city:'Adresse / by',cityPlaceholder:'Indtast adresse, by eller postnummer',askingPrice:'Udbudspris (€)',bedrooms:'Soveværelser',bathrooms:'Badeværelser',size:'Størrelse (m²)',rent:'Månedlig leje (€)',condition:'Ejendommens stand',complete:'Analyse gennemført',fullAnalysis:'Se fuld analyse',investorAction:'INVESTORHANDLING',highlights:'INVESTERINGSHØJDEPUNKTER',risks:'VIGTIGE RISICI',footer:'PRADIXIUM™ — GLOBAL EJENDOMSINTELLIGENS',account:'Konto',profile:'Profil',signOut:'Log ud',createAccount:'Opret konto',signIn:'Log ind',close:'Luk',printSave:'Udskriv / Gem PDF',analyzeFirst:'Analysér en ejendom først.'},
+        no:{dashboard:'Dashbord',analyze:'Analyser',saved:'Lagrede eiendommer',comparisons:'Sammenligninger',insights:'Markedsinnsikt',download:'Last ned rapport',analyzeProperty:'Analyser eiendom',property:'Eiendom',market:'Marked',results:'Resultater',propertyUrl:'Eiendommens URL',urlPlaceholder:'Lim inn URL til annonsen',country:'Velg land',city:'Adresse / by',cityPlaceholder:'Skriv inn adresse, by eller postnummer',askingPrice:'Pris (€)',bedrooms:'Soverom',bathrooms:'Bad',size:'Størrelse (m²)',rent:'Månedlig leie (€)',condition:'Eiendommens tilstand',complete:'Analyse fullført',fullAnalysis:'Vis full analyse',investorAction:'INVESTORHANDLING',highlights:'INVESTERINGSHØYDEPUNKTER',risks:'VIKTIGE RISIKOER',footer:'PRADIXIUM™ — GLOBAL EIENDOMSINTELLIGENS',account:'Konto',profile:'Profil',signOut:'Logg ut',createAccount:'Opprett konto',signIn:'Logg inn',close:'Lukk',printSave:'Skriv ut / Lagre PDF',analyzeFirst:'Analyser en eiendom først.'},
+        pl:{dashboard:'Panel',analyze:'Analizuj',saved:'Zapisane nieruchomości',comparisons:'Porównania',insights:'Informacje rynkowe',download:'Pobierz raport',analyzeProperty:'Analizuj nieruchomość',property:'Nieruchomość',market:'Rynek',results:'Wyniki',propertyUrl:'URL nieruchomości',urlPlaceholder:'Wklej URL ogłoszenia',country:'Wybierz kraj',city:'Adres / miasto',cityPlaceholder:'Wpisz adres, miasto lub kod pocztowy',askingPrice:'Cena ofertowa (€)',bedrooms:'Sypialnie',bathrooms:'Łazienki',size:'Powierzchnia (m²)',rent:'Miesięczny czynsz (€)',condition:'Stan nieruchomości',complete:'Analiza zakończona',fullAnalysis:'Wyświetl pełną analizę',investorAction:'DZIAŁANIE INWESTORA',highlights:'NAJWAŻNIEJSZE INFORMACJE INWESTYCYJNE',risks:'GŁÓWNE RYZYKA',footer:'PRADIXIUM™ — GLOBALNA INTELIGENCJA NIERUCHOMOŚCI',account:'Konto',profile:'Profil',signOut:'Wyloguj',createAccount:'Utwórz konto',signIn:'Zaloguj się',close:'Zamknij',printSave:'Drukuj / Zapisz PDF',analyzeFirst:'Najpierw przeanalizuj nieruchomość.'},
+        fi:{dashboard:'Kojelauta',analyze:'Analysoi',saved:'Tallennetut kohteet',comparisons:'Vertailut',insights:'Markkinatiedot',download:'Lataa raportti',analyzeProperty:'Analysoi kohde',property:'Kohde',market:'Markkina',results:'Tulokset',propertyUrl:'Kohteen URL',urlPlaceholder:'Liitä ilmoituksen URL',country:'Valitse maa',city:'Osoite / kaupunki',cityPlaceholder:'Anna osoite, kaupunki tai postinumero',askingPrice:'Pyyntihinta (€)',bedrooms:'Makuuhuoneet',bathrooms:'Kylpyhuoneet',size:'Koko (m²)',rent:'Kuukausivuokra (€)',condition:'Kohteen kunto',complete:'Analyysi valmis',fullAnalysis:'Näytä koko analyysi',investorAction:'SIJOITTAJAN TOIMINTA',highlights:'SIJOITUKSEN KOHOKOHDAT',risks:'KESKEISET RISKIT',footer:'PRADIXIUM™ — GLOBAALI KIINTEISTÖÄLY',account:'Tili',profile:'Profiili',signOut:'Kirjaudu ulos',createAccount:'Luo tili',signIn:'Kirjaudu sisään',close:'Sulje',printSave:'Tulosta / Tallenna PDF',analyzeFirst:'Analysoi ensin kiinteistö.'},
+        zh:{dashboard:'仪表盘',analyze:'分析',saved:'已保存房产',comparisons:'比较',insights:'市场洞察',download:'下载报告',analyzeProperty:'分析房产',property:'房产',market:'市场',results:'结果',propertyUrl:'房产网址',urlPlaceholder:'粘贴房产信息网址',country:'选择国家',city:'房产地址 / 城市',cityPlaceholder:'输入地址、城市或邮政编码',askingPrice:'要价 (€)',bedrooms:'卧室',bathrooms:'浴室',size:'面积 (m²)',rent:'月租 (€)',condition:'房产状况',complete:'分析完成',fullAnalysis:'查看完整分析',investorAction:'投资者行动',highlights:'投资亮点',risks:'主要风险',footer:'PRADIXIUM™ — 全球房地产智能',account:'账户',profile:'个人资料',signOut:'退出登录',createAccount:'创建账户',signIn:'登录',close:'关闭',printSave:'打印 / 保存 PDF',analyzeFirst:'请先分析一套房产。'},
+        ru:{dashboard:'Панель',analyze:'Анализ',saved:'Сохранённые объекты',comparisons:'Сравнения',insights:'Обзор рынка',download:'Скачать отчёт',analyzeProperty:'Анализ недвижимости',property:'Недвижимость',market:'Рынок',results:'Результаты',propertyUrl:'URL объекта',urlPlaceholder:'Вставьте URL объявления',country:'Выберите страну',city:'Адрес / город',cityPlaceholder:'Введите адрес, город или индекс',askingPrice:'Цена предложения (€)',bedrooms:'Спальни',bathrooms:'Ванные комнаты',size:'Площадь (м²)',rent:'Месячная аренда (€)',condition:'Состояние объекта',complete:'Анализ завершён',fullAnalysis:'Полный анализ',investorAction:'ДЕЙСТВИЕ ИНВЕСТОРА',highlights:'ОСНОВНЫЕ ПРЕИМУЩЕСТВА',risks:'КЛЮЧЕВЫЕ РИСКИ',footer:'PRADIXIUM™ — ГЛОБАЛЬНАЯ ИНТЕЛЛЕКТУАЛЬНАЯ НЕДВИЖИМОСТЬ',account:'Аккаунт',profile:'Профиль',signOut:'Выйти',createAccount:'Создать аккаунт',signIn:'Войти',close:'Закрыть',printSave:'Печать / Сохранить PDF',analyzeFirst:'Сначала проанализируйте объект.'},
+        he:{dashboard:'לוח בקרה',analyze:'ניתוח',saved:'נכסים שמורים',comparisons:'השוואות',insights:'תובנות שוק',download:'הורדת דוח',analyzeProperty:'ניתוח נכס',property:'נכס',market:'שוק',results:'תוצאות',propertyUrl:'כתובת URL של הנכס',urlPlaceholder:'הדבק קישור למודעת הנכס',country:'בחר מדינה',city:'כתובת / עיר',cityPlaceholder:'הזן כתובת, עיר או מיקוד',askingPrice:'מחיר מבוקש (€)',bedrooms:'חדרי שינה',bathrooms:'חדרי רחצה',size:'גודל (מ״ר)',rent:'שכירות חודשית (€)',condition:'מצב הנכס',complete:'הניתוח הושלם',fullAnalysis:'צפה בניתוח המלא',investorAction:'פעולת משקיע',highlights:'נקודות חוזק להשקעה',risks:'סיכונים מרכזיים',footer:'PRADIXIUM™ — בינת נדל״ן גלובלי',account:'חשבון',profile:'פרופיל',signOut:'התנתק',createAccount:'צור חשבון',signIn:'התחבר',close:'סגור',printSave:'הדפסה / שמירת PDF',analyzeFirst:'יש לנתח נכס תחילה.'}
+      };
+
+      const languageSelect = document.getElementById('languageSelect');
+      const getLang = () => localStorage.getItem('pradixiumLanguage') || 'en';
+      const T = key => (translations[getLang()] && translations[getLang()][key]) || translations.en[key] || key;
+      window.pradixiumT = T;
+
+      function applyLanguage() {
+        const lang = getLang();
+        document.documentElement.lang = lang === 'vlaams' ? 'nl-BE' : lang;
+        document.documentElement.dir = lang === 'he' ? 'rtl' : 'ltr';
+        if (languageSelect) languageSelect.value = lang;
+        const text = {
+          '.topnav a:nth-child(1) .nav-label':'dashboard','.topnav a:nth-child(2) .nav-label':'analyze','.topnav a:nth-child(3) .nav-label':'saved','.topnav a:nth-child(4) .nav-label':'comparisons','.topnav a:nth-child(5) .nav-label':'insights',
+          '#headerReportBtn':'download','.input-card .section-title':'analyzeProperty','.step:nth-child(1)':'property','.step:nth-child(2)':'market','.step:nth-child(3)':'results',
+          'label[for="propertyUrl"]':'propertyUrl','label[for="country"]':'country','label[for="city"]':'city','label[for="askingPrice"]':'askingPrice','label[for="bedrooms"]':'bedrooms','label[for="bathrooms"]':'bathrooms','label[for="size"]':'size','label[for="rent"]':'rent','label[for="condition"]':'condition',
+          '#createReportBtn':'fullAnalysis','.action .section-title':'investorAction','#highlights + *':'highlights'
+        };
+        Object.entries(text).forEach(([selector,key])=>{document.querySelectorAll(selector).forEach(el=>{el.textContent=T(key);});});
+        const inputs={propertyUrl:'urlPlaceholder',city:'cityPlaceholder'};
+        Object.entries(inputs).forEach(([id,key])=>{const el=document.getElementById(id);if(el)el.placeholder=T(key);});
+        const footer=document.getElementById('footerText'); if(footer) footer.textContent=T('footer');
+        const complete=document.querySelector('.status-line .ok'); if(complete) complete.textContent='✓ '+T('complete');
+        // accountName text is owned by auth-supabase.js (it reflects sign-in state); not touched here.
+        const profile=document.getElementById('accountProfileBtn'); if(profile) profile.textContent=T('profile');
+        const logout=document.getElementById('accountLogoutBtn'); if(logout) logout.textContent=T('signOut');
+        const authTitle=document.getElementById('authTitle'),authSubtitle=document.getElementById('authSubtitle'),signUp=document.getElementById('signUpTab'),signIn=document.getElementById('signInTab');
+        if(authTitle && signUp.classList.contains('active')) authTitle.textContent=T('createAccount');
+        if(signUp) signUp.textContent=T('createAccount'); if(signIn) signIn.textContent=T('signIn');
+      }
+
+      const savedLanguage = getLang();
+      if (languageSelect) {
+        languageSelect.value = savedLanguage;
+        languageSelect.addEventListener('change', () => { localStorage.setItem('pradixiumLanguage', languageSelect.value); applyLanguage(); });
+      }
+      applyLanguage();
+
+      // NOTE: Auth (signup/signin/logout/account menu) is now handled
+      // exclusively by /auth-supabase.js — do not duplicate handlers here.
+    })();
+  </script>
+
+  <script>
+    /*
+     * PRADIXIUM UI SYNC
+     * Important: this uses guarded DOM updates so the MutationObserver
+     * cannot trigger itself indefinitely and freeze the form.
+     */
+    (function () {
+      let syncing = false;
+
+      const get = (id) => document.getElementById(id);
+
+      const setIfChanged = (element, value) => {
+        if (!element || element.textContent === value) return false;
+        element.textContent = value;
+        return true;
+      };
+
+      const sync = () => {
+        if (syncing) return;
+        syncing = true;
+
+        try {
+          const country = get('country');
+          const countryName = country ? country.value : 'Spain';
+
+          [
+            ['bedrooms', 'metaBeds', ' beds'],
+            ['bathrooms', 'metaBaths', ' baths'],
+            ['size', 'metaSize', ' m²']
+          ].forEach(([inputId, outputId, suffix]) => {
+            const input = get(inputId);
+            const output = get(outputId);
+
+            if (input && output && input.value) {
+              setIfChanged(output, input.value + suffix);
+            }
+          });
+
+          const city = get('city');
+          const location = document.querySelector('.location');
+
+          if (city && location && city.value.trim()) {
+            setIfChanged(
+              location,
+              city.value.trim() + ', ' + countryName
+            );
+          }
+
+          const type = window.pradixiumPropertyType || 'Apartment';
+          setIfChanged(get('metaType'), type);
+
+          const asking = get('displayAskingPrice');
+          const stripAsking = get('stripAsking');
+
+          if (asking && stripAsking && asking.textContent !== '—') {
+            setIfChanged(stripAsking, asking.textContent);
+          }
+
+          const rent = get('displayRent');
+          const stripRent = get('stripRent');
+
+          if (rent && stripRent && rent.textContent !== '—') {
+            setIfChanged(stripRent, rent.textContent);
+          }
+
+          const fairValue = get('fairValue');
+          const fairValueNote = get('fairValueNote');
+
+          if (
+            fairValue &&
+            fairValueNote &&
+            fairValue.textContent !== '—'
+          ) {
+            setIfChanged(
+              fairValueNote,
+              'Pradixium Fair Value™'
+            );
+          }
+
+          const netYield = get('netYield');
+          const netYield2 = get('netYield2');
+
+          if (
+            netYield &&
+            netYield2 &&
+            netYield.textContent !== '— net'
+          ) {
+            setIfChanged(
+              netYield2,
+              netYield.textContent.replace(' net', '')
+            );
+          }
+        } finally {
+          syncing = false;
+        }
+      };
+
+      /*
+       * Header report button.
+       */
+      const headerReportBtn = get('headerReportBtn');
+
+      if (headerReportBtn) {
+        headerReportBtn.addEventListener('click', function (event) {
+          event.preventDefault();
+
+          const reportBtn = get('createReportBtn');
+          if (reportBtn) reportBtn.click();
+        });
+      }
+
+      /*
+       * Live field updates.
+       * Do not interfere with focus, typing, paste or touch input.
+       */
+      [
+        'country',
+        'bedrooms',
+        'bathrooms',
+        'size',
+        'city',
+        'propertyUrl',
+        'askingPrice',
+        'monthlyRent'
+      ].forEach((id) => {
+        const element = get(id);
+
+        if (element) {
+          element.addEventListener('input', sync);
+          element.addEventListener('change', sync);
+        }
+      });
+
+      /*
+       * Watch result rendering, but only perform guarded/changed updates.
+       * This is the critical fix for the frozen page.
+       */
+      const results = get('results');
+
+      if (results && window.MutationObserver) {
+        const observer = new MutationObserver(() => {
+          sync();
+        });
+
+        observer.observe(results, {
+          attributes: true,
+          subtree: true,
+          childList: true
+        });
+      }
+
+      sync();
+    })();
+  </script>
+  <!-- Supabase client (auth) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/supabase-config.js?v=2"></script>
+  <script src="/auth-supabase.js?v=2" defer></script>
+  <script src="/pradixium-chat.js" defer></script>
+
+</body>
+</html>
