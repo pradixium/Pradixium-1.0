@@ -202,6 +202,34 @@ const COUNTRY_ENDPOINTS = {
 // property's own last recorded sale is shown in the Transaction rows; this
 // adds the Prop 13 roll value and the same-ZIP change-of-ownership
 // values as labelled text only — never benchmarkValue / the verdict.
+// New Jersey (api/us-intelligence.js njEvidence) — the municipal median
+// is the benchmark above; this line says exactly what it is.
+function njSalesContext(n, benchmark) {
+  if (!n || n.status !== "ok") return null;
+  const usd = (x) => "$" + Math.round(x).toLocaleString("en-US");
+  const muni = n.municipality?.name || "this municipality";
+  const parts = [];
+  if (benchmark) {
+    parts.push(`Benchmark: NJ Treasury — ${benchmark.sales} usable (arm's-length) sales of ${benchmark.typeLabel} in ${muni} (${benchmark.periodFrom} to ${benchmark.periodTo}), median ${usd(benchmark.valuePerSqFt)} per sq ft of living area${n.stats?.medianPrice ? `, median price ${usd(n.stats.medianPrice)}` : ""}.`);
+  } else if (n.stats) {
+    parts.push(`NJ Treasury: ${n.stats.sales} usable sales of ${n.typeLabel} in ${muni}, median price ${usd(n.stats.medianPrice)} (too few with living area for a per-sq-ft figure).`);
+  } else {
+    parts.push(`NJ Treasury: fewer than 10 usable sales of ${n.typeLabel} in ${muni} in the last 12 months — no local benchmark.`);
+  }
+  if (n.parcel?.lastSale) parts.push(`Property's last sale on the state tax list: ${usd(n.parcel.lastSale.price)} on ${n.parcel.lastSale.date}.`);
+  return parts.join(" ");
+}
+
+// New York State outside NYC (api/us-intelligence.js nysParcel).
+function nysParcelContext(n) {
+  if (!n) return null;
+  if (n.status === "multiple_units") return "NYS tax roll: several units at this address — add the unit number for the unit's own record.";
+  if (n.status !== "ok") return null;
+  const usd = (x) => "$" + Math.round(x).toLocaleString("en-US");
+  const facts = [n.livingAreaSqFt && `${n.livingAreaSqFt.toLocaleString("en-US")} sq ft living`, n.bedrooms && `${n.bedrooms} bd`, n.bathrooms && `${n.bathrooms} ba`, n.yearBuilt && `built ${n.yearBuilt}`].filter(Boolean).join(", ");
+  return `NYS tax roll (${n.municipality || n.county}${n.rollYear ? `, roll ${n.rollYear}` : ""}): ${facts || "property record found"}.${n.fullMarketValue ? ` Full market value ${usd(n.fullMarketValue)} — assessed value ÷ state equalization rate, not an appraisal; context only.` : ""}`;
+}
+
 function laAssessorContext(a) {
   if (!a) return null;
   const usd = (x) => "$" + Math.round(x).toLocaleString("en-US");
@@ -430,13 +458,16 @@ function normalizeMarketEvidence(country, raw, propertyType) {
     const metroHpi = macro.fhfaMetro?.oneYear != null ? macro.fhfaMetro : null;
     const stateHpi = metroHpi || macro.fhfaState || {};
     return {
-      benchmarkValue: val.valuePerSqFt ?? null,
+      // NJ: municipal median $/sq ft of LIVING area from usable Treasury
+      // sales, same type — comparable to the user's own size, so it is a
+      // real benchmark (unlike NYC's gross-area or LA's context figures).
+      benchmarkValue: val.valuePerSqFt ?? raw.localBenchmark?.valuePerSqFt ?? null,
       benchmarkUnit: "perSqft",
-      benchmarkLabel: "US Fair Value / Sq Ft",
+      benchmarkLabel: val.valuePerSqFt == null && raw.localBenchmark ? "Local Sales Median / Sq Ft" : "US Fair Value / Sq Ft",
       governmentValue: val.fairValue ?? null,
       transactionValue: tx.salePrice ?? null,
       transactionPeriod: tx.saleDate ?? null,
-      marketArea: raw.property?.county || raw.area || raw.city || null,
+      marketArea: (val.valuePerSqFt == null && raw.localBenchmark?.area) || raw.property?.county || raw.area || raw.city || null,
       // FIX: when NEITHER the county parcel lookup NOR the FHFA state HPI
       // came back, this fell all the way through to the generic "U.S.
       // Census Bureau + FHFA..." citation string — which reads like a
@@ -446,10 +477,10 @@ function normalizeMarketEvidence(country, raw, propertyType) {
       source: [val.fairValue != null
         ? (val.source || "U.S. Census Bureau + FHFA + public property records")
         : stateHpi.oneYear != null
-          ? `${macro.laAssessor?.parcel ? "" : "No county property record found — "}FHFA ${stateHpi.name || "state"} ${metroHpi ? "metro " : ""}HPI: ${stateHpi.oneYear >= 0 ? "+" : ""}${stateHpi.oneYear}% YoY${stateHpi.period ? ` (${stateHpi.period})` : ""}.`
+          ? `${macro.laAssessor?.parcel || macro.njSales?.parcel || macro.nysParcel?.status === "ok" ? "" : "No county property record found — "}FHFA ${stateHpi.name || "state"} ${metroHpi ? "metro " : ""}HPI: ${stateHpi.oneYear >= 0 ? "+" : ""}${stateHpi.oneYear}% YoY${stateHpi.period ? ` (${stateHpi.period})` : ""}.`
           : "No official price benchmark found for this address — county property record and state price index both unavailable.",
-        nycSalesContext(macro.nycSales), laAssessorContext(macro.laAssessor)].filter(Boolean).join(" "),
-      coverage: val.fairValue != null ? "property" : (raw.macroEvidence ? "national" : "none"),
+        nycSalesContext(macro.nycSales), laAssessorContext(macro.laAssessor), njSalesContext(macro.njSales, raw.localBenchmark), nysParcelContext(macro.nysParcel)].filter(Boolean).join(" "),
+      coverage: val.fairValue != null ? "property" : raw.localBenchmark ? "city" : (raw.macroEvidence ? "national" : "none"),
       priceTrendPercent: stateHpi.oneYear ?? null,
       // Official hazard / regulation lookups (FEMA flood, CAL FIRE, CGS,
       // LA wildfire damage, LA rent control) — see usOfficialChecks().
