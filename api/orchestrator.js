@@ -464,7 +464,8 @@ function normalizeMarketEvidence(country, raw, propertyType) {
       benchmarkValue: val.valuePerSqFt ?? raw.localBenchmark?.valuePerSqFt ?? null,
       benchmarkUnit: "perSqft",
       benchmarkLabel: val.valuePerSqFt == null && raw.localBenchmark ? "Local Sales Median / Sq Ft" : "US Fair Value / Sq Ft",
-      governmentValue: val.fairValue ?? null,
+      // Texas etc.: the appraisal district's own market value (display only).
+      governmentValue: val.fairValue ?? macro.local?.governmentValue?.value ?? null,
       transactionValue: tx.salePrice ?? null,
       transactionPeriod: tx.saleDate ?? null,
       marketArea: (val.valuePerSqFt == null && raw.localBenchmark?.area) || raw.property?.county || raw.area || raw.city || null,
