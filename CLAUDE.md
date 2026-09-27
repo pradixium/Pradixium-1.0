@@ -147,6 +147,12 @@ largest metro first.
 - Generated data (re-run to refresh): `node scripts/build-nj-sales.mjs`
   (NJ Treasury SR1A, monthly) and `node scripts/build-fl-sales.mjs 2026P`
   (Florida DOR SDF+NAL, each new roll).
+  `node scripts/build-stl-sales.mjs` (City of St. Louis Assessor sales +
+  parcel Access files; needs mdbtools — the city's file currently ends Nov
+  2024, so its ZIP figures are context only).
+- St. Louis (#23): City (29510) = last valid sale (Assessor sale type 10) +
+  appraised value + ZIP context; St. Louis County (29189) = facts +
+  appraised value only (Missouri: the county publishes no sale prices).
 - Not yet covered at property level (metro trend + hazards only): Fort Worth
   (Tarrant — no valued open service), Nassau County NY (not in the NYS roll),
   Riverside / San Francisco / San Diego (California publishes no sale prices;
