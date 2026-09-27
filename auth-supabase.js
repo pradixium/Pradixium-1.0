@@ -222,7 +222,32 @@
         '<div style="display:grid;gap:12px">' +
         '<div><div style="font-size:10px;color:#8a94a2;text-transform:uppercase;font-weight:700;margin-bottom:4px">Full Name</div><div style="font-size:14px;font-weight:700;color:#263243">' + escapeHtml(name) + '</div></div>' +
         '<div><div style="font-size:10px;color:#8a94a2;text-transform:uppercase;font-weight:700;margin-bottom:4px">Email</div><div style="font-size:14px;font-weight:700;color:#263243">' + escapeHtml(currentUser.email) + '</div></div>' +
+        '<button type="button" id="manageSubscriptionBtn" style="width:100%;height:42px;border:1px solid #d8dee7;border-radius:8px;background:#fff;color:#2463d6;font-weight:700;cursor:pointer;margin-top:4px">Manage / Cancel Subscription</button>' +
+        '<div id="manageSubscriptionMsg" style="font-size:12px;color:#c0392b;min-height:14px"></div>' +
         '</div>');
+      const btn = $('manageSubscriptionBtn');
+      if (btn) btn.onclick = async function () {
+        const msg = $('manageSubscriptionMsg');
+        btn.disabled = true;
+        btn.textContent = 'Please wait…';
+        if (msg) msg.textContent = '';
+        try {
+          const { data } = await client.auth.getSession();
+          const token = data?.session?.access_token;
+          if (!token) throw new Error('Please sign in again.');
+          const r = await fetch('/api/create-portal-session', {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          const json = await r.json().catch(() => null);
+          if (!json?.url) throw new Error(json?.error || 'Could not open subscription management.');
+          window.location.href = json.url;
+        } catch (e) {
+          if (msg) msg.textContent = e.message || 'Something went wrong.';
+          btn.disabled = false;
+          btn.textContent = 'Manage / Cancel Subscription';
+        }
+      };
     };
   }
 
