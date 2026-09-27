@@ -1253,6 +1253,53 @@
     }
   }
 
+  // Watermark — traces an unauthorized leak/screenshot of a paid report
+  // back to the account it came from. Best-effort only: any failure here
+  // (missing created_at column, network hiccup, no session) just means no
+  // watermark renders on report.html — never a fabricated name/date
+  // standing in for a real one.
+  async function getWatermarkInfo(data) {
+    let name = null, email = null, purchasedAt = null;
+    try {
+      const { data: sessionData } = await window.pradixiumSupabase.auth.getSession();
+      const user = sessionData?.session?.user;
+      if (user) {
+        name = (user.user_metadata && user.user_metadata.full_name) || null;
+        email = user.email || null;
+      }
+    } catch (e) {}
+    if (!email) return null;
+    try {
+      const { data: rows } = await window.pradixiumSupabase
+        .from("purchases")
+        .select("kind, report_signature, expires_at, created_at");
+      const signature = reportSignature(data);
+      const now = Date.now();
+      const match = (rows || []).find((row) => {
+        if (row.kind === "subscription" || row.kind === "business") return new Date(row.expires_at).getTime() > now;
+        return row.kind === "report" && row.report_signature === signature;
+      });
+      purchasedAt = match?.created_at || null;
+    } catch (e) {}
+    return { name, email, purchasedAt };
+  }
+
+  // Shared by openReport() (repeat views) and handleCheckoutReturn() (the
+  // very first view, right after Stripe redirects back) so both paths stamp
+  // the same identity before report.html ever opens.
+  async function attachWatermark(data) {
+    const target = data || (() => {
+      try { return JSON.parse(localStorage.getItem("pradixiumReportData") || "null"); } catch (e) { return null; }
+    })();
+    if (!target) return;
+    const watermark = await getWatermarkInfo(target);
+    if (!watermark) return;
+    target.watermarkName = watermark.name;
+    target.watermarkEmail = watermark.email;
+    target.watermarkPurchasedAt = watermark.purchasedAt;
+    try { localStorage.setItem("pradixiumReportData", JSON.stringify(target)); } catch (e) {}
+  }
+
   async function updateReportButtonLabel() {
     const results = $("results");
     if (!results || results.classList.contains("hidden")) return;
@@ -1310,6 +1357,8 @@
       startCheckout(data, "report");
       return;
     }
+
+    await attachWatermark(data);
 
     const w = window.open("/report.html", "_blank");
     if (!w) alert("Please allow pop-ups to view the report, then try again.");
@@ -1425,6 +1474,7 @@
       // Best effort — if this fails (cleared storage, network hiccup),
       // report.html still opens using whatever was cached before checkout.
       await refreshFullReportData();
+      await attachWatermark();
       const w = window.open("/report.html", "_blank");
       if (!w) alert('Payment confirmed! Please allow pop-ups, then click "View Full Analysis" again.');
     } catch (e) {
