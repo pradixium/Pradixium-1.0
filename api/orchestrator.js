@@ -198,6 +198,29 @@ const COUNTRY_ENDPOINTS = {
 // NYC Department of Finance sales context (api/us-intelligence.js
 // nycDofSales). Shown as text only — DOF's area is gross building area,
 // not living area, so it never becomes benchmarkValue / the verdict.
+// LA County Assessor context (api/us-intelligence.js laAssessor). The
+// property's own last recorded sale is shown in the Transaction rows; this
+// adds the Prop 13 roll value and the same-ZIP change-of-ownership
+// values as labelled text only — never benchmarkValue / the verdict.
+function laAssessorContext(a) {
+  if (!a) return null;
+  const usd = (x) => "$" + Math.round(x).toLocaleString("en-US");
+  const parts = [];
+  if (a.parcel) {
+    parts.push(`LA County Assessor parcel ${a.parcel.ain}${a.lastSale ? `: last recorded sale ${usd(a.lastSale.price)} on ${a.lastSale.date} (documentary transfer tax)` : ": no recorded sale for consideration on file"}.`);
+    if (a.assessedValue) parts.push(`${a.assessedValue.rollYear} assessed value ${usd(a.assessedValue.value)} — Prop 13 (purchase price + max 2%/yr), not current market value.`);
+  } else if (a.parcelStatus === "multiple_units") {
+    parts.push(`LA County Assessor: this address has several units — add the unit number (e.g. "#2A") to get the unit's own sale record.`);
+  }
+  const z = a.zipContext;
+  if (z?.status === "ok") {
+    parts.push(`ZIP ${z.zip} context: ${z.parcels} ${z.category} re-valued by the Assessor on a change of ownership (${z.periodFrom} to ${z.periodTo}), median ${usd(z.medianPerSqFt)} per sq ft — for regular sales this equals the recorded price; context only, not used in the verdict.`);
+  } else if (z?.status === "insufficient") {
+    parts.push(`ZIP ${z.zip}: only ${z.parcels} ${z.category} re-valued on a change of ownership in the latest open roll — not enough for a local figure.`);
+  }
+  return parts.length ? parts.join(" ") + " Source: Los Angeles County Assessor." : null;
+}
+
 function nycSalesContext(n) {
   if (!n) return null;
   const zip = n.zip ? `ZIP ${n.zip}` : "this ZIP";
@@ -423,9 +446,9 @@ function normalizeMarketEvidence(country, raw, propertyType) {
       source: [val.fairValue != null
         ? (val.source || "U.S. Census Bureau + FHFA + public property records")
         : stateHpi.oneYear != null
-          ? `No county property record found — FHFA ${stateHpi.name || "state"} ${metroHpi ? "metro " : ""}HPI: ${stateHpi.oneYear >= 0 ? "+" : ""}${stateHpi.oneYear}% YoY${stateHpi.period ? ` (${stateHpi.period})` : ""}.`
+          ? `${macro.laAssessor?.parcel ? "" : "No county property record found — "}FHFA ${stateHpi.name || "state"} ${metroHpi ? "metro " : ""}HPI: ${stateHpi.oneYear >= 0 ? "+" : ""}${stateHpi.oneYear}% YoY${stateHpi.period ? ` (${stateHpi.period})` : ""}.`
           : "No official price benchmark found for this address — county property record and state price index both unavailable.",
-        nycSalesContext(macro.nycSales)].filter(Boolean).join(" "),
+        nycSalesContext(macro.nycSales), laAssessorContext(macro.laAssessor)].filter(Boolean).join(" "),
       coverage: val.fairValue != null ? "property" : (raw.macroEvidence ? "national" : "none"),
       priceTrendPercent: stateHpi.oneYear ?? null
     };

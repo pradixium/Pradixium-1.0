@@ -18,8 +18,8 @@ async function hpiCity(city,state,countyFips){const a=await json('https://www.fh
 function hpi(r,level,period){if(!r)return null;const y=level==='state'?r.sa_1y:r.nsa_1y;return {source:'FHFA HPI',level,name:s(r.name).replace(/\s+/g,' ')||null,period:period||null,oneYear:Number.isFinite(Number(y))?Number(y):null,metroArea:r.topMetro?{rank:r.topMetro.rank,cbsa:r.topMetro.cbsa,title:r.topMetro.title}:null,sourceUrl:'https://www.fhfa.gov/data/hpi'};}
 function nf(x){return s(x).toLowerCase().replace(/[^a-z0-9]+/g,'');}
 const normGroups=a=>a.map(nf);
-function choose(fields,rec,groups){for(const group of normGroups(groups))for(const f of Array.isArray(fields)?fields:[]){const a=nf(f.name),b=nf(f.alias);if(group.some(g=>a===g||b===g||a.includes(g)||b.includes(g))){const n=Number(String(rec?.[f.name]??'').replace(/[$,]/g,''));if(Number.isFinite(n)&&n>0)return {value:n,field:f.name,alias:f.alias||f.name};}}return null;}
-function textField(fields,rec,groups){for(const group of normGroups(groups))for(const f of Array.isArray(fields)?fields:[]){const a=nf(f.name),b=nf(f.alias);if(group.some(g=>a===g||b===g||a.includes(g)||b.includes(g))){const v=rec?.[f.name];if(v!==undefined&&v!==null&&s(v))return {value:s(v),field:f.name,alias:f.alias||f.name};}}return null;}
+function choose(fields,rec,groups){for(const g of normGroups(groups))for(const f of Array.isArray(fields)?fields:[]){const a=nf(f.name),b=nf(f.alias);if(a===g||b===g||a.includes(g)||b.includes(g)){const n=Number(String(rec?.[f.name]??'').replace(/[$,]/g,''));if(Number.isFinite(n)&&n>0)return {value:n,field:f.name,alias:f.alias||f.name};}}return null;}
+function textField(fields,rec,groups){for(const g of normGroups(groups))for(const f of Array.isArray(fields)?fields:[]){const a=nf(f.name),b=nf(f.alias);if(a===g||b===g||a.includes(g)||b.includes(g)){const v=rec?.[f.name];if(v!==undefined&&v!==null&&s(v))return {value:s(v),field:f.name,alias:f.alias||f.name};}}return null;}
 // Known ultra-prime U.S. micro-locations. Same purpose as parisSignals()
 // in api/france-intelligence.js: a whole-county/metro price average can
 // make a genuinely prime address look like unexplained overpricing (this
@@ -95,7 +95,14 @@ async function tryParcelLayer(layerUrl,geo,address){
   return {source:layerUrl.includes('Florida_Statewide_Cadastral')?'Florida Department of Revenue — Statewide Cadastral':'Public parcel/property service',serviceUrl:layerUrl,fairValue:fair?.value||null,assessedValue:assessed?.value||null,salePrice:sale?.value||null,saleDate:sd?rec[sd.name]:null,livingAreaSqFt:sqft?.value||null,bedrooms:beds?.value||null,bathrooms:baths?.value||null,propertyAddress:af?rec[af.name]:null,propertyType:classify(tf?.value),comparablesCount:1};
 }
 
-async function arcgisParcel(geo,state,county,address){if(!geo?.latitude||!geo?.longitude||!county)return null;
+// Generic parcel lookup is OFF until each county's source is verified one
+// at a time (as NYC and LA are above). It keyword-searched ArcGIS and took
+// the first layer with a value-like field — which can be an unofficial
+// copy — and Florida's statewide "just value" (JV) is set below market by
+// design (cost-of-sale deduction), so neither may feed the verdict as-is.
+// Until now a crash in choose() meant this path never produced output.
+const UNVERIFIED_PARCEL_LOOKUP_ENABLED=false;
+async function arcgisParcel(geo,state,county,address){if(!UNVERIFIED_PARCEL_LOOKUP_ENABLED)return null;if(!geo?.latitude||!geo?.longitude||!county)return null;
 
 const knownSource=KNOWN_STATEWIDE_PARCEL_SOURCES[STATE_CODES[state]||state];
 if(knownSource){
@@ -157,6 +164,69 @@ async function nycDofSales(geo,zip,propertyType){
   }
   return null;
 }
+// Los Angeles County — LA County Assessor (all official county sources).
+// California publishes no open sale-price dataset, so three Assessor
+// sources are combined, each labelled for exactly what it is:
+//  1. The property itself: parcel found by exact situs address (house
+//     number + street + ZIP — never by map point, since a geocoded point
+//     sits on the street and can land on a neighbour's lot), then its
+//     recorded ownership history from the Assessor's public portal. Only
+//     a "Sale for Consideration" + "Good Transfer" with a documentary-
+//     transfer-tax price counts as its last sale; trust, spouse, probate,
+//     foreclosure and correction transfers are skipped.
+//  2. Current roll value — Prop 13 assessed value (purchase price + at
+//     most 2%/yr). Tax context only; it is NOT current market value.
+//  3. Neighbourhood context: same-ZIP parcels the Assessor re-valued on a
+//     change of ownership in the latest open-data roll (both land and
+//     improvement base year = roll year, i.e. transfers Jul–Dec of the
+//     prior year, before any 2% indexation). Checked against the portal:
+//     for regular sales it equals the recorded sale price exactly; other
+//     transfers are the Assessor's own market valuation. Per sq ft of the
+//     Assessor's main building area. Context only, never the verdict.
+const LA_COUNTY_FIPS='06037',LA_ROLL_YEAR='2025',LA_MIN_PARCELS=10;
+const LA_PARCELS='https://public.gis.lacounty.gov/public/rest/services/LACounty_Cache/LACounty_Parcel/MapServer/0/query';
+const LA_ROLL='https://services.arcgis.com/RmCCgQtiZLDCtblq/arcgis/rest/services/Parcel_Data_2021_Table/FeatureServer/0/query';
+const LA_PORTAL='https://portal.assessor.lacounty.gov';
+const unitKey=v=>s(v).toUpperCase().replace(/^(NO|UNIT|APT|STE|#)\b/,'').replace(/[^A-Z0-9]/g,'');
+function unitFromAddress(address){const m=s(address).match(/(?:#|\b(?:unit|apt|apartment|ste|suite|no)\.?)\s*([a-z0-9-]+)\s*$/i);return m?unitKey(m[1]):null;}
+async function laParcel(geo,address,zip){
+  const line=s(geo?.matchedAddress).split(',')[0].toUpperCase();const m=line.match(/^(\d+)\s+(.+)$/);if(!m)return {status:'no_address_match'};
+  const where=`SitusHouseNo='${m[1]}' AND SitusFullAddress LIKE '${escapeSql(m[1]+' '+m[2])}%' AND SitusZIP LIKE '${zip}%'`;
+  const j=await json(LA_PARCELS+'?f=json&returnGeometry=false&outFields=AIN,SitusFullAddress,SitusUnit,UseType,SQFTmain1,Roll_Year,Roll_LandValue,Roll_ImpValue&where='+enc(where),8000);
+  let f=(j?.features||[]).map(x=>x.attributes);
+  if(f.length>1){const u=unitFromAddress(address);f=u?f.filter(x=>unitKey(x.SitusUnit)===u):[];if(f.length!==1)return {status:'multiple_units',units:(j.features||[]).length};}
+  if(f.length!==1)return {status:'no_parcel_match'};
+  return {status:'ok',...f[0]};
+}
+async function laLastSale(ain){
+  const h=await json(LA_PORTAL+'/api/parcel_ownershiphistory?ain='+enc(ain),8000);
+  const r=(h?.Parcel_OwnershipHistory||[]).find(x=>/^Sale for Consideration/i.test(s(x.DocumentTypeDesc))&&/Good Transfer/i.test(s(x.DocumentReasonCodeDesc))&&Number(x.DTTSalePrice)>0&&(s(x.NumberOfParcels)===''||s(x.NumberOfParcels)==='1'));
+  if(!r)return null;const [mm,dd,yy]=s(r.RecordingDate).split('/');
+  return {price:Number(r.DTTSalePrice),date:yy&&mm&&dd?`${yy}-${mm}-${dd}`:null,documentType:s(r.DocumentTypeDesc),priceBasis:'documentary transfer tax (as recorded by the Assessor)'};
+}
+async function laZipContext(zip,useType){
+  const where=`RollYear='${LA_ROLL_YEAR}' AND SitusZIP5='${zip}' AND UseType='${useType}' AND Roll_LandBaseYear='${LA_ROLL_YEAR}' AND Roll_ImpBaseYear='${LA_ROLL_YEAR}' AND SQFTmain>0 AND Roll_totLandImp>0`;
+  const j=await json(LA_ROLL+'?f=json&resultRecordCount=2000&outFields=SQFTmain,Roll_totLandImp,RecordingDate&where='+enc(where),10000);
+  if(!Array.isArray(j?.features)||j.exceededTransferLimit)return null;
+  const r=j.features.map(x=>x.attributes),v=r.map(x=>x.Roll_totLandImp/x.SQFTmain).filter(Number.isFinite).sort((a,b)=>a-b);
+  const d=r.map(x=>x.RecordingDate).filter(Boolean).sort((a,b)=>a-b).map(t=>new Date(t).toISOString().slice(0,10));
+  const base={rollYear:LA_ROLL_YEAR,zip,parcels:v.length,periodFrom:d[0]||null,periodTo:d[d.length-1]||null,category:useType==='CND'?'condos':'single-family homes'};
+  if(v.length<LA_MIN_PARCELS)return {...base,status:'insufficient'};
+  const mid=Math.floor(v.length/2);return {...base,status:'ok',medianPerSqFt:Math.round(v.length%2?v[mid]:(v[mid-1]+v[mid])/2)};
+}
+async function laAssessor(geo,address,zip,propertyType){
+  if(s(geo?.countyFips)!==LA_COUNTY_FIPS)return null;
+  const z=uspsZip(zip,geo);if(!z)return {status:'no_zip',source:'Los Angeles County Assessor'};
+  const t=s(propertyType).toLowerCase(),useType=/apartment|condo/.test(t)?'CND':/house|villa|town/.test(t)?'SFR':null;
+  const [parcel,zipContext]=await Promise.all([laParcel(geo,address,z.zip).catch(()=>null),useType?laZipContext(z.zip,useType).catch(()=>null):null]);
+  const lastSale=parcel?.status==='ok'?await laLastSale(parcel.AIN).catch(()=>null):null;
+  const roll=parcel?.status==='ok'?Number(parcel.Roll_LandValue||0)+Number(parcel.Roll_ImpValue||0):0;
+  return {status:'ok',source:'Los Angeles County Assessor',sourceUrl:LA_PORTAL,zip:z.zip,
+    parcel:parcel?.status==='ok'?{ain:parcel.AIN,address:s(parcel.SitusFullAddress),livingAreaSqFt:Number(parcel.SQFTmain1)||null}:null,
+    parcelStatus:parcel?.status||'lookup_failed',
+    lastSale,assessedValue:roll>0?{rollYear:s(parcel.Roll_Year),value:roll,basis:'Prop 13 assessed value — not current market value'}:null,
+    zipContext};
+}
 function saleAdjusted(p,h){if(!p?.salePrice)return null;let v=p.salePrice;const d=p.saleDate?new Date(p.saleDate):null;if(d&&!Number.isNaN(d.getTime())&&h?.oneYear!=null){const age=Math.max(0,Math.min(5,(Date.now()-d.getTime())/(365.25*86400000)));v*=Math.pow(1+Math.max(-.15,Math.min(.15,Number(h.oneYear)/100)),age);}return Math.round(v/1000)*1000;}
-export default async function handler(req,res){const address=s(req.query?.address),city=s(req.query?.city),state=s(req.query?.state),zip=s(req.query?.zip||req.query?.postalCode),propertyType=s(req.query?.propertyType),askingPrice=Number(req.query?.askingPrice);if(!address&&!city)return res.status(400).json({success:false,error:'city or address is required'});try{const geo=await geocode(address,city,state,zip);const rs=geo?.state||state||null,rc=geo?.city||city||null;const [sh,ch,hp]=await Promise.all([hpiState(rs),hpiCity(rc,rs,geo?.countyFips),hpiPeriod()]);const mh=hpi(ch,'metro',hp)||hpi(sh,'state',hp);const [p,nyc]=await Promise.all([arcgisParcel(geo,rs,geo?.county,address),nycDofSales(geo,zip,propertyType).catch(()=>null)]);let fair=p?.fairValue||null,method=fair?'official local market/just/appraised property value':null;if(!fair&&p?.salePrice){fair=saleAdjusted(p,mh);method='recent official property sale price adjusted by FHFA market trend';}const property={address:p?.propertyAddress||geo?.matchedAddress||address||null,propertyType:p?.propertyType||propertyType||null,latitude:geo?.latitude??null,longitude:geo?.longitude??null,state:rs,stateCode:geo?.stateCode||null,county:geo?.county||null,city:rc,zip:geo?.zip||zip||null,censusTract:geo?.tract||null,livingAreaSqFt:p?.livingAreaSqFt||null,bedrooms:p?.bedrooms||null,bathrooms:p?.bathrooms||null};
-    const prestige=usPrestigeSignals(property.address||address,rc,rs);const valuationEvidence=fair?{fairValue:fair,method,comparablesCount:p?.comparablesCount||1,valuePerSqFt:p?.livingAreaSqFt?fair/p.livingAreaSqFt:null,source:p?.source||'Public property record',geography:geo?.county||rc,modelled:!p?.fairValue,transactionAnchor:p?.salePrice||null,saleDate:p?.saleDate||null,assessedValue:p?.assessedValue||null}:null;const data={market:'United States',region:rs,city:rc,area:geo?.county||geo?.zip||null,property,prestige,transactionEvidence:{status:p?.salePrice?'official_local_transaction':'property_record_without_sale',exactPropertySales:Boolean(p?.salePrice),salePrice:p?.salePrice||null,saleDate:p?.saleDate||null,source:p?.source||null},valuationEvidence,macroEvidence:{fhfaState:hpi(sh,'state',hp),fhfaMetro:hpi(ch,'metro',hp),geographicSource:'U.S. Census Bureau Geocoder / TIGERweb',marketSource:'FHFA HPI',localPropertySource:p?.source||null,nycSales:nyc||null},sourceLevel:fair?'local-property-record':'federal-geography',evidenceConfidence:fair?(p?.fairValue?'High':'Medium'):(geo?'Low':20),evidenceStatus:fair?'official/public U.S. property evidence resolved; Fair Value calculated':'U.S. geography resolved; property valuation evidence unavailable',methodology:'Nationwide U.S. model: Census geocoding resolves the property geography; public parcel/property records are discovered dynamically from authoritative/public Feature Services; explicit market/just/appraised value is preferred, otherwise a recent recorded sale may be adjusted by FHFA market trend. Tax assessed value alone is never promoted to Fair Value. U.S. area is retained in square feet.'};return res.status(200).json({success:true,country:'United States',state:rs,city:rc,address,propertyType:data.property.propertyType,askingPrice:Number.isFinite(askingPrice)&&askingPrice>0?askingPrice:null,data,source:'U.S. Census Bureau + FHFA + public U.S. property records'});}catch(e){return res.status(200).json({success:true,country:'United States',state:state||null,city:city||null,address,propertyType:propertyType||null,data:{market:'United States',region:state||null,city:city||null,property:{address:address||null,propertyType:propertyType||null},transactionEvidence:null,valuationEvidence:null,macroEvidence:null,evidenceConfidence:10,evidenceStatus:'official U.S. request failed',error:String(e?.message||e)},source:'U.S. Census Bureau + FHFA + public U.S. property records'});}}
+export default async function handler(req,res){const address=s(req.query?.address),city=s(req.query?.city),state=s(req.query?.state),zip=s(req.query?.zip||req.query?.postalCode),propertyType=s(req.query?.propertyType),askingPrice=Number(req.query?.askingPrice);if(!address&&!city)return res.status(400).json({success:false,error:'city or address is required'});try{const geo=await geocode(address,city,state,zip);const rs=geo?.state||state||null,rc=geo?.city||city||null;const [sh,ch,hp]=await Promise.all([hpiState(rs),hpiCity(rc,rs,geo?.countyFips),hpiPeriod()]);const mh=hpi(ch,'metro',hp)||hpi(sh,'state',hp);const isLA=s(geo?.countyFips)===LA_COUNTY_FIPS;const [p,nyc,la]=await Promise.all([isLA?null:arcgisParcel(geo,rs,geo?.county,address),nycDofSales(geo,zip,propertyType).catch(()=>null),laAssessor(geo,address,zip,propertyType).catch(()=>null)]);let fair=p?.fairValue||null,method=fair?'official local market/just/appraised property value':null;if(!fair&&p?.salePrice){fair=saleAdjusted(p,mh);method='recent official property sale price adjusted by FHFA market trend';}const property={address:p?.propertyAddress||geo?.matchedAddress||address||null,propertyType:p?.propertyType||propertyType||null,latitude:geo?.latitude??null,longitude:geo?.longitude??null,state:rs,stateCode:geo?.stateCode||null,county:geo?.county||null,city:rc,zip:geo?.zip||zip||null,censusTract:geo?.tract||null,livingAreaSqFt:p?.livingAreaSqFt||null,bedrooms:p?.bedrooms||null,bathrooms:p?.bathrooms||null};
+    const prestige=usPrestigeSignals(property.address||address,rc,rs);const valuationEvidence=fair?{fairValue:fair,method,comparablesCount:p?.comparablesCount||1,valuePerSqFt:p?.livingAreaSqFt?fair/p.livingAreaSqFt:null,source:p?.source||'Public property record',geography:geo?.county||rc,modelled:!p?.fairValue,transactionAnchor:p?.salePrice||null,saleDate:p?.saleDate||null,assessedValue:p?.assessedValue||null}:null;const data={market:'United States',region:rs,city:rc,area:geo?.county||geo?.zip||null,property,prestige,transactionEvidence:p?.salePrice||!la?.lastSale?{status:p?.salePrice?'official_local_transaction':'property_record_without_sale',exactPropertySales:Boolean(p?.salePrice),salePrice:p?.salePrice||null,saleDate:p?.saleDate||null,source:p?.source||null}:{status:'official_local_transaction',exactPropertySales:true,salePrice:la.lastSale.price,saleDate:la.lastSale.date,source:'Los Angeles County Assessor — recorded sale ('+la.lastSale.priceBasis+')'},valuationEvidence,macroEvidence:{fhfaState:hpi(sh,'state',hp),fhfaMetro:hpi(ch,'metro',hp),geographicSource:'U.S. Census Bureau Geocoder / TIGERweb',marketSource:'FHFA HPI',localPropertySource:p?.source||null,nycSales:nyc||null,laAssessor:la||null},sourceLevel:fair?'local-property-record':'federal-geography',evidenceConfidence:fair?(p?.fairValue?'High':'Medium'):(geo?'Low':20),evidenceStatus:fair?'official/public U.S. property evidence resolved; Fair Value calculated':'U.S. geography resolved; property valuation evidence unavailable',methodology:'Nationwide U.S. model: Census geocoding resolves the property geography; public parcel/property records are discovered dynamically from authoritative/public Feature Services; explicit market/just/appraised value is preferred, otherwise a recent recorded sale may be adjusted by FHFA market trend. Tax assessed value alone is never promoted to Fair Value. U.S. area is retained in square feet.'};return res.status(200).json({success:true,country:'United States',state:rs,city:rc,address,propertyType:data.property.propertyType,askingPrice:Number.isFinite(askingPrice)&&askingPrice>0?askingPrice:null,data,source:'U.S. Census Bureau + FHFA + public U.S. property records'});}catch(e){return res.status(200).json({success:true,country:'United States',state:state||null,city:city||null,address,propertyType:propertyType||null,data:{market:'United States',region:state||null,city:city||null,property:{address:address||null,propertyType:propertyType||null},transactionEvidence:null,valuationEvidence:null,macroEvidence:null,evidenceConfidence:10,evidenceStatus:'official U.S. request failed',error:String(e?.message||e)},source:'U.S. Census Bureau + FHFA + public U.S. property records'});}}
