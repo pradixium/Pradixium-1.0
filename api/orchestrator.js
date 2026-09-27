@@ -382,7 +382,11 @@ function normalizeMarketEvidence(country, raw, propertyType) {
     // existed one level up. Now surfaced as national/state context, same
     // pattern as Germany/Italy/Portugal's national-index-only fallback.
     const macro = raw.macroEvidence || {};
-    const stateHpi = macro.fhfaState || {};
+    // Metro HPI (exact FHFA series for the property's county in the top
+    // 20 metros — lib/data/usMetros.js) is the closer benchmark; the
+    // state-wide index is only the fallback when no metro series matched.
+    const metroHpi = macro.fhfaMetro?.oneYear != null ? macro.fhfaMetro : null;
+    const stateHpi = metroHpi || macro.fhfaState || {};
     return {
       benchmarkValue: val.valuePerSqFt ?? null,
       benchmarkUnit: "perSqft",
@@ -400,7 +404,7 @@ function normalizeMarketEvidence(country, raw, propertyType) {
       source: val.fairValue != null
         ? (val.source || "U.S. Census Bureau + FHFA + public property records")
         : stateHpi.oneYear != null
-          ? `No county property record found — FHFA ${stateHpi.name || "state"} HPI: ${stateHpi.oneYear >= 0 ? "+" : ""}${stateHpi.oneYear}% YoY${stateHpi.period ? ` (${stateHpi.period})` : ""}.`
+          ? `No county property record found — FHFA ${stateHpi.name || "state"} ${metroHpi ? "metro " : ""}HPI: ${stateHpi.oneYear >= 0 ? "+" : ""}${stateHpi.oneYear}% YoY${stateHpi.period ? ` (${stateHpi.period})` : ""}.`
           : "No official price benchmark found for this address — county property record and state price index both unavailable.",
       coverage: val.fairValue != null ? "property" : (raw.macroEvidence ? "national" : "none"),
       priceTrendPercent: stateHpi.oneYear ?? null
