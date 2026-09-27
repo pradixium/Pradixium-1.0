@@ -175,5 +175,11 @@ Shipped: **Lithuania Auction Watch** (`lithuania-auctions.html` + `api/lt-auctio
 auctions from evarzytynes.lt (Registrų centras). List pages only; never read
 detail pages' contacts/owner names. Per-m² start price only for one whole
 property in m² (not "1/4 dalis" shares, not multi-property lots). Fails closed
-on format change. Not yet linked from the top menu. Next: the RC "average
+on format change. **Paused (Sept 2026, user's decision): removed from the live site
+(page, API, "Distressed Assets" menu link) until Registrų centras confirms in
+writing that showing the auctions with links back to them is fine.** To restore,
+revert the "Take Distressed Assets off the live site" commit. The unreleased
+"Government value" button (unique number + copy/open link to RC's mass-valuation
+search, which Cloudflare blocks for servers incl. Vercel) is part of it. Shekel
+prices were tried and dropped by the user — EUR only. Next: the RC "average
 market value" (mass valuation) page as the Lithuanian benchmark.
