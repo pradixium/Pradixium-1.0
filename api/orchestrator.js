@@ -195,6 +195,25 @@ const COUNTRY_ENDPOINTS = {
 // contract (see COUNTRY_ENDPOINTS above): the raw adapter can return
 // whatever its source naturally gives back; this function is what teaches
 // the orchestrator to read it.
+// NYC Department of Finance sales context (api/us-intelligence.js
+// nycDofSales). Shown as text only — DOF's area is gross building area,
+// not living area, so it never becomes benchmarkValue / the verdict.
+function nycSalesContext(n) {
+  if (!n) return null;
+  const zip = n.zip ? `ZIP ${n.zip}` : "this ZIP";
+  const src = `${n.source}.`;
+  if (n.status === "ok") {
+    return `NYC Dept. of Finance: ${n.salesCount} recorded sales of ${n.category} in ${zip} (${n.periodFrom} to ${n.periodTo}), median $${n.medianPerGrossSqFt.toLocaleString("en-US")} per gross sq ft of building area — gross area, not living area, so context only; not used in the verdict. ${src}`;
+  }
+  if (n.status === "insufficient_sales") {
+    return `NYC Dept. of Finance: only ${n.salesCount} usable sales of ${n.category} in ${zip} in the last 12 months — not enough for a reliable local figure. ${src}`;
+  }
+  if (n.status === "no_unit_area") {
+    return `NYC Dept. of Finance: ${n.salesCount} recorded condo/co-op sales in ${zip} in the last 12 months, but DOF does not publish unit floor area — no per-sq-ft comparison exists for apartments. ${src}`;
+  }
+  return null;
+}
+
 function normalizeMarketEvidence(country, raw, propertyType) {
   if (!raw) return null;
   const c = String(country || "").trim().toLowerCase();
@@ -401,11 +420,12 @@ function normalizeMarketEvidence(country, raw, propertyType) {
       // source backing real numbers, when every benchmark/transaction
       // field above it is actually null. Now says plainly that no match
       // was found, instead of implying data that isn't there.
-      source: val.fairValue != null
+      source: [val.fairValue != null
         ? (val.source || "U.S. Census Bureau + FHFA + public property records")
         : stateHpi.oneYear != null
           ? `No county property record found — FHFA ${stateHpi.name || "state"} ${metroHpi ? "metro " : ""}HPI: ${stateHpi.oneYear >= 0 ? "+" : ""}${stateHpi.oneYear}% YoY${stateHpi.period ? ` (${stateHpi.period})` : ""}.`
           : "No official price benchmark found for this address — county property record and state price index both unavailable.",
+        nycSalesContext(macro.nycSales)].filter(Boolean).join(" "),
       coverage: val.fairValue != null ? "property" : (raw.macroEvidence ? "national" : "none"),
       priceTrendPercent: stateHpi.oneYear ?? null
     };
