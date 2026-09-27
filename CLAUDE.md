@@ -126,3 +126,42 @@ official, free, real API — but was never actually verified due to network acce
 sessions pick up an environment change). Before starting: verify the actual data
 source structure for the target county/site with WebFetch/WebSearch — don't write
 scraping code against a guessed HTML structure.
+
+## US coverage (built Sept 2026 — top 20 metros by Census 2024 population)
+
+Working rules from the user for this work: build → verify (independent recompute
+of at least one figure + screenshot) → push only fully-verified changes; never say
+"impossible" — bring researched alternatives; always end with a Hebrew summary;
+largest metro first.
+
+- Every US address: FHFA metro HPI matched by county (`lib/data/usMetros.js`,
+  generated from the Census/OMB files), FEMA flood zone, and — in California —
+  CAL FIRE fire zones + CGS fault/liquefaction/landslide zones
+  ("Location Risks & Regulation" section in results page and report).
+- Local official sources: `lib/usLocal/*.js` (one module per verified source,
+  registry in `lib/usLocal/index.js`) plus NYC/LA/NJ/NYS code inside
+  `api/us-intelligence.js`. Only NJ's municipal median ($/sq ft of LIVING area,
+  usable Treasury sales) feeds the verdict; everything else is context or a
+  display-only "Government Value", because the area measure or the sale
+  qualification is not strict enough.
+- Generated data (re-run to refresh): `node scripts/build-nj-sales.mjs`
+  (NJ Treasury SR1A, monthly) and `node scripts/build-fl-sales.mjs 2026P`
+  (Florida DOR SDF+NAL, each new roll).
+- Not yet covered at property level (metro trend + hazards only): Fort Worth
+  (Tarrant — no valued open service), Nassau County NY (not in the NYS roll),
+  Riverside / San Francisco / San Diego (California publishes no sale prices;
+  SF's portal was rate-limiting during the build). Boston and Atlanta have no
+  recent open sale data (values only).
+- Sandbox quirk: Node's built-in fetch here ignores HTTPS_PROXY for some hosts
+  (King County, DCAD fail with "upstream connect error"); run local tests with
+  `NODE_USE_ENV_PROXY=1`. Vercel production is unaffected — always confirm on
+  the live site.
+- The US endpoint has a 13 s internal budget (orchestrator allows 15 s); slow
+  context queries get short timeouts so they can never drop the property's own
+  record.
+
+## Queued after the US: Lithuania
+
+The user's earlier "Italy/Spain/Lithuania data" request meant Lithuania's state
+real-property register/cadastre — Registrų centras (registrucentras.lt). Not yet
+researched; verify what it publishes openly before building anything.
