@@ -450,7 +450,10 @@ function normalizeMarketEvidence(country, raw, propertyType) {
           : "No official price benchmark found for this address — county property record and state price index both unavailable.",
         nycSalesContext(macro.nycSales), laAssessorContext(macro.laAssessor)].filter(Boolean).join(" "),
       coverage: val.fairValue != null ? "property" : (raw.macroEvidence ? "national" : "none"),
-      priceTrendPercent: stateHpi.oneYear ?? null
+      priceTrendPercent: stateHpi.oneYear ?? null,
+      // Official hazard / regulation lookups (FEMA flood, CAL FIRE, CGS,
+      // LA wildfire damage, LA rent control) — see usOfficialChecks().
+      officialChecks: Array.isArray(raw.officialChecks) && raw.officialChecks.length ? raw.officialChecks : null
     };
   }
 
