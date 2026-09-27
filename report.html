@@ -352,7 +352,7 @@ function renderWatermark(){
     const titleEl=document.querySelector('.title');
     const pageEl=document.querySelector('.page');
     if(titleEl&&pageEl){
-      const top=titleEl.getBoundingClientRect().top-pageEl.getBoundingClientRect().top-60;
+      const top=titleEl.getBoundingClientRect().top-pageEl.getBoundingClientRect().top-30;
       seal.style.top=Math.max(0,top)+'px';
     }
   }
