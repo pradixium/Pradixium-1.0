@@ -38,6 +38,7 @@ tbody tr:last-child td{border-bottom:0}
 .lt{display:block;font-size:10px;color:#9aa2ad;margin-top:3px}
 .num{white-space:nowrap;font-weight:700}
 .muted{color:#9aa2ad;font-weight:400}
+.ils{display:block;font-size:11px;font-weight:600;color:#6b7686}
 a.off{color:#2463f5;font-weight:700;text-decoration:none;white-space:nowrap}
 .gv{display:block;margin-top:8px;font:inherit;font-size:12px;font-weight:700;color:#18794e;background:#e9f7ef;border:1px solid #bfe6cf;border-radius:8px;padding:5px 9px;cursor:pointer;white-space:nowrap}
 .gvbox{margin-top:8px;font-size:12px;line-height:1.5;background:#f4fbf7;border:1px solid #cfeedd;border-radius:9px;padding:8px 10px;min-width:210px}
@@ -111,7 +112,8 @@ footer a{color:inherit}
   const order = Object.keys(MUNIS);
   order.forEach(k => { const o = document.createElement("option"); o.value = k; o.textContent = EN[k] ? EN[k] + " — " + MUNIS[k] : MUNIS[k]; sel.appendChild(o); });
   const esc = (s) => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-  const eur = (x) => x == null ? '<span class="muted">—</span>' : "€" + Math.round(x).toLocaleString("en-US");
+  let FX = null;
+  const eur = (x) => x == null ? '<span class="muted">—</span>' : "€" + Math.round(x).toLocaleString("en-US") + (FX ? '<span class="ils">≈ ₪' + Math.round(x * FX.ilsPerEur).toLocaleString("en-US") + '</span>' : "");
   const en = (d, share) => { const t = TYPES.find(([lt]) => d.startsWith(lt)); if (!t) return share ? "Share " + share + " of the property" : ""; const rooms = d.match(/(\d+)\s*kamb\./); return (share ? "Share " + share + " of " + t[1].toLowerCase() : t[1]) + (rooms && rooms[1] !== "0" ? ", " + rooms[1] + " rooms" : ""); };
   const status = document.getElementById("status"), table = document.getElementById("table"), tbody = document.getElementById("tbody"), go = document.getElementById("go");
 
@@ -128,8 +130,9 @@ footer a{color:inherit}
       const r = await fetch("/api/lt-auctions?" + p);
       const j = await r.json();
       if (!j.ok) { status.textContent = j.error || "The official portal is not available right now."; return; }
+      FX = j.fx || null;
       if (!j.rows.length) { status.textContent = "No announced or running auctions match these filters right now."; return; }
-      status.innerHTML = j.count + " auction" + (j.count === 1 ? "" : "s") + ", soonest ending first — read from the official portal " + esc(new Date(j.retrievedAt).toLocaleString()) + "." + (j.truncated ? " <b>Showing the first " + j.count + " only — choose a municipality to see all.</b>" : "");
+      status.innerHTML = j.count + " auction" + (j.count === 1 ? "" : "s") + ", soonest ending first — read from the official portal " + esc(new Date(j.retrievedAt).toLocaleString()) + "." + (FX ? " Shekel amounts use the " + esc(FX.source) + " of " + esc(FX.asOf) + " (₪" + FX.ilsPerEur.toFixed(4) + " per €)." : "") + (j.truncated ? " <b>Showing the first " + j.count + " only — choose a municipality to see all.</b>" : "");
       tbody.innerHTML = j.rows.map(r => {
         const props = r.items.map(i => { const e = en(i.description, i.share); return '<div class="prop">' + (e ? '<span class="en">' + esc(e) + '</span>' : '') + '<strong>' + esc(i.description) + '</strong><span class="addr">' + esc(i.address) + '</span></div>'; }).join("");
         const cls = r.kindLt === "Antstolių varžytynės" ? "bailiff" : r.kindLt === "Nemokumo administratorių varžytynės" ? "insolvency" : "";

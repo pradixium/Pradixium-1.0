@@ -101,6 +101,17 @@ export function parseUniqueNumbers(html) {
   return out;
 }
 
+// Bank of Israel official representative rate (ILS per EUR), for Israeli
+// investors; null if it does not answer quickly — prices then stay in EUR only
+async function ilsPerEur() {
+  try {
+    const r = await fetch("https://boi.org.il/PublicApi/GetExchangeRate?key=EUR", { signal: AbortSignal.timeout(3000) });
+    const j = await r.json();
+    const rate = Number(j?.currentExchangeRate), unit = Number(j?.unit) || 1;
+    return rate > 0 && j?.key === "EUR" ? { ilsPerEur: rate / unit, asOf: String(j.lastUpdate || "").slice(0, 10) || null, source: "Bank of Israel representative rate", sourceUrl: "https://www.boi.org.il/en/economic-roles/financial-markets/exchange-rates/" } : null;
+  } catch (e) { return null; }
+}
+
 async function getPage(params, page) {
   const q = new URLSearchParams({ listType: "1", estateType: "1", stateType: "PASKELBTA-IR-VYKSTA", sortBy: "endDate.ASC", ...params, page: String(page) });
   const res = await fetch(`${LIST}?${q}`, { headers: { "user-agent": "Pradixium/1.0 (+https://pradixium.com)", accept: "text/html" }, signal: AbortSignal.timeout(FETCH_MS) });
@@ -144,14 +155,14 @@ export default async function handler(req, res) {
   const kinds = kind === "all" ? Object.keys(KINDS) : [kind];
   const base = { ...(municipality && { municipality }), ...(subtype && { estateSubtype: subtype }) };
   try {
-    const results = await Promise.all(kinds.map((k) => getKind({ ...base, kind: KINDS[k].code })));
+    const [fx, ...results] = await Promise.all([ilsPerEur(), ...kinds.map((k) => getKind({ ...base, kind: KINDS[k].code }))]);
     const seen = new Set();
     const rows = results.flatMap((r) => r.rows).map((r) => (subtype && !r.subtype ? { ...r, subtype: SUBTYPES[subtype] } : r)).filter((r) => !seen.has(r.id) && seen.add(r.id)).sort((a, b) => a.end.localeCompare(b.end));
     res.setHeader("Cache-Control", "s-maxage=900, stale-while-revalidate=3600");
     return res.status(200).json({
       ok: true, source: SOURCE, sourceUrl: BASE + "/", retrievedAt: new Date().toISOString(),
       filters: { municipality: municipality ? LT_MUNICIPALITIES[municipality] : null, subtype: SUBTYPES[subtype] || null, kind: kinds.map((k) => KINDS[k].en) },
-      truncated: results.some((r) => r.truncated), count: rows.length, rows,
+      truncated: results.some((r) => r.truncated), count: rows.length, rows, fx,
       note: "Starting prices are set by the bailiff or insolvency administrator for the auction; they are not market values. Always read the official auction page (conditions, encumbrances, occupancy) before bidding."
     });
   } catch (e) {
