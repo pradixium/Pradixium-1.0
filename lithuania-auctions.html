@@ -39,6 +39,11 @@ tbody tr:last-child td{border-bottom:0}
 .num{white-space:nowrap;font-weight:700}
 .muted{color:#9aa2ad;font-weight:400}
 a.off{color:#2463f5;font-weight:700;text-decoration:none;white-space:nowrap}
+.gv{display:block;margin-top:8px;font:inherit;font-size:12px;font-weight:700;color:#18794e;background:#e9f7ef;border:1px solid #bfe6cf;border-radius:8px;padding:5px 9px;cursor:pointer;white-space:nowrap}
+.gvbox{margin-top:8px;font-size:12px;line-height:1.5;background:#f4fbf7;border:1px solid #cfeedd;border-radius:9px;padding:8px 10px;min-width:210px}
+.gvbox code{font-weight:700;color:#172131}
+.gvbox a{color:#18794e;font-weight:700;text-decoration:none}
+.gvbox .ok{color:#18794e;font-size:11px}
 .disclaimer{font-size:12px;color:#9aa2ad;margin-top:28px;line-height:1.6}
 footer{text-align:center;color:#9aa2ad;font-size:11px;letter-spacing:.4px;padding:36px 0 0}
 footer a{color:inherit}
@@ -63,6 +68,8 @@ footer a{color:inherit}
   <p class="intro">Real-estate auctions run by Lithuanian <b>bailiffs</b> (antstoliai) and <b>insolvency administrators</b> (nemokumo administratoriai), read live from the official e-auction portal of the State Enterprise Centre of Registers — <a href="https://www.evarzytynes.lt/" target="_blank" rel="noopener">evarzytynes.lt</a>. Nothing here is a listing we collected or a price we estimated.</p>
 
   <div class="notice warn"><b>A starting price is not a market value.</b> It is set by the bailiff or administrator for the auction. Enforced sales can carry debts, mortgages, tenants or occupants, and are sold as they are. Always read the conditions on the official auction page — and run the property through Pradixium — before you bid.</div>
+
+  <div class="notice"><b>Government value check.</b> Registrų centras publishes an official average market value (mass valuation, for property tax) for every property. Tap <b>Government value</b> on an auction: Pradixium shows the property's official unique number, copies it, and opens the official search — paste it there and press <i>Ieškoti</i>. Registrų centras answers only people's browsers directly, so Pradixium never shows that value itself.</div>
 
   <form class="filters" id="f">
     <label>Municipality<select id="municipality"><option value="">All of Lithuania</option></select></label>
@@ -89,7 +96,7 @@ footer a{color:inherit}
     <tbody id="tbody"></tbody>
   </table>
 
-  <p class="disclaimer">Source: Valstybės įmonė Registrų centras — evarzytynes.lt, announced and running real-estate auctions, refreshed at most every 15 minutes. "Start price / m²" is the official starting price divided by the official area, shown only when one whole property measured in square metres is sold — never for a fractional share (e.g. "1/4 dalis") or a multi-property lot. Pradixium does not copy contact details or owner names from auction pages. Times are Lithuanian local time.</p>
+  <p class="disclaimer">Source: Valstybės įmonė Registrų centras — evarzytynes.lt, announced and running real-estate auctions, refreshed at most every 15 minutes. "Start price / m²" is the official starting price divided by the official area, shown only when one whole property measured in square metres is sold — never for a fractional share (e.g. "1/4 dalis") or a multi-property lot. Pradixium reads only the official unique number and address from an auction page — never contact details or owner names. The government value is Registrų centras' mass valuation for property tax: an official reference point, not a price. Times are Lithuanian local time.</p>
 
   <footer>PRADIXIUM™ — <a href="/index.html">pradixium.com</a></footer>
 </main>
@@ -133,7 +140,7 @@ footer a{color:inherit}
           '<td data-l="Starting price" class="num">' + eur(r.startPriceEur) + '</td>' +
           '<td data-l="Start price / m²" class="num">' + (r.startPricePerM2 ? eur(r.startPricePerM2) : '<span class="muted">—</span>') + '</td>' +
           '<td data-l="Last bid" class="num">' + eur(r.lastBidEur) + '</td>' +
-          '<td><a class="off" href="' + esc(r.url) + '" target="_blank" rel="noopener">Official page ↗</a></td>' +
+          '<td><a class="off" href="' + esc(r.url) + '" target="_blank" rel="noopener">Official page ↗</a><button type="button" class="gv" data-id="' + esc(r.id) + '" data-number="' + esc(r.number) + '">Government value</button></td>' +
           '</tr>';
       }).join("");
       table.style.display = "";
@@ -141,6 +148,25 @@ footer a{color:inherit}
       status.textContent = "The official portal is not available right now. Try again in a minute.";
     } finally { go.disabled = false; }
   }
+  const copy = async (t) => { try { await navigator.clipboard.writeText(t); return true; } catch (e) { return false; } };
+  tbody.addEventListener("click", async (e) => {
+    const link = e.target.closest("a[data-un]");
+    if (link) { const ok = await copy(link.dataset.un); const n = link.closest(".gvbox").querySelector(".ok"); if (n) n.textContent = ok ? "Copied " + link.dataset.un + " — paste it in the search field." : "Copy the number above, then paste it in the search field."; return; }
+    const b = e.target.closest("button.gv");
+    if (!b) return;
+    b.disabled = true; b.textContent = "Reading official page…";
+    try {
+      const j = await (await fetch("/api/lt-auctions?id=" + encodeURIComponent(b.dataset.id) + "&number=" + encodeURIComponent(b.dataset.number))).json();
+      const box = document.createElement("div"); box.className = "gvbox";
+      if (!j.ok || !j.properties.length) { box.textContent = "No unique number found on the official page — open it to check."; }
+      else {
+        const show = j.properties.slice(0, 5);
+        box.innerHTML = show.map(p => '<div><code>' + esc(p.uniqueNumber) + '</code><br><span class="muted">' + esc(p.address) + '</span><br><a href="' + esc(j.valueSearchUrl) + '" target="_blank" rel="noopener" data-un="' + esc(p.uniqueNumber) + '">Copy &amp; open Registrų centras ↗</a></div>').join('<hr style="border:0;border-top:1px solid #cfeedd;margin:6px 0">') +
+          (j.properties.length > 5 ? '<div class="muted">+ ' + (j.properties.length - 5) + ' more properties on the official page</div>' : '') + '<div class="ok"></div>';
+      }
+      b.replaceWith(box);
+    } catch (err) { b.disabled = false; b.textContent = "Government value"; }
+  });
   document.getElementById("f").addEventListener("submit", (e) => { e.preventDefault(); load(); });
   load();
 })();

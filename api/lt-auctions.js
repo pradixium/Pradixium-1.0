@@ -87,6 +87,20 @@ export function parseList(html) {
   return { rows, lastPage: pages.length ? Math.max(...pages) : 0 };
 }
 
+// Registrų centras' public "average market value" (mass valuation) search by
+// unique number. Cloudflare blocks server requests to it (tested from this
+// sandbox and from Vercel, Sept 2026), so the visitor opens it themselves.
+const VALUE_SEARCH = "https://www.registrucentras.lt/masvert/paieska-un";
+
+export function parseUniqueNumbers(html) {
+  const out = [];
+  for (const m of html.matchAll(/<span class="left">Unikalus Nr\.:<\/span>\s*<span class="right">([^<]*)<\/span>[\s\S]*?<span class="left">Adresas:<\/span>\s*<span class="right">([^<]*)<\/span>/g)) {
+    const un = text(m[1]);
+    if (/^\d{4}-\d{4}-\d{4}(:\d{1,5})?$/.test(un) && !out.some((x) => x.uniqueNumber === un)) out.push({ uniqueNumber: un, address: text(m[2]) });
+  }
+  return out;
+}
+
 async function getPage(params, page) {
   const q = new URLSearchParams({ listType: "1", estateType: "1", stateType: "PASKELBTA-IR-VYKSTA", sortBy: "endDate.ASC", ...params, page: String(page) });
   const res = await fetch(`${LIST}?${q}`, { headers: { "user-agent": "Pradixium/1.0 (+https://pradixium.com)", accept: "text/html" }, signal: AbortSignal.timeout(FETCH_MS) });
@@ -106,6 +120,21 @@ async function getKind(params) {
 
 export default async function handler(req, res) {
   const q = req.query || {};
+  // one auction's official property number(s) — the only field read from a
+  // detail page (plus its address, to label it); no contacts or owner names
+  if (q.id || q.number) {
+    const id = String(q.id || ""), number = String(q.number || "");
+    if (!/^\d{1,10}$/.test(id) || !/^\d{1,10}$/.test(number)) return res.status(400).json({ ok: false, error: "Invalid auction" });
+    try {
+      const r = await fetch(`${BASE}/evs/pages/auction.do?id=${id}&number=${number}`, { headers: { "user-agent": "Pradixium/1.0 (+https://pradixium.com)", accept: "text/html" }, signal: AbortSignal.timeout(FETCH_MS) });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const properties = parseUniqueNumbers(await r.text());
+      res.setHeader("Cache-Control", "s-maxage=3600, stale-while-revalidate=86400");
+      return res.status(200).json({ ok: true, source: SOURCE, properties, valueSearchUrl: VALUE_SEARCH });
+    } catch (e) {
+      return res.status(502).json({ ok: false, error: "The official portal did not answer in time." });
+    }
+  }
   const municipality = q.municipality ? String(q.municipality) : "";
   const subtype = q.subtype ? String(q.subtype) : "";
   const kind = q.kind ? String(q.kind) : "all";
