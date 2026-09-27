@@ -31,7 +31,9 @@ const MIN_SALES = 10;
 const COUNTIES = {
   "12086": { co: 23, name: "Dade" }, "12011": { co: 16, name: "Broward" }, "12099": { co: 60, name: "Palm Beach" },
   "12057": { co: 39, name: "Hillsborough" }, "12103": { co: 62, name: "Pinellas" }, "12101": { co: 61, name: "Pasco" }, "12053": { co: 37, name: "Hernando" },
-  "12095": { co: 58, name: "Orange" }, "12097": { co: 59, name: "Osceola" }, "12117": { co: 69, name: "Seminole" }, "12069": { co: 45, name: "Lake" }
+  "12095": { co: 58, name: "Orange" }, "12097": { co: 59, name: "Osceola" }, "12117": { co: 69, name: "Seminole" }, "12069": { co: 45, name: "Lake" },
+  // Jacksonville metro (#38)
+  "12031": { co: 26, name: "Duval" }, "12109": { co: 65, name: "Saint Johns" }, "12019": { co: 20, name: "Clay" }, "12089": { co: 55, name: "Nassau" }, "12003": { co: 12, name: "Baker" }
 };
 const OUT = new URL("../lib/data/flSales.js", import.meta.url);
 const dir = mkdtempSync(join(tmpdir(), "fl-pto-"));
