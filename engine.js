@@ -588,9 +588,10 @@
     const priceM2 = price && size ? price / size : null;
     const annualRent = monthlyRent ? monthlyRent * 12 : null;
     const gross = price && annualRent ? (annualRent / price) * 100 : null;
-    const expenses = annualRent ? annualRent * 0.22 : null; // rough placeholder, AI/agent refines this
-    const netAnnual = annualRent !== null && expenses !== null ? annualRent - expenses : null;
-    const net = price && netAnnual !== null ? (netAnnual / price) * 100 : null;
+    // No verified running-cost figure exists for this property (no official
+    // per-country expense benchmark, no user-entered opex) — net yield is
+    // left null rather than computed off an invented expense ratio.
+    const net = null;
     const currency = currencyForCountry(inputs.country);
 
     set("propertyAddress", window.pradixiumPropertyAddress || [inputs.city, inputs.country].filter(Boolean).join(", ") || "—");
@@ -1089,17 +1090,15 @@
   //    estimate.
   const MORTGAGE_ASSUMPTION = { downPaymentPct: 30, ratePct: 6.5, years: 25 };
 
-  function cashOnCashReturnPercent(price, annualRent) {
-    if (!price || annualRent == null) return null;
-    const loanAmount = price * (1 - MORTGAGE_ASSUMPTION.downPaymentPct / 100);
-    const monthlyRate = MORTGAGE_ASSUMPTION.ratePct / 100 / 12;
-    const numPayments = MORTGAGE_ASSUMPTION.years * 12;
-    const monthlyPayment = loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, numPayments)) / (Math.pow(1 + monthlyRate, numPayments) - 1);
-    const annualDebtService = monthlyPayment * 12;
-    const annualOpex = annualRent * 0.22;
-    const annualCashFlow = annualRent - annualOpex - annualDebtService;
-    const cashInvested = price * (MORTGAGE_ASSUMPTION.downPaymentPct / 100);
-    return cashInvested > 0 ? (annualCashFlow / cashInvested) * 100 : null;
+  // Deliberately returns null: cash-on-cash needs a real running-cost figure
+  // to mean anything, and no official per-country expense benchmark or
+  // user-entered opex exists yet — an invented ratio here would fail the
+  // same data-honesty bar as everything else on this page. The "Financed"
+  // scenario in report.html hides itself when this is null. (The debt-service
+  // math this used to combine with the invented opex is generalized in
+  // annualDebtService() below, for the land-dev/commercial calculators.)
+  function cashOnCashReturnPercent() {
+    return null;
   }
 
   // BUG FIX: report.html's "Decision" row used to just repeat the exact
@@ -1127,8 +1126,10 @@
     const agent = window.pradixiumLastAgent || {};
     const hasScore = agent.score !== null && agent.score !== undefined && Number.isFinite(Number(agent.score));
     const gross = price && annualRent ? (annualRent / price) * 100 : null;
-    const expenses = annualRent ? annualRent * 0.22 : null;
-    const net = price && annualRent !== null && expenses !== null ? ((annualRent - expenses) / price) * 100 : null;
+    // No verified running-cost figure exists for this property — left null
+    // rather than computed off an invented expense ratio (see the same
+    // decision in renderRuleBasedResult() and cashOnCashReturnPercent()).
+    const net = null;
     const cashOnCash = (price && annualRent != null) ? cashOnCashReturnPercent(price, annualRent) : null;
     const airbnbNightlyRate = num($("airbnbNightlyRate")?.value);
     const airbnbOccupancyPct = num($("airbnbOccupancy")?.value);
