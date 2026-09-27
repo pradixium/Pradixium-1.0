@@ -169,3 +169,11 @@ challenge, data.gov.lt / get.data.gov.lt return a WAF "Attack ID" block page
 and osp.stat.gov.lt returns 403 to cloud IPs — do not try to bypass them.
 Plan: the user downloads the official open-data files in a normal browser and
 they are turned into a generated data file (same pattern as NJ/FL).
+
+Shipped: **Lithuania Auction Watch** (`lithuania-auctions.html` + `api/lt-auctions.js`)
+— live bailiff (kind 1) and insolvency-administrator (kind 2) real-estate
+auctions from evarzytynes.lt (Registrų centras). List pages only; never read
+detail pages' contacts/owner names. Per-m² start price only for one whole
+property in m² (not "1/4 dalis" shares, not multi-property lots). Fails closed
+on format change. Not yet linked from the top menu. Next: the RC "average
+market value" (mass valuation) page as the Lithuanian benchmark.
