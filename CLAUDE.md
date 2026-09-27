@@ -127,7 +127,7 @@ sessions pick up an environment change). Before starting: verify the actual data
 source structure for the target county/site with WebFetch/WebSearch — don't write
 scraping code against a guessed HTML structure.
 
-## US coverage (built Sept 2026 — top 20 metros by Census 2024 population)
+## US coverage (built Sept 2026 — top 50 metros by Census 2024 population; local data for the top 20 first)
 
 Working rules from the user for this work: build → verify (independent recompute
 of at least one figure + screenshot) → push only fully-verified changes; never say
@@ -160,8 +160,12 @@ largest metro first.
   context queries get short timeouts so they can never drop the property's own
   record.
 
-## Queued after the US: Lithuania
+## Lithuania (in progress)
 
 The user's earlier "Italy/Spain/Lithuania data" request meant Lithuania's state
-real-property register/cadastre — Registrų centras (registrucentras.lt). Not yet
-researched; verify what it publishes openly before building anything.
+real-property register/cadastre — Registrų centras (registrucentras.lt).
+Checked Sept 2026: registrucentras.lt and regia.lt sit behind a Cloudflare
+challenge, data.gov.lt / get.data.gov.lt return a WAF "Attack ID" block page
+and osp.stat.gov.lt returns 403 to cloud IPs — do not try to bypass them.
+Plan: the user downloads the official open-data files in a normal browser and
+they are turned into a generated data file (same pattern as NJ/FL).
