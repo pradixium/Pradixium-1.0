@@ -223,6 +223,9 @@ largest metro first.
   not shown. Boston module runs first. Matches on the geocoder's town name.
 - Vermont statewide: `vermont.js` — VCGI standardized parcels + Grand List
   (REAL_FLV + GLYEAR; towns reappraise on different cycles).
+- Tucson: Pima County (04019) `pima.js` — Assessor Full Cash Value + tax
+  year via City of Tucson PropertyHousing layer 40 (regional records);
+  USPS abbreviations (PLZ/CMNO…) normalised; ZIP optional.
 - Hartford (#50) + all of CT: `connecticut.js` — OPM Real Estate Sales
   (data.ct.gov 5mzw-sjtu, Socrata): last sale only with NO non-usable code;
   town median of usable single-family sales in the latest grand-list year
