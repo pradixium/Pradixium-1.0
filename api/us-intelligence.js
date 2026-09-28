@@ -24,7 +24,8 @@ function streetKey(line){const w=s(line).toUpperCase().replace(/[.,]/g,' ').spli
 function sameStreet(typed,matched){const a=streetKey(typed),b=streetKey(matched);if(!a.num)return true;return a.num===b.num&&(!a.dir||a.dir===b.dir)&&(!a.name||!b.name||a.name===b.name||b.name.startsWith(a.name)||a.name.startsWith(b.name));}
 // A slow/failed geocoder call must not blank the whole report (it used to
 // throw straight into the catch-all): it just means no address-level data.
-async function geocode(address,city,state,zip){const g0=await geocodeRaw(address,city,state,zip).catch(()=>null);if(!g0||!address)return g0;const typed=stripUnit(address);if(sameStreet(typed,s(g0.matchedAddress).split(',')[0]))return {...g0,addressVerified:true};
+async function geocode(address,city,state,zip){address=s(address).replace(/^(\d+)([NSEW])(?=\s)/i,'$1 $2'); // "298E 26th Street" → "298 E 26th Street"
+const g0=await geocodeRaw(address,city,state,zip).catch(()=>null);if(!g0||!address)return g0;const typed=stripUnit(address);if(sameStreet(typed,s(g0.matchedAddress).split(',')[0]))return {...g0,addressVerified:true};
   const cityOk=city&&s(g0.matchedAddress).split(',')[1]&&s(g0.matchedAddress).split(',')[1].trim().toUpperCase()===s(city).toUpperCase();
   const typedLine=[typed.toUpperCase(),s(city).toUpperCase(),s(state).toUpperCase(),s(zip)].filter(Boolean).join(', ');
   return cityOk?{...g0,matchedAddress:typedLine,latitude:null,longitude:null,zip:s(zip)||null,tract:null,addressVerified:false}:null;}
