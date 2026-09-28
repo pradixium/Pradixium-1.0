@@ -48,7 +48,9 @@ footer{text-align:center;color:#9aa2ad;font-size:11px;letter-spacing:.4px;paddin
   </div>
 
   <div id="notBusinessCard" class="card hidden">
-    <p>This account doesn't have an active Business plan. <a href="/index.html">Sign up for Business →</a></p>
+    <p>This account doesn't have an active Business plan.</p>
+    <p id="startBusinessError" class="error hidden"></p>
+    <button id="startBusinessBtn">Start Business Plan — $299.99/mo →</button>
   </div>
 
   <div id="brandingCard" class="card hidden">
@@ -85,7 +87,7 @@ footer{text-align:center;color:#9aa2ad;font-size:11px;letter-spacing:.4px;paddin
   </div>
 
   <footer>
-    <div><a href="mailto:cs@pradixium.com" style="color:inherit">cs@pradixium.com</a></div>
+    <div><a href="mailto:cs@pradixium.com" style="color:inherit">Contact</a></div>
     <div>PRADIXIUM™ — GLOBAL PROPERTY INTELLIGENCE</div>
     <div style="margin-top:8px"><a href="/terms.html" style="color:inherit">Terms</a> · <a href="/privacy-policy.html" style="color:inherit">Privacy</a></div>
   </footer>
@@ -100,6 +102,8 @@ footer{text-align:center;color:#9aa2ad;font-size:11px;letter-spacing:.4px;paddin
   const $ = (id) => document.getElementById(id);
   const signInCard = $("signInCard");
   const notBusinessCard = $("notBusinessCard");
+  const startBusinessBtn = $("startBusinessBtn");
+  const startBusinessError = $("startBusinessError");
   const brandingCard = $("brandingCard");
   const apiCard = $("apiCard");
   let userId = null;
@@ -163,6 +167,33 @@ footer{text-align:center;color:#9aa2ad;font-size:11px;letter-spacing:.4px;paddin
       return;
     }
     loadBranding();
+  });
+
+  startBusinessBtn.addEventListener("click", async () => {
+    startBusinessError.classList.add("hidden");
+    startBusinessBtn.disabled = true;
+    try {
+      const { data: sessionData } = await client.auth.getSession();
+      const token = sessionData?.session?.access_token;
+      if (!token) { startBusinessBtn.disabled = false; return; }
+      const r = await fetch("/api/create-checkout-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ propertyTitle: "Business Plan Signup", plan: "business" })
+      });
+      const json = await r.json().catch(() => null);
+      if (!json?.url) {
+        startBusinessError.textContent = json?.error || "Could not start checkout right now. Please try again.";
+        startBusinessError.classList.remove("hidden");
+        startBusinessBtn.disabled = false;
+        return;
+      }
+      window.location.href = json.url;
+    } catch (e) {
+      startBusinessError.textContent = "Could not start checkout right now. Please try again.";
+      startBusinessError.classList.remove("hidden");
+      startBusinessBtn.disabled = false;
+    }
   });
 
   $("saveBtn").addEventListener("click", async () => {
