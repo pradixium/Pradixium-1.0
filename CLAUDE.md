@@ -304,6 +304,10 @@ largest metro first.
   (APPRAISED_TOTAL_VALUE + TAXYR) + Sales and Transfers: last sale only if
   the parcel's latest transfer is "0-QUALIFIED - ARMSLENGTH" and single
   parcel; otherwise the code is named.
+- Summit County OH (39153, Akron): `summitOH.js` — Fiscal Office
+  parcels_cama/Tax_Parcel_Sales: cntmktvalue (no tax year in layer), floor
+  area, year built; town = taxing jurisdiction. Sales not shown (undocumented
+  sale codes; Parcel_Sales table ends 2020).
 - Texas additions (`texas.js`, generic `find` configs): Tarrant (TAD roll as
   published by City of Fort Worth "Parcels_Public_View" — whole county, 2024
   roll as of Sept 2026, shown with its year), Collin (CCAD's own layer; the
