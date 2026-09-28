@@ -364,6 +364,9 @@ largest metro first.
   Property → latest Assessment totalValueAmt + year; ALWAYS $select — the
   records carry owner/grantee names; market sales have a blank type code
   (undocumented) → sales not shown).
+  Linn IA (19113, county RealEstateParcel: ValueTotal + AssessmentYear,
+  both Linn County and Cedar Rapids assessors; rollback taxable not shown).
+  Jackson OR skipped: its tax-lot LANDVALUE/IMPVALUE are undocumented.
 - Indiana statewide (outside Marion): `indiana.js` reads
   `lib/data/indiana/<FIPS>.json.gz`, built by
   `python3 scripts/build-in-parcels.py 2025` from each county's DLGF
