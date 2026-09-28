@@ -315,7 +315,8 @@ function normalizeMarketEvidence(country, raw, propertyType) {
     // enough samples, falling back to the blended figure otherwise.
     const wantsHouse = /house|villa|detached|chalet|maison/i.test(String(propertyType || ""));
     const typeBucket = wantsHouse ? dvf.house : /apartment|flat|condo|appartement/i.test(String(propertyType || "")) ? dvf.apartment : null;
-    const benchmarkSource = typeBucket?.sampleSize > 0 ? typeBucket : dvf;
+    const benchmarkSource = typeBucket?.sampleSize >= 10 ? typeBucket : dvf; // 2 house sales in Lyon 2e are not a benchmark
+    const ac = String(dvf.area || ""), arr = /^751\d\d$/.test(ac) ? Number(ac.slice(3)) : /^6938\d$/.test(ac) ? Number(ac.slice(4)) : /^132\d\d$/.test(ac) ? Number(ac.slice(3)) : null; // 75108 → 8e, 69382 → 2e, 13208 → 8e
     // FIX: the commune-wide rental average is meaningless for a street like
     // Rue Cambon (Place Vendôme) — applying it there produced a confidently
     // wrong "estimated rent" that dragged the score down to "Avoid" for a
@@ -331,8 +332,8 @@ function normalizeMarketEvidence(country, raw, propertyType) {
       governmentValue: null,
       transactionValue: benchmarkSource?.medianTransactionEur ?? null,
       transactionPeriod: dvf.transactionWindow ?? null,
-      marketArea: raw.commune?.name ?? null,
-      source: "INSEE + DVF (DGFiP) + geo.api.gouv.fr",
+      marketArea: raw.commune?.name ? raw.commune.name + (arr && !/arrondissement/i.test(raw.commune.name) ? ` — ${arr}${arr === 1 ? "er" : "e"} arrondissement` : "") : null,
+      source: `INSEE + ${dvf.source || "DVF (DGFiP)"}${dvf.sampleSize ? ` — ${dvf.sampleSize.toLocaleString("en-US")} single-dwelling sales` : ""} + geo.api.gouv.fr`,
       coverage: benchmarkSource?.medianEurPerM2 != null ? "city" : "none",
       // Real government/open-data rental benchmark (data.gouv.fr commune
       // rental dataset) that was already being fetched but never used —

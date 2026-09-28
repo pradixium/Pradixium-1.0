@@ -574,6 +574,21 @@ search, which Cloudflare blocks for servers incl. Vercel) is part of it. Shekel
 prices were tried and dropped by the user — EUR only. Next: the RC "average
 market value" (mass valuation) page as the Lithuanian benchmark.
 
+## France DVF source (Sept 2026)
+
+`api/france-intelligence.js` read DVF from api.cquest.org — an unofficial
+community mirror, down with HTTP 502 in Sept 2026, so every French report had
+no benchmark. Now the official Etalab "geo-dvf" CSVs on files.data.gouv.fr
+(`/geo-dvf/latest/csv/<year>/communes/<dep>/<insee>.csv`): latest two yearly
+files (falls back one year if the new file is not out yet); Paris/Lyon/
+Marseille are filed per arrondissement — an ADDRESS uses its arrondissement
+(api-adresse citycode/postcode), a city-only query reads all arrondissements
+for the latest year (Paris: 20 files, ~16 MB, ~3 s). Sales grouped by
+id_mutation: "Vente" of exactly one Appartement/Maison (Dépendance rows
+allowed, any other local drops the deed). Orchestrator: a type bucket needs
+≥ 10 sales, Market Area names the arrondissement. Recompute check: Lyon 2e
+(69382, 2024–2025) 736 sales, median €5,140/m² (Python from the raw files).
+
 ## Net Yield / Cash-on-Cash fix (shipped Sept 2026)
 
 `engine.js` had three places computing "Net Yield" and "Cash-on-Cash" off a flat,
