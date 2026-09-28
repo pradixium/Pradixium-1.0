@@ -359,8 +359,35 @@ Flagged directly to the user, unresolved as of this writing:
   The Stripe Customer Portal fix (self-service cancellation) is untested live.
   Recommended: the user should run this once, manually, with a real small charge,
   before driving real traffic to the site.
-- **No production error monitoring.** Vercel's Runtime Errors/Observability API
-  returned 403 Forbidden when checked from this session — likely gated behind a
-  paid plan/add-on. The user considers this worth paying for (unlike the Vercel
-  team split above) — in progress, waiting on a screenshot of Settings →
-  Observability on the `pradixium` project to confirm exact cost before upgrading.
+- **Production error monitoring — resolved, was a false alarm.** The
+  `get_runtime_errors` MCP tool returned 403, but Vercel's own Observability
+  dashboard (Edge Requests, Function errors/timeouts, Compute) was already
+  live and free on the current plan — the 403 was that one specific MCP/API
+  endpoint, not a real gap. Confirmed via screenshot: 0% errors, 0% timeouts.
+  Also enabled **Vercel Web Analytics** (visitor stats) the same way — it was
+  already free/enabled on the dashboard side but collecting no data because
+  this plain-HTML site never sent it anything; fixed by adding
+  `<script defer src="/_vercel/insights/script.js"></script>` before
+  `</body>` on all 9 top-level pages (shipped).
+- **Launch coupon (in progress):** `api/create-checkout-session.js` now sets
+  `allow_promotion_codes: true` (shipped) so Stripe's own hosted checkout
+  shows a promo-code field. The user is creating the actual Coupon +
+  Promotion Code directly in the Stripe Dashboard — capped at
+  **max_redemptions: 20**, deliberately **no expiry date** ("Redeem by" left
+  blank) — for the first-20-free/testimonial-gathering push. No code here
+  validates or tracks redemptions; Stripe enforces the cap itself.
+
+## For the other session (Claude B): Georgia data gap flagged (Sept 2026)
+
+The user is specifically interested in Georgia (the country) as a hot,
+current market for Israeli buyers — real tax advantages (territorial
+taxation, 0% capital gains after 2 years held, no transfer tax), confirmed
+via web search against secondary sources (law-firm/expat blogs, not yet
+cross-checked against rs.ge/NAPR directly). Georgia already has solid,
+correctly-sourced `closingCosts.js` and `propertyTax.js` entries (NAPR,
+Georgia Revenue Service). **Missing and worth prioritizing if there's a
+natural gap in the US work below:** `foreignBuyerRules.js` (Georgia is
+known for unusually open foreign-ownership rules — worth verifying and
+adding) and a `recentTransactionPrices.js` / `globalIndexTrends.js` entry
+(price trend). Same honesty bar as everything else — only add what clears
+it against Georgia's own official sources.
