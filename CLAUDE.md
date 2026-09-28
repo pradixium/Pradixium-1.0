@@ -295,6 +295,12 @@ largest metro first.
   unit records = one multi-unit deed → excluded (350 W 57th: 5 records →
   3 single-unit, median $665,000, recomputed by hand). Street matching via
   nycStreet(): "WEST 57 STREET" = "W 57TH ST"; Queens "41-15" numbers kept.
+  Lots can carry a house-number RANGE (125 Prospect Park W is in lot range
+  "115-155") → a second DOF query for ranges, limited by the geocoder ZIP
+  (without it the query takes >7 s); same-side parity check. The city's
+  Socrata server answers the same query in 1–8 s → hedged requests
+  (second after 3 s). Test addresses must exist: the Census geocoder
+  happily interpolates non-existent numbers (1520 Metropolitan Ave).
 - Shared matcher `lib/usLocal/_structured.js` (`structuredEvidence`): for
   official layers with a structured situs address — number + name must
   match, dir/type agree when both present, ZIP OR town must match, unit
