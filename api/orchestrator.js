@@ -265,6 +265,20 @@ function nycSalesContext(n) {
   if (n.status === "insufficient_sales") {
     return `NYC Dept. of Finance: only ${n.salesCount} usable sales of ${n.category} in ${zip} in the last 12 months — not enough for a reliable local figure. ${src}`;
   }
+  if (n.status === "ok_condo" || n.status === "insufficient_condo") {
+    const usd = (x) => "$" + Math.round(x).toLocaleString("en-US");
+    const parts = [];
+    if (n.status === "ok_condo") {
+      parts.push(`NYC Dept. of Finance: ${n.condoSalesCount} recorded condo unit sales in ${zip} (${n.periodFrom} to ${n.periodTo}), median ${usd(n.medianPerUnitGrossSqFt)} per sq ft (middle half ${usd(n.p25PerUnitGrossSqFt)}–${usd(n.p75PerUnitGrossSqFt)}), measured on each unit's share of the building's gross floor area from the DOF assessment roll — this includes a share of common areas, so it is lower than a price per interior sq ft; sales are not screened for arm's length. Context only, not used in the verdict.`);
+      if (n.askingPerUnitGrossSqFt) parts.push(`On the same basis this unit's asking price is ${usd(n.askingPerUnitGrossSqFt)} per sq ft (${usd(n.askingPrice)} ÷ ${n.unitGrossSqFt.toLocaleString("en-US")} sq ft, the unit's DOF share).`);
+    } else {
+      parts.push(n.condoSalesCount ? `NYC Dept. of Finance: only ${n.condoSalesCount} condo unit sales with a DOF unit area in ${zip} in the last 12 months — not enough for a local per-sq-ft figure.` : `NYC Dept. of Finance: no recorded condo unit sales in ${zip} in the last 12 months.`);
+    if (n.coopSalesCount && !n.coopMedianPrice) parts.push(`${n.coopSalesCount} co-op sales — too few for a median.`);
+    }
+    if (n.coopMedianPrice) parts.push(`Co-op apartments in ${zip}: ${n.coopSalesCount} recorded sales, median price ${usd(n.coopMedianPrice)} (co-op sales carry no unit area in any official dataset).`);
+    if (n.excludedMultiPropertyDeeds) parts.push(`${n.excludedMultiPropertyDeeds} records sharing one deed price were left out.`);
+    return parts.join(" ") + ` ${src}`;
+  }
   if (n.status === "no_unit_area") {
     return `NYC Dept. of Finance: ${n.salesCount} recorded condo/co-op sales in ${zip} in the last 12 months, but DOF does not publish unit floor area — no per-sq-ft comparison exists for apartments. ${src}`;
   }
