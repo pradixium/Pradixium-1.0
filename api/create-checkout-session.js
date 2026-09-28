@@ -1,8 +1,11 @@
 /* PRADIXIUM™ — Stripe Checkout session creator
  * Three ways to pay for the full report (report.html):
- * - "report": one-time $29 unlock for a single property.
- * - "subscription": $299/year for unlimited reports (individual investors).
- * - "business": $299/month for unlimited reports (companies & institutions
+ * - "report": one-time $29.99 unlock for a single property.
+ * - "monthly": $29.99/month for individuals, capped at 3 reports per cycle
+ *   (see api/consume-monthly-slot.js for how that cap is enforced) — the
+ *   flexible entry point for someone who isn't ready to commit to a year.
+ * - "subscription": $2,999.99/year for unlimited reports (individual investors).
+ * - "business": $299.99/month for unlimited reports (companies & institutions
  *   — banks, funds, agencies; see the Business Solutions page).
  * Uses Stripe's plain REST API directly (form-encoded POST) rather than
  * the stripe npm package — this project has zero dependencies by design,
@@ -20,9 +23,10 @@
  * hardcode it — Stripe secret keys must never appear in client code or
  * git history.
  */
-const REPORT_PRICE_USD_CENTS = 2900; // $29.00 one-time
-const SUBSCRIPTION_PRICE_USD_CENTS = 29900; // $299.00 / year (individual)
-const BUSINESS_PRICE_USD_CENTS = 29900; // $299.00 / month (companies & institutions — banks, funds, agencies)
+const REPORT_PRICE_USD_CENTS = 2999; // $29.99 one-time
+const MONTHLY_PRICE_USD_CENTS = 2999; // $29.99 / month (individual, capped at 3 reports/cycle)
+const SUBSCRIPTION_PRICE_USD_CENTS = 299999; // $2,999.99 / year (individual)
+const BUSINESS_PRICE_USD_CENTS = 29999; // $299.99 / month (companies & institutions — banks, funds, agencies)
 
 // Same public project URL/anon key already committed in supabase-config.js
 // for the client — these are meant to be public (RLS is what actually
@@ -64,7 +68,7 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "Invalid JSON body" });
   }
 
-  const plan = body?.plan === "subscription" ? "subscription" : (body?.plan === "business" ? "business" : "report");
+  const plan = body?.plan === "subscription" ? "subscription" : (body?.plan === "business" ? "business" : (body?.plan === "monthly" ? "monthly" : "report"));
   const propertyTitle = String(body?.propertyTitle || "Property analysis").slice(0, 200);
   const reportSignature = String(body?.reportSignature || "").slice(0, 300);
   if (plan === "report" && !reportSignature) {
@@ -106,7 +110,7 @@ export default async function handler(req, res) {
   if (plan === "report") params.set("metadata[report_signature]", reportSignature);
   if (referralCode) params.set("metadata[referral_code]", referralCode);
 
-  if (plan === "subscription" || plan === "business") {
+  if (plan === "subscription" || plan === "business" || plan === "monthly") {
     params.set("mode", "subscription");
     if (plan === "business") {
       // Companies & institutions (banks, funds, agencies — see the
@@ -117,6 +121,14 @@ export default async function handler(req, res) {
       params.set("line_items[0][price_data][product_data][name]", "Pradixium Business — Unlimited Reports (Monthly)");
       params.set("line_items[0][price_data][unit_amount]", String(BUSINESS_PRICE_USD_CENTS));
       params.set("line_items[0][price_data][recurring][interval]", "month");
+    } else if (plan === "monthly") {
+      // Individual, capped at 3 reports/cycle (enforced in
+      // api/consume-monthly-slot.js) — no trial, same reasoning as business:
+      // this plan already costs the same as one single report, so there's
+      // nothing to "try" that a trial would add.
+      params.set("line_items[0][price_data][product_data][name]", "Pradixium Individual Monthly — Up to 3 Reports");
+      params.set("line_items[0][price_data][unit_amount]", String(MONTHLY_PRICE_USD_CENTS));
+      params.set("line_items[0][price_data][recurring][interval]", "month");
     } else {
       params.set("line_items[0][price_data][product_data][name]", "Pradixium Unlimited Reports — Annual");
       params.set("line_items[0][price_data][unit_amount]", String(SUBSCRIPTION_PRICE_USD_CENTS));
@@ -124,7 +136,7 @@ export default async function handler(req, res) {
       // 7-day free trial, card collected upfront — Stripe auto-charges the
       // full annual price the moment the trial ends unless the customer
       // cancels first. Aimed at repeat users (agents with a constant stream
-      // of new listings to check), not the one-time $29 report below, which
+      // of new listings to check), not the one-time $29.99 report below, which
       // has no trial since there's nothing recurring to try out.
       params.set("subscription_data[trial_period_days]", "7");
     }

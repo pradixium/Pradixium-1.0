@@ -542,11 +542,78 @@ Flagged directly to the user, unresolved as of this writing:
   `</body>` on all 9 top-level pages (shipped).
 - **Launch coupon (in progress):** `api/create-checkout-session.js` now sets
   `allow_promotion_codes: true` (shipped) so Stripe's own hosted checkout
-  shows a promo-code field. The user is creating the actual Coupon +
-  Promotion Code directly in the Stripe Dashboard — capped at
-  **max_redemptions: 20**, deliberately **no expiry date** ("Redeem by" left
-  blank) — for the first-20-free/testimonial-gathering push. No code here
-  validates or tracks redemptions; Stripe enforces the cap itself.
+  shows a promo-code field. The user created the Coupon itself directly in
+  the Stripe Dashboard — confirmed via the dashboard's own CSV export:
+  100% off, `once`, **max_redemptions: 20**, no `Redeem By` date — exactly
+  the first-20-free/testimonial-gathering design. Still pending: creating
+  the customer-facing **Promotion Code** (the actual code word, e.g.
+  "FIRST20") linked to that coupon — without one, nothing can be typed into
+  Checkout's promo field. No code here validates or tracks redemptions;
+  Stripe enforces the cap itself.
+
+## Pricing tiers (Sept 2026)
+
+Four ways to pay, all in `api/create-checkout-session.js`:
+- **One-time report — $29.99.** Single property, no recurring charge.
+- **Individual monthly — $29.99/month.** NEW. Capped at **3 reports per
+  30-day cycle** (not unlimited) — the flexible entry point for someone not
+  ready to commit to the annual plan. No trial.
+- **Individual annual — $2,999.99/year.** Unlimited reports, 7-day trial.
+- **Business — $299.99/month.** Unlimited reports, no trial, for companies
+  & institutions (banks, funds, agencies).
+
+**Real bug found and fixed while adding the monthly plan:** the Supabase
+`purchases.kind` CHECK constraint only allowed `'report'` and
+`'subscription'` — the already-shipped `business` plan could never actually
+insert its entitlement row, so business signups silently failed to grant
+access. Fixed via `apply_migration` to allow
+`report/subscription/business/monthly/monthly_usage`, plus a partial unique
+index on `(user_id, report_signature) where kind='monthly_usage'` so the
+same report can never be double-counted against the 3-report cap (e.g. two
+tabs open at once).
+
+**How the 3-report cap is enforced (`monthly` plan only):** the client can
+only ever SELECT its own `purchases` rows (RLS) — it can't grant itself
+access by writing a fake usage row. `api/consume-monthly-slot.js` (service
+role) is the one place a slot actually gets spent: called only when the
+user clicks to actually open a report they haven't unlocked yet (never
+just from rendering the button label, or every page view would burn the
+cap). It checks the active `monthly` row's own `created_at` as the cycle
+anchor — floor((now − anchor) / 30 days) picks the current cycle — since
+there is still no Stripe renewal webhook in this project (same known
+limitation already accepted for `subscription`/`business` expiry). Once a
+report is spent from the quota it's unlocked for good, same model as a
+one-time `report` purchase.
+
+**Business-plan differentiation (raised by the user):** the concern was a
+company just using the cheap individual plan instead of paying for
+Business, since the underlying report data/grade must be identical for
+everyone (data-honesty rule — never degrade quality by price). The
+differentiation has to be in usage rights, not data quality. User picked
+white-label branding to build first, of 4 ideas raised (the other 3 —
+API/integration access, bulk/portfolio analysis, a compliance/audit-trail
+PDF export — are real future features, not started).
+
+**White-label branding — shipped.** `terms.html` §3a: individual-tier
+reports (one-time, monthly, annual) are personal-use-only — may not be
+resold, redistributed, or white-labeled; that requires Business. Backed by
+an actual mechanism, not just the legal clause: `business-branding.html`
+(new page, gated on an active `business` purchases row) lets a Business
+account set a company name + upload a logo (Supabase Storage bucket
+`business-logos`, public-read/own-folder-write; table `business_branding`,
+owner-only RLS). `engine.js`'s `getWatermarkInfo()`/`attachWatermark()`
+fetch that row only when the viewer's active plan is `business`, and
+`report.html`'s `renderWatermark()` swaps in `renderBusinessBranding()`
+(their logo + name next to the property title) instead of the Pradixium
+seal — individual-tier reports are structurally incapable of ever showing
+this, not just told not to. No branding configured yet → falls back to the
+default Pradixium seal, never blank. Verified visually (headless Chromium,
+both the business-branded path and the unchanged default-seal path render
+correctly) — the actual Supabase Storage upload round-trip could not be
+exercised in this sandbox (jsdelivr CDN blocked here, same known
+limitation as the account-gate testing note above); confirm the real
+upload once on the live site before telling a Business customer to use it.
+Linked from `mockups/index.html` (Business Solutions page).
 
 ## For the other session (Claude B): Georgia data gap flagged (Sept 2026)
 
