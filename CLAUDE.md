@@ -156,6 +156,10 @@ largest metro first.
 - San Antonio (#24): Bexar (48029) in `lib/usLocal/texas.js` — BCAD final
   (post-protest) value from Bexar County GIS "Parcels" (reloaded each fall;
   no tax year in the layer, so none is shown).
+- Austin (#25): Travis (48453) in `texas.js` — TCAD market value from Travis
+  County TNR's published copy "TCAD_Parcels_Dec_2025" (2025 roll). TNR
+  publishes dated copies: when a newer one appears, point the URL at it and
+  update the label/year.
 - Not yet covered at property level (metro trend + hazards only): Fort Worth
   (Tarrant — no valued open service), Nassau County NY (not in the NYS roll),
   Riverside / San Francisco / San Diego (California publishes no sale prices;
