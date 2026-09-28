@@ -315,6 +315,14 @@ largest metro first.
   consideration. Last such sale for the address + ZIP 12-month count/median
   of residences (Line 8 "B") — context only. Never request name columns.
   Recompute check (Sept 2026): ZIP 60502 → 235 sales, median $405,000.
+- Texas statewide fallback: `texasStatewide.js` — TxGIO "StratMap Land
+  Parcels most recent" (feature.geographic.texas.gov, compiled from each
+  appraisal district: SOURCE, DATE_ACQ, TAX_YEAR 2025, MKT_VALUE). Only
+  `identify` works (no attribute query) → parcels within ~45 m of the
+  geocoded point, keep the one whose situs number+street match. Checked
+  Sept 2026: values present for nearly all districts; NO values from El
+  Paso, Smith, Potter, Randall (partial Hays) → the account is shown with
+  "no market value". Runs only where texas.js has no county entry.
 - Texas additions (`texas.js`, generic `find` configs): Tarrant (TAD roll as
   published by City of Fort Worth "Parcels_Public_View" — whole county, 2024
   roll as of Sept 2026, shown with its year), Collin (CCAD's own layer; the
