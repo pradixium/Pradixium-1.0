@@ -38,7 +38,11 @@ try{const arr=/^(751|6938|132)/.test(insee)?insee:plmFromPostcode(insee,postcode
 // latest two yearly files (one for a whole city of arrondissements: size)
 let years=codes.length>1?[y-1]:[y-1,y-2];let texts=await Promise.all(years.flatMap(yr=>codes.map(c=>dvfFile(yr,c))));
 if(texts.every(t=>t==='')){years=codes.length>1?[y-2]:[y-2,y-3];texts=await Promise.all(years.flatMap(yr=>codes.map(c=>dvfFile(yr,c))));} // new year's file not published yet
-if(texts.some(t=>t===null))throw Error('geo-dvf file unavailable');
+// A transient failure (timeout, non-404) on ONE of several files — e.g. one
+// of Paris's 20 arrondissement files — used to throw and discard every other
+// file's real data too. The loop below already skips a falsy entry, so a
+// partial fetch now still returns whatever genuinely succeeded; only every
+// file failing leaves s.all empty, which already resolves to available:false.
 const muts=new Map();let minD=null,maxD=null;
 for(const t of texts){if(!t)continue;files++;const lines=t.split(/\r?\n/).filter(Boolean),h=csvLine(lines[0]),ix=k=>h.indexOf(k),I={id:ix('id_mutation'),d:ix('date_mutation'),n:ix('nature_mutation'),v:ix('valeur_fonciere'),t:ix('type_local'),sb:ix('surface_reelle_bati'),lon:ix('longitude'),lat:ix('latitude')};
 for(let k=1;k<lines.length;k++){const c=csvLine(lines[k]),id=c[I.id];if(!id)continue;let m=muts.get(id);if(!m){m={date:c[I.d],nature:c[I.n],price:num(c[I.v]),dwell:[],ok:true};muts.set(id,m)}const ty=String(c[I.t]||'');if(/^Appartement|^Maison/.test(ty))m.dwell.push({type:ty.startsWith('Appartement')?'apartment':'house',surface:num(c[I.sb]),lat:num(c[I.lat]),lon:num(c[I.lon])});else if(ty&&!/^D[ée]pendance/.test(ty))m.ok=false}} // a shop/office in the same deed → mixed sale, dropped
