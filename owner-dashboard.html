@@ -65,12 +65,12 @@ tr:last-child td{border-bottom:0}
       <div class="card">
         <h2>Plan Breakdown</h2>
         <table><thead><tr><th>Plan</th><th>Count</th><th>Revenue</th></tr></thead><tbody id="planBody"></tbody></table>
-        <p class="note">"Revenue" is the value of each purchase row's <b>initial</b> sale only. There is no Stripe renewal webhook wired up yet, so a subscription/monthly/business plan's recurring renewals after the first charge are not tracked here — this total will read lower than actual lifetime revenue for any customer who has renewed.</p>
+        <p class="note" id="revenueNote">"Revenue" is the <b>real amount Stripe actually charged</b> for each checkout session (read live from Stripe, not assumed from today's price — prices have changed over time, e.g. the annual plan was $299/yr before Sept 28, 2026). This is the session's own charge only: there is no Stripe renewal webhook wired up yet, so a subscription/monthly/business plan's recurring renewals after that charge are not tracked here.</p>
       </div>
 
       <div class="card">
         <h2>Recent Purchases</h2>
-        <table><thead><tr><th>Email</th><th>Plan</th><th>Date</th><th>Referral</th></tr></thead><tbody id="purchasesBody"></tbody></table>
+        <table><thead><tr><th>Email</th><th>Plan</th><th>Amount</th><th>Date</th><th>Referral</th></tr></thead><tbody id="purchasesBody"></tbody></table>
       </div>
 
       <div class="card">
@@ -129,12 +129,17 @@ tr:last-child td{border-bottom:0}
       : `<tr><td colspan="3">No purchases yet.</td></tr>`;
 
     $("purchasesBody").innerHTML = d.recentPurchases.length
-      ? d.recentPurchases.map((p) => `<tr><td>${esc(p.email)}</td><td>${esc(p.label)}</td><td>${fmtDate(p.createdAt)}</td><td>${esc(p.referralCode)}</td></tr>`).join("")
-      : `<tr><td colspan="4">No purchases yet.</td></tr>`;
+      ? d.recentPurchases.map((p) => `<tr><td>${esc(p.email)}</td><td>${esc(p.label)}</td><td>${p.amountCents == null ? "Amount unknown" : money(p.amountCents)}</td><td>${fmtDate(p.createdAt)}</td><td>${esc(p.referralCode)}</td></tr>`).join("")
+      : `<tr><td colspan="5">No purchases yet.</td></tr>`;
 
     $("signupsBody").innerHTML = d.recentSignups.length
       ? d.recentSignups.map((u) => `<tr><td>${esc(u.email)}</td><td>${fmtDate(u.createdAt)}</td></tr>`).join("")
       : `<tr><td colspan="2">No signups yet.</td></tr>`;
+
+    if (d.unresolvedCount > 0) {
+      const plural = d.unresolvedCount !== 1;
+      $("revenueNote").innerHTML += ` <b>${d.unresolvedCount} purchase${plural ? "s" : ""}</b> couldn't be read from Stripe (e.g. no stored session id) and ${plural ? "are" : "is"} excluded from the totals above, not guessed.`;
+    }
 
     $("status").style.display = "none";
     $("content").style.display = "";
