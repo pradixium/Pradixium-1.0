@@ -717,10 +717,28 @@ text. Also fixed 3 pages that hardcoded the old "20 countries" figure
 (`foreign-buyer-check.html`, `index.html`, `guides/index.html`) — found by
 grepping for it, not something the user pointed out.
 
-**Not done — genuinely bounded, not exhaustive:** this covers the markets
-Pradixium actively markets in (matches the report-language list), not all
-85 countries in the dropdown. The remaining ~56 stay silent, correctly,
-until someone verifies them the same way.
+**Second batch (same day): 10 more, 29 → 39.** The user pushed back on
+stopping at the language-matched set ("why aren't you handling the rest of
+the 85 silent countries") — added Belgium, Sweden, Norway, Czech Republic
+(`OPEN`) and Poland, Austria, Hungary, Croatia, Turkey, Finland
+(`WORKAROUND REQUIRED`). Same per-country web-search verification against
+an official body each time (Notaire.be, Sweden's Lantmäteriet, Norway's
+Kartverket, Poland's MSWiA, Austria's RIS/Länder Grundverkehr law, Czech
+MFA, Hungary's kormányhivatal, Croatia's Ministry of Justice — with a
+direct official reciprocity-info page, Turkey's TKGM land registry,
+Finland's Ministry of Defence). Two of these have a genuinely common
+"workaround" most buyers actually use, worth calling out: Poland and
+Finland both exempt a self-contained apartment/housing-company-share
+purchase from the non-EU permit that a house-with-land purchase would
+need — verified specifically (not assumed) before writing `WORKAROUND
+REQUIRED` instead of `RESTRICTED`. Also updated the "20/29 countries"
+copy again, now "39", in the same 3 pages.
+
+**Still not done, still not exhaustive:** ~46 of the 85 dropdown countries
+remain silent (correctly — unverified). Continuing this kind of expansion
+in bounded, verified batches rather than one unverifiable sweep is the
+right pace to keep the honesty bar real; say so plainly if the user wants
+the rest pushed further in a future session.
 
 ## For the other session (Claude B): Georgia data gap flagged (Sept 2026)
 
