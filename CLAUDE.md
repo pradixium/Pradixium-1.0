@@ -195,3 +195,99 @@ revert the "Take Distressed Assets off the live site" commit. The unreleased
 search, which Cloudflare blocks for servers incl. Vercel) is part of it. Shekel
 prices were tried and dropped by the user — EUR only. Next: the RC "average
 market value" (mass valuation) page as the Lithuanian benchmark.
+
+## Net Yield / Cash-on-Cash fix (shipped Sept 2026)
+
+`engine.js` had three places computing "Net Yield" and "Cash-on-Cash" off a flat,
+undeclared 22% expense-ratio assumption ("rough placeholder, AI/agent refines this")
+— a straight violation of the data-honesty rule, pre-dating both active sessions. No
+official per-country expense benchmark or user-entered opex exists, so these now
+resolve to `null` (renders as "—") instead of a guessed number. Gross Yield (rent/
+price, the property's own economics) is unaffected. `cashOnCashReturnPercent()` is
+now a stub that always returns null, with a comment explaining why — the mortgage
+debt-service math it used to combine with the fake opex is not dead-code-removed,
+just no longer used for this figure, in case a real expense source shows up later.
+
+## Report feedback field (shipped Sept 2026)
+
+One short free-text prompt at the end of every report ("anything you expected to
+see here and didn't?"), all 7 languages, submits to `api/feedback.js` → a private
+Supabase `feedback` table (RLS on, no public policies — only the service role can
+read it). Deliberately NOT a public feature-request board or voting list: the user
+was explicit — "no Roman senate," feedback is a one-way signal he reviews himself,
+not a crowd-sourced roadmap. Don't build a public-facing version of this without
+being asked.
+
+## Session roles going forward (Sept 2026)
+
+Two Claude sessions work this repo concurrently. Going forward, by the user's own
+split: **this session (Claude A / "Pradixium 1.0") = business, marketing, go-to-
+market, and light cross-cutting bug fixes** (like the Net Yield fix above); the
+other session (Claude B / "Pradixium 2.0 Beta", branch `claude/ecstatic-hypatia-
+coi9oe`) = technical data-coverage content (US metros #23+, Lithuania). Don't pick
+up new country/county data-building work in this session without checking with the
+user first — that's Claude B's lane now, to avoid both sessions colliding on main.
+
+Go-to-market plan as discussed: first paying-ish customers via a narrow beachhead
+the user has real personal access to (not just a language he speaks) — candidates
+raised were Israeli overseas-property-investor Facebook groups, free reports in
+exchange for honest testimonials (never incentivized/bought reviews — Trustpilot
+etc. only once there are real reviews to show, not an empty profile). "This is to
+test the water," not a scaled campaign yet.
+
+## Business/legal decisions (Sept 2026, user's own calls — not to be revisited without him raising it)
+
+- **Staying an Irish company for now.** Explicitly considered and declined a
+  Delaware C-Corp "flip" (the standard move for US-acquirer M&A, and the
+  Israeli-tech norm) — no VC fundraising planned, and a flip is cheap and easy to
+  do *later*, right before an actual M&A process starts, vs. expensive once the
+  company is worth more (Irish exit tax on accrued value at the time of transfer).
+  Revisit only if a real acquirer or real fundraising need appears.
+- **Moat reality-check, concluded:** the actual code/data-pipeline build (this
+  entire multi-country coverage system) took ~2 weeks with AI tooling, not months
+  — so "hard to build" is not a real moat anymore in an AI-accelerated world, and
+  won't get harder to copy over time, only easier. What *is* still real and not
+  AI-shortcuttable: real paying/trusting customers accumulated over calendar time,
+  and the accumulated *judgment calls* about what counts as sufficiently verified
+  per country (not just the code that expresses them). Conclusion the user reached
+  himself: stop optimizing for defensibility, optimize for real customers and
+  speed, full stop.
+- **No acqui-hire/early-exit planning.** Explicitly rejected planning around an
+  early "someone sees the potential and buys us" scenario as gambling, not a plan.
+  Real revenue and a genuinely finished product come first; "wants people to love
+  and adopt it, then monetization" (his words) — not the reverse.
+
+## Vercel account structure (Sept 2026)
+
+Project `pradixium` is `prj_4db8toVuFK5mfcaIUGyQid06y9O1`, team `Haluzim` is
+`team_fnwR6mhKjhFrsnKW36UPriM5`. **Quirk found in this session: calling the Vercel
+MCP `list_projects` with an explicit `teamId` for Haluzim returned only 1 of its 6
+projects (not `pradixium`); calling it with no `teamId` at all correctly returned
+all 6.** If a future session sees "pradixium isn't in my Vercel team," this is
+almost certainly the same tool-scoping quirk, not a real access problem — retry
+without `teamId` before concluding anything is broken or escalating to the user.
+
+Haluzim also hosts unrelated projects (`degaja1.0`, `degaja`, `aitrade26`,
+`n-luxury-design`, `pradixium-test-deploy`) — the same Sikul25/Degaja mixing the
+GitHub move was meant to fix, just not fixed here. **User's explicit decision:
+leave it.** Unlike the public GitHub account, nobody outside the team can see
+which Vercel team hosts pradixium.com — it's internal infrastructure, not brand-
+facing, so it doesn't carry the reputational risk that justified the GitHub split.
+Not worth paying for a dedicated team just for tidiness. Vercel also only allows
+transferring a project to a Team you belong to (not to a personal/non-Team
+account), and creating a new Team requires payment — another reason this was
+dropped rather than routed around.
+
+## Known gaps before a real public push (raised Sept 2026, not yet closed)
+
+Flagged directly to the user, unresolved as of this writing:
+- **No live end-to-end paid-customer test has ever been run** — no one has signed
+  up, paid with a real card, received a report, and cancelled, start to finish.
+  The Stripe Customer Portal fix (self-service cancellation) is untested live.
+  Recommended: the user should run this once, manually, with a real small charge,
+  before driving real traffic to the site.
+- **No production error monitoring.** Vercel's Runtime Errors/Observability API
+  returned 403 Forbidden when checked from this session — likely gated behind a
+  paid plan/add-on. The user considers this worth paying for (unlike the Vercel
+  team split above) — in progress, waiting on a screenshot of Settings →
+  Observability on the `pradixium` project to confirm exact cost before upgrading.
