@@ -350,6 +350,14 @@ largest metro first.
   published by INCOG: TotalAcctValue + load date; numbered streets written
   without ordinals "E 39 ST S"). Sales not shown in all three (codes
   undocumented / no validity code).
+  Also: Chatham GA (13051, SAGIS Parcel Digest 2025: FairMarketValue; last
+  sale shown only when Sale_Quality = "Q" qualified), Lancaster NE (31109,
+  Lincoln–Lancaster GIS TaxParcels: CNTASSDVAL — NE assesses at actual
+  value), York SC (45091, county Parcels: AprTotVal; no city/ZIP → spatial
+  250 m; layer answers in 1–6 s → 9 s timeout), Lorain OH (39093,
+  2024_Reval_Tax_Parcels: total_value_2024), Canadian OK (40017,
+  ParcelDataService: total_val; cap_val is the capped value, not shown).
+  `_structured.js` now has `arcQueryNear` and optional row `sale`.
 - Texas additions (`texas.js`, generic `find` configs): Tarrant (TAD roll as
   published by City of Fort Worth "Parcels_Public_View" — whole county, 2024
   roll as of Sept 2026, shown with its year), Collin (CCAD's own layer; the
