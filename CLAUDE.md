@@ -407,6 +407,19 @@ largest metro first.
   Larimer CO (08069, Larimer County org "larimer":
   ResImps_ValChange_2025_Final — ACTUAL2025, residential improved parcels
   only; layer also has owner NAME → never requested).
+  Lake OH (39085, gis.lakecountyohio.gov GIS_Parcels_Publish: A_VAL_TOTAL,
+  structured A_* situs; A_TAXP_NAME/A_O_* = names → never requested),
+  Mahoning OH (39099, PUBLIC_WEBSITE_CADASTRAL layer 2: TOTALMARKET shown
+  only when MARKETLAND + MARKETIMPR = total — CAUV parcels differ; no
+  city/ZIP → spatial 1 km; resultRecordCount unsupported), Mohave AZ
+  (04015, mcgis.mohave.gov PARCELS layer 3: FULL_CASH_VALUE + TAX_YEAR —
+  Arizona values one year ahead, 2027 is legitimate in 2026), Anchorage AK
+  (02020, Municipality org "muniorg" PropertyInformation_Hosted:
+  Appraised_Total_Value + Appraisal_Year, GIS_Site_* situs).
+  Skipped: Pinal AZ (CNTASSDVAL alias "Current Assessed Value" but holds
+  full cash value — ambiguous), Delaware OH (ADDR1 undocumented: situs or
+  mailing?), Richmond VA city layer (building number only, no street),
+  Baldwin AL (layer owner not identifiable).
   Comptroller statewide file (86 other
   counties, Assessment_Data_##.dbf) requested by the user by e-mail — the
   online form needs a U.S. address. TDEC "LH_Parcel_FP" is only a ~21k
