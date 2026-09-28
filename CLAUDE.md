@@ -286,6 +286,13 @@ largest metro first.
   accounts on one parcel → no value shown), Jefferson (GIS Parcel: sum of
   VALACT..VALACT6 tax-class values; PRPSTRNUM zero-padded to 5) and Douglas
   (OpenData location layer 5 → values layer 4, summed per account).
+- Nassau NY (36059): `nassau.js` — data.ny.gov 7vem-aaz7 (NYS local
+  assessment rolls): full_market_value = 1000 × assessment (Nassau's 0.1%
+  level) from the county's own rolls only (3 towns + "Glen Cove/Long Beach,
+  County Roll"; the cities' own rolls skipped). No ZIP/coords in the rows →
+  parcel's school district must match one of the geocoder's school
+  districts (geocodeRaw now returns `schoolDistricts`). Use exact street
+  strings (IN list) — LIKE is ~3 s on this dataset. nysParcel skips Nassau.
 - Texas additions (`texas.js`, generic `find` configs): Tarrant (TAD roll as
   published by City of Fort Worth "Parcels_Public_View" — whole county, 2024
   roll as of Sept 2026, shown with its year), Collin (CCAD's own layer; the
