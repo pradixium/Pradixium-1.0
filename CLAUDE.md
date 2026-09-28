@@ -194,6 +194,14 @@ largest metro first.
   Assessor total assessed value (Government Value) + class. Sales: Indiana
   SDF data is only in the DLGF/Gateway interactive search — a possible
   future source if an official bulk file is found.
+- Cleveland (#34): Cuyahoga (39035) `cuyahoga.js` — Fiscal Officer
+  Open_Data_Parcels (Cleveland + non-Cleveland layers): certified total
+  (= market value) + tax year, living area. Transfers have no validity code.
+- Nashville (#35): Davidson (47037) `nashville.js` — Metro Nashville Parcels
+  TotlAppr. No sale validity code → sales not shown.
+- Milwaukee (#40): City of Milwaukee MPROP via CKAN datastore
+  `milwaukee.js` — current-year assessed value, finished area, beds/baths.
+  Sales file screening not documented → not shown. Suburbs: no record.
 - Not yet covered at property level (metro trend + hazards only): Fort Worth
   (Tarrant — no valued open service), Nassau County NY (not in the NYS roll),
   Riverside / San Francisco / San Diego (California publishes no sale prices;
