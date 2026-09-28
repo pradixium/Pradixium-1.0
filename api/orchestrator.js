@@ -325,6 +325,12 @@ function normalizeMarketEvidence(country, raw, propertyType) {
     // prime/ultra-prime, skip the estimate entirely: no rent shown is more
     // honest than a wrong one driving the score.
     const isPrimeOutlier = Boolean(raw.microLocation?.prestige?.isPrime);
+    const byArr = Array.isArray(dvf.byArrondissement) && dvf.byArrondissement.length ? dvf.byArrondissement : null;
+    const eur = (x) => "€" + Math.round(x).toLocaleString("en-US");
+    const ord = (n) => `${n}${n === 1 ? "er" : "e"}`;
+    const cityWideNote = byArr
+      ? `No single benchmark for the whole city: DVF prices differ by arrondissement from ${eur(byArr[byArr.length - 1].medianEurPerM2)}/m² (${ord(byArr[byArr.length - 1].arrondissement)}) to ${eur(byArr[0].medianEurPerM2)}/m² (${ord(byArr[0].arrondissement)}) — enter the street address or the arrondissement for this property's own benchmark. Medians by arrondissement (single-dwelling sales, ${dvf.transactionWindow || "latest year"}): ${byArr.map((x) => `${ord(x.arrondissement)} ${eur(x.medianEurPerM2)} (${x.sampleSize.toLocaleString("en-US")})`).join(" · ")}.`
+      : null;
     return {
       benchmarkValue: benchmarkSource?.medianEurPerM2 ?? null,
       benchmarkUnit: "perSqm",
@@ -333,7 +339,7 @@ function normalizeMarketEvidence(country, raw, propertyType) {
       transactionValue: benchmarkSource?.medianTransactionEur ?? null,
       transactionPeriod: dvf.transactionWindow ?? null,
       marketArea: raw.commune?.name ? raw.commune.name + (arr && !/arrondissement/i.test(raw.commune.name) ? ` — ${arr}${arr === 1 ? "er" : "e"} arrondissement` : "") : null,
-      source: `INSEE + ${dvf.source || "DVF (DGFiP)"}${dvf.sampleSize ? ` — ${dvf.sampleSize.toLocaleString("en-US")} single-dwelling sales` : ""} + geo.api.gouv.fr`,
+      source: (cityWideNote ? cityWideNote + " " : "") + `INSEE + ${dvf.source || "DVF (DGFiP)"}${dvf.sampleSize ? ` — ${dvf.sampleSize.toLocaleString("en-US")} single-dwelling sales` : ""} + geo.api.gouv.fr`,
       coverage: benchmarkSource?.medianEurPerM2 != null ? "city" : "none",
       // Real government/open-data rental benchmark (data.gouv.fr commune
       // rental dataset) that was already being fetched but never used —

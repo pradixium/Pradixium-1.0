@@ -586,7 +586,13 @@ Marseille are filed per arrondissement — an ADDRESS uses its arrondissement
 for the latest year (Paris: 20 files, ~16 MB, ~3 s). Sales grouped by
 id_mutation: "Vente" of exactly one Appartement/Maison (Dépendance rows
 allowed, any other local drops the deed). Orchestrator: a type bucket needs
-≥ 10 sales, Market Area names the arrondissement. Recompute check: Lyon 2e
+≥ 10 sales, Market Area names the arrondissement. City-only "Paris"/"Lyon"/
+"Marseille" → NO city-wide benchmark (Paris 2025 arrondissement medians run
+€8,035 19e → €14,158 6e): `byArrondissement` medians as context + "enter
+the address or arrondissement"; a postcode ("75016 Paris") → that
+arrondissement. Deeds span files (46 in Paris 2025, one price for lots in
+two arrondissements) → grouped across files, attributed to the dwelling's
+file; a per-file recompute differs by 1–2 sales for that reason. Recompute check: Lyon 2e
 (69382, 2024–2025) 736 sales, median €5,140/m² (Python from the raw files).
 
 ## Net Yield / Cash-on-Cash fix (shipped Sept 2026)
