@@ -1,8 +1,8 @@
 /* PRADIXIUM™ — Stripe Checkout session creator
  * Three ways to pay for the full report (report.html):
- * - "report": one-time $29 unlock for a single property.
- * - "subscription": $299/year for unlimited reports (individual investors).
- * - "business": $299/month for unlimited reports (companies & institutions
+ * - "report": one-time $29.99 unlock for a single property.
+ * - "subscription": $2,999.99/year for unlimited reports (individual investors).
+ * - "business": $299.99/month for unlimited reports (companies & institutions
  *   — banks, funds, agencies; see the Business Solutions page).
  * Uses Stripe's plain REST API directly (form-encoded POST) rather than
  * the stripe npm package — this project has zero dependencies by design,
@@ -20,9 +20,9 @@
  * hardcode it — Stripe secret keys must never appear in client code or
  * git history.
  */
-const REPORT_PRICE_USD_CENTS = 2900; // $29.00 one-time
-const SUBSCRIPTION_PRICE_USD_CENTS = 29900; // $299.00 / year (individual)
-const BUSINESS_PRICE_USD_CENTS = 29900; // $299.00 / month (companies & institutions — banks, funds, agencies)
+const REPORT_PRICE_USD_CENTS = 2999; // $29.99 one-time
+const SUBSCRIPTION_PRICE_USD_CENTS = 299999; // $2,999.99 / year (individual)
+const BUSINESS_PRICE_USD_CENTS = 29999; // $299.99 / month (companies & institutions — banks, funds, agencies)
 
 // Same public project URL/anon key already committed in supabase-config.js
 // for the client — these are meant to be public (RLS is what actually
@@ -124,7 +124,7 @@ export default async function handler(req, res) {
       // 7-day free trial, card collected upfront — Stripe auto-charges the
       // full annual price the moment the trial ends unless the customer
       // cancels first. Aimed at repeat users (agents with a constant stream
-      // of new listings to check), not the one-time $29 report below, which
+      // of new listings to check), not the one-time $29.99 report below, which
       // has no trial since there's nothing recurring to try out.
       params.set("subscription_data[trial_period_days]", "7");
     }

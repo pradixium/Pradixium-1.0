@@ -793,7 +793,7 @@
     set("netYield2", pct(b.netYieldPercent) + " (est.)");
   }
 
-  const LOCKED_LIST_ITEM = "<li>🔒 Unlock the full report — $29 — to see this</li>";
+  const LOCKED_LIST_ITEM = "<li>🔒 Unlock the full report — $29.99 — to see this</li>";
 
   // Same bands the AI agent is instructed to use for dealRating (see
   // lib/agents/propertyInvestmentAgent.js) — deterministic, so it works
@@ -865,7 +865,7 @@
       if (highlightsEl) highlightsEl.innerHTML = LOCKED_LIST_ITEM;
       const risksEl = $("risks");
       if (risksEl) risksEl.innerHTML = LOCKED_LIST_ITEM;
-      set("investorAction", agent.investorAction || "Unlock the full report — $29 — to see the investor action recommendation.");
+      set("investorAction", agent.investorAction || "Unlock the full report — $29.99 — to see the investor action recommendation.");
       return;
     }
 
@@ -1074,7 +1074,7 @@
     });
   }
 
-  // Investment Scenarios (report.html) — a second way to earn the $29
+  // Investment Scenarios (report.html) — a second way to earn the $29.99
   // beyond a nicer layout of the same numbers. Cash purchase yield already
   // exists above; these three add real comparison points:
   //  - Financed: a declared-assumption mortgage math, not a personalized
@@ -1331,7 +1331,7 @@
     const createBtn = $("createReportBtn");
     const subscribeBtn = $("subscribeReportBtn");
     const businessBtn = $("businessSubscribeBtn");
-    if (createBtn) createBtn.innerHTML = paid ? "View Full Analysis&nbsp; →" : "Unlock This Report — $29&nbsp; →";
+    if (createBtn) createBtn.innerHTML = paid ? "View Full Analysis&nbsp; →" : "Unlock This Report — $29.99&nbsp; →";
     if (subscribeBtn) subscribeBtn.style.display = paid ? "none" : "inline-block";
     if (businessBtn) businessBtn.style.display = paid ? "none" : "inline-block";
   }
