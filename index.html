@@ -167,6 +167,8 @@
 
     /* Account gate */
     .language-picker{position:relative;margin-left:8px}.language-select{height:34px;border:1px solid #dce2ea;border-radius:8px;background:#fff;color:#344154;padding:0 30px 0 10px;font-size:12px;font-weight:650;cursor:pointer;outline:none}.language-select:focus{border-color:#2463d6;box-shadow:0 0 0 3px rgba(36,99,214,.1)}
+    .biz-nav{position:relative}.biz-btn{display:flex;align-items:center;gap:4px;height:34px;padding:0 12px;border:1px solid #dce2ea;border-radius:8px;background:#fff;color:#2463d6;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}.biz-btn:hover{background:#f4f7fb}.biz-btn .chev{font-size:9px;color:#8a94a2}.biz-menu{position:absolute;left:0;top:calc(100% + 8px);width:230px;background:#fff;border:1px solid #e3e8ee;border-radius:10px;box-shadow:0 14px 36px rgba(20,30,45,.15);padding:7px;z-index:1000;display:none}.biz-menu.open{display:block}.biz-menu a{display:block;padding:9px 10px;font-size:12px;font-weight:650;color:#455160;text-decoration:none;border-radius:7px}.biz-menu a:hover{background:#f4f7fb}.biz-menu .biz-menu-title{padding:8px 10px 6px;font-size:10px;font-weight:750;letter-spacing:.4px;color:#8a94a2;text-transform:uppercase;border-bottom:1px solid #edf0f3;margin-bottom:4px}
+    @media(max-width:520px){.biz-btn{padding:0 9px;font-size:11px}.biz-menu{left:auto;right:0;width:210px}}
     .account-gate{position:fixed;inset:0;background:rgba(15,24,38,.58);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px}.account-gate.hidden{display:none}.auth-card{width:min(430px,100%);background:#fff;border:1px solid #e5e9ef;border-radius:16px;box-shadow:0 24px 70px rgba(18,31,52,.24);padding:28px}.auth-brand{display:flex;align-items:center;gap:9px;font-weight:800;letter-spacing:1.5px;color:#172033;margin-bottom:22px}.auth-brand img{height:28px}.auth-title{font-size:25px;font-weight:750;color:#182232;margin:0 0 7px}.auth-subtitle{font-size:13px;line-height:1.55;color:#687383;margin:0 0 20px}.auth-tabs{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid #e7ebf0;margin-bottom:18px}.auth-tab{border:0;background:transparent;padding:10px 8px;font-weight:700;color:#8a94a2;cursor:pointer;border-bottom:2px solid transparent}.auth-tab.active{color:#2463d6;border-bottom-color:#2463d6}.auth-form{display:grid;gap:11px}.auth-label{font-size:11px;font-weight:700;color:#4c5867}.auth-input{height:43px;border:1px solid #d8dee7;border-radius:8px;padding:0 12px;font-size:14px;outline:none}.auth-input:focus{border-color:#2463d6;box-shadow:0 0 0 3px rgba(36,99,214,.1)}.auth-submit{height:44px;border:0;border-radius:8px;background:#2463d6;color:#fff;font-weight:750;cursor:pointer;margin-top:4px}.auth-note{font-size:10px;line-height:1.5;color:#8a94a2;text-align:center;margin:10px 0 0}.auth-error{min-height:16px;color:#c64747;font-size:11px;font-weight:600}.account-menu{position:absolute;right:18px;top:54px;width:190px;background:#fff;border:1px solid #e3e8ee;border-radius:10px;box-shadow:0 14px 36px rgba(20,30,45,.15);padding:7px;z-index:1000;display:none}.account-menu.open{display:block}.account-menu .account-name{padding:9px 10px 7px;font-size:12px;font-weight:750;color:#263243;border-bottom:1px solid #edf0f3;margin-bottom:4px}.account-menu button{width:100%;text-align:left;border:0;background:#fff;border-radius:7px;padding:9px 10px;font-size:12px;color:#455160;cursor:pointer}.account-menu button:hover{background:#f4f7fb}.top-actions{position:relative}.avatar{cursor:pointer}@media(max-width:520px){.account-gate{padding:14px}.auth-card{padding:23px;border-radius:14px}.auth-title{font-size:22px}}
           .analysis-loading { margin-top: 10px; font-size: 13px; font-weight: 700; color: #2463f5; text-align: center; }
         #analyzeButton:disabled { opacity: 0.72; cursor: wait; }
@@ -218,6 +220,14 @@
           <a class="soon" role="link" aria-disabled="true" tabindex="-1"><span class="nav-label">Market Insights</span><span class="soon-badge">Soon</span></a>
         </nav>
         <div class="top-actions">
+          <div class="biz-nav">
+            <button type="button" class="biz-btn" id="bizNavBtn" aria-haspopup="true" aria-expanded="false">Business <span class="chev">⌄</span></button>
+            <div class="biz-menu" id="bizMenu" aria-hidden="true">
+              <div class="biz-menu-title">For Companies &amp; Institutions</div>
+              <a href="/mockups/index.html">Business Solutions</a>
+              <a href="/business-branding.html">Business Sign In / Portal</a>
+            </div>
+          </div>
           <div class="language-picker">
             <select id="languageSelect" class="language-select" aria-label="Language">
               <option value="en">English</option>
@@ -709,6 +719,26 @@
     </div>
   </div>
 
+  <script>
+    (() => {
+      const bizBtn = document.getElementById("bizNavBtn");
+      const bizMenu = document.getElementById("bizMenu");
+      if (bizBtn && bizMenu) {
+        const closeBiz = () => { bizMenu.classList.remove("open"); bizMenu.setAttribute("aria-hidden", "true"); bizBtn.setAttribute("aria-expanded", "false"); };
+        const openBiz = () => { bizMenu.classList.add("open"); bizMenu.setAttribute("aria-hidden", "false"); bizBtn.setAttribute("aria-expanded", "true"); };
+        bizBtn.addEventListener("click", (e) => {
+          e.preventDefault(); e.stopPropagation();
+          bizMenu.classList.contains("open") ? closeBiz() : openBiz();
+        });
+        document.addEventListener("click", (e) => {
+          if (!bizMenu.classList.contains("open")) return;
+          if (bizMenu.contains(e.target) || bizBtn.contains(e.target)) return;
+          closeBiz();
+        });
+        document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeBiz(); });
+      }
+    })();
+  </script>
   <script src="engine.js"></script>
   <script>
     (() => {
