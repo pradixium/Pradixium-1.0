@@ -160,6 +160,10 @@ largest metro first.
   County TNR's published copy "TCAD_Parcels_Dec_2025" (2025 roll). TNR
   publishes dated copies: when a newer one appears, point the URL at it and
   update the label/year.
+- Portland (#26): Multnomah/Washington/Clackamas via Oregon Metro RLIS
+  `lib/usLocal/portlandMetro.js` — assessor Real Market Value + assessed
+  value; RLIS SALEPRICE is unscreened, so not shown. Clark County WA (the
+  Vancouver side) not yet covered.
 - Not yet covered at property level (metro trend + hazards only): Fort Worth
   (Tarrant — no valued open service), Nassau County NY (not in the NYS roll),
   Riverside / San Francisco / San Diego (California publishes no sale prices;
