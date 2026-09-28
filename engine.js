@@ -1505,6 +1505,17 @@
     startCheckout(data, "monthly");
   }
 
+  // Direct entry point from the top-nav "Business" menu — deliberately
+  // skips currentReportData()'s "analyze a property first" gate, since a
+  // subscription checkout isn't tied to any specific property (unlike the
+  // per-report "report" plan, create-checkout-session.js doesn't require
+  // one either).
+  async function startBusinessSignup() {
+    const token = await getAccessToken();
+    if (!token) { alert("Please sign in first, then click Business again."); return; }
+    startCheckout({ title: "Business Plan Signup" }, "business");
+  }
+
   function wireReportButtons() {
     const createBtn = $("createReportBtn");
     if (createBtn) createBtn.addEventListener("click", openReport);
@@ -1516,6 +1527,8 @@
     if (businessBtn) businessBtn.addEventListener("click", openBusinessSubscription);
     const monthlyBtn = $("monthlySubscribeBtn");
     if (monthlyBtn) monthlyBtn.addEventListener("click", openMonthlySubscription);
+    const businessSignupBtn = $("startBusinessSignupBtn");
+    if (businessSignupBtn) businessSignupBtn.addEventListener("click", startBusinessSignup);
   }
 
   // After returning from Stripe Checkout, the page reloads fresh — the
