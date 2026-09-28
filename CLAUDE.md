@@ -343,6 +343,13 @@ largest metro first.
   (ei2c-krsr; physical_address → assessment_num; its FMV field is always 0)
   + EBRP Tax Roll (myfc-nh6n; sum of real-property lines' fair_market_val,
   latest tax_year). No city/ZIP → SoQL intersects() with a ~600 m box.
+- `moreCounties.js` (structured matcher): Chesterfield VA (51041, county
+  Cadastral ParcelsEnriched: FairMarketValue — whole layer is 2024 as of
+  Sept 2026), St. Charles MO (29183, open_data Tax_Information situs layer:
+  TotalMarketValue; assessed = 19%), Tulsa OK (40143, Assessor parcels as
+  published by INCOG: TotalAcctValue + load date; numbered streets written
+  without ordinals "E 39 ST S"). Sales not shown in all three (codes
+  undocumented / no validity code).
 - Texas additions (`texas.js`, generic `find` configs): Tarrant (TAD roll as
   published by City of Fort Worth "Parcels_Public_View" — whole county, 2024
   roll as of Sept 2026, shown with its year), Collin (CCAD's own layer; the
