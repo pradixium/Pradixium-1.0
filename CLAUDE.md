@@ -781,10 +781,27 @@ it against Georgia's own official sources.
 
 **Urgent, flagged directly by the user as a launch blocker.** Live end-to-end test
 (Sept 2026): analyzed a real Manhattan address (298 E 26th Street, NYC, $1,700,000
-asking, ~52 sqm) and paid for the report via Stripe (payment + Supabase entitlement
-both confirmed working correctly — see the "silently-blocked report popup" fix
-above, a separate bug in the same test). The report itself came back thin because
-`api/us-intelligence.js`'s `nycDofSales()` only computes a $/sqft government
+asking, ~52 sqm) and paid for the report via Stripe. **Correction after further
+investigation the same day: the report the user saw (every field blank, including
+Asking Price and Size — screenshotted) was NOT mainly this data gap.** It was a
+separate, much bigger bug in `engine.js`'s `refreshFullReportData()`: on the
+fresh page load after Stripe's redirect, the analysis form is empty, but
+`buildReportData()` (via `getInputs()`) read price/size/country/etc. straight
+from those empty DOM fields instead of from the already-cached `property` object
+— so literally every field came back null, regardless of country or data
+source. Fixed and verified (engine.js now refills the form from the cached
+`pradixiumPropertyInputs` before rendering; confirmed via a scripted repro that
+`pradixiumReportData` now correctly contains askingPrice/size/gross yield/etc.
+after a simulated Stripe return). Also added a retry in `handleCheckoutReturn()`
+for the entitlement-visibility race `refreshFullReportData()`'s own comment
+already anticipated. See the "silently-blocked report popup" fix above — same
+test, same session, a related but distinct bug (that one was about the popup
+never opening at all; this one was about the report being blank once it did).
+
+**The real, narrower, still-open gap for your session:** with the above fixed,
+a Manhattan condo/co-op report now populates every other section correctly and
+only the government market-benchmark row itself stays legitimately empty,
+because `api/us-intelligence.js`'s `nycDofSales()` only computes a $/sqft
 benchmark for `NYC_HOUSE_CATEGORIES` (1–3 family houses); for condos/co-ops it
 deliberately returns `status:'no_unit_area'` with no number, since NYC DOF's
 Rolling Sales dataset (`data.cityofnewyork.us/resource/usep-8jbt.json`) doesn't

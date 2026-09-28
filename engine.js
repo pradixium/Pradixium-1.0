@@ -1546,6 +1546,23 @@
     const token = await getAccessToken();
     if (!token) return false;
 
+    // Real bug found live (Sept 2026): this is a fresh page load after
+    // Stripe's redirect, so the analysis form is empty — but
+    // buildReportData() (via getInputs(), called later through
+    // currentReportData()) reads price/size/etc. straight from those DOM
+    // fields, not from this `property` object. Without refilling the form
+    // first, the paid report opened with every field blank ("—"), even
+    // though the payment and orchestrator call both succeeded. Refill the
+    // exact fields getInputs() reads before any of that runs.
+    if ($("country")) $("country").value = property.country || "";
+    if ($("city")) $("city").value = property.city || "";
+    if ($("askingPrice")) $("askingPrice").value = property.price ?? "";
+    if ($("size")) $("size").value = property.size ?? "";
+    if ($("bedrooms")) $("bedrooms").value = property.bedrooms ?? "";
+    if ($("bathrooms")) $("bathrooms").value = property.bathrooms ?? "";
+    if ($("propertyType")) $("propertyType").value = property.propertyType || "Apartment";
+    if ($("monthlyRent")) $("monthlyRent").value = property.monthlyRent ?? "";
+
     window.pradixiumPropertyAddress = property.address || null;
     const { currency } = renderRuleBasedResult(property);
     renderCommercialAnalysis(property.price, currency, property.propertyType, { commercial: property.commercial, landDev: property.landDev });
@@ -1610,9 +1627,17 @@
         alert(json?.error || "Payment succeeded, but access could not be granted. Please contact support.");
         return;
       }
-      // Best effort — if this fails (cleared storage, network hiccup),
-      // report.html still opens using whatever was cached before checkout.
-      await refreshFullReportData();
+      // Retry once: refreshFullReportData() can legitimately return false
+      // right after Stripe's redirect on a transient race — either the
+      // orchestrator's entitlement check not yet seeing the purchases row
+      // this same request just wrote (see its own "entitlement not visible
+      // yet" comment), or the Supabase auth session not yet rehydrated on
+      // this fresh page load. Both clear up within a couple of seconds.
+      let refreshed = await refreshFullReportData();
+      if (!refreshed) {
+        await new Promise((resolve) => setTimeout(resolve, 2500));
+        refreshed = await refreshFullReportData();
+      }
       await attachWatermark();
       // Navigate the current tab rather than window.open(): this runs on
       // page load with zero user gesture (Stripe's own redirect got us
