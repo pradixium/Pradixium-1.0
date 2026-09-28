@@ -31,8 +31,14 @@
  *                    //   deal rating and confidence are a free signal, the reasoning is the
  *                    //   paid product.
  * }
+ *
+ * This is also the Business plan's API — the same Authorization header
+ * accepts a "px_live_..." key (see api/business-api-key.js) in place of a
+ * signed-in user's Supabase JWT, always resolving to paid:true while the
+ * key's owner has an active Business plan (checkApiKeyEntitlement()).
  */
 
+import { createHash } from "node:crypto";
 import { runPropertyInvestmentAgent } from "../lib/agents/propertyInvestmentAgent.js";
 import { computePradixiumScore } from "../lib/scoring/pradixiumScore.js";
 import { computeRealityCheck } from "../lib/scoring/realityCheck.js";
@@ -668,10 +674,50 @@ const SUPABASE_ANON_KEY = "sb_publishable_v1qAMQNVqT7WAsfaGyGK_g_8p_zFD8K";
 // Mirrors engine.js's isReportPaid() exactly (same signature format, same
 // purchases-table logic), but reads Supabase directly with the caller's
 // own bearer token so Postgres RLS scopes the query to their own rows —
-// this endpoint never sees or needs the service-role key.
+// this endpoint never sees or needs the service-role key, EXCEPT for the
+// API-key path just below, which by nature can't be scoped by the
+// caller's own RLS token (the caller isn't a signed-in browser session).
+async function checkApiKeyEntitlement(rawKey) {
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!serviceKey) return false;
+  try {
+    const keyHash = createHash("sha256").update(rawKey).digest("hex");
+    const r = await fetch(
+      `${SUPABASE_URL}/rest/v1/api_keys?key_hash=eq.${keyHash}&revoked_at=is.null&select=user_id`,
+      { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } }
+    );
+    if (!r.ok) return false;
+    const rows = await r.json();
+    const row = rows[0];
+    if (!row) return false;
+
+    // Best-effort, never blocks the response on it.
+    fetch(`${SUPABASE_URL}/rest/v1/api_keys?key_hash=eq.${keyHash}`, {
+      method: "PATCH",
+      headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}`, "Content-Type": "application/json", Prefer: "return=minimal" },
+      body: JSON.stringify({ last_used_at: new Date().toISOString() })
+    }).catch(() => {});
+
+    // A key survives after the plan lapses unless explicitly revoked
+    // (api/business-api-key.js), so still confirm the plan is active now —
+    // API access is a Business-plan benefit, not a permanent grant.
+    const r2 = await fetch(
+      `${SUPABASE_URL}/rest/v1/purchases?user_id=eq.${row.user_id}&kind=eq.business&select=expires_at`,
+      { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } }
+    );
+    if (!r2.ok) return false;
+    const purchases = await r2.json();
+    const now = Date.now();
+    return purchases.some((p) => p.expires_at && new Date(p.expires_at).getTime() > now);
+  } catch {
+    return false;
+  }
+}
+
 async function checkEntitlement(authHeader, signature) {
   const token = String(authHeader || "").replace(/^Bearer\s+/i, "").trim();
   if (!token) return false;
+  if (token.startsWith("px_live_")) return checkApiKeyEntitlement(token);
   try {
     const r = await fetch(`${SUPABASE_URL}/rest/v1/purchases?select=kind,report_signature,expires_at`, {
       headers: { Authorization: `Bearer ${token}`, apikey: SUPABASE_ANON_KEY }

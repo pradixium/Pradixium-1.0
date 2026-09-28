@@ -604,10 +604,11 @@ one-time `report` purchase.
 company just using the cheap individual plan instead of paying for
 Business, since the underlying report data/grade must be identical for
 everyone (data-honesty rule — never degrade quality by price). The
-differentiation has to be in usage rights, not data quality. User picked
-white-label branding to build first, of 4 ideas raised (the other 3 —
-API/integration access, bulk/portfolio analysis, a compliance/audit-trail
-PDF export — are real future features, not started).
+differentiation has to be in usage rights, not data quality. 4 ideas
+raised; user approved building all of them, this session's own priority
+order: white-label branding (shipped) → API access (shipped) → bulk/
+portfolio analysis (shipped) → compliance/audit-trail PDF export (shipped).
+All 4 now shipped.
 
 **White-label branding — shipped.** `terms.html` §3a: individual-tier
 reports (one-time, monthly, annual) are personal-use-only — may not be
@@ -630,6 +631,144 @@ limitation as the account-gate testing note above); confirm the real
 upload once on the live site before telling a Business customer to use it.
 Linked from `mockups/index.html` (Business Solutions page).
 
+**API access — shipped.** Same page (`business-branding.html`) now also
+has an "API access" card: generate/revoke a `px_live_...` key (table
+`api_keys`, only its SHA-256 hash stored — plaintext shown once, at
+creation, in `api/business-api-key.js`). `api/orchestrator.js` accepts
+that key as an alternate `Authorization: Bearer` value in
+`checkEntitlement()` — `checkApiKeyEntitlement()` looks it up, confirms
+the owner still has an active `business` purchases row (a key isn't a
+permanent grant), and resolves `paid:true` — this is the exact same
+endpoint and response shape the web UI already calls, no separate API
+surface to maintain. One active key per account (generating a new one
+revokes the old) — kept deliberately simple for a non-technical business
+owner rather than building key rotation/multiple-keys UI. No rate limiting
+built — billing itself is the only usage limiter for now; revisit if
+abused. Verified: syntax-checked, the hash-generate/hash-verify round trip
+tested directly in Node, and the settings-page UI screenshotted — the
+actual live key → orchestrator call was not exercised (would need a real
+Business account + a live ANTHROPIC_API_KEY, not available in this
+sandbox).
+
+**Bulk/portfolio analysis — shipped.** New page `business-portfolio.html`
+(same sign-in + active-`business`-plan gate as branding/API): paste or
+upload a CSV (address, city, country, price, size, bedrooms, bathrooms,
+propertyType, monthlyRent — only country + price required), capped at 25
+rows per run. Calls `api/orchestrator.js` directly with the signed-in
+business user's own Supabase session token (not an API key — this is the
+in-browser tool, not the API itself), 3 requests at a time, and renders a
+ranked comparison table (Score, Rating, Gross Yield, government
+Benchmark, Asking vs Market — same sign convention as `engine.js`'s
+`renderMarketEvidence()`: positive = below market = good) sorted by
+Pradixium Score once the run completes. Business plan already grants
+unlimited unredacted access per-property, so no separate paywall logic
+needed here. Verified: CSV parsing (including a quoted comma inside an
+address) tested directly in Node; the full analyze → render → sort flow
+tested in headless Chromium with Supabase and `/api/orchestrator` mocked
+(ranking, gross-yield math, and the sign convention all came back
+correct); the missing-required-field and >25-rows validation errors also
+confirmed. Not exercised: a real orchestrator call (same sandbox
+limitation as the API-access note above).
+
+**Compliance/audit-trail report — shipped, all 4 differentiators now
+done.** New `compliance-report.html`: a formal, sources-cited document
+(NOT the same layout as the paid report — a dedicated evidence-ledger
+table plus a "Sources & Citations" appendix), printable to PDF via the
+browser's own `window.print()` — no PDF library added, consistent with
+this project's zero-dependency design. Two modes, same page:
+  - Single property: reads the same `pradixiumReportData` localStorage key
+    report.html already populates (`engine.js`'s `buildReportData()`) —
+    no new data plumbing, so every figure matches the paid report exactly.
+    A new "Compliance Report" button on report.html itself opens it, shown
+    only when `watermarkIsBusiness` is true — a new field on
+    `getWatermarkInfo()`/`attachWatermark()`, separate from
+    `businessBranding` (which stays null until a logo/name is configured)
+    so the button doesn't wrongly stay hidden for a Business account that
+    just hasn't set up branding yet.
+  - Portfolio: `business-portfolio.html` has a "Download Compliance
+    Report" button that stores every successfully-analyzed property's
+    full raw `api/orchestrator.js` response (not the redacted/rendered
+    version) into `pradixiumPortfolioResults`, then opens this page —
+    one section per property plus a deduplicated sources index across the
+    whole portfolio.
+  Sources are never invented: both modes only ever display the `source`/
+  `sourceUrl` strings the government-data pipeline itself already
+  produces (`marketEvidence.source`, `foreignBuyerAccess.source`,
+  `closingCosts.source`, `propertyTax.source`, `currencyControls.source`)
+  — a property with no sourced figures says so plainly rather than
+  showing something fabricated. Verified visually in headless Chromium:
+  both modes screenshotted with realistic mock data (correct citations,
+  correct dedup, correct verdicts); fixed one real layout bug caught this
+  way (the fixed Print button overlapped the title text) before shipping.
+
+## Foreign Buyer Access — 9 more countries added (Sept 2026)
+
+The user flagged that France had no entry at all (silent, not wrong) and
+asked to scan more countries. `lib/data/foreignBuyerRules.js` went from 20
+to 29 entries — added France, Spain, Portugal, Germany, Netherlands,
+Ireland (all `OPEN`), and Italy, Greece, Cyprus (`WORKAROUND REQUIRED` —
+Italy's non-EU reciprocity test via MAECI, Greece's border/military-zone
+permit, Cyprus's Council of Ministers approval + one-property cap for
+non-EU buyers). Same honesty discipline as the rest of this file: each
+entry cites a real official/quasi-official body (Notaires de France,
+Spain's Colegio de Registradores, Portugal's IRN, the German Bundestag's
+own research service, Greece's Ministry of National Defence, the Dutch
+government, Cyprus's Ministry of Interior, Ireland's Citizens Information
+Board, Italy's Foreign Ministry) — verified via web search against each
+body's own page, not just secondary law-firm/expat blogs (those surfaced
+first and were used only to know what to verify, never as the cited
+source itself). Verified: `getForeignBuyerRule()` tested directly in Node
+for all 9 new countries plus one unlisted country (correctly stays null);
+`foreign-buyer-check.html` screenshotted for both an `OPEN` (France) and a
+`WORKAROUND REQUIRED` (Cyprus) entry, real function output, not mocked
+text. Also fixed 3 pages that hardcoded the old "20 countries" figure
+(`foreign-buyer-check.html`, `index.html`, `guides/index.html`) — found by
+grepping for it, not something the user pointed out.
+
+**Second batch (same day): 10 more, 29 → 39.** The user pushed back on
+stopping at the language-matched set ("why aren't you handling the rest of
+the 85 silent countries") — added Belgium, Sweden, Norway, Czech Republic
+(`OPEN`) and Poland, Austria, Hungary, Croatia, Turkey, Finland
+(`WORKAROUND REQUIRED`). Same per-country web-search verification against
+an official body each time (Notaire.be, Sweden's Lantmäteriet, Norway's
+Kartverket, Poland's MSWiA, Austria's RIS/Länder Grundverkehr law, Czech
+MFA, Hungary's kormányhivatal, Croatia's Ministry of Justice — with a
+direct official reciprocity-info page, Turkey's TKGM land registry,
+Finland's Ministry of Defence). Two of these have a genuinely common
+"workaround" most buyers actually use, worth calling out: Poland and
+Finland both exempt a self-contained apartment/housing-company-share
+purchase from the non-EU permit that a house-with-land purchase would
+need — verified specifically (not assumed) before writing `WORKAROUND
+REQUIRED` instead of `RESTRICTED`. Also updated the "20/29 countries"
+copy again, now "39", in the same 3 pages.
+
+**Third batch (same day): 8 more, 39 → 47.** User asked to keep going.
+Added Brazil, Argentina (`OPEN`) and Bulgaria, Romania, Slovakia,
+Slovenia, Malta, Estonia (`WORKAROUND REQUIRED`). Same per-country
+official-source verification (Bulgaria's psc.egov.bg, Romania's ANCPI,
+Slovakia's SLOV-LEX, Slovenia's Ministry of Justice/e-Uprava, Malta's Tax
+and Customs Administration, Estonia's Riigi Teataja state gazette,
+Brazil's INCRA, Argentina's RENAT land registry). Two judgment calls worth
+recording:
+  - **Brazil and Argentina are `OPEN`, not `WORKAROUND REQUIRED`,** even
+    though both have real foreign-ownership caps — because those caps
+    apply only to RURAL/agricultural land and border zones, never to an
+    ordinary urban apartment or house purchase (the case this field is
+    actually describing for a typical Pradixium user). Same reasoning
+    already used for Norway/Sweden's agricultural carve-outs.
+  - **Bulgaria and Romania both let a non-EU citizen buy an apartment
+    outright, no company needed** — the restriction (no direct land
+    ownership without a domestic company) only bites for a house-with-land
+    or standalone land purchase. Checked specifically for each country
+    rather than assumed from Poland/Finland's apartment-exemption pattern.
+Also updated the "39/47 countries" copy again, in the same 3 pages.
+
+**Still not done, still not exhaustive:** ~38 of the 85 dropdown countries
+remain silent (correctly — unverified). Continuing this kind of expansion
+in bounded, verified batches rather than one unverifiable sweep is the
+right pace to keep the honesty bar real; say so plainly if the user wants
+the rest pushed further in a future session.
+
 ## For the other session (Claude B): Georgia data gap flagged (Sept 2026)
 
 The user is specifically interested in Georgia (the country) as a hot,
@@ -644,3 +783,28 @@ known for unusually open foreign-ownership rules — worth verifying and
 adding) and a `recentTransactionPrices.js` / `globalIndexTrends.js` entry
 (price trend). Same honesty bar as everything else — only add what clears
 it against Georgia's own official sources.
+
+## "Pradixium Deal Rating™" — new trademark, renamed from plain "Deal Rating" (Sept 2026)
+
+User asked to add "Reality Check™" and a new "Pradixium Deal Rating™"
+trademark to the footer notice (`mockups/index.html`, the "X™, Y™ ... are
+trademarks of Pradixium" sentence). Reality Check™ already carried the ™
+symbol everywhere in the product (all 7 report languages) — just needed
+adding to that footer list. Deal Rating did not — confirmed with the user
+and renamed the actual label too, not just the footer claim, so the
+trademark isn't a dangling claim for a term nobody sees:
+- `report.html`: `lblDealRating` default text + all 7 language-dictionary
+  `dealRating:` values → localized per the same convention `scoreCaption`
+  already uses (en/de/nl keep the English brand phrase, es/it/pt/fr get
+  their existing translated noun + "Pradixium™" appended).
+- `index.html`: the free-preview metric box label, "DEAL RATING" →
+  "PRADIXIUM DEAL RATING™".
+- The underlying rating *values* (Excellent/Good/Fair/Weak/Avoid) are
+  unchanged — only the field label changed.
+Verified: all 7 language-dictionary replacements confirmed as exact
+single matches (not a blind find/replace); rendered in headless Chromium
+(English, "Pradixium Deal Rating™: Good" in the Investment Decision
+section) — the language-toggle button itself couldn't be exercised in
+this sandbox test (it only renders once the AI agent's localized content
+is present, not something easy to mock), but the 7 dictionary values were
+verified directly in the source, not assumed.
