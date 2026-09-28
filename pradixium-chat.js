@@ -1,6 +1,6 @@
 /* PRADIXIUM™ — AI Chat Assistant widget
- * Self-contained: injects its own styles/DOM, one <script src="/pradixium-chat.js"></script>
- * drops it onto any page. Talks to /api/chat, which only ever answers
+ * Self-contained: injects its own styles/DOM — one script tag referencing
+ * this file drops it onto any page. Talks to /api/chat, which only ever answers
  * from real Pradixium data — see that file's own comment for the full
  * honesty discipline. This widget itself does no data handling beyond
  * passing the conversation back and forth.
