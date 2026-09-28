@@ -172,7 +172,8 @@ largest metro first.
   (Treasurer-Tax Collector secured tax layer; no situs city/ZIP → parcel
   within 250 m of the geocoded point, `spatial: true`), San Bernardino (county
   Site Address point → PRCLNUM or containing parcel in "Parcels with Redacted
-  Owner Name"; shows Prop 13 base year), Sonoma (Parcels Public, roll year).
+  Owner Name"; shows Prop 13 base year), Sonoma (Parcels Public, roll year),
+  Alameda (county open data Parcels: Land + Imps).
   The Prop 13
   assessed value is shown in the TEXT only, labelled "not current market
   value" — never governmentValue, never the verdict (same basis as LA).
