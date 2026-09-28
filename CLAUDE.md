@@ -390,7 +390,13 @@ largest metro first.
   Live_Parcels: APPVALUE; no city/ZIP → spatial 1 km) and Montgomery
   (47125, Clarksville, gis.mcgtn.org Parcels: MktAppraisedValue as "$"
   strings, record year 2027 = working roll, said so; ReasonCode Q/D/L/DSUB
-  undocumented → sales not shown). Comptroller statewide file (86 other
+  undocumented → sales not shown). Greenville SC (45045): county parcels
+  as republished by the City of Greenville GIS (AddressSearch/Property
+  layer 3, city area only ~20 km box — not counted as county coverage):
+  FAIRMKTVAL; situs = STRNUM + LOCATE (no type), STREET/CITY/ZIP5 are the
+  MAILING address → spatial 500 m. Found via disc3.py (reads the
+  county's own ArcGIS map-app configs for their services).
+  Comptroller statewide file (86 other
   counties, Assessment_Data_##.dbf) requested by the user by e-mail — the
   online form needs a U.S. address. TDEC "LH_Parcel_FP" is only a ~21k
   parcel extract, not usable.
