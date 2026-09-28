@@ -174,7 +174,9 @@ largest metro first.
   Site Address point → PRCLNUM or containing parcel in "Parcels with Redacted
   Owner Name"; shows Prop 13 base year), Sonoma (Parcels Public, roll year),
   Alameda (county open data Parcels: Land + Imps), Placer (County Parcels
-  public view), Tulare (public tax parcels; no city/ZIP → spatial 250 m).
+  public view), Tulare (public tax parcels; no city/ZIP → spatial 250 m),
+  Solano (Parcels Public Aumentum: valland + valimp, rollyear, beds/baths;
+  siteroad has no type, direction spelled out "WEST C").
   Monterey's parcel layer has values but no situs address → not used.
   The Prop 13
   assessed value is shown in the TEXT only, labelled "not current market
