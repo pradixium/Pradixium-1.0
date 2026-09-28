@@ -172,7 +172,10 @@ largest metro first.
   (Treasurer-Tax Collector secured tax layer; no situs city/ZIP → parcel
   within 250 m of the geocoded point, `spatial: true`), San Bernardino (county
   Site Address point → PRCLNUM or containing parcel in "Parcels with Redacted
-  Owner Name"; shows Prop 13 base year), Sonoma (Parcels Public, roll year).
+  Owner Name"; shows Prop 13 base year), Sonoma (Parcels Public, roll year),
+  Alameda (county open data Parcels: Land + Imps), Placer (County Parcels
+  public view), Tulare (public tax parcels; no city/ZIP → spatial 250 m).
+  Monterey's parcel layer has values but no situs address → not used.
   The Prop 13
   assessed value is shown in the TEXT only, labelled "not current market
   value" — never governmentValue, never the verdict (same basis as LA).
@@ -299,7 +302,8 @@ largest metro first.
   (suffix) → a unit is needed.
 - DeKalb GA (13089): `dekalbGA.js` — county "Parcels" (address → ParcelID)
   joined to "Tax_Parcels_2025" (APPRAISED_VALUE + TAXYR). New layer each
-  year: update TAX_LAYER to Tax_Parcels_<year>.
+  year: update TAX_LAYER to Tax_Parcels_<year>. That layer stalls on cold
+  starts (20 s) → `arcQueryHedged` (second request after 2 s, first wins).
 - Stark County OH (39151, Canton): `starkOH.js` — Auditor GIS parcels
   (APPRAISED_TOTAL_VALUE + TAXYR) + Sales and Transfers: last sale only if
   the parcel's latest transfer is "0-QUALIFIED - ARMSLENGTH" and single
@@ -326,6 +330,19 @@ largest metro first.
 - Ada County ID (16001, Boise): `adaID.js` — AdaCountyGIS Parcels layer 5:
   TOTALVALUE + PROPYEAR (Idaho: market-value assessment; non-disclosure →
   no sales). Padded strings → LIKE 'x %' then exact trim match.
+- Washoe NV (32031, Reno): `washoeNV.js` — Assessor_ParcelCentroid: beds,
+  baths, year built, building sq ft; TOTALAPR = Nevada statutory taxable
+  value (NRS 361.227, not market; assessed = 35%) → TEXT ONLY (textOnly).
+  SALEPRICE unscreened → not shown.
+- Ottawa County MI (26139): `ottawaMI.js` — county GIS ParcelsPublic (AV →
+  TCV = 2×, derived label) + "Ottawa County Arms Length Sales" (org: Ottawa
+  County Geospatial Insights & Solutions; terms "03-ARM'S LENGTH", since
+  2004): last arm's-length single-parcel sale + ZIP 12-month median of
+  improved residential (context). Recompute check: ZIP 49424 → 490, $385,100.
+- East Baton Rouge Parish LA (22033): `ebrLA.js` — data.brla.gov Tax Parcel
+  (ei2c-krsr; physical_address → assessment_num; its FMV field is always 0)
+  + EBRP Tax Roll (myfc-nh6n; sum of real-property lines' fair_market_val,
+  latest tax_year). No city/ZIP → SoQL intersects() with a ~600 m box.
 - Texas additions (`texas.js`, generic `find` configs): Tarrant (TAD roll as
   published by City of Fort Worth "Parcels_Public_View" — whole county, 2024
   roll as of Sept 2026, shown with its year), Collin (CCAD's own layer; the
