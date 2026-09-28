@@ -326,6 +326,10 @@ largest metro first.
 - Ada County ID (16001, Boise): `adaID.js` — AdaCountyGIS Parcels layer 5:
   TOTALVALUE + PROPYEAR (Idaho: market-value assessment; non-disclosure →
   no sales). Padded strings → LIKE 'x %' then exact trim match.
+- Washoe NV (32031, Reno): `washoeNV.js` — Assessor_ParcelCentroid: beds,
+  baths, year built, building sq ft; TOTALAPR = Nevada statutory taxable
+  value (NRS 361.227, not market; assessed = 35%) → TEXT ONLY (textOnly).
+  SALEPRICE unscreened → not shown.
 - Texas additions (`texas.js`, generic `find` configs): Tarrant (TAD roll as
   published by City of Fort Worth "Parcels_Public_View" — whole county, 2024
   roll as of Sept 2026, shown with its year), Collin (CCAD's own layer; the
