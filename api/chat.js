@@ -125,7 +125,12 @@ export default async function handler(req, res) {
     return res.status(200).json({ success: false, error: "The chat assistant isn't configured on the server yet." });
   }
 
-  const body = req.body || {};
+  let body;
+  try {
+    body = typeof req.body === "string" ? JSON.parse(req.body) : (req.body || {});
+  } catch {
+    return res.status(400).json({ success: false, error: "Invalid JSON body" });
+  }
   const messages = Array.isArray(body.messages) ? body.messages.slice(-20) : [];
   if (!messages.length) {
     return res.status(400).json({ success: false, error: "No messages provided" });
