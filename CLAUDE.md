@@ -382,6 +382,13 @@ largest metro first.
   Spatial 1 km + number/street match, so two parcels sharing an address
   give "several parcels", not a guess. Check: Weld 095910101005 assessed
   45,080 / appraised 721,253 = 6.25% (CO residential rate).
+- Oregon outside Portland metro: `oregonCounties.js` — Marion (41047,
+  county GIS Public/Parcels RMVTOTAL), Deschutes (41017, OpenData tables:
+  Assessor Account → Roll Values RMV_Total + Sales; latest sale shown only
+  with reject code 33 "CONFIRMED SALE"; old MapServer — no
+  resultRecordCount), Lane (41039, Address (Site) → maptaxlot → Parcels
+  total_mkt_land + total_mkt_imp, weekly; NUMACCNTS > 1 → no value). RMV
+  only; capped assessed value not shown; no roll year in any layer.
 - Texas additions (`texas.js`, generic `find` configs): Tarrant (TAD roll as
   published by City of Fort Worth "Parcels_Public_View" — whole county, 2024
   roll as of Sept 2026, shown with its year), Collin (CCAD's own layer; the
