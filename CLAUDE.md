@@ -596,8 +596,8 @@ everyone (data-honesty rule — never degrade quality by price). The
 differentiation has to be in usage rights, not data quality. 4 ideas
 raised; user approved building all of them, this session's own priority
 order: white-label branding (shipped) → API access (shipped) → bulk/
-portfolio analysis (shipped) → compliance/audit-trail PDF export (not
-started).
+portfolio analysis (shipped) → compliance/audit-trail PDF export (shipped).
+All 4 now shipped.
 
 **White-label branding — shipped.** `terms.html` §3a: individual-tier
 reports (one-time, monthly, annual) are personal-use-only — may not be
@@ -658,6 +658,37 @@ tested in headless Chromium with Supabase and `/api/orchestrator` mocked
 correct); the missing-required-field and >25-rows validation errors also
 confirmed. Not exercised: a real orchestrator call (same sandbox
 limitation as the API-access note above).
+
+**Compliance/audit-trail report — shipped, all 4 differentiators now
+done.** New `compliance-report.html`: a formal, sources-cited document
+(NOT the same layout as the paid report — a dedicated evidence-ledger
+table plus a "Sources & Citations" appendix), printable to PDF via the
+browser's own `window.print()` — no PDF library added, consistent with
+this project's zero-dependency design. Two modes, same page:
+  - Single property: reads the same `pradixiumReportData` localStorage key
+    report.html already populates (`engine.js`'s `buildReportData()`) —
+    no new data plumbing, so every figure matches the paid report exactly.
+    A new "Compliance Report" button on report.html itself opens it, shown
+    only when `watermarkIsBusiness` is true — a new field on
+    `getWatermarkInfo()`/`attachWatermark()`, separate from
+    `businessBranding` (which stays null until a logo/name is configured)
+    so the button doesn't wrongly stay hidden for a Business account that
+    just hasn't set up branding yet.
+  - Portfolio: `business-portfolio.html` has a "Download Compliance
+    Report" button that stores every successfully-analyzed property's
+    full raw `api/orchestrator.js` response (not the redacted/rendered
+    version) into `pradixiumPortfolioResults`, then opens this page —
+    one section per property plus a deduplicated sources index across the
+    whole portfolio.
+  Sources are never invented: both modes only ever display the `source`/
+  `sourceUrl` strings the government-data pipeline itself already
+  produces (`marketEvidence.source`, `foreignBuyerAccess.source`,
+  `closingCosts.source`, `propertyTax.source`, `currencyControls.source`)
+  — a property with no sourced figures says so plainly rather than
+  showing something fabricated. Verified visually in headless Chromium:
+  both modes screenshotted with realistic mock data (correct citations,
+  correct dedup, correct verdicts); fixed one real layout bug caught this
+  way (the fixed Print button overlapped the title text) before shipping.
 
 ## For the other session (Claude B): Georgia data gap flagged (Sept 2026)
 
