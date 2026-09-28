@@ -266,6 +266,13 @@ largest metro first.
   Compiled from Opt-In Open Data Counties" (all 87 counties): EMV total +
   mkt_year, finished sq ft, year built. sale_value has no validity code →
   not shown. co_code is the full 5-digit FIPS.
+- Gwinnett GA (13135): `gwinnett.js` — county GIS Property_and_Tax Tax
+  Master Table: TOTVAL1 (land + dwelling) as Government Value, no year in
+  layer; TAXTOT1 = exactly 40% of it (GA assessment ratio) → not shown.
+- Oakland MI (26125): `oaklandMI.js` — Tax Parcel Plus: assessed value
+  shown in text; Government Value = 2 × assessed, labelled as derived
+  (Michigan assesses at 50% of true cash value, MCL 211.27a). Taxable value
+  (capped) not shown. Beds/baths/living area.
 - Texas additions (`texas.js`, generic `find` configs): Tarrant (TAD roll as
   published by City of Fort Worth "Parcels_Public_View" — whole county, 2024
   roll as of Sept 2026, shown with its year), Collin (CCAD's own layer; the
