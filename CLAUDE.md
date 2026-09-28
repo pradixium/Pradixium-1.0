@@ -270,7 +270,10 @@ largest metro first.
   published by City of Fort Worth "Parcels_Public_View" — whole county, 2024
   roll as of Sept 2026, shown with its year), Collin (CCAD's own layer; the
   layer already holds next year's empty roll → falls back to prevVal* with
-  its year), Fort Bend (FBCAD Public Data, no tax year in layer). Williamson
+  its year), Fort Bend (FBCAD Public Data, no tax year in layer), Denton
+  (county "Parcels_FC", value carried on the 2027 working roll — said so;
+  a 2027 appraisal cannot exist before 1 Jan 2027). DuPage IL skipped: its
+  "FCV" fields equal the billed (1/3) value — ambiguous. Williamson
   skipped: WCAD layer's current values are 0.
 - Not yet covered at property level (metro trend + hazards only): Nassau County NY (not in the NYS roll),
   Riverside / San Francisco / San Diego (California publishes no sale prices;
