@@ -200,9 +200,12 @@ largest metro first.
   Auditor market value, annual taxes (official check), year built, finished
   sq ft (text). Sales not shown: VALID/SALTYP empty on every 2025+ sale
   (checked Sept 2026). Kentucky/Butler/Warren/Clermont counties not covered.
-- Kansas City (#31): not covered yet — Jackson County MO GIS
-  (jcgis.jacksongov.org) times out from cloud IPs (sandbox + WebFetch);
-  Johnson County KS publishes no parcel values. Retry Jackson from Vercel.
+- Kansas City (#31): Jackson County MO (29095) in `moreCounties.js` —
+  jcgis.jacksongov.org ParcelViewer/ParcelsAscendRelate table 2
+  (Ascend_GisInfo): Market_Value_Total + tax_year (whole table is 2024 as
+  of Sept 2026), beds, living area, year built; assessed = 19%. The server
+  answered normally in Sept 2026 (it timed out earlier). Johnson County KS
+  publishes no parcel values.
 - Columbus (#32): Franklin County OH (39049) `lib/usLocal/franklinOH.js` —
   current appraised value, above-grade living area, beds/baths; last sale
   only if it is the parcel's latest sale AND in the Auditor's ValidSale='Y'
