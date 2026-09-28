@@ -316,6 +316,18 @@ largest metro first.
   $722,500. Apartment number → unit lot via DOF Digital Tax Map "Condominium
   Units" (eguu-7ie3, unit_designation) in nyc.js; then asking ÷ unit share
   on the same basis (350 W 57th St Apt 2F = lot 1010471180, 554 sq ft).
+  Condo buildings: PLUTO files the condo under its BILLING lot's address →
+  unit lots → condo_number (eguu-7ie3) → PLUTO `condono` (350 W 57th →
+  "340 WEST 57 STREET", condo 115). Module returns `nonMarketValue`
+  (DOF value + "not a market value" label) for the uniform record table.
+  The site sends an address typed in the city field as BOTH address and
+  city → us-intelligence drops the duplicate city (else nothing geocodes);
+  Queens "43-39" numbers accepted there too; unit found mid-string
+  ("350 W 57th St Apt 2F, New York, NY").
+- Uniform US record (Sept 2026): orchestrator US branch returns
+  `marketEvidence.propertyRecord` (always present for a US property;
+  found:false when nothing matched) + `sourceParts` (titled blocks);
+  `source` is still the joined text (compliance report uses it).
   The city's
   Socrata server answers the same query in 1–8 s → hedged requests
   (second after 3 s). Test addresses must exist: the Census geocoder
