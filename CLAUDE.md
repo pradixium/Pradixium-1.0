@@ -221,6 +221,8 @@ largest metro first.
 - Massachusetts statewide fallback: `massachusetts.js` — MassGIS Property Tax
   Parcels (TOTAL_VAL + town FY, RES_AREA, year built). LS_PRICE unscreened →
   not shown. Boston module runs first. Matches on the geocoder's town name.
+- Vermont statewide: `vermont.js` — VCGI standardized parcels + Grand List
+  (REAL_FLV + GLYEAR; towns reappraise on different cycles).
 - Hartford (#50) + all of CT: `connecticut.js` — OPM Real Estate Sales
   (data.ct.gov 5mzw-sjtu, Socrata): last sale only with NO non-usable code;
   town median of usable single-family sales in the latest grand-list year
