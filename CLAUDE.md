@@ -934,6 +934,47 @@ Whichever path, verify before shipping per the usual rule: independent recompute
 of at least one figure + screenshot, and say plainly if the data genuinely isn't
 there rather than filling the gap with something unverified.
 
+## For the other session (Claude B): `/api/orchestrator` is dangerously slow for US properties — confirmed with real numbers (Sept 2026)
+
+**Also flagged as launch-blocking, with hard data this time (not just a hunch).**
+After the blank-report bug above was fixed, a live re-test on a Manhattan address
+(3531 3rd Avenue, NYC) still came back with the AI-generated sections (Investment
+Highlights, Key Risks, Investor Action, Demand Intelligence) and the government
+Market Evidence showing placeholder text, while the property's own numbers
+(Asking Price, Size, Rent, Gross Yield) rendered correctly. Pulled real numbers
+from Vercel Observability (`vercel.function_invocation.function_duration_ms`,
+`max`, grouped by route, prj_4db8toVuFK5mfcaIUGyQid06y9O1, Sept 28 2026
+17:00–18:30 UTC) rather than guessing from logs I don't have access to:
+- `/api/us-intelligence`: **13,053 ms** max — landing almost exactly on the
+  documented `US_BUDGET_MS = 13000` internal cap in `api/us-intelligence.js`.
+- `/api/orchestrator` (the full request, including the AI agent step that runs
+  *after* that budget): **28,904 ms** max.
+
+So the orchestrator's own internal design (US_BUDGET_MS deliberately protecting
+the property's own record over the AI/context enrichment, per your own comment
+in that file) is working as intended, but the US property-data-gathering path
+itself is slow enough that it's actually consuming its full budget and pushing
+total request time toward 30 seconds — dangerously close to common serverless
+function ceilings, and a bad first-purchase experience regardless of whether it
+technically succeeds. `vercel.json` has no explicit `maxDuration` override for
+this route, so it's running on whatever the plan default is.
+
+Not yet investigated (deliberately left to your session, since it's the
+US-data-gathering path you own): *why* `/api/us-intelligence` is this slow for a
+NYC address specifically — parallelizing sub-queries that currently run
+sequentially, caching per-address results, trimming which local-data modules
+run for a given address, or raising `US_BUDGET_MS`/adding a `maxDuration` are
+all on the table, but should be verified against real timing data (the
+Observability query above, or `get_runtime_logs`/`get_runtime_errors` if those
+work from your session — they 403'd from this one regardless of `teamId`) rather
+than guessed.
+
+**The user's own instruction on this:** he asked that this be routed to your
+session first; if it doesn't get picked up, this session will fix it directly
+rather than leave it open — carefully, to avoid colliding with your work on the
+same files. Check `lib/usLocal/*.js` and `api/us-intelligence.js` for what's
+already in flight before starting.
+
 ## "Pradixium Deal Rating™" — new trademark, renamed from plain "Deal Rating" (Sept 2026)
 
 User asked to add "Reality Check™" and a new "Pradixium Deal Rating™"
