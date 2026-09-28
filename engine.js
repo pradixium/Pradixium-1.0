@@ -226,6 +226,26 @@
   // aggregate benchmarks, not per-sale records) — hidden entirely when
   // absent, same pattern as Foreign Buyer Access/Closing Costs/Property
   // Tax, rather than showing an empty table.
+  // Official location risks & regulation (FEMA flood zone, CAL FIRE fire
+  // hazard zone, CA seismic zones, LA 2025 wildfire damage, LA rent
+  // control). Every row names its government source; a lookup that failed
+  // is simply absent, never shown as "not in zone".
+  const CHECK_COLORS = { warn: "#b7791f", info: "#5a6b7d", ok: "#2f855a" };
+  function renderOfficialChecks(checks) {
+    const section = $("officialChecksSection");
+    window.pradixiumLastOfficialChecks = Array.isArray(checks) && checks.length ? checks : null;
+    if (!section) return;
+    if (!window.pradixiumLastOfficialChecks) {
+      section.style.display = "none";
+      return;
+    }
+    section.style.display = "";
+    const body = $("officialChecksBody");
+    if (body) {
+      body.innerHTML = checks.map((c) => `<tr><td>${escapeHtml(c.label || "—")}</td><td style="color:${CHECK_COLORS[c.level] || "inherit"}">${escapeHtml(c.value || "—")}</td><td>${escapeHtml(c.source || "—")}</td></tr>`).join("");
+    }
+  }
+
   function renderComparableSales(comparableSales, currency) {
     const section = $("comparableSalesSection");
     if (!section) return;
@@ -989,6 +1009,7 @@
 
       renderMarketEvidence(inputs.country, json?.marketEvidence || null, json?.pradixiumScore?.breakdown?.valueGapPercent);
       renderComparableSales(json?.marketEvidence?.comparableSales || null, currency);
+      renderOfficialChecks(json?.marketEvidence?.officialChecks || null);
       renderDemandIntelligence(json?.marketData || null);
       renderForeignBuyerAccess(json?.foreignBuyerAccess || null, inputs.country);
       renderClosingCosts(json?.closingCosts || null);
@@ -1014,6 +1035,7 @@
       console.warn("Pradixium: AI analysis failed, rule-based figures remain", e);
       renderMarketEvidence(inputs.country, null);
       renderComparableSales(null);
+      renderOfficialChecks(null);
       renderDemandIntelligence(null);
       set("investorAction", "AI analysis unavailable right now — figures above are calculated directly from the numbers you entered.");
       set("fairValue", "—");
@@ -1072,7 +1094,9 @@
   // to mean anything, and no official per-country expense benchmark or
   // user-entered opex exists yet — an invented ratio here would fail the
   // same data-honesty bar as everything else on this page. The "Financed"
-  // scenario in report.html hides itself when this is null.
+  // scenario in report.html hides itself when this is null. (The debt-service
+  // math this used to combine with the invented opex is generalized in
+  // annualDebtService() below, for the land-dev/commercial calculators.)
   function cashOnCashReturnPercent() {
     return null;
   }
@@ -1193,6 +1217,7 @@
       propertyTaxBasis: $("propertyTaxBasis")?.textContent,
       propertyTaxSource: $("propertyTaxSource")?.textContent,
       comparableSales: Array.isArray(window.pradixiumLastComparableSales) ? window.pradixiumLastComparableSales : null,
+      officialChecks: Array.isArray(window.pradixiumLastOfficialChecks) ? window.pradixiumLastOfficialChecks : null,
       currencyRiskNote: $("currencyRiskNote")?.textContent,
       currencyControlsStatus: $("currencyControlsStatus")?.textContent,
       currencyControlsLimit: $("currencyControlsLimit")?.textContent,
@@ -1426,6 +1451,7 @@
 
       renderMarketEvidence(property.country, json?.marketEvidence || null, json?.pradixiumScore?.breakdown?.valueGapPercent);
       renderComparableSales(json?.marketEvidence?.comparableSales || null, currency);
+      renderOfficialChecks(json?.marketEvidence?.officialChecks || null);
       renderDemandIntelligence(json?.marketData || null);
       renderForeignBuyerAccess(json?.foreignBuyerAccess || null, property.country);
       renderClosingCosts(json?.closingCosts || null);

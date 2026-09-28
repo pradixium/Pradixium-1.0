@@ -126,3 +126,72 @@ official, free, real API — but was never actually verified due to network acce
 sessions pick up an environment change). Before starting: verify the actual data
 source structure for the target county/site with WebFetch/WebSearch — don't write
 scraping code against a guessed HTML structure.
+
+## US coverage (built Sept 2026 — top 50 metros by Census 2024 population; local data for the top 20 first)
+
+Working rules from the user for this work: build → verify (independent recompute
+of at least one figure + screenshot) → push only fully-verified changes; never say
+"impossible" — bring researched alternatives; always end with a Hebrew summary;
+largest metro first.
+
+- Every US address: FHFA metro HPI matched by county (`lib/data/usMetros.js`,
+  generated from the Census/OMB files), FEMA flood zone, and — in California —
+  CAL FIRE fire zones + CGS fault/liquefaction/landslide zones
+  ("Location Risks & Regulation" section in results page and report).
+- Local official sources: `lib/usLocal/*.js` (one module per verified source,
+  registry in `lib/usLocal/index.js`) plus NYC/LA/NJ/NYS code inside
+  `api/us-intelligence.js`. Only NJ's municipal median ($/sq ft of LIVING area,
+  usable Treasury sales) feeds the verdict; everything else is context or a
+  display-only "Government Value", because the area measure or the sale
+  qualification is not strict enough.
+- Generated data (re-run to refresh): `node scripts/build-nj-sales.mjs`
+  (NJ Treasury SR1A, monthly) and `node scripts/build-fl-sales.mjs 2026P`
+  (Florida DOR SDF+NAL, each new roll).
+  `node scripts/build-stl-sales.mjs` (City of St. Louis Assessor sales +
+  parcel Access files; needs mdbtools — the city's file currently ends Nov
+  2024, so its ZIP figures are context only).
+- St. Louis (#23): City (29510) = last valid sale (Assessor sale type 10) +
+  appraised value + ZIP context; St. Louis County (29189) = facts +
+  appraised value only (Missouri: the county publishes no sale prices).
+- Not yet covered at property level (metro trend + hazards only): Fort Worth
+  (Tarrant — no valued open service), Nassau County NY (not in the NYS roll),
+  Riverside / San Francisco / San Diego (California publishes no sale prices;
+  SF's portal was rate-limiting during the build). Boston and Atlanta have no
+  recent open sale data (values only).
+- Sandbox quirk: Node's built-in fetch here ignores HTTPS_PROXY for some hosts
+  (King County, DCAD fail with "upstream connect error"); run local tests with
+  `NODE_USE_ENV_PROXY=1`. Vercel production is unaffected — always confirm on
+  the live site.
+- The US endpoint has a 13 s internal budget (orchestrator allows 15 s); slow
+  context queries get short timeouts so they can never drop the property's own
+  record.
+
+**Who builds what (two Claude sessions work on this repo):** US local data for
+metros #23–#50 (St. Louis onward, in rank order) is being built by the session
+titled "Pradixium 2.0 Beta" on branch `claude/ecstatic-hypatia-coi9oe`. Before
+adding a US metro, check `lib/usLocal/index.js` on `origin/main` and this list,
+so the same metro is never built twice.
+
+## Lithuania (in progress)
+
+The user's earlier "Italy/Spain/Lithuania data" request meant Lithuania's state
+real-property register/cadastre — Registrų centras (registrucentras.lt).
+Checked Sept 2026: registrucentras.lt and regia.lt sit behind a Cloudflare
+challenge, data.gov.lt / get.data.gov.lt return a WAF "Attack ID" block page
+and osp.stat.gov.lt returns 403 to cloud IPs — do not try to bypass them.
+Plan: the user downloads the official open-data files in a normal browser and
+they are turned into a generated data file (same pattern as NJ/FL).
+
+Shipped: **Lithuania Auction Watch** (`lithuania-auctions.html` + `api/lt-auctions.js`)
+— live bailiff (kind 1) and insolvency-administrator (kind 2) real-estate
+auctions from evarzytynes.lt (Registrų centras). List pages only; never read
+detail pages' contacts/owner names. Per-m² start price only for one whole
+property in m² (not "1/4 dalis" shares, not multi-property lots). Fails closed
+on format change. **Paused (Sept 2026, user's decision): removed from the live site
+(page, API, "Distressed Assets" menu link) until Registrų centras confirms in
+writing that showing the auctions with links back to them is fine.** To restore,
+revert the "Take Distressed Assets off the live site" commit. The unreleased
+"Government value" button (unique number + copy/open link to RC's mass-valuation
+search, which Cloudflare blocks for servers incl. Vercel) is part of it. Shekel
+prices were tried and dropped by the user — EUR only. Next: the RC "average
+market value" (mass valuation) page as the Lithuanian benchmark.
