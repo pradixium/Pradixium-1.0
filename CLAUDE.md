@@ -164,6 +164,15 @@ largest metro first.
   `lib/usLocal/portlandMetro.js` — assessor Real Market Value + assessed
   value; RLIS SALEPRICE is unscreened, so not shown. Clark County WA (the
   Vancouver side) not yet covered.
+- Sacramento (#27): not covered at property level — California publishes no
+  sale prices and Prop 13 assessed values are not market values (same as
+  Riverside/SF/SD).
+- Pittsburgh (#28): Allegheny (42003) `lib/usLocal/allegheny.js`, live SQL on
+  WPRDC — the county's VALID sales (SALECODE 0) + finished living area →
+  ZIP benchmark that FEEDS THE VERDICT (like NJ), last valid sale, facts.
+  The county's fair market value is 2012 base-year → text only. WPRDC's
+  firewall only accepts a form-encoded POST with a User-Agent (the shared
+  `h.json(url, ms, init)` now takes fetch options).
 - Not yet covered at property level (metro trend + hazards only): Fort Worth
   (Tarrant — no valued open service), Nassau County NY (not in the NYS roll),
   Riverside / San Francisco / San Diego (California publishes no sale prices;
