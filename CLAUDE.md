@@ -263,8 +263,15 @@ largest metro first.
 - Not covered at property level (metro trend + FEMA only), checked Sept 2026:
   Louisville (LOJIC/PVA layers carry no values), Grand Rapids (Kent County
   open parcels have no values), Birmingham (Jefferson AL has only the tax
-  assessed value, a fraction of market), Memphis (Shelby County GIS behind
-  Cloudflare), San Jose / Fresno (California).
+  assessed value, a fraction of market), San Jose / Fresno (California).
+- Memphis: Shelby County TN (47157) `shelbyTN.js` — county GIS
+  scgis.shelbycountytn.gov (found in the Register of Deeds map's JS
+  bundle): Parcel/CERTParcel (structured situs, no value) + Assessor/
+  QualifiedSales (the Assessor's QUALIFIED sales, Jan 2022 → current):
+  most recent qualified sale per parcel. The server needs legacy TLS
+  renegotiation → the module's own https.Agent with
+  SSL_OP_LEGACY_SERVER_CONNECT (local test: curl with an OPENSSL_CONF
+  "Options = UnsafeLegacyServerConnect", injected as h.legacyJson).
 - Shared matcher `lib/usLocal/_structured.js` (`structuredEvidence`): for
   official layers with a structured situs address — number + name must
   match, dir/type agree when both present, ZIP OR town must match, unit
