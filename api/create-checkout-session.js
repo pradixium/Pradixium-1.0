@@ -86,11 +86,16 @@ export default async function handler(req, res) {
 
   const params = new URLSearchParams();
   // Lets Stripe's own hosted checkout page show a "Enter promo code" field
-  // — for time-limited/capped launch coupons (e.g. "first 20 free"),
-  // created and managed directly in the Stripe Dashboard (Coupons →
-  // Promotion codes). No code here validates or tracks redemptions;
-  // Stripe enforces max_redemptions/expiry itself.
-  params.set("allow_promotion_codes", "true");
+  // — for time-limited/capped launch coupons (e.g. "first 20 free
+  // REPORTS", created and managed directly in the Stripe Dashboard,
+  // Coupons -> Promotion codes). Deliberately scoped to the one-time
+  // "report" plan only: a real bug found live (Sept 2026) let the same
+  // 100%-off launch coupon apply to the recurring $299.99/month Business
+  // plan (or the annual/monthly subscriptions), giving away a full paid
+  // month and burning one of the scarce 20 redemptions meant for report
+  // testimonials. No code here validates or tracks redemptions; Stripe
+  // enforces max_redemptions/expiry itself.
+  if (plan === "report") params.set("allow_promotion_codes", "true");
   // {CHECKOUT_SESSION_ID} is a literal Stripe template placeholder.
   // URLSearchParams percent-encodes the braces as part of the form value,
   // which is correct: Stripe decodes the submitted form field first (like
