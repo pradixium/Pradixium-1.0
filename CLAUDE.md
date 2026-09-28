@@ -173,7 +173,9 @@ largest metro first.
   within 250 m of the geocoded point, `spatial: true`), San Bernardino (county
   Site Address point → PRCLNUM or containing parcel in "Parcels with Redacted
   Owner Name"; shows Prop 13 base year), Sonoma (Parcels Public, roll year),
-  Alameda (county open data Parcels: Land + Imps).
+  Alameda (county open data Parcels: Land + Imps), Placer (County Parcels
+  public view), Tulare (public tax parcels; no city/ZIP → spatial 250 m).
+  Monterey's parcel layer has values but no situs address → not used.
   The Prop 13
   assessed value is shown in the TEXT only, labelled "not current market
   value" — never governmentValue, never the verdict (same basis as LA).
