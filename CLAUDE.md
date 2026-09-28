@@ -276,7 +276,9 @@ largest metro first.
 - Colorado (Denver metro): `coloradoCounties.js` — Arapahoe (OpenDataService
   Parcels: Appr_Value; Sale price has no validity code → not shown) and
   Adams (Parcels address → PARCELNB → Property_Values acttotalval; several
-  accounts on one parcel → no value shown).
+  accounts on one parcel → no value shown), Jefferson (GIS Parcel: sum of
+  VALACT..VALACT6 tax-class values; PRPSTRNUM zero-padded to 5) and Douglas
+  (OpenData location layer 5 → values layer 4, summed per account).
 - Texas additions (`texas.js`, generic `find` configs): Tarrant (TAD roll as
   published by City of Fort Worth "Parcels_Public_View" — whole county, 2024
   roll as of Sept 2026, shown with its year), Collin (CCAD's own layer; the
