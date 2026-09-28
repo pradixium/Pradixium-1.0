@@ -367,6 +367,14 @@ largest metro first.
   Linn IA (19113, county RealEstateParcel: ValueTotal + AssessmentYear,
   both Linn County and Cedar Rapids assessors; rollback taxable not shown).
   Jackson OR skipped: its tax-lot LANDVALUE/IMPVALUE are undocumented.
+  Tennessee: Hamilton (47065, county server mapsdev.hamiltontn.gov
+  Live_Parcels: APPVALUE; no city/ZIP → spatial 1 km) and Montgomery
+  (47125, Clarksville, gis.mcgtn.org Parcels: MktAppraisedValue as "$"
+  strings, record year 2027 = working roll, said so; ReasonCode Q/D/L/DSUB
+  undocumented → sales not shown). Comptroller statewide file (86 other
+  counties, Assessment_Data_##.dbf) requested by the user by e-mail — the
+  online form needs a U.S. address. TDEC "LH_Parcel_FP" is only a ~21k
+  parcel extract, not usable.
 - Indiana statewide (outside Marion): `indiana.js` reads
   `lib/data/indiana/<FIPS>.json.gz`, built by
   `python3 scripts/build-in-parcels.py 2025` from each county's DLGF
