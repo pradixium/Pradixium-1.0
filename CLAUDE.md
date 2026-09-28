@@ -297,6 +297,9 @@ largest metro first.
   Oahu house numbers "47-490" parsed directly) → CadastralTables ASMTGIS
   (land + building value, latest taxyr). Condo TMKs hold many units
   (suffix) → a unit is needed.
+- DeKalb GA (13089): `dekalbGA.js` — county "Parcels" (address → ParcelID)
+  joined to "Tax_Parcels_2025" (APPRAISED_VALUE + TAXYR). New layer each
+  year: update TAX_LAYER to Tax_Parcels_<year>.
 - Texas additions (`texas.js`, generic `find` configs): Tarrant (TAD roll as
   published by City of Fort Worth "Parcels_Public_View" — whole county, 2024
   roll as of Sept 2026, shown with its year), Collin (CCAD's own layer; the
