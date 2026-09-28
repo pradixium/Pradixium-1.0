@@ -104,10 +104,18 @@
     });
     closeBtn.addEventListener("click", () => panel.classList.remove("open"));
 
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
+    // Two entry points (button tap, Enter key) call this one function —
+    // never both for the same tap: preventDefault() on the button's own
+    // click stops the browser from then also firing "submit" on the form,
+    // so this can't double-send. Added after a real mobile Safari session
+    // where the form's "submit" event alone never fired on button tap —
+    // this doesn't rely on that event at all for the tap path.
+    let busy = false;
+    async function doSend() {
+      if (busy) return;
       const text = input.value.trim();
       if (!text) return;
+      busy = true;
       addMessage(body, "user", text);
       history.push({ role: "user", content: text });
       input.value = "";
@@ -135,17 +143,35 @@
       } catch (err) {
         addMessage(body, "error", "Could not reach the chat assistant — please try again shortly.");
       } finally {
+        busy = false;
         input.disabled = false;
         sendBtn.disabled = false;
         typing.style.display = "none";
         input.focus();
       }
+    }
+
+    sendBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      doSend();
+    });
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      doSend();
     });
   }
 
+  function safeInit() {
+    try {
+      init();
+    } catch (e) {
+      console.error("Pradixium chat widget failed to initialize:", e);
+    }
+  }
+
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init);
+    document.addEventListener("DOMContentLoaded", safeInit);
   } else {
-    init();
+    safeInit();
   }
 })();
