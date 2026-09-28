@@ -135,7 +135,9 @@ of at least one figure + screenshot) → push only fully-verified changes; never
 largest metro first.
 
 - Every US address: FHFA metro HPI matched by county (`lib/data/usMetros.js`,
-  generated from the Census/OMB files), FEMA flood zone, and — in California —
+  generated from the Census/OMB files; ALL 387 metros + each state's non-metro
+  area via `lib/data/usHpiCounties.js` ← `python3 scripts/build-us-hpi.py`,
+  FHFA all-transactions quarterly files, refresh each quarter), FEMA flood zone, and — in California —
   CAL FIRE fire zones + CGS fault/liquefaction/landslide zones
   ("Location Risks & Regulation" section in results page and report).
 - Local official sources: `lib/usLocal/*.js` (one module per verified source,

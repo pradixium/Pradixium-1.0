@@ -478,7 +478,7 @@ function normalizeMarketEvidence(country, raw, propertyType) {
       source: [val.fairValue != null
         ? (val.source || "U.S. Census Bureau + FHFA + public property records")
         : stateHpi.oneYear != null
-          ? `${macro.laAssessor?.parcel || macro.njSales?.parcel || macro.nysParcel?.status === "ok" || macro.local?.hasRecord ? "" : "No county property record found — "}FHFA ${stateHpi.name || "state"} ${metroHpi ? "metro " : ""}HPI: ${stateHpi.oneYear >= 0 ? "+" : ""}${stateHpi.oneYear}% YoY${stateHpi.period ? ` (${stateHpi.period})` : ""}.`
+          ? `${macro.laAssessor?.parcel || macro.njSales?.parcel || macro.nysParcel?.status === "ok" || macro.local?.hasRecord ? "" : "No county property record found — "}FHFA ${stateHpi.name || "state"} ${metroHpi?.level === "nonmetro" ? "" : metroHpi ? "metro " : ""}HPI: ${stateHpi.oneYear >= 0 ? "+" : ""}${stateHpi.oneYear}% YoY${stateHpi.period ? ` (${stateHpi.period})` : ""}.`
           : "No official price benchmark found for this address — county property record and state price index both unavailable.",
         nycSalesContext(macro.nycSales), laAssessorContext(macro.laAssessor), njSalesContext(macro.njSales, raw.localBenchmark), nysParcelContext(macro.nysParcel), macro.local?.summary || null].filter(Boolean).join(" "),
       coverage: val.fairValue != null ? "property" : raw.localBenchmark ? "city" : (raw.macroEvidence ? "national" : "none"),
