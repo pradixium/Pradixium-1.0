@@ -168,12 +168,16 @@ largest metro first.
   value; RLIS SALEPRICE is unscreened, so not shown. Clark County WA (the
   Vancouver side) not yet covered.
 - California counties outside LA: `california.js` — San Diego (SANDAG),
-  Riverside, Contra Costa, San Joaquin, San Francisco (DataSF roll). The Prop 13
+  Riverside, Contra Costa, San Joaquin, San Francisco (DataSF roll), Orange
+  (Treasurer-Tax Collector secured tax layer; no situs city/ZIP → parcel
+  within 250 m of the geocoded point, `spatial: true`). The Prop 13
   assessed value is shown in the TEXT only, labelled "not current market
   value" — never governmentValue, never the verdict (same basis as LA).
   Parcel counts only when its ZIP or town matches (geocoder ZIPs differ).
   CA BOE's "<County> 2026 Roll Year" services are tax-rate-area boundaries,
-  not values. Sacramento (#27), Orange, San Bernardino (no situs address),
+  not values. Sacramento (#27; its Assessor "Sales by Property Type" layer
+  holds only ~57k parcels with unscreened transfer-tax prices), San
+  Bernardino (no situs address),
   Santa Clara, Alameda: no open valued parcel layer found yet.
 - Pittsburgh (#28): Allegheny (42003) `lib/usLocal/allegheny.js`, live SQL on
   WPRDC — the county's VALID sales (SALECODE 0) + finished living area →
