@@ -36,10 +36,10 @@ h1{font-size:30px;line-height:1.2;margin:0 0 12px}
 .form-field input,.form-field select,.form-field textarea{width:100%;box-sizing:border-box;border:1px solid #d7dee6;border-radius:8px;padding:10px 12px;font-size:14px;font-family:inherit;background:#fff;color:#172131}
 .form-field input:focus,.form-field select:focus,.form-field textarea:focus{outline:2px solid #2463f5;outline-offset:1px}
 .form-field textarea{resize:vertical}
-.form-submit{display:block;width:100%;background:#2463f5;color:#fff;border:0;text-decoration:none;font-weight:700;padding:13px 26px;border-radius:9px;font-size:14px;cursor:pointer;margin-top:6px}
+.form-submit{display:block;width:100%;background:#2463f5;color:#fff;border:0;text-decoration:none;font-weight:700;padding:13px 26px;border-radius:9px;font-size:14px;cursor:pointer;margin-top:6px;text-align:center}
 .form-submit:hover{background:#1d54d6}
-.form-note{font-size:12px;color:#8792a1;line-height:1.6;margin:14px 0 0;text-align:center}
-.form-note a{color:#2463f5;text-decoration:none;font-weight:600}
+.form-submit-secondary{background:#fff;color:#2463f5;border:1px solid #2463f5}
+.form-submit-secondary:hover{background:#eef4ff}
 @media(max-width:520px){.form-row{flex-direction:column;gap:0}}
 footer{text-align:center;color:#9aa2ad;font-size:11px;letter-spacing:.4px;padding:36px 0 0;line-height:1.8}
 footer img{height:18px;vertical-align:middle;margin-right:6px;opacity:.7}
@@ -85,7 +85,7 @@ footer img{height:18px;vertical-align:middle;margin-right:6px;opacity:.7}
     <a href="/mockups/whitelabel-report.html">Preview →</a>
   </div>
 
-  <div class="note"><strong>These are early previews, not a live self-serve product yet.</strong> The pages above show sample data so you can see exactly how it would look and work — reach out below and we'll walk you through what's real today and what's coming.</div>
+  <div class="note"><strong>Branding &amp; API access and Portfolio Analysis are live today</strong> — sign in with an active Business plan to use them right now. The Business Dashboard and White-Label Client Report above are early previews with sample data; reach out below and we'll walk you through those.</div>
 
   <div class="cta">
     <h3>Interested for your organization?</h3>
@@ -133,7 +133,7 @@ footer img{height:18px;vertical-align:middle;margin-right:6px;opacity:.7}
         <textarea id="cMessage" name="message" rows="3" placeholder="Markets you work in, what you're looking for, anything else..."></textarea>
       </div>
       <button type="submit" class="form-submit">Send →</button>
-      <p class="form-note">Submitting opens your email client with these details pre-filled to <b>cs@pradixium.com</b> — nothing is sent from this page directly. Prefer to write it yourself? <a href="mailto:cs@pradixium.com?subject=Pradixium%20Business%20Solutions">Email cs@pradixium.com directly →</a></p>
+      <a href="mailto:cs@pradixium.com?subject=Pradixium%20Business%20Solutions" class="form-submit form-submit-secondary">Email cs@pradixium.com →</a>
     </form>
   </div>
 
