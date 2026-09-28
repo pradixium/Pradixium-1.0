@@ -348,10 +348,19 @@
       set("demandText", "Foreign buyer demand data is not available for this country.");
       const bar = $("demandBar");
       if (bar) bar.style.width = "0%";
-      set("buyerNetherlands", "Not available");
-      set("buyerUnitedKingdom", "Not available");
-      set("buyerBelgium", "Not available");
-      set("buyerOriginPeriod", "—");
+      // FIX: this NL/UK/BE breakdown only exists for the handful of
+      // countries whose own statistics office tracks exactly those three
+      // nationalities (e.g. Spain's INE) — it used to render for EVERY
+      // country as three boxes literally labelled "NETHERLANDS"/"UNITED
+      // KINGDOM"/"BELGIUM", all "Not available", which reads as broken on
+      // a US/Japanese/Indonesian property rather than genuinely absent.
+      // Every other evidence panel on this page hides itself when its own
+      // data is absent; this one now matches that pattern. buyerOriginText
+      // still gets an honest fallback string (not hidden) — report.html's
+      // DEMAND INTELLIGENCE section has no per-row hide, it always shows a
+      // "Top Buyer Markets" row from this same text.
+      const buyerSection = $("buyerOriginSection");
+      if (buyerSection) buyerSection.style.display = "none";
       set("buyerOriginText", "Foreign buyer origin data is not available for this country.");
       return;
     }
@@ -376,7 +385,9 @@
     if (bar) bar.style.width = (share != null ? Math.min(100, Math.max(0, share)) : 0) + "%";
 
     const origin = demand.buyerOrigin || null;
+    const buyerSection = $("buyerOriginSection");
     if (origin) {
+      if (buyerSection) buyerSection.style.display = "";
       set("buyerNetherlands", num(origin.Netherlands) != null ? origin.Netherlands + "%" : "—");
       set("buyerUnitedKingdom", num(origin.UnitedKingdom) != null ? origin.UnitedKingdom + "%" : "—");
       set("buyerBelgium", num(origin.Belgium) != null ? origin.Belgium + "%" : "—");
@@ -386,10 +397,9 @@
         `Top foreign buyer markets in ${origin.geography || demand.geography}: Netherlands ${origin.Netherlands}%, United Kingdom ${origin.UnitedKingdom}%, Belgium ${origin.Belgium}%.`
       );
     } else {
-      set("buyerNetherlands", "Not available");
-      set("buyerUnitedKingdom", "Not available");
-      set("buyerBelgium", "Not available");
-      set("buyerOriginPeriod", "—");
+      // Same fix as the !demand branch above — hide the NL/UK/BE boxes
+      // rather than showing three irrelevant "Not available" countries.
+      if (buyerSection) buyerSection.style.display = "none";
       set("buyerOriginText", "Foreign buyer origin breakdown is not available for this country.");
     }
   }

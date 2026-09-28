@@ -329,7 +329,7 @@ function normalizeMarketEvidence(country, raw, propertyType) {
     const eur = (x) => "€" + Math.round(x).toLocaleString("en-US");
     const ord = (n) => `${n}${n === 1 ? "er" : "e"}`;
     const cityWideNote = byArr
-      ? `No single benchmark for the whole city: DVF prices differ by arrondissement from ${eur(byArr[byArr.length - 1].medianEurPerM2)}/m² (${ord(byArr[byArr.length - 1].arrondissement)}) to ${eur(byArr[0].medianEurPerM2)}/m² (${ord(byArr[0].arrondissement)}) — enter the street address or the arrondissement for this property's own benchmark. Medians by arrondissement (single-dwelling sales, ${dvf.transactionWindow || "latest year"}): ${byArr.map((x) => `${ord(x.arrondissement)} ${eur(x.medianEurPerM2)} (${x.sampleSize.toLocaleString("en-US")})`).join(" · ")}.`
+      ? `No single benchmark for the whole city: DVF prices differ by arrondissement from ${eur(byArr[byArr.length - 1].medianEurPerM2)}/m² (${ord(byArr[byArr.length - 1].arrondissement)}) to ${eur(byArr[0].medianEurPerM2)}/m² (${ord(byArr[0].arrondissement)}) — enter the street address or the arrondissement for this property's own benchmark. Medians by arrondissement (single-dwelling sales, ${dvf.transactionWindow || "latest year"}): ${byArr.map((x) => `${ord(x.arrondissement)} ${eur(x.medianEurPerM2)} (${x.sampleSize.toLocaleString("en-US")})`).join(" · ")}.` + (dvf.missingArrondissements?.length ? ` No data could be loaded this time for: ${dvf.missingArrondissements.map(ord).join(", ")} — the range above may be incomplete.` : "")
       : null;
     return {
       benchmarkValue: benchmarkSource?.medianEurPerM2 ?? null,
@@ -691,10 +691,19 @@ function countryLabel(country) {
   return String(country || "").trim() || "This market";
 }
 
+// Returns {data, error} rather than a bare value — a country with no
+// adapter at all (error:null, the honest "not enough verified evidence
+// yet" case) used to be indistinguishable from this country's own adapter
+// throwing, timing out, or getting a non-2xx from Pradixium's own
+// /api/* endpoint. Both silently became a bare `null`, which read on
+// screen exactly like a real coverage gap and left the actual failure
+// with no trace anywhere (not the response, not a log) — the call site
+// below now records the real error into the same `errors` object the AI
+// agents already report through.
 async function fetchGovernmentData(property, origin) {
   const country = String(property?.country || "").trim().toLowerCase();
   const endpoint = COUNTRY_ENDPOINTS[country];
-  if (!endpoint) return null;
+  if (!endpoint) return { data: null, error: null };
 
   const params = new URLSearchParams();
   if (property.city) params.set("city", property.city);
@@ -717,11 +726,11 @@ async function fetchGovernmentData(property, origin) {
   const timer = setTimeout(() => controller.abort(), 15000);
   try {
     const r = await fetch(`${origin}/api/${endpoint}?${params.toString()}`, { signal: controller.signal });
-    if (!r.ok) return null;
+    if (!r.ok) return { data: null, error: `/api/${endpoint} returned HTTP ${r.status}` };
     const json = await r.json();
-    return json?.success ? json.data || json : null;
-  } catch {
-    return null;
+    return json?.success ? { data: json.data || json, error: null } : { data: null, error: `/api/${endpoint}: ${json?.error || "responded success:false"}` };
+  } catch (e) {
+    return { data: null, error: `/api/${endpoint}: ${String(e?.message || e)}` };
   } finally {
     clearTimeout(timer);
   }
@@ -878,10 +887,13 @@ export default async function handler(req, res) {
   const entitlementPromise = checkEntitlement(req.headers.authorization, signature);
 
   let marketData = body?.marketData || null;
+  let marketDataError = null;
   if (!marketData) {
     const proto = req.headers["x-forwarded-proto"] || "https";
     const origin = `${proto}://${req.headers.host}`;
-    marketData = await fetchGovernmentData(property, origin);
+    const fetched = await fetchGovernmentData(property, origin);
+    marketData = fetched.data;
+    marketDataError = fetched.error;
   }
 
   const marketEvidence = normalizeMarketEvidence(property.country, marketData, property.propertyType);
@@ -937,6 +949,7 @@ export default async function handler(req, res) {
   const requestedAgents = Array.isArray(agents) && agents.length ? agents : Object.keys(AGENT_REGISTRY);
   const results = {};
   const errors = {};
+  if (marketDataError) errors.marketData = marketDataError;
 
   if (!apiKey) {
     requestedAgents.forEach((name) => {

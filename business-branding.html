@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<link rel="icon" href="/favicon.png">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Business Branding &amp; API | Pradixium</title>
 <meta name="robots" content="noindex">
@@ -97,9 +98,20 @@ footer{text-align:center;color:#9aa2ad;font-size:11px;letter-spacing:.4px;paddin
 <script src="/supabase-config.js?v=2"></script>
 <script>
 (function(){
+  const $ = (id) => document.getElementById(id);
+  // FIX: this page assumed the jsdelivr CDN script always loads and threw
+  // an uncaught "supabase is not defined" as the very first statement in
+  // this closure when it didn't (CDN outage, firewall, ad-blocker) —
+  // aborting every handler below (sign-in, branding, API key, revoke)
+  // with a dead page and zero explanation. index.html's own auth-supabase.js
+  // already guards this; this page never did.
+  if (!window.supabase || !window.supabase.createClient) {
+    const err = $("signInError");
+    if (err) { err.textContent = "Unable to load the sign-in system. Please refresh the page or try again shortly."; err.classList.remove("hidden"); }
+    return;
+  }
   const client = supabase.createClient(window.PRADIXIUM_SUPABASE_URL, window.PRADIXIUM_SUPABASE_ANON_KEY);
 
-  const $ = (id) => document.getElementById(id);
   const signInCard = $("signInCard");
   const notBusinessCard = $("notBusinessCard");
   const startBusinessBtn = $("startBusinessBtn");
@@ -275,15 +287,27 @@ footer{text-align:center;color:#9aa2ad;font-size:11px;letter-spacing:.4px;paddin
 
   $("revokeKeyBtn").addEventListener("click", async () => {
     const btn = $("revokeKeyBtn");
+    const errEl = $("apiError");
+    errEl.classList.add("hidden");
     btn.disabled = true;
     try {
       const { data: sessionData } = await client.auth.getSession();
       const token = sessionData?.session?.access_token;
-      await fetch("/api/business-api-key", { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
+      const r = await fetch("/api/business-api-key", { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
+      const json = await r.json().catch(() => null);
+      // FIX: this used to ignore the response entirely and hide the key UI
+      // unconditionally — a failed revoke (network error, expired session,
+      // a 500) left the UI claiming the key was gone while it was still
+      // live server-side. Real security gap: this is the leaked-key
+      // revocation path.
+      if (!r.ok || json?.success === false) throw new Error(json?.error || "Could not revoke the key. Please try again.");
       $("apiKeyBox").classList.add("hidden");
       $("apiKeyNote").classList.add("hidden");
       $("apiCurrentPrefix").classList.add("hidden");
       btn.style.display = "none";
+    } catch (e) {
+      errEl.textContent = (e && e.message) || "Could not revoke the key. Please try again.";
+      errEl.classList.remove("hidden");
     } finally {
       btn.disabled = false;
     }

@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<link rel="icon" href="/favicon.png">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Portfolio Analysis | Pradixium</title>
 <meta name="robots" content="noindex">
@@ -107,8 +108,18 @@ progress{width:100%;height:8px;margin:10px 0}
   const MAX_ROWS = 25;
   const CONCURRENCY = 3;
 
-  const client = supabase.createClient(window.PRADIXIUM_SUPABASE_URL, window.PRADIXIUM_SUPABASE_ANON_KEY);
   const $ = (id) => document.getElementById(id);
+  // FIX: this page assumed the jsdelivr CDN script always loads and threw
+  // an uncaught "supabase is not defined" as the very first statement in
+  // this closure when it didn't (CDN outage, firewall, ad-blocker) —
+  // aborting every handler below with a dead page and zero explanation.
+  // index.html's own auth-supabase.js already guards this; this page never did.
+  if (!window.supabase || !window.supabase.createClient) {
+    const err = $("signInError");
+    if (err) { err.textContent = "Unable to load the sign-in system. Please refresh the page or try again shortly."; err.classList.remove("hidden"); }
+    return;
+  }
+  const client = supabase.createClient(window.PRADIXIUM_SUPABASE_URL, window.PRADIXIUM_SUPABASE_ANON_KEY);
   const signInCard = $("signInCard");
   const notBusinessCard = $("notBusinessCard");
   const startBusinessBtn = $("startBusinessBtn");
@@ -244,6 +255,47 @@ progress{width:100%;height:8px;margin:10px 0}
     return "Avoid";
   }
 
+  // FIX: the results table hardcoded "$" for every price/benchmark cell —
+  // this tool's whole point is analyzing a portfolio "across the world"
+  // (its own placeholder CSV example includes Spain and France rows), so
+  // any non-USD property showed dollar signs on euro figures. Same
+  // currencyForCountry() mapping engine.js/report.html/compliance-report.html
+  // already use (this page has no shared module).
+  function currencyForCountry(country) {
+    const c = String(country || "").toLowerCase();
+    if (c === "united states" || c === "usa" || c === "us") return "USD";
+    if (c === "united kingdom" || c === "uk") return "GBP";
+    if (c === "denmark") return "DKK";
+    if (c === "sweden") return "SEK";
+    if (c === "norway") return "NOK";
+    if (c === "iceland") return "ISK";
+    if (c === "serbia") return "RSD";
+    if (c === "bosnia and herzegovina") return "BAM";
+    if (c === "north macedonia") return "MKD";
+    if (c === "ukraine") return "UAH";
+    if (c === "albania") return "ALL";
+    if (c === "israel") return "ILS";
+    if (c === "russia") return "RUB";
+    if (c === "kazakhstan") return "KZT";
+    if (c === "canada") return "CAD";
+    if (c === "mexico") return "MXN";
+    if (c === "brazil") return "BRL";
+    if (c === "argentina") return "ARS";
+    if (c === "australia") return "AUD";
+    if (c === "new zealand") return "NZD";
+    if (c === "united arab emirates") return "AED";
+    if (c === "chile") return "CLP";
+    if (c === "colombia") return "COP";
+    if (c === "peru") return "PEN";
+    return "EUR";
+  }
+  function money(v, currency) {
+    const n = Number(v);
+    if (!Number.isFinite(n)) return "—";
+    try { return new Intl.NumberFormat("en-US", { style: "currency", currency, maximumFractionDigits: 0 }).format(n); }
+    catch { return "$" + Math.round(n).toLocaleString("en-US"); }
+  }
+
   async function analyzeOne(property) {
     const signature = [property.country, property.city, property.price, property.size].join("|");
     const r = await fetch("/api/orchestrator", {
@@ -266,11 +318,12 @@ progress{width:100%;height:8px;margin:10px 0}
     const score = result?.pradixiumScore?.score;
     const hasScore = Number.isFinite(Number(score));
     const rating = hasScore ? ratingFromScore(Math.round(Number(score))) : "—";
-    const price = property.price != null ? "$" + Math.round(property.price).toLocaleString("en-US") : "—";
+    const currency = currencyForCountry(property.country);
+    const price = property.price != null ? money(property.price, currency) : "—";
     const annualRent = property.monthlyRent ? property.monthlyRent * 12 : null;
     const grossYield = (annualRent && property.price) ? ((annualRent / property.price) * 100).toFixed(2) + "%" : "—";
     const evidence = result?.marketEvidence;
-    const benchmark = evidence?.benchmarkValue != null ? "$" + Math.round(evidence.benchmarkValue).toLocaleString("en-US") + (evidence.benchmarkUnit === "perSqm" ? "/m²" : "") : "—";
+    const benchmark = evidence?.benchmarkValue != null ? money(evidence.benchmarkValue, currency) + (evidence.benchmarkUnit === "perSqm" ? "/m²" : "") : "—";
     const gap = result?.pradixiumScore?.breakdown?.valueGapPercent;
     // Same sign convention as engine.js's renderMarketEvidence(): positive
     // valueGapPercent means the asking price is below the benchmark (good).
