@@ -81,6 +81,12 @@ export default async function handler(req, res) {
   const origin = `${proto}://${req.headers.host}`;
 
   const params = new URLSearchParams();
+  // Lets Stripe's own hosted checkout page show a "Enter promo code" field
+  // — for time-limited/capped launch coupons (e.g. "first 20 free"),
+  // created and managed directly in the Stripe Dashboard (Coupons →
+  // Promotion codes). No code here validates or tracks redemptions;
+  // Stripe enforces max_redemptions/expiry itself.
+  params.set("allow_promotion_codes", "true");
   // {CHECKOUT_SESSION_ID} is a literal Stripe template placeholder.
   // URLSearchParams percent-encodes the braces as part of the form value,
   // which is correct: Stripe decodes the submitted form field first (like
