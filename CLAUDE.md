@@ -304,6 +304,18 @@ largest metro first.
   so no Geoclient key needed) IN PARALLEL, keeps it only when exactly one
   borough has that number on that street, then re-geocodes with borough +
   ZIP. A whole address typed into the city field is treated as the address.
+  CONDO / CO-OP (Sept 2026, closes the launch-blocking gap below):
+  `nycDofSales()` apartment branch joins the ZIP's condo unit sales (Rolling
+  Sales categories 12/13/15, multi-unit deeds dropped) to each unit lot's
+  DOF `gross_sqft` = the unit's SHARE of the building's gross floor area
+  (checked: 340 W 57th's 597 unit shares sum exactly to PLUTO bldgarea
+  527,488 and resarea 493,199) → median $/sq ft + middle half, labelled
+  "includes a share of common areas, not interior area", context only.
+  Co-ops: median price only (no unit area anywhere). Recompute checks:
+  ZIP 10019 → 327 condo sales, median $1,411; 146 co-op sales, median
+  $722,500. Apartment number → unit lot via DOF Digital Tax Map "Condominium
+  Units" (eguu-7ie3, unit_designation) in nyc.js; then asking ÷ unit share
+  on the same basis (350 W 57th St Apt 2F = lot 1010471180, 554 sq ft).
   The city's
   Socrata server answers the same query in 1–8 s → hedged requests
   (second after 3 s). Test addresses must exist: the Census geocoder
@@ -881,6 +893,8 @@ adding) and a `recentTransactionPrices.js` / `globalIndexTrends.js` entry
 it against Georgia's own official sources.
 
 ## For the other session (Claude B): NYC condo/co-op benchmark gap — user calls this launch-blocking (Sept 2026)
+
+**Done by Claude B (Sept 2026)** — see the NYC CONDO / CO-OP note in the US coverage list (option 2 was possible: the DOF roll has a per-unit area).
 
 **Urgent, flagged directly by the user as a launch blocker.** Live end-to-end test
 (Sept 2026): analyzed a real Manhattan address (298 E 26th Street, NYC, $1,700,000
