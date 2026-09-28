@@ -1269,10 +1269,59 @@
       const now = Date.now();
       return rows.some((row) => {
         if (row.kind === "subscription" || row.kind === "business") return new Date(row.expires_at).getTime() > now;
-        return row.kind === "report" && row.report_signature === signature;
+        // "monthly_usage" = this report was already spent from the
+        // individual monthly plan's per-cycle cap — permanent access to
+        // it from then on, same as a one-time "report" purchase.
+        return (row.kind === "report" || row.kind === "monthly_usage") && row.report_signature === signature;
       });
     } catch (e) {
       console.warn("Pradixium: could not check report entitlement", e);
+      return false;
+    }
+  }
+
+  // Read-only: does the user have an active individual monthly plan, and
+  // how many of its per-cycle report slots are left? Never consumes a slot
+  // by itself — that only happens in consumeMonthlySlot(), on an actual
+  // click to open a specific report, so just rendering the button label
+  // (called far more often) can never burn through the cap.
+  async function checkMonthlyQuota() {
+    try {
+      const { data: rows, error } = await window.pradixiumSupabase
+        .from("purchases")
+        .select("kind, expires_at, created_at");
+      if (error || !rows) return { active: false, remaining: 0 };
+      const now = Date.now();
+      const monthlyRow = rows.find((row) => row.kind === "monthly" && row.expires_at && new Date(row.expires_at).getTime() > now);
+      if (!monthlyRow) return { active: false, remaining: 0 };
+      // Cycle boundaries follow the plan's own created_at, not a Stripe
+      // renewal webhook (this project has none) — see
+      // api/consume-monthly-slot.js for the matching server-side logic.
+      const anchor = new Date(monthlyRow.created_at).getTime();
+      const cycleMs = 30 * 24 * 60 * 60 * 1000;
+      const cycleStart = anchor + Math.floor((now - anchor) / cycleMs) * cycleMs;
+      const usedThisCycle = rows.filter((row) => row.kind === "monthly_usage" && new Date(row.created_at).getTime() >= cycleStart).length;
+      return { active: true, remaining: Math.max(0, 3 - usedThisCycle) };
+    } catch (e) {
+      return { active: false, remaining: 0 };
+    }
+  }
+
+  // The one place a monthly-plan slot actually gets spent — server-side,
+  // via api/consume-monthly-slot.js, since the client can only ever read
+  // its own purchases rows (RLS), never write one.
+  async function consumeMonthlySlot(data) {
+    const token = await getAccessToken();
+    if (!token) return false;
+    try {
+      const r = await fetchWithTimeout("/api/consume-monthly-slot", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ reportSignature: reportSignature(data) })
+      }, 10000);
+      const json = await r.json().catch(() => null);
+      return !!json?.allowed;
+    } catch (e) {
       return false;
     }
   }
@@ -1301,7 +1350,7 @@
       const now = Date.now();
       const match = (rows || []).find((row) => {
         if (row.kind === "subscription" || row.kind === "business") return new Date(row.expires_at).getTime() > now;
-        return row.kind === "report" && row.report_signature === signature;
+        return (row.kind === "report" || row.kind === "monthly_usage") && row.report_signature === signature;
       });
       purchasedAt = match?.created_at || null;
     } catch (e) {}
@@ -1331,9 +1380,16 @@
     const createBtn = $("createReportBtn");
     const subscribeBtn = $("subscribeReportBtn");
     const businessBtn = $("businessSubscribeBtn");
-    if (createBtn) createBtn.innerHTML = paid ? "View Full Analysis&nbsp; →" : "Unlock This Report — $29.99&nbsp; →";
+    const monthlyBtn = $("monthlySubscribeBtn");
+    let label = "Unlock This Report — $29.99&nbsp; →";
+    if (!paid) {
+      const quota = await checkMonthlyQuota();
+      if (quota.active && quota.remaining > 0) label = `View Full Analysis (${quota.remaining} of 3 monthly reports left)&nbsp; →`;
+    }
+    if (createBtn) createBtn.innerHTML = paid ? "View Full Analysis&nbsp; →" : label;
     if (subscribeBtn) subscribeBtn.style.display = paid ? "none" : "inline-block";
     if (businessBtn) businessBtn.style.display = paid ? "none" : "inline-block";
+    if (monthlyBtn) monthlyBtn.style.display = paid ? "none" : "inline-block";
   }
 
   async function startCheckout(reportData, plan) {
@@ -1378,6 +1434,18 @@
     if (!data) return;
 
     if (!(await isReportPaid(data))) {
+      // Not paid yet another way — but an active individual monthly plan
+      // with slots left covers this report for free instead of charging
+      // the one-time $29.99. Re-checked here (not just trusted from the
+      // button label) so a stale label can never grant access it hasn't
+      // actually earned.
+      const quota = await checkMonthlyQuota();
+      if (quota.active && quota.remaining > 0 && (await consumeMonthlySlot(data))) {
+        await attachWatermark(data);
+        const w = window.open("/report.html", "_blank");
+        if (!w) alert("Please allow pop-ups to view the report, then try again.");
+        return;
+      }
       startCheckout(data, "report");
       return;
     }
@@ -1403,6 +1471,15 @@
     startCheckout(data, "business");
   }
 
+  // Flexible individual entry point: $29.99/month, capped at 3 reports per
+  // cycle (see api/consume-monthly-slot.js) — for someone not ready to
+  // commit to the annual plan.
+  function openMonthlySubscription() {
+    const data = currentReportData();
+    if (!data) return;
+    startCheckout(data, "monthly");
+  }
+
   function wireReportButtons() {
     const createBtn = $("createReportBtn");
     if (createBtn) createBtn.addEventListener("click", openReport);
@@ -1412,6 +1489,8 @@
     if (subscribeBtn) subscribeBtn.addEventListener("click", openSubscription);
     const businessBtn = $("businessSubscribeBtn");
     if (businessBtn) businessBtn.addEventListener("click", openBusinessSubscription);
+    const monthlyBtn = $("monthlySubscribeBtn");
+    if (monthlyBtn) monthlyBtn.addEventListener("click", openMonthlySubscription);
   }
 
   // After returning from Stripe Checkout, the page reloads fresh — the

@@ -19,7 +19,7 @@ async function grantEntitlement({ userId, plan, reportSignature, stripeSessionId
     kind: plan,
     report_signature: plan === "report" ? reportSignature : null,
     stripe_session_id: stripeSessionId,
-    expires_at: (plan === "subscription" || plan === "business") ? subscriptionExpiresAt : null,
+    expires_at: (plan === "subscription" || plan === "business" || plan === "monthly") ? subscriptionExpiresAt : null,
     referral_code: referralCode || null
   };
 
@@ -77,22 +77,24 @@ export default async function handler(req, res) {
 
     const userId = session.metadata?.user_id;
     const metaPlan = session.metadata?.plan;
-    const plan = metaPlan === "subscription" ? "subscription" : (metaPlan === "business" ? "business" : "report");
+    const plan = metaPlan === "subscription" ? "subscription" : (metaPlan === "business" ? "business" : (metaPlan === "monthly" ? "monthly" : "report"));
     const reportSignature = session.metadata?.report_signature || null;
     const referralCode = session.metadata?.referral_code || null;
     if (!userId) {
       return res.status(200).json({ success: true, paid: true, granted: false, error: "Payment succeeded but no user was attached to this session." });
     }
 
-    // Both recurring plans grant the same unlimited-reports access — only
-    // the billing cadence differs. Individual: 7-day trial + a full year
-    // from when Stripe actually starts billing (not 365 days from today,
-    // which would cut access 7 days before the real first-year billing
-    // anniversary). Business: no trial, so a month plus a few days' grace
-    // for the next renewal to land before access lapses.
+    // The annual plan grants unlimited-reports access for a full year from
+    // when Stripe actually starts billing (not 365 days from today, which
+    // would cut access 7 days before the real first-year billing
+    // anniversary, since it includes the 7-day trial). Business and monthly
+    // are both billed monthly with no trial, so a month plus a few days'
+    // grace for the next renewal to land before access lapses; monthly's
+    // access is further capped per-cycle by api/consume-monthly-slot.js,
+    // this expiry only bounds how long the plan itself is considered active.
     const subscriptionExpiresAt = plan === "subscription"
       ? new Date(Date.now() + 372 * 24 * 60 * 60 * 1000).toISOString()
-      : plan === "business"
+      : (plan === "business" || plan === "monthly")
         ? new Date(Date.now() + 35 * 24 * 60 * 60 * 1000).toISOString()
         : null;
 
