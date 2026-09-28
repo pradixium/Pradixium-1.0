@@ -333,6 +333,11 @@ largest metro first.
   baths, year built, building sq ft; TOTALAPR = Nevada statutory taxable
   value (NRS 361.227, not market; assessed = 35%) → TEXT ONLY (textOnly).
   SALEPRICE unscreened → not shown.
+- Ottawa County MI (26139): `ottawaMI.js` — county GIS ParcelsPublic (AV →
+  TCV = 2×, derived label) + "Ottawa County Arms Length Sales" (org: Ottawa
+  County Geospatial Insights & Solutions; terms "03-ARM'S LENGTH", since
+  2004): last arm's-length single-parcel sale + ZIP 12-month median of
+  improved residential (context). Recompute check: ZIP 49424 → 490, $385,100.
 - Texas additions (`texas.js`, generic `find` configs): Tarrant (TAD roll as
   published by City of Fort Worth "Parcels_Public_View" — whole county, 2024
   roll as of Sept 2026, shown with its year), Collin (CCAD's own layer; the
