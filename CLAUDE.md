@@ -775,3 +775,28 @@ known for unusually open foreign-ownership rules — worth verifying and
 adding) and a `recentTransactionPrices.js` / `globalIndexTrends.js` entry
 (price trend). Same honesty bar as everything else — only add what clears
 it against Georgia's own official sources.
+
+## "Pradixium Deal Rating™" — new trademark, renamed from plain "Deal Rating" (Sept 2026)
+
+User asked to add "Reality Check™" and a new "Pradixium Deal Rating™"
+trademark to the footer notice (`mockups/index.html`, the "X™, Y™ ... are
+trademarks of Pradixium" sentence). Reality Check™ already carried the ™
+symbol everywhere in the product (all 7 report languages) — just needed
+adding to that footer list. Deal Rating did not — confirmed with the user
+and renamed the actual label too, not just the footer claim, so the
+trademark isn't a dangling claim for a term nobody sees:
+- `report.html`: `lblDealRating` default text + all 7 language-dictionary
+  `dealRating:` values → localized per the same convention `scoreCaption`
+  already uses (en/de/nl keep the English brand phrase, es/it/pt/fr get
+  their existing translated noun + "Pradixium™" appended).
+- `index.html`: the free-preview metric box label, "DEAL RATING" →
+  "PRADIXIUM DEAL RATING™".
+- The underlying rating *values* (Excellent/Good/Fair/Weak/Avoid) are
+  unchanged — only the field label changed.
+Verified: all 7 language-dictionary replacements confirmed as exact
+single matches (not a blind find/replace); rendered in headless Chromium
+(English, "Pradixium Deal Rating™: Good" in the Investment Decision
+section) — the language-toggle button itself couldn't be exercised in
+this sandbox test (it only renders once the AI agent's localized content
+is present, not something easy to mock), but the 7 dictionary values were
+verified directly in the source, not assumed.
