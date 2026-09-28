@@ -35,6 +35,7 @@
 <div class="grid"><section class="section"><h2 id="lblHighlights">INVESTMENT HIGHLIGHTS</h2><ul class="list" id="highlights"><li>—</li></ul></section><section class="section"><h2 id="lblRisks">KEY RISKS</h2><ul class="list" id="risks"><li>—</li></ul></section></div>
 <section class="section"><h2 id="lblInvestorAction">INVESTOR ACTION</h2><p class="action" id="action">—</p></section>
 <section class="section" id="feedbackSection"><p id="feedbackPrompt" style="font-size:13px;color:#5f6b7b;margin:0 0 10px">—</p><textarea id="feedbackText" maxlength="2000" rows="2" style="width:100%;border:1px solid #dce3eb;border-radius:8px;padding:10px 12px;font:inherit;font-size:13px;resize:vertical;box-sizing:border-box"></textarea><div style="display:flex;justify-content:flex-end;margin-top:8px"><button id="feedbackSubmitBtn" style="border:1px solid #b9c9e7;background:#fff;color:#2463f5;border-radius:7px;padding:8px 16px;font-weight:600;font-size:13px;cursor:pointer">—</button></div><p id="feedbackThanksMsg" style="display:none;font-size:13px;color:#1c8a51;margin:8px 0 0"></p></section>
+<section class="section" id="testimonialSection"><p style="font-size:13px;color:#5f6b7b;margin:0 0 10px">Happy with this report? Leave a short review — we may feature it on our site, only with a name you choose to show.</p><div id="testimonialStars" style="margin-bottom:8px;font-size:22px;letter-spacing:4px"><span data-v="1" class="tstar" style="cursor:pointer;color:#d7dee6">★</span><span data-v="2" class="tstar" style="cursor:pointer;color:#d7dee6">★</span><span data-v="3" class="tstar" style="cursor:pointer;color:#d7dee6">★</span><span data-v="4" class="tstar" style="cursor:pointer;color:#d7dee6">★</span><span data-v="5" class="tstar" style="cursor:pointer;color:#d7dee6">★</span></div><input id="testimonialName" type="text" maxlength="80" placeholder="How should we show your name? (optional — e.g. 'D.K., Tel Aviv')" style="width:100%;border:1px solid #dce3eb;border-radius:8px;padding:9px 12px;font:inherit;font-size:13px;box-sizing:border-box;margin-bottom:8px"><textarea id="testimonialText" maxlength="800" rows="2" placeholder="What stood out about this report?" style="width:100%;border:1px solid #dce3eb;border-radius:8px;padding:10px 12px;font:inherit;font-size:13px;resize:vertical;box-sizing:border-box"></textarea><div style="display:flex;justify-content:flex-end;margin-top:8px"><button id="testimonialSubmitBtn" style="border:1px solid #b9c9e7;background:#fff;color:#2463f5;border-radius:7px;padding:8px 16px;font-weight:600;font-size:13px;cursor:pointer">Submit Review</button></div><p id="testimonialThanksMsg" style="display:none;font-size:13px;color:#1c8a51;margin:8px 0 0">Thanks — submitted for review.</p></section>
 </main>
 <script>
 (function(){
@@ -506,6 +507,39 @@ renderWatermark();
       textEl.style.display='none';
       btn.style.display='none';
       if(thanksEl){ thanksEl.textContent=window.pradixiumFeedbackThanksText||'Thanks — noted.'; thanksEl.style.display=''; }
+    }catch(e){
+      btn.disabled=false;
+    }
+  });
+})();
+
+// Public testimonial submission -- see api/testimonials.js. Unlike the
+// feedback field above, this one is meant for eventual public display, but
+// only once the owner manually approves it (api/owner-testimonials.js).
+// No approved:true path exists on the client -- the table's RLS has no
+// public write policy at all, so nothing here can self-publish.
+(function(){
+  const btn=g('testimonialSubmitBtn'), textEl=g('testimonialText'), nameEl=g('testimonialName'), thanksEl=g('testimonialThanksMsg'), starsWrap=g('testimonialStars');
+  if(!btn||!textEl||!starsWrap) return;
+  let rating=0;
+  const stars=Array.from(starsWrap.querySelectorAll('.tstar'));
+  function paintStars(){
+    stars.forEach(s=>{ s.style.color = Number(s.getAttribute('data-v'))<=rating ? '#f5a623' : '#d7dee6'; });
+  }
+  stars.forEach(s=>{
+    s.addEventListener('click',()=>{ rating=Number(s.getAttribute('data-v')); paintStars(); });
+  });
+  btn.addEventListener('click',async()=>{
+    const text=textEl.value.trim();
+    if(!text||!rating) return;
+    btn.disabled=true;
+    try{
+      const resp=await fetch('/api/testimonials',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,rating,displayName:nameEl?nameEl.value.trim():'',analysisReference:a.analysisReference||null,country:a.country||null})});
+      if(!resp.ok) throw new Error('failed');
+      textEl.value=''; if(nameEl) nameEl.value='';
+      textEl.style.display='none'; if(nameEl) nameEl.style.display='none';
+      starsWrap.style.display='none'; btn.style.display='none';
+      if(thanksEl) thanksEl.style.display='';
     }catch(e){
       btn.disabled=false;
     }

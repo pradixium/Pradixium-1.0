@@ -160,6 +160,12 @@
     footer .footer-cs a{color:inherit;text-decoration:none}
     footer .footer-tool{display:block;margin-top:6px}
     footer .footer-tool a{color:#8a95a4;text-decoration:underline}
+    .testimonials-block{margin:28px 0 6px}
+    .testimonials-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+    .testimonial-card{background:#fff;border:1px solid #e5e9ee;border-radius:10px;padding:16px 18px}
+    .testimonial-card .tstars{color:#e9a52d;font-size:14px;letter-spacing:2px;margin-bottom:8px}
+    .testimonial-card p{font-size:13px;line-height:1.6;color:#38414d;margin:0 0 10px}
+    .testimonial-card .tname{font-size:12px;color:#8994a3;font-weight:600}
 
     @media(max-width:1100px){.brand-panel{width:275px;padding:32px 32px}.app{margin-left:275px;width:calc(100% - 275px)}.topnav{gap:17px}.topnav a{font-size:10px}.brand-copy h2{font-size:29px}.property-main{grid-template-columns:150px minmax(0,1fr) 105px}}
     @media(max-width:850px){.brand-panel{position:relative;width:100%;height:auto;min-height:360px;padding:30px}.app{margin-left:0;width:100%}.shell{display:block}.brand-copy{margin:35px 0}.brand-logo{margin-bottom:0}.brand-features{margin-top:0}.topbar{padding:0 14px;overflow-x:auto}.topnav{display:none}.top-logo{display:block;font-weight:700;letter-spacing:1.4px}.workspace{padding:8px}.analyze-layout{grid-template-columns:1fr}.input-card{position:relative;top:auto}.property-main{grid-template-columns:1fr}.property-visual{min-height:150px}.score-panel{border-left:0;border-top:1px solid #e8ecf0;padding:18px}.metric-strip{grid-template-columns:1fr 1fr}.metric-box:nth-child(2){border-right:0}.metric-box:nth-child(-n+2){border-bottom:1px solid #e5e9ee}.info-grid{grid-template-columns:1fr}.status-line .ref{display:none}}
@@ -719,6 +725,11 @@
           </section>
         </div>
 
+        <section class="testimonials-block" id="testimonialsBlock" style="display:none">
+          <div class="section-title" style="margin-bottom:14px">WHAT CUSTOMERS SAY</div>
+          <div class="testimonials-grid" id="testimonialsGrid"></div>
+        </section>
+
         <footer><span class="footer-cs"><a href="mailto:cs@pradixium.com">Contact</a></span><span id="footerText">PRADIXIUM™ — GLOBAL PROPERTY INTELLIGENCE</span><span class="footer-tool"><a href="/foreign-buyer-check.html">Can Foreigners Buy Property Here? Free Checker</a> · <a href="/guides/index.html">Country Guides</a> · <a href="/pradixium-vs-zestimate.html">Pradixium vs. Zestimate</a> · <a href="/mockups/index.html">Business Solutions</a> · <a href="/partners.html">Partner Program</a> · <a href="/terms.html">Terms</a> · <a href="/privacy-policy.html">Privacy</a></span></footer>
       </main>
     </div>
@@ -1146,6 +1157,50 @@
 
 </script>
 
+<script>
+/* PRADIXIUM™ — Public testimonials display
+ * Reads ONLY rows the owner has approved (public RLS policy on
+ * public.testimonials restricts this to approved=true; see
+ * api/testimonials.js / api/owner-testimonials.js). No fabricated
+ * placeholder review is ever shown -- if there are zero approved
+ * testimonials yet, this section stays hidden entirely.
+ */
+(function () {
+  const SUPABASE_URL = "https://wjafpyfawtacauygzgqd.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_v1qAMQNVqT7WAsfaGyGK_g_8p_zFD8K";
+  const esc = (s) => String(s || "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[c]));
+  const stars = (n) => "★".repeat(n) + "☆".repeat(5 - n);
+
+  async function load() {
+    try {
+      const r = await fetch(
+        `${SUPABASE_URL}/rest/v1/testimonials?select=display_name,country,rating,text,created_at&approved=eq.true&order=created_at.desc&limit=9`,
+        { headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` } }
+      );
+      if (!r.ok) return;
+      const rows = await r.json();
+      if (!Array.isArray(rows) || !rows.length) return;
+      const grid = document.getElementById("testimonialsGrid");
+      const block = document.getElementById("testimonialsBlock");
+      if (!grid || !block) return;
+      grid.innerHTML = rows
+        .map((t) => {
+          const name = t.display_name ? esc(t.display_name) : "Verified customer";
+          const country = t.country ? ` · ${esc(t.country)}` : "";
+          return `<div class="testimonial-card"><div class="tstars">${stars(t.rating)}</div><p>${esc(t.text)}</p><div class="tname">${name}${country}</div></div>`;
+        })
+        .join("");
+      block.style.display = "";
+    } catch (e) {}
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", load);
+  } else {
+    load();
+  }
+})();
+</script>
 <script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>
