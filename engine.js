@@ -206,6 +206,7 @@
       set("transactionPeriod", "—");
       set("marketArea", "—");
       set("marketSource", "Official market evidence.");
+      renderPropertyRecord(null, null, currency);
       return;
     }
 
@@ -236,6 +237,43 @@
     set("transactionPeriod", evidence.transactionPeriod || "—");
     set("marketArea", evidence.marketArea || "—");
     set("marketSource", evidence.source || "Official public market data");
+    renderPropertyRecord(evidence.propertyRecord || null, evidence.sourceParts || null, currency);
+  }
+
+  // One layout for every U.S. county (3,000+ different official systems):
+  // the property's own official record as fixed rows, then the evidence as
+  // titled blocks instead of one long paragraph. A row the authority does
+  // not publish says so, instead of a bare dash.
+  const escHtml = (x) => String(x ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  function propertyRecordRows(r, currency) {
+    if (!r) return [];
+    const none = "Not provided by this source";
+    const num = (x) => Number(x).toLocaleString("en-US");
+    return [
+      ["Official record", r.found === false ? "No official property record found for this address" : (r.authority || none), r.found === false ? null : (r.authorityUrl || null)],
+      ["Government value", r.governmentValue != null ? money(r.governmentValue, currency) + (r.governmentValueLabel ? " · " + r.governmentValueLabel : "") : r.nonMarketValue ? money(r.nonMarketValue.value, currency) + " · " + r.nonMarketValue.label : "No market value published for this property (see details below)"],
+      ["Area sales median", r.areaMedian || "No official area sales figure for this address"],
+      ...(r.askingSameBasis ? [["Asking price, same basis", r.askingSameBasis]] : []),
+      ["Last verified sale", r.lastSalePrice != null ? money(r.lastSalePrice, currency) + (r.lastSaleDate ? " · " + r.lastSaleDate : "") : "No sale with an official arm's-length/validity code"],
+      ["Living area", r.livingAreaSqFt ? num(r.livingAreaSqFt) + " sq ft (" + num(Math.round(r.livingAreaSqFt * 0.092903)) + " m²)" : none],
+      ["Year built", r.yearBuilt || none],
+      ["Bedrooms / bathrooms", r.bedrooms || r.bathrooms ? (r.bedrooms ?? "—") + " / " + (r.bathrooms ?? "—") : none]
+    ];
+  }
+  function renderPropertyRecord(record, parts, currency) {
+    window.pradixiumLastPropertyRecord = record || null;
+    window.pradixiumLastSourceParts = Array.isArray(parts) && parts.length ? parts : null;
+    const box = $("propertyRecord");
+    if (box) {
+      const rows = propertyRecordRows(record, currency);
+      box.style.display = rows.length ? "" : "none";
+      box.innerHTML = rows.length ? '<div class="section-title" style="margin-top:14px">OFFICIAL PROPERTY RECORD</div>' + rows.map(([k, v, url]) =>
+        `<div style="display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid rgba(0,0,0,.08)"><span class="mini-label" style="flex:0 0 34%;font-size:12px">${escHtml(k)}</span><strong style="text-align:right;font-size:14px;font-weight:600;line-height:1.35">${url ? `<a href="${escHtml(url)}" target="_blank" rel="noopener">${escHtml(v)}</a>` : escHtml(v)}</strong></div>`).join("") : "";
+    }
+    const src = $("marketSource");
+    if (src && window.pradixiumLastSourceParts) {
+      src.innerHTML = window.pradixiumLastSourceParts.map((x) => `<p style="margin:10px 0 0"><strong>${escHtml(x.title)}.</strong> ${escHtml(x.text)}</p>`).join("");
+    }
   }
 
   // Real, individual nearby transactions (currently France only — DVF is
@@ -1205,6 +1243,8 @@
       transactionPeriod: $("transactionPeriod")?.textContent,
       marketArea: $("marketArea")?.textContent,
       marketSource: $("marketSource")?.textContent,
+      marketSourceParts: window.pradixiumLastSourceParts || null,
+      propertyRecord: window.pradixiumLastPropertyRecord || null,
       foreignBuyerShare: $("demandForeignShare")?.textContent,
       demandStrength: $("demandStrength")?.textContent,
       demandGeography: $("demandGeography")?.textContent,
