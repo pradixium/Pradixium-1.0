@@ -258,8 +258,15 @@ largest metro first.
 - Providence (#39): City of Providence (44007) `providence.js` — 2025
   Property Tax Roll (Socrata 6ub4-iebe): assessment + 2025 tax. Next year:
   point at the new roll's dataset id.
-- Still metro trend + FEMA only: Kansas City (#31), OKC (#42, no official
-  open parcel values found), Richmond (#44, city GIS resets connections).
+- OKC (#42): Oklahoma County (40109) in `moreCounties.js` — the
+  Assessor's own parcel viewer (Experience Builder app 10a159706dc7…,
+  config read via arcgis.com item data) → TaxParcelsPublics_view:
+  currentmarket (no year field), last sale only when SalesValidity =
+  "Valid" (others: Unvalidated, Quit-Claim, DEMP/Multi-Parcel, Other
+  Invalid…). location = "912 STONEHENGE DR EDMOND" (city appended).
+  Never request name1-3/mailing fields.
+- Still metro trend + FEMA only: Richmond (#44, city GIS resets
+  connections).
 - Not covered at property level (metro trend + FEMA only), checked Sept 2026:
   Louisville (LOJIC/PVA layers carry no values), Grand Rapids (Kent County
   open parcels have no values), Birmingham (Jefferson AL has only the tax
