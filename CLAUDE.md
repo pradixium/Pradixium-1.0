@@ -690,6 +690,35 @@ this project's zero-dependency design. Two modes, same page:
   correct dedup, correct verdicts); fixed one real layout bug caught this
   way (the fixed Print button overlapped the title text) before shipping.
 
+## Foreign Buyer Access — 9 more countries added (Sept 2026)
+
+The user flagged that France had no entry at all (silent, not wrong) and
+asked to scan more countries. `lib/data/foreignBuyerRules.js` went from 20
+to 29 entries — added France, Spain, Portugal, Germany, Netherlands,
+Ireland (all `OPEN`), and Italy, Greece, Cyprus (`WORKAROUND REQUIRED` —
+Italy's non-EU reciprocity test via MAECI, Greece's border/military-zone
+permit, Cyprus's Council of Ministers approval + one-property cap for
+non-EU buyers). Same honesty discipline as the rest of this file: each
+entry cites a real official/quasi-official body (Notaires de France,
+Spain's Colegio de Registradores, Portugal's IRN, the German Bundestag's
+own research service, Greece's Ministry of National Defence, the Dutch
+government, Cyprus's Ministry of Interior, Ireland's Citizens Information
+Board, Italy's Foreign Ministry) — verified via web search against each
+body's own page, not just secondary law-firm/expat blogs (those surfaced
+first and were used only to know what to verify, never as the cited
+source itself). Verified: `getForeignBuyerRule()` tested directly in Node
+for all 9 new countries plus one unlisted country (correctly stays null);
+`foreign-buyer-check.html` screenshotted for both an `OPEN` (France) and a
+`WORKAROUND REQUIRED` (Cyprus) entry, real function output, not mocked
+text. Also fixed 3 pages that hardcoded the old "20 countries" figure
+(`foreign-buyer-check.html`, `index.html`, `guides/index.html`) — found by
+grepping for it, not something the user pointed out.
+
+**Not done — genuinely bounded, not exhaustive:** this covers the markets
+Pradixium actively markets in (matches the report-language list), not all
+85 countries in the dropdown. The remaining ~56 stay silent, correctly,
+until someone verifies them the same way.
+
 ## For the other session (Claude B): Georgia data gap flagged (Sept 2026)
 
 The user is specifically interested in Georgia (the country) as a hot,
