@@ -190,6 +190,10 @@ largest metro first.
   only if it is the parcel's latest sale AND in the Auditor's ValidSale='Y'
   file (that file covers Jan 2023–Jul 2025); ZIP context from it (fixed
   window from 2024-07-17), context only.
+- Indianapolis (#33): Marion County IN (18097) `lib/usLocal/marionIN.js` —
+  Assessor total assessed value (Government Value) + class. Sales: Indiana
+  SDF data is only in the DLGF/Gateway interactive search — a possible
+  future source if an official bulk file is found.
 - Not yet covered at property level (metro trend + hazards only): Fort Worth
   (Tarrant — no valued open service), Nassau County NY (not in the NYS roll),
   Riverside / San Francisco / San Diego (California publishes no sale prices;
