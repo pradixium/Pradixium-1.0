@@ -206,8 +206,9 @@ largest metro first.
   Sales file screening not documented → not shown. Suburbs: no record.
 - Raleigh (#41): Wake (37183) `wake.js` — assessed value, heated area,
   year built. Sale price has no validity code → not shown.
-- Salt Lake City (#46): Salt Lake County (49035) `saltLake.js` — Utah UGRC
-  LIR parcels (market value + as-of date). Utah = non-disclosure.
+- Utah statewide incl. Salt Lake City (#46): `utah.js` — UGRC
+  `Parcels_<County>_LIR` for all 29 counties (market value + as-of date,
+  deduped by PARCEL_ID). Utah = non-disclosure.
 - Hartford (#50) + all of CT: `connecticut.js` — OPM Real Estate Sales
   (data.ct.gov 5mzw-sjtu, Socrata): last sale only with NO non-usable code;
   town median of usable single-family sales in the latest grand-list year
