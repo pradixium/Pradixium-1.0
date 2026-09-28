@@ -279,6 +279,22 @@ largest metro first.
   renegotiation → the module's own https.Agent with
   SSL_OP_LEGACY_SERVER_CONNECT (local test: curl with an OPENSSL_CONF
   "Options = UnsafeLegacyServerConnect", injected as h.legacyJson).
+- NYC property level: `lib/usLocal/nyc.js` (all 5 boroughs; before it,
+  NYC reports had NO property record — only FEMA + the ZIP-level 1–3 family
+  sales context). DOF "Property Valuation and Assessment Data" 8y4t-faws
+  (latest FY; period 3 = final, else tentative; FY2027 final as of Sept
+  2026), PLUTO 64uk-42ks (year built, floors, units, gross area), Rolling
+  Sales usep-8jbt (building context). Queried in PARALLEL by address
+  (DOF alone ~1–3 s). Rules: tax class 1 (1–3 family) → DOF market value
+  as Government Value (sales-based). Class 2 condos/co-ops/rentals → TEXT
+  ONLY: RPTL §581 values them as rentals, far below sale prices (e.g. a
+  350 W 57th St unit: DOF $326k). Class 4 commercial → text only (income
+  basis). Condo unit lots cannot be tied to an apartment number in these
+  datasets → building-level range. Building sales: count + median of
+  $10,000+ recorded sales, last 12 months; a price+date shared by several
+  unit records = one multi-unit deed → excluded (350 W 57th: 5 records →
+  3 single-unit, median $665,000, recomputed by hand). Street matching via
+  nycStreet(): "WEST 57 STREET" = "W 57TH ST"; Queens "41-15" numbers kept.
 - Shared matcher `lib/usLocal/_structured.js` (`structuredEvidence`): for
   official layers with a structured situs address — number + name must
   match, dir/type agree when both present, ZIP OR town must match, unit
