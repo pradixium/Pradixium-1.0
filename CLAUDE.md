@@ -546,20 +546,35 @@ limitation already accepted for `subscription`/`business` expiry). Once a
 report is spent from the quota it's unlocked for good, same model as a
 one-time `report` purchase.
 
-**Business-plan differentiation (raised by the user, partly shipped):** the
-concern was a company just using the cheap individual plan instead of
-paying for Business, since the underlying report data/grade must be
-identical for everyone (data-honesty rule — never degrade quality by
-price). The differentiation has to be in usage rights, not data quality.
-Shipped now in `terms.html` §3a: individual-tier reports (one-time, monthly,
-annual) are personal-use-only — may not be resold, redistributed, or
-white-labeled to a company's own clients; that requires Business. Backed by
-the existing non-removable Pradixium watermark (individual tiers always
-show it; only Business gets a branded/white-label report). **Not yet
-built, future ideas raised:** API/integration access (Business-only, no UI
-needed), bulk/portfolio analysis (upload many addresses, comparison table),
-a formal compliance/audit-trail PDF export — all genuinely business-only
-workflow features, not just a legal warning label.
+**Business-plan differentiation (raised by the user):** the concern was a
+company just using the cheap individual plan instead of paying for
+Business, since the underlying report data/grade must be identical for
+everyone (data-honesty rule — never degrade quality by price). The
+differentiation has to be in usage rights, not data quality. User picked
+white-label branding to build first, of 4 ideas raised (the other 3 —
+API/integration access, bulk/portfolio analysis, a compliance/audit-trail
+PDF export — are real future features, not started).
+
+**White-label branding — shipped.** `terms.html` §3a: individual-tier
+reports (one-time, monthly, annual) are personal-use-only — may not be
+resold, redistributed, or white-labeled; that requires Business. Backed by
+an actual mechanism, not just the legal clause: `business-branding.html`
+(new page, gated on an active `business` purchases row) lets a Business
+account set a company name + upload a logo (Supabase Storage bucket
+`business-logos`, public-read/own-folder-write; table `business_branding`,
+owner-only RLS). `engine.js`'s `getWatermarkInfo()`/`attachWatermark()`
+fetch that row only when the viewer's active plan is `business`, and
+`report.html`'s `renderWatermark()` swaps in `renderBusinessBranding()`
+(their logo + name next to the property title) instead of the Pradixium
+seal — individual-tier reports are structurally incapable of ever showing
+this, not just told not to. No branding configured yet → falls back to the
+default Pradixium seal, never blank. Verified visually (headless Chromium,
+both the business-branded path and the unchanged default-seal path render
+correctly) — the actual Supabase Storage upload round-trip could not be
+exercised in this sandbox (jsdelivr CDN blocked here, same known
+limitation as the account-gate testing note above); confirm the real
+upload once on the live site before telling a Business customer to use it.
+Linked from `mockups/index.html` (Business Solutions page).
 
 ## For the other session (Claude B): Georgia data gap flagged (Sept 2026)
 

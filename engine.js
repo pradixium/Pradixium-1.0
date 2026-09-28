@@ -1342,6 +1342,7 @@
       }
     } catch (e) {}
     if (!email) return null;
+    let businessBranding = null;
     try {
       const { data: rows } = await window.pradixiumSupabase
         .from("purchases")
@@ -1353,8 +1354,23 @@
         return (row.kind === "report" || row.kind === "monthly_usage") && row.report_signature === signature;
       });
       purchasedAt = match?.created_at || null;
+
+      // Business plan reports carry the company's own logo/name instead of
+      // the Pradixium seal, once they've set one up (see
+      // business-branding.html) — never fabricated if they haven't yet, and
+      // never shown to anyone whose active plan isn't actually "business".
+      if (match?.kind === "business") {
+        const { data: brandRows } = await window.pradixiumSupabase
+          .from("business_branding")
+          .select("company_name, logo_url")
+          .limit(1);
+        const brand = (brandRows || [])[0];
+        if (brand && brand.company_name && brand.logo_url) {
+          businessBranding = { companyName: brand.company_name, logoUrl: brand.logo_url };
+        }
+      }
     } catch (e) {}
-    return { name, email, purchasedAt };
+    return { name, email, purchasedAt, businessBranding };
   }
 
   // Shared by openReport() (repeat views) and handleCheckoutReturn() (the
@@ -1370,6 +1386,8 @@
     target.watermarkName = watermark.name;
     target.watermarkEmail = watermark.email;
     target.watermarkPurchasedAt = watermark.purchasedAt;
+    target.watermarkBusinessCompanyName = watermark.businessBranding?.companyName || null;
+    target.watermarkBusinessLogoUrl = watermark.businessBranding?.logoUrl || null;
     try { localStorage.setItem("pradixiumReportData", JSON.stringify(target)); } catch (e) {}
   }
 
