@@ -360,6 +360,10 @@ largest metro first.
   `_structured.js` now has `arcQueryNear` and optional row `sale`.
   Cobb GA (13067, Tax Assessor "taxassessorsdaily" CobbParcels: FMV_TOTAL;
   ASV = 40%; situs has no city/ZIP → spatial 250 m on ST_NUMBER).
+  Arlington VA (51013, county data hub OData API datahub-v2.arlingtonva.us:
+  Property → latest Assessment totalValueAmt + year; ALWAYS $select — the
+  records carry owner/grantee names; market sales have a blank type code
+  (undocumented) → sales not shown).
 - Indiana statewide (outside Marion): `indiana.js` reads
   `lib/data/indiana/<FIPS>.json.gz`, built by
   `python3 scripts/build-in-parcels.py 2025` from each county's DLGF
