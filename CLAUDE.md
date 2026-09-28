@@ -873,6 +873,60 @@ adding) and a `recentTransactionPrices.js` / `globalIndexTrends.js` entry
 (price trend). Same honesty bar as everything else — only add what clears
 it against Georgia's own official sources.
 
+## For the other session (Claude B): NYC condo/co-op benchmark gap — user calls this launch-blocking (Sept 2026)
+
+**Urgent, flagged directly by the user as a launch blocker.** Live end-to-end test
+(Sept 2026): analyzed a real Manhattan address (298 E 26th Street, NYC, $1,700,000
+asking, ~52 sqm) and paid for the report via Stripe. **Correction after further
+investigation the same day: the report the user saw (every field blank, including
+Asking Price and Size — screenshotted) was NOT mainly this data gap.** It was a
+separate, much bigger bug in `engine.js`'s `refreshFullReportData()`: on the
+fresh page load after Stripe's redirect, the analysis form is empty, but
+`buildReportData()` (via `getInputs()`) read price/size/country/etc. straight
+from those empty DOM fields instead of from the already-cached `property` object
+— so literally every field came back null, regardless of country or data
+source. Fixed and verified (engine.js now refills the form from the cached
+`pradixiumPropertyInputs` before rendering; confirmed via a scripted repro that
+`pradixiumReportData` now correctly contains askingPrice/size/gross yield/etc.
+after a simulated Stripe return). Also added a retry in `handleCheckoutReturn()`
+for the entitlement-visibility race `refreshFullReportData()`'s own comment
+already anticipated. See the "silently-blocked report popup" fix above — same
+test, same session, a related but distinct bug (that one was about the popup
+never opening at all; this one was about the report being blank once it did).
+
+**The real, narrower, still-open gap for your session:** with the above fixed,
+a Manhattan condo/co-op report now populates every other section correctly and
+only the government market-benchmark row itself stays legitimately empty,
+because `api/us-intelligence.js`'s `nycDofSales()` only computes a $/sqft
+benchmark for `NYC_HOUSE_CATEGORIES` (1–3 family houses); for condos/co-ops it
+deliberately returns `status:'no_unit_area'` with no number, since NYC DOF's
+Rolling Sales dataset (`data.cityofnewyork.us/resource/usep-8jbt.json`) doesn't
+reliably report gross_square_feet for condo/co-op unit sales — the existing
+"never guess" behavior, not a bug in itself. The problem is scope: **condos/co-ops
+are the majority of Manhattan's residential market**, and New York is priority #1
+in the US expansion list below — so this isn't an edge case, it's the common case
+for the #1 metro, and the user is explicit that a thin report on a first purchase
+kills repeat business ("הבן אדם יקנה את הדוח פעם וגמרנו").
+
+Two real, honesty-compatible ways to enrich this without fabricating a number
+(discussed with the user, not yet built — his call to route this to your session
+rather than have this session touch new US data-source work, per the lane split
+below):
+1. A median-price-**by-unit-type** (studio/1BR/2BR, from bedroom/category fields
+   already in the same DOF dataset) as **context**, not feeding the verdict — same
+   pattern already used elsewhere in this file for partial/unscreened sources
+   (e.g. Florida, RLIS SALEPRICE). Still real, still government-sourced, just not
+   per-sqft.
+2. Check whether NYC has any other official source with per-unit condo square
+   footage (PLUTO is lot-level, not unit-level, and was already considered
+   insufficient for this — worth re-verifying rather than assuming). Do not reach
+   for a paid third-party source (StreetEasy, PropertyShark, etc.) — ruled out by
+   the standing "no third-party data dependencies" rule.
+
+Whichever path, verify before shipping per the usual rule: independent recompute
+of at least one figure + screenshot, and say plainly if the data genuinely isn't
+there rather than filling the gap with something unverified.
+
 ## "Pradixium Deal Rating™" — new trademark, renamed from plain "Deal Rating" (Sept 2026)
 
 User asked to add "Reality Check™" and a new "Pradixium Deal Rating™"
