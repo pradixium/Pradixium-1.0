@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="/favicon.png">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Owner Dashboard | Pradixium</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f6f8fa;color:#172131;font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+.page{max-width:980px;margin:0 auto;padding:32px 20px 70px}
+header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand img{height:32px}
+.brand .logo-text{font-size:17px;letter-spacing:2.2px;font-weight:700}
+h1{font-size:24px;line-height:1.2;margin:22px 0 4px}
+.sub{color:#6b7686;font-size:13px;margin:0 0 26px}
+.lockCard{max-width:420px;margin:60px auto;background:#fff;border:1px solid #e5eaf0;border-radius:14px;padding:28px}
+.lockCard h2{font-size:16px;margin:0 0 14px}
+.lockCard input{width:100%;padding:11px 13px;border:1px solid #d7dee6;border-radius:8px;font-size:14px;margin-bottom:10px}
+.lockCard button{width:100%;background:#172131;color:#fff;border:0;padding:12px;border-radius:8px;font-weight:700;cursor:pointer;font-size:14px}
+.error{color:#c0392b;font-size:13px;margin:8px 0 0}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:26px}
+@media(max-width:800px){.kpis{grid-template-columns:1fr 1fr}}
+.kpi{background:#fff;border:1px solid #e5eaf0;border-radius:12px;padding:16px 18px}
+.kpi .n{font-size:26px;font-weight:800}
+.kpi .l{font-size:11px;color:#8994a3;letter-spacing:.4px;margin-top:4px;text-transform:uppercase}
+.card{background:#fff;border:1px solid #e5eaf0;border-radius:14px;padding:20px 22px;margin-bottom:20px}
+.card h2{font-size:13px;letter-spacing:1.2px;color:#5f6b7b;text-transform:uppercase;margin:0 0 16px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;color:#8994a3;font-weight:700;font-size:11px;letter-spacing:.3px;padding:8px 6px;border-bottom:1px solid #e5eaf0}
+td{padding:10px 6px;border-bottom:1px solid #eef1f4;color:#202b3a}
+tr:last-child td{border-bottom:0}
+.note{font-size:12px;color:#9aa2ad;margin-top:8px;line-height:1.6}
+#status{color:#8994a3;font-size:14px;padding:20px 0}
+.logout{font-size:12px;color:#8994a3;cursor:pointer;text-decoration:underline}
+</style>
+</head>
+<body>
+<main class="page">
+  <div id="lockScreen" class="lockCard">
+    <h2>Owner Dashboard</h2>
+    <input id="keyInput" type="password" placeholder="Dashboard key" autocomplete="off">
+    <button id="unlockBtn">Unlock</button>
+    <p id="lockError" class="error" style="display:none"></p>
+  </div>
+
+  <div id="dashboard" style="display:none">
+    <header>
+      <div class="brand"><span class="logo-text">PRADIXIUM™ — OWNER DASHBOARD</span></div>
+      <span class="logout" id="logoutBtn">Lock</span>
+    </header>
+    <p class="sub">Real signups and purchases from the live Supabase project — not a projection.</p>
+
+    <div id="status">Loading…</div>
+    <div id="content" style="display:none">
+      <div class="kpis">
+        <div class="kpi"><div class="n" id="kpiUsers">—</div><div class="l">Total signed-up users</div></div>
+        <div class="kpi"><div class="n" id="kpiNew30d">—</div><div class="l">New users (30d)</div></div>
+        <div class="kpi"><div class="n" id="kpiPurchases">—</div><div class="l">Total purchases</div></div>
+        <div class="kpi"><div class="n" id="kpiRevenue">—</div><div class="l">Revenue (initial sales)</div></div>
+      </div>
+
+      <div class="card">
+        <h2>Plan Breakdown</h2>
+        <table><thead><tr><th>Plan</th><th>Count</th><th>Revenue</th></tr></thead><tbody id="planBody"></tbody></table>
+        <p class="note" id="revenueNote">"Revenue" is the <b>real amount Stripe actually charged</b> for each checkout session (read live from Stripe, not assumed from today's price — prices have changed over time, e.g. the annual plan was $299/yr before Sept 28, 2026). This is the session's own charge only: there is no Stripe renewal webhook wired up yet, so a subscription/monthly/business plan's recurring renewals after that charge are not tracked here.</p>
+      </div>
+
+      <div class="card">
+        <h2>Recent Purchases</h2>
+        <table><thead><tr><th>Email</th><th>Plan</th><th>Amount</th><th>Date</th><th>Referral</th></tr></thead><tbody id="purchasesBody"></tbody></table>
+      </div>
+
+      <div class="card">
+        <h2>Recent Signups</h2>
+        <table><thead><tr><th>Email</th><th>Date</th></tr></thead><tbody id="signupsBody"></tbody></table>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const KEY_STORAGE = "pradixiumOwnerDashboardKey";
+
+  function money(cents) {
+    return "$" + (cents / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+  function fmtDate(iso) {
+    if (!iso) return "—";
+    try { return new Date(iso).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }); }
+    catch { return "—"; }
+  }
+  const esc = (s) => String(s ?? "—").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[c]));
+
+  async function load(key) {
+    $("lockScreen").style.display = "none";
+    $("dashboard").style.display = "";
+    $("status").style.display = "";
+    $("content").style.display = "none";
+    try {
+      const r = await fetch("/api/owner-dashboard", { headers: { Authorization: `Bearer ${key}` } });
+      const json = await r.json().catch(() => null);
+      if (!r.ok || !json?.success) {
+        if (r.status === 401) {
+          localStorage.removeItem(KEY_STORAGE);
+          showLock("Wrong key.");
+          return;
+        }
+        throw new Error(json?.error || "Could not load dashboard data.");
+      }
+      render(json);
+    } catch (e) {
+      $("status").textContent = (e && e.message) || "Could not load dashboard data.";
+    }
+  }
+
+  function render(d) {
+    $("kpiUsers").textContent = d.totalUsers;
+    $("kpiNew30d").textContent = d.newUsers30d;
+    $("kpiPurchases").textContent = d.totalPurchases;
+    $("kpiRevenue").textContent = money(d.totalRevenueCents);
+
+    $("planBody").innerHTML = d.planBreakdown.length
+      ? d.planBreakdown.map((p) => `<tr><td>${esc(p.label)}</td><td>${p.count}</td><td>${money(p.revenueCents)}</td></tr>`).join("")
+      : `<tr><td colspan="3">No purchases yet.</td></tr>`;
+
+    $("purchasesBody").innerHTML = d.recentPurchases.length
+      ? d.recentPurchases.map((p) => `<tr><td>${esc(p.email)}</td><td>${esc(p.label)}</td><td>${p.amountCents == null ? "Amount unknown" : money(p.amountCents)}</td><td>${fmtDate(p.createdAt)}</td><td>${esc(p.referralCode)}</td></tr>`).join("")
+      : `<tr><td colspan="5">No purchases yet.</td></tr>`;
+
+    $("signupsBody").innerHTML = d.recentSignups.length
+      ? d.recentSignups.map((u) => `<tr><td>${esc(u.email)}</td><td>${fmtDate(u.createdAt)}</td></tr>`).join("")
+      : `<tr><td colspan="2">No signups yet.</td></tr>`;
+
+    if (d.unresolvedCount > 0) {
+      const plural = d.unresolvedCount !== 1;
+      $("revenueNote").innerHTML += ` <b>${d.unresolvedCount} purchase${plural ? "s" : ""}</b> couldn't be read from Stripe (e.g. no stored session id) and ${plural ? "are" : "is"} excluded from the totals above, not guessed.`;
+    }
+
+    $("status").style.display = "none";
+    $("content").style.display = "";
+  }
+
+  function showLock(errorText) {
+    $("dashboard").style.display = "none";
+    $("lockScreen").style.display = "";
+    const err = $("lockError");
+    if (errorText) { err.textContent = errorText; err.style.display = ""; }
+    else { err.style.display = "none"; }
+  }
+
+  $("unlockBtn").addEventListener("click", () => {
+    const key = $("keyInput").value.trim();
+    if (!key) return;
+    localStorage.setItem(KEY_STORAGE, key);
+    load(key);
+  });
+  $("keyInput").addEventListener("keydown", (e) => { if (e.key === "Enter") $("unlockBtn").click(); });
+  $("logoutBtn").addEventListener("click", () => {
+    localStorage.removeItem(KEY_STORAGE);
+    showLock(null);
+  });
+
+  const savedKey = localStorage.getItem(KEY_STORAGE);
+  if (savedKey) load(savedKey);
+})();
+</script>
+</body>
+</html>
