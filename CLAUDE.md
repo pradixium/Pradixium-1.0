@@ -209,6 +209,11 @@ largest metro first.
 - Utah statewide incl. Salt Lake City (#46): `utah.js` — UGRC
   `Parcels_<County>_LIR` for all 29 counties (market value + as-of date,
   deduped by PARCEL_ID). Utah = non-disclosure.
+- Wisconsin statewide: `wisconsin.js` — Statewide Parcel Map V12
+  (Wisconsin_Statewide_Parcels_DB, 2025 roll): estimated fair market value,
+  assessed value, net tax. City of Milwaukee's MPROP module runs first.
+- Dispatcher (`lib/usLocal/index.js`): matching modules are tried in order
+  until one returns something — city modules can fall back to statewide ones.
 - Hartford (#50) + all of CT: `connecticut.js` — OPM Real Estate Sales
   (data.ct.gov 5mzw-sjtu, Socrata): last sale only with NO non-usable code;
   town median of usable single-family sales in the latest grand-list year
