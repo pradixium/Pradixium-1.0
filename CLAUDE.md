@@ -206,6 +206,15 @@ largest metro first.
   year built. Sale price has no validity code → not shown.
 - Salt Lake City (#46): Salt Lake County (49035) `saltLake.js` — Utah UGRC
   LIR parcels (market value + as-of date). Utah = non-disclosure.
+- Hartford (#50) + all of CT: `connecticut.js` — OPM Real Estate Sales
+  (data.ct.gov 5mzw-sjtu, Socrata): last sale only with NO non-usable code;
+  town median of usable single-family sales in the latest grand-list year
+  (context). File runs to Sep 2025 (2024 GL) as of Sept 2026.
+- Not covered at property level (metro trend + FEMA only), checked Sept 2026:
+  Louisville (LOJIC/PVA layers carry no values), Grand Rapids (Kent County
+  open parcels have no values), Birmingham (Jefferson AL has only the tax
+  assessed value, a fraction of market), Memphis (Shelby County GIS behind
+  Cloudflare), San Jose / Fresno (California).
 - Not yet covered at property level (metro trend + hazards only): Fort Worth
   (Tarrant — no valued open service), Nassau County NY (not in the NYS roll),
   Riverside / San Francisco / San Diego (California publishes no sale prices;
