@@ -308,6 +308,13 @@ largest metro first.
   parcels_cama/Tax_Parcel_Sales: cntmktvalue (no tax year in layer), floor
   area, year built; town = taxing jurisdiction. Sales not shown (undocumented
   sale codes; Parcel_Sales table ends 2020).
+- Illinois statewide (outside Cook): `illinois.js` — IDOR PTAX-203
+  transfer declarations (illinois-edp.data.socrata.com it54-y4c6, weekly,
+  since 2013). Market sale = deed recorded + 1 parcel + not split + NO Line
+  10 circumstance (10a = "0", 10b–10r false); price = Line 13 net
+  consideration. Last such sale for the address + ZIP 12-month count/median
+  of residences (Line 8 "B") — context only. Never request name columns.
+  Recompute check (Sept 2026): ZIP 60502 → 235 sales, median $405,000.
 - Texas additions (`texas.js`, generic `find` configs): Tarrant (TAD roll as
   published by City of Fort Worth "Parcels_Public_View" — whole county, 2024
   roll as of Sept 2026, shown with its year), Collin (CCAD's own layer; the
