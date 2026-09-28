@@ -79,11 +79,19 @@ export default async function handler(req, res) {
   }
 
   if (req.method === "DELETE") {
-    await fetch(`${SUPABASE_URL}/rest/v1/api_keys?user_id=eq.${encodeURIComponent(userId)}&revoked_at=is.null`, {
+    // FIX: the Supabase PATCH result used to be discarded — this always
+    // reported success:true to the client even when the revoke itself
+    // failed (RLS, network, Supabase outage), so the UI told the owner of
+    // a leaked key that it was safely revoked while it was still live.
+    const revokeRes = await fetch(`${SUPABASE_URL}/rest/v1/api_keys?user_id=eq.${encodeURIComponent(userId)}&revoked_at=is.null`, {
       method: "PATCH",
       headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}`, "Content-Type": "application/json", Prefer: "return=minimal" },
       body: JSON.stringify({ revoked_at: new Date().toISOString() })
     });
+    if (!revokeRes.ok) {
+      const text = await revokeRes.text().catch(() => "");
+      return res.status(502).json({ success: false, error: `Could not revoke key: ${text.slice(0, 200)}` });
+    }
     return res.status(200).json({ success: true });
   }
 

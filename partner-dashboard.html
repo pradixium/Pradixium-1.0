@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<link rel="icon" href="/favicon.png">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Partner Dashboard | Pradixium</title>
 <meta name="robots" content="noindex">
@@ -90,11 +91,29 @@ th{color:#8994a3;font-weight:700;font-size:11px}
 <script>
 (function(){
   const REPORT_PRICE = 29.99;
+  const MONTHLY_PRICE = 29.99;
   const SUBSCRIPTION_PRICE = 2999.99;
-
-  const client = supabase.createClient(window.PRADIXIUM_SUPABASE_URL, window.PRADIXIUM_SUPABASE_ANON_KEY);
+  const BUSINESS_PRICE = 299.99;
+  // FIX: purchases.kind is one of report/monthly/subscription/business (plus
+  // monthly_usage, which never carries a referral_code) — this only branched
+  // on "subscription" vs everything else, so a referred Business signup
+  // ($299.99/mo) fell into the "else" bucket and was counted/labeled as a
+  // $29.99 one-time report, understating that partner's commission ~10x.
+  const PRICE_BY_KIND = { report: REPORT_PRICE, monthly: MONTHLY_PRICE, subscription: SUBSCRIPTION_PRICE, business: BUSINESS_PRICE };
+  const LABEL_BY_KIND = { report: "Report ($29.99)", monthly: "Individual Monthly ($29.99)", subscription: "Individual Annual ($2,999.99)", business: "Business ($299.99)" };
 
   const $ = (id) => document.getElementById(id);
+  // FIX: this page assumed the jsdelivr CDN script always loads and threw
+  // an uncaught "supabase is not defined" as the very first statement in
+  // this closure when it didn't (CDN outage, firewall, ad-blocker) —
+  // aborting every handler below with a dead page and zero explanation.
+  // index.html's own auth-supabase.js already guards this; this page never did.
+  if (!window.supabase || !window.supabase.createClient) {
+    const err = $("signInError");
+    if (err) { err.textContent = "Unable to load the sign-in system. Please refresh the page or try again shortly."; err.classList.remove("hidden"); }
+    return;
+  }
+  const client = supabase.createClient(window.PRADIXIUM_SUPABASE_URL, window.PRADIXIUM_SUPABASE_ANON_KEY);
   const signInCard = $("signInCard");
   const notPartnerCard = $("notPartnerCard");
   const dashboardCard = $("dashboardCard");
@@ -127,14 +146,14 @@ th{color:#8994a3;font-weight:700;font-size:11px}
     const rows = purchases || [];
     $("statReferrals").textContent = rows.length;
 
-    const revenue = rows.reduce((sum, p) => sum + (p.kind === "subscription" ? SUBSCRIPTION_PRICE : REPORT_PRICE), 0);
+    const revenue = rows.reduce((sum, p) => sum + (PRICE_BY_KIND[p.kind] ?? REPORT_PRICE), 0);
     $("statEarned").textContent = "$" + Math.round(revenue * partner.commission_rate).toLocaleString("en-US");
 
     const historyBody = $("historyBody");
     if (rows.length) {
       historyBody.innerHTML = rows.map((p) => {
         const date = new Date(p.created_at).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
-        const type = p.kind === "subscription" ? "Subscription ($2,999.99)" : "Report ($29.99)";
+        const type = LABEL_BY_KIND[p.kind] || "Report ($29.99)";
         return `<tr><td>${date}</td><td>${type}</td></tr>`;
       }).join("");
     }
