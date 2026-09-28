@@ -173,6 +173,11 @@ largest metro first.
   The county's fair market value is 2012 base-year → text only. WPRDC's
   firewall only accepts a form-encoded POST with a User-Agent (the shared
   `h.json(url, ms, init)` now takes fetch options).
+- Las Vegas (#29): Clark County NV (32003) `lib/usLocal/clarkNV.js` — last
+  sale only when the Assessor's Sales_view code is R ("normally … arm's
+  length", Assessor Sales Codes PDF); year built. No value in the GIS
+  (Assessor bulk files are paid → not used). Addresses carried by two
+  parcels (house + extra lot sold together) show nothing.
 - Not yet covered at property level (metro trend + hazards only): Fort Worth
   (Tarrant — no valued open service), Nassau County NY (not in the NYS roll),
   Riverside / San Francisco / San Diego (California publishes no sale prices;
