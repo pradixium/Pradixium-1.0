@@ -218,6 +218,9 @@ largest metro first.
   (parval + the county's own parvaltype label; counties revalue on
   different cycles → display only). Wake/Mecklenburg modules run first.
   Some counties (Guilford) publish no site address there. Query ~3–6 s.
+- Massachusetts statewide fallback: `massachusetts.js` — MassGIS Property Tax
+  Parcels (TOTAL_VAL + town FY, RES_AREA, year built). LS_PRICE unscreened →
+  not shown. Boston module runs first. Matches on the geocoder's town name.
 - Hartford (#50) + all of CT: `connecticut.js` — OPM Real Estate Sales
   (data.ct.gov 5mzw-sjtu, Socrata): last sale only with NO non-usable code;
   town median of usable single-family sales in the latest grand-list year
