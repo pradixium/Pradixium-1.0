@@ -210,6 +210,10 @@ largest metro first.
   (data.ct.gov 5mzw-sjtu, Socrata): last sale only with NO non-usable code;
   town median of usable single-family sales in the latest grand-list year
   (context). File runs to Sep 2025 (2024 GL) as of Sept 2026.
+- Virginia Beach metro (#37): City of Norfolk (51710) `norfolk.js` — Socrata
+  g7sg-tivf (FY25 dataset, updated daily): assessed value + effective year,
+  finished living area. Virginia Beach city itself: GIS unreachable
+  (proxy 502) — not covered yet.
 - Not covered at property level (metro trend + FEMA only), checked Sept 2026:
   Louisville (LOJIC/PVA layers carry no values), Grand Rapids (Kent County
   open parcels have no values), Birmingham (Jefferson AL has only the tax
