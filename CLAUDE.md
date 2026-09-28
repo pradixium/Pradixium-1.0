@@ -300,6 +300,10 @@ largest metro first.
 - DeKalb GA (13089): `dekalbGA.js` — county "Parcels" (address → ParcelID)
   joined to "Tax_Parcels_2025" (APPRAISED_VALUE + TAXYR). New layer each
   year: update TAX_LAYER to Tax_Parcels_<year>.
+- Stark County OH (39151, Canton): `starkOH.js` — Auditor GIS parcels
+  (APPRAISED_TOTAL_VALUE + TAXYR) + Sales and Transfers: last sale only if
+  the parcel's latest transfer is "0-QUALIFIED - ARMSLENGTH" and single
+  parcel; otherwise the code is named.
 - Texas additions (`texas.js`, generic `find` configs): Tarrant (TAD roll as
   published by City of Fort Worth "Parcels_Public_View" — whole county, 2024
   roll as of Sept 2026, shown with its year), Collin (CCAD's own layer; the
