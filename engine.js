@@ -1467,8 +1467,7 @@
       const quota = await checkMonthlyQuota();
       if (quota.active && quota.remaining > 0 && (await consumeMonthlySlot(data))) {
         await attachWatermark(data);
-        const w = window.open("/report.html", "_blank");
-        if (!w) alert("Please allow pop-ups to view the report, then try again.");
+        window.location.href = "/report.html";
         return;
       }
       startCheckout(data, "report");
@@ -1476,9 +1475,7 @@
     }
 
     await attachWatermark(data);
-
-    const w = window.open("/report.html", "_blank");
-    if (!w) alert("Please allow pop-ups to view the report, then try again.");
+    window.location.href = "/report.html";
   }
 
   function openSubscription() {
@@ -1617,8 +1614,13 @@
       // report.html still opens using whatever was cached before checkout.
       await refreshFullReportData();
       await attachWatermark();
-      const w = window.open("/report.html", "_blank");
-      if (!w) alert('Payment confirmed! Please allow pop-ups, then click "View Full Analysis" again.');
+      // Navigate the current tab rather than window.open(): this runs on
+      // page load with zero user gesture (Stripe's own redirect got us
+      // here, not a click), so a new-tab popup is guaranteed to be
+      // silently blocked on strict browsers (confirmed live on iOS Safari
+      // Sept 2026 — payment succeeded, purchases row was written, but the
+      // report never visibly opened). A same-tab redirect can't be blocked.
+      window.location.href = "/report.html";
     } catch (e) {
       console.warn("Pradixium: could not verify payment", e);
     }
