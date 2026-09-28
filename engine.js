@@ -1587,6 +1587,17 @@
     set("analysisReference", window.pradixiumAnalysisReference);
     set("analysisTimestamp", new Date().toLocaleString("en-GB", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }));
     revealResults();
+    // Real bug found live (Sept 2026), second half: if the orchestrator
+    // call below fails or its AI agent doesn't come back in time,
+    // attachWatermark() (called right after this function, with no
+    // property data of its own) reads whatever pradixiumReportData was
+    // last saved — which, without this call, could still be the
+    // pre-checkout free-preview snapshot (stale placeholder highlights/
+    // risks/investor action, no market benchmark). Save a fresh snapshot
+    // now so the report always reflects at least the correct, current
+    // property numbers; the happy path below overwrites this again with
+    // the fully enriched version once the orchestrator call succeeds.
+    currentReportData();
 
     try {
       const r = await fetchWithTimeout("/api/orchestrator", {
