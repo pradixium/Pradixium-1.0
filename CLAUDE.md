@@ -428,6 +428,15 @@ largest metro first.
   match incl. "GREENE COUNTY" (unincorporated); resultRecordCount
   unsupported). Missouri: no statewide file; many rural counties only
   have Vanguard-hosted HTML sites (missouriassessors.com) → not used.
+  Fairfield OH (39045, gis.co.fairfield.oh.us OpenData/ParcelBoundaries:
+  APPRVAL; ADRNO/ADRSTR/ADRSUF/ADRSUF2, no city → spatial), Cochise AZ
+  (04003, Cochise County GIS Cad_Parcel_TaxInfo: fcv + tax_year; city/zip
+  = MAILING; layer rejects distance queries → new `arcQueryBox` envelope
+  helper in _structured.js), Sumter SC (45085, gis.sumter-sc.com
+  BaseMaps/Sumter_City_County layer 7: market_value_total). Skipped:
+  Bannock ID (server takes 3–12 s per query), Mat-Su AK (no situs),
+  Portsmouth VA (layer owner not identifiable), Florence SC (building
+  value only).
   Comptroller statewide file (86 other
   counties, Assessment_Data_##.dbf) requested by the user by e-mail — the
   online form needs a U.S. address. TDEC "LH_Parcel_FP" is only a ~21k
