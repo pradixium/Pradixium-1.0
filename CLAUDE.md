@@ -182,6 +182,14 @@ largest metro first.
   Auditor market value, annual taxes (official check), year built, finished
   sq ft (text). Sales not shown: VALID/SALTYP empty on every 2025+ sale
   (checked Sept 2026). Kentucky/Butler/Warren/Clermont counties not covered.
+- Kansas City (#31): not covered yet — Jackson County MO GIS
+  (jcgis.jacksongov.org) times out from cloud IPs (sandbox + WebFetch);
+  Johnson County KS publishes no parcel values. Retry Jackson from Vercel.
+- Columbus (#32): Franklin County OH (39049) `lib/usLocal/franklinOH.js` —
+  current appraised value, above-grade living area, beds/baths; last sale
+  only if it is the parcel's latest sale AND in the Auditor's ValidSale='Y'
+  file (that file covers Jan 2023–Jul 2025); ZIP context from it (fixed
+  window from 2024-07-17), context only.
 - Not yet covered at property level (metro trend + hazards only): Fort Worth
   (Tarrant — no valued open service), Nassau County NY (not in the NYS roll),
   Riverside / San Francisco / San Diego (California publishes no sale prices;
