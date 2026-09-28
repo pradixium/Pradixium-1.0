@@ -373,6 +373,15 @@ largest metro first.
 - Montana statewide: `montana.js` — Montana Cadastral Framework (State
   Library, DOR records): TotalValue + TaxYear; ag/forest land is
   productivity value (said in the text). Non-disclosure state → no sales.
+- Colorado statewide fallback: `coloradoStatewide.js` — OIT "Colorado
+  Public Parcels" composite (gis.colorado.gov): apprValTot (string field!)
+  + the date the State received each county's file. Values + addresses for
+  Weld, Boulder, Mesa, Broomfield, Summit, La Plata, Garfield and other
+  small counties; El Paso, Larimer, Grand, Gunnison, Morgan … deliver no
+  values, Pueblo no addresses. countyFips is inconsistent ("069" vs "69").
+  Spatial 1 km + number/street match, so two parcels sharing an address
+  give "several parcels", not a guess. Check: Weld 095910101005 assessed
+  45,080 / appraised 721,253 = 6.25% (CO residential rate).
 - Texas additions (`texas.js`, generic `find` configs): Tarrant (TAD roll as
   published by City of Fort Worth "Parcels_Public_View" — whole county, 2024
   roll as of Sept 2026, shown with its year), Collin (CCAD's own layer; the
