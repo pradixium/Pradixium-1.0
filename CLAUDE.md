@@ -401,6 +401,9 @@ largest metro first.
   said so). Horry SC (45051, Myrtle Beach; county gisweb Public/
   AddressPoints → PIN → Public/Parcels layer 1 MarketProp; assessed 4%
   owner-occupied, not shown; no sale price in layer).
+  Butler OH (39017, gismaps.bceo.org ReadOnly/AccelaMobile layer 3 —
+  Auditor CAMA: VCurYr = MKTVCurYr; ADRNO/ADRSTR/ADRSUF, no city/ZIP →
+  spatial 1 km; V-sale fields undocumented → no sales).
   Comptroller statewide file (86 other
   counties, Assessment_Data_##.dbf) requested by the user by e-mail — the
   online form needs a U.S. address. TDEC "LH_Parcel_FP" is only a ~21k
