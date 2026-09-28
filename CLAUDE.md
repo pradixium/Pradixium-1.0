@@ -178,6 +178,10 @@ largest metro first.
   length", Assessor Sales Codes PDF); year built. No value in the GIS
   (Assessor bulk files are paid → not used). Addresses carried by two
   parcels (house + extra lot sold together) show nothing.
+- Cincinnati (#30): Hamilton County OH (39061) `lib/usLocal/hamiltonOH.js` —
+  Auditor market value, annual taxes (official check), year built, finished
+  sq ft (text). Sales not shown: VALID/SALTYP empty on every 2025+ sale
+  (checked Sept 2026). Kentucky/Butler/Warren/Clermont counties not covered.
 - Not yet covered at property level (metro trend + hazards only): Fort Worth
   (Tarrant — no valued open service), Nassau County NY (not in the NYS roll),
   Riverside / San Francisco / San Diego (California publishes no sale prices;
