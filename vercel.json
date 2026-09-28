@@ -1,5 +1,10 @@
 {
   "functions": {
-    "api/us-intelligence.js": { "includeFiles": "lib/data/indiana/**" }
+    "api/us-intelligence.js": {
+      "includeFiles": "lib/data/indiana/**"
+    },
+    "api/orchestrator.js": {
+      "maxDuration": 60
+    }
   }
 }

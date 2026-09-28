@@ -1041,6 +1041,7 @@
       window.pradixiumLastRealityCheck = json?.realityCheck || null;
 
       const agent = json?.results?.["property-investment"];
+      window.pradixiumAnalysisPaid = Boolean(json?.paid && agent);
       if (agent) {
         renderAgentResult(agent, currency, Boolean(json?.paid));
       } else {
@@ -1435,6 +1436,12 @@
   }
 
   async function startCheckout(reportData, plan) {
+    // Real bug (Sept 2026): a $29.99 report was bought with an empty form
+    // (signature "|||"), unlocking nothing.
+    if (plan === "report" && !(reportData?.country && reportData?.askingPrice)) {
+      alert("Please analyze a property first (country and asking price are required).");
+      return;
+    }
     const token = await getAccessToken();
     if (!token) {
       alert("Please sign in first.");
@@ -1491,7 +1498,12 @@
       return;
     }
 
-    await attachWatermark(data);
+    let full = data;
+    if (!window.pradixiumAnalysisPaid) {
+      if (!(await loadFullReport())) { alert(FULL_REPORT_DELAYED); return; }
+      full = JSON.parse(localStorage.getItem("pradixiumReportData") || "null") || data;
+    }
+    await attachWatermark(full);
     window.location.href = "/report.html";
   }
 
@@ -1604,7 +1616,7 @@
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ property })
-      }, 35000);
+      }, 60000); // NYC etc. take 15–30 s; 35 s aborted real paid reports
       const json = await r.json().catch(() => null);
       if (!json?.paid) return false; // entitlement not visible yet server-side — caller falls back
 
@@ -1630,6 +1642,7 @@
         return false;
       }
       renderAgentResult(agent, currency, true);
+      window.pradixiumAnalysisPaid = true;
       currentReportData();
       return true;
     } catch (e) {
@@ -1637,6 +1650,25 @@
       return false;
     }
   }
+
+  // Up to 3 attempts at the full, paid analysis, with a visible "working"
+  // status. Real bug (Sept 2026): after one slow or failed attempt the
+  // report opened anyway on the pre-payment snapshot — every paid section
+  // ("Deal Rating", "Market Evidence", risks, action) blank.
+  async function loadFullReport() {
+    const stop = startLoadingStatus();
+    try {
+      for (const wait of [0, 2500, 5000]) {
+        if (wait) await new Promise((resolve) => setTimeout(resolve, wait));
+        if (await refreshFullReportData()) return true;
+      }
+      return false;
+    } finally {
+      stop();
+    }
+  }
+
+  const FULL_REPORT_DELAYED = "Your payment is confirmed and saved to your account. The full analysis did not finish loading this time — tap \"View Full Analysis\" again in a moment. You will not be charged again.";
 
   async function handleCheckoutReturn() {
     const params = new URLSearchParams(window.location.search);
@@ -1661,10 +1693,10 @@
       // this same request just wrote (see its own "entitlement not visible
       // yet" comment), or the Supabase auth session not yet rehydrated on
       // this fresh page load. Both clear up within a couple of seconds.
-      let refreshed = await refreshFullReportData();
-      if (!refreshed) {
-        await new Promise((resolve) => setTimeout(resolve, 2500));
-        refreshed = await refreshFullReportData();
+      if (!(await loadFullReport())) {
+        set("investorAction", FULL_REPORT_DELAYED);
+        alert(FULL_REPORT_DELAYED);
+        return; // never open the report on the pre-payment snapshot
       }
       await attachWatermark();
       // Navigate the current tab rather than window.open(): this runs on
