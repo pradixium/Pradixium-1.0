@@ -293,6 +293,10 @@ largest metro first.
   parcel's school district must match one of the geocoder's school
   districts (geocodeRaw now returns `schoolDistricts`). Use exact street
   strings (IN list) — LIKE is ~3 s on this dataset. nysParcel skips Nassau.
+- Honolulu (15003): `honolulu.js` — HOLIS Address Points (tmk, hyphenated
+  Oahu house numbers "47-490" parsed directly) → CadastralTables ASMTGIS
+  (land + building value, latest taxyr). Condo TMKs hold many units
+  (suffix) → a unit is needed.
 - Texas additions (`texas.js`, generic `find` configs): Tarrant (TAD roll as
   published by City of Fort Worth "Parcels_Public_View" — whole county, 2024
   roll as of Sept 2026, shown with its year), Collin (CCAD's own layer; the
