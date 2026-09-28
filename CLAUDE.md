@@ -573,10 +573,11 @@ one-time `report` purchase.
 company just using the cheap individual plan instead of paying for
 Business, since the underlying report data/grade must be identical for
 everyone (data-honesty rule — never degrade quality by price). The
-differentiation has to be in usage rights, not data quality. User picked
-white-label branding to build first, of 4 ideas raised (the other 3 —
-API/integration access, bulk/portfolio analysis, a compliance/audit-trail
-PDF export — are real future features, not started).
+differentiation has to be in usage rights, not data quality. 4 ideas
+raised; user approved building all of them, this session's own priority
+order: white-label branding (shipped) → API access (shipped) → bulk/
+portfolio analysis (not started) → compliance/audit-trail PDF export (not
+started).
 
 **White-label branding — shipped.** `terms.html` §3a: individual-tier
 reports (one-time, monthly, annual) are personal-use-only — may not be
@@ -598,6 +599,25 @@ exercised in this sandbox (jsdelivr CDN blocked here, same known
 limitation as the account-gate testing note above); confirm the real
 upload once on the live site before telling a Business customer to use it.
 Linked from `mockups/index.html` (Business Solutions page).
+
+**API access — shipped.** Same page (`business-branding.html`) now also
+has an "API access" card: generate/revoke a `px_live_...` key (table
+`api_keys`, only its SHA-256 hash stored — plaintext shown once, at
+creation, in `api/business-api-key.js`). `api/orchestrator.js` accepts
+that key as an alternate `Authorization: Bearer` value in
+`checkEntitlement()` — `checkApiKeyEntitlement()` looks it up, confirms
+the owner still has an active `business` purchases row (a key isn't a
+permanent grant), and resolves `paid:true` — this is the exact same
+endpoint and response shape the web UI already calls, no separate API
+surface to maintain. One active key per account (generating a new one
+revokes the old) — kept deliberately simple for a non-technical business
+owner rather than building key rotation/multiple-keys UI. No rate limiting
+built — billing itself is the only usage limiter for now; revisit if
+abused. Verified: syntax-checked, the hash-generate/hash-verify round trip
+tested directly in Node, and the settings-page UI screenshotted — the
+actual live key → orchestrator call was not exercised (would need a real
+Business account + a live ANTHROPIC_API_KEY, not available in this
+sandbox).
 
 ## For the other session (Claude B): Georgia data gap flagged (Sept 2026)
 
