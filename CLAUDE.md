@@ -734,7 +734,28 @@ need — verified specifically (not assumed) before writing `WORKAROUND
 REQUIRED` instead of `RESTRICTED`. Also updated the "20/29 countries"
 copy again, now "39", in the same 3 pages.
 
-**Still not done, still not exhaustive:** ~46 of the 85 dropdown countries
+**Third batch (same day): 8 more, 39 → 47.** User asked to keep going.
+Added Brazil, Argentina (`OPEN`) and Bulgaria, Romania, Slovakia,
+Slovenia, Malta, Estonia (`WORKAROUND REQUIRED`). Same per-country
+official-source verification (Bulgaria's psc.egov.bg, Romania's ANCPI,
+Slovakia's SLOV-LEX, Slovenia's Ministry of Justice/e-Uprava, Malta's Tax
+and Customs Administration, Estonia's Riigi Teataja state gazette,
+Brazil's INCRA, Argentina's RENAT land registry). Two judgment calls worth
+recording:
+  - **Brazil and Argentina are `OPEN`, not `WORKAROUND REQUIRED`,** even
+    though both have real foreign-ownership caps — because those caps
+    apply only to RURAL/agricultural land and border zones, never to an
+    ordinary urban apartment or house purchase (the case this field is
+    actually describing for a typical Pradixium user). Same reasoning
+    already used for Norway/Sweden's agricultural carve-outs.
+  - **Bulgaria and Romania both let a non-EU citizen buy an apartment
+    outright, no company needed** — the restriction (no direct land
+    ownership without a domestic company) only bites for a house-with-land
+    or standalone land purchase. Checked specifically for each country
+    rather than assumed from Poland/Finland's apartment-exemption pattern.
+Also updated the "39/47 countries" copy again, in the same 3 pages.
+
+**Still not done, still not exhaustive:** ~38 of the 85 dropdown countries
 remain silent (correctly — unverified). Continuing this kind of expansion
 in bounded, verified batches rather than one unverifiable sweep is the
 right pace to keep the honesty bar real; say so plainly if the user wants
