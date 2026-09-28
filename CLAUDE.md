@@ -323,6 +323,9 @@ largest metro first.
   Sept 2026: values present for nearly all districts; NO values from El
   Paso, Smith, Potter, Randall (partial Hays) → the account is shown with
   "no market value". Runs only where texas.js has no county entry.
+- Ada County ID (16001, Boise): `adaID.js` — AdaCountyGIS Parcels layer 5:
+  TOTALVALUE + PROPYEAR (Idaho: market-value assessment; non-disclosure →
+  no sales). Padded strings → LIKE 'x %' then exact trim match.
 - Texas additions (`texas.js`, generic `find` configs): Tarrant (TAD roll as
   published by City of Fort Worth "Parcels_Public_View" — whole county, 2024
   roll as of Sept 2026, shown with its year), Collin (CCAD's own layer; the
