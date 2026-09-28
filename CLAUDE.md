@@ -350,6 +350,29 @@ largest metro first.
   published by INCOG: TotalAcctValue + load date; numbered streets written
   without ordinals "E 39 ST S"). Sales not shown in all three (codes
   undocumented / no validity code).
+  Also: Chatham GA (13051, SAGIS Parcel Digest 2025: FairMarketValue; last
+  sale shown only when Sale_Quality = "Q" qualified), Lancaster NE (31109,
+  Lincoln–Lancaster GIS TaxParcels: CNTASSDVAL — NE assesses at actual
+  value), York SC (45091, county Parcels: AprTotVal; no city/ZIP → spatial
+  250 m; layer answers in 1–6 s → 9 s timeout), Lorain OH (39093,
+  2024_Reval_Tax_Parcels: total_value_2024), Canadian OK (40017,
+  ParcelDataService: total_val; cap_val is the capped value, not shown).
+  `_structured.js` now has `arcQueryNear` and optional row `sale`.
+  Cobb GA (13067, Tax Assessor "taxassessorsdaily" CobbParcels: FMV_TOTAL;
+  ASV = 40%; situs has no city/ZIP → spatial 250 m on ST_NUMBER).
+- Indiana statewide (outside Marion): `indiana.js` reads
+  `lib/data/indiana/<FIPS>.json.gz`, built by
+  `python3 scripts/build-in-parcels.py 2025` from each county's DLGF
+  "Real Property" (PARCEL) file on Indiana Gateway (ASP.NET download form,
+  field positions per 50 IAC 26-20-4; every record checked land + imp =
+  total). Gross assessed value (true tax value) as Government Value. Re-run
+  (without --force it only fills missing counties; the Gateway resets
+  connections now and then). `vercel.json` includeFiles ships the data
+  with `api/us-intelligence.js`. Rows are matched by ZIP, then county-wide
+  by the parcel city = geocoded town (geocoder ZIPs differ).
+- Montana statewide: `montana.js` — Montana Cadastral Framework (State
+  Library, DOR records): TotalValue + TaxYear; ag/forest land is
+  productivity value (said in the text). Non-disclosure state → no sales.
 - Texas additions (`texas.js`, generic `find` configs): Tarrant (TAD roll as
   published by City of Fort Worth "Parcels_Public_View" — whole county, 2024
   roll as of Sept 2026, shown with its year), Collin (CCAD's own layer; the
