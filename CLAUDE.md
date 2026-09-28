@@ -302,10 +302,10 @@ largest metro first.
   a 2027 appraisal cannot exist before 1 Jan 2027). DuPage IL skipped: its
   "FCV" fields equal the billed (1/3) value — ambiguous. Williamson
   skipped: WCAD layer's current values are 0.
-- Not yet covered at property level (metro trend + hazards only): Nassau County NY (not in the NYS roll),
-  Riverside / San Francisco / San Diego (California publishes no sale prices;
-  SF's portal was rate-limiting during the build). Boston and Atlanta have no
-  recent open sale data (values only).
+- Boston and Atlanta have no recent open sale data (values only).
+- Coverage tracker (session scratch, not in repo): county population from
+  Census 2024 estimates vs the modules' matchers — ~55% of US population had
+  a local property record as of the Nassau commit (Sept 2026).
 - Sandbox quirk: Node's built-in fetch here ignores HTTPS_PROXY for some hosts
   (King County, DCAD fail with "upstream connect error"); run local tests with
   `NODE_USE_ENV_PROXY=1`. Vercel production is unaffected — always confirm on
