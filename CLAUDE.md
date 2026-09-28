@@ -148,7 +148,8 @@ largest metro first.
   qualification is not strict enough.
 - Generated data (re-run to refresh): `node scripts/build-nj-sales.mjs`
   (NJ Treasury SR1A, monthly) and `node scripts/build-fl-sales.mjs 2026P`
-  (Florida DOR SDF+NAL, each new roll).
+  (Florida DOR SDF+NAL, each new roll — ALL Florida counties from the Census
+  county list; 66 of 67 in 2026P: Citrus had no SDF/NAL file, skipped).
   `node scripts/build-stl-sales.mjs` (City of St. Louis Assessor sales +
   parcel Access files; needs mdbtools — the city's file currently ends Nov
   2024, so its ZIP figures are context only).
@@ -166,9 +167,21 @@ largest metro first.
   `lib/usLocal/portlandMetro.js` — assessor Real Market Value + assessed
   value; RLIS SALEPRICE is unscreened, so not shown. Clark County WA (the
   Vancouver side) not yet covered.
-- Sacramento (#27): not covered at property level — California publishes no
-  sale prices and Prop 13 assessed values are not market values (same as
-  Riverside/SF/SD).
+- California counties outside LA: `california.js` — San Diego (SANDAG),
+  Riverside, Contra Costa, San Joaquin, San Francisco (DataSF roll), Orange
+  (Treasurer-Tax Collector secured tax layer; no situs city/ZIP → parcel
+  within 250 m of the geocoded point, `spatial: true`), San Bernardino (county
+  Site Address point → PRCLNUM or containing parcel in "Parcels with Redacted
+  Owner Name"; shows Prop 13 base year), Sonoma (Parcels Public, roll year).
+  The Prop 13
+  assessed value is shown in the TEXT only, labelled "not current market
+  value" — never governmentValue, never the verdict (same basis as LA).
+  Parcel counts only when its ZIP or town matches (geocoder ZIPs differ).
+  CA BOE's "<County> 2026 Roll Year" services are tax-rate-area boundaries,
+  not values. Sacramento (#27; its Assessor "Sales by Property Type" layer
+  holds only ~57k parcels with unscreened transfer-tax prices), San
+  Bernardino (no situs address),
+  Santa Clara, Alameda: no open valued parcel layer found yet.
 - Pittsburgh (#28): Allegheny (42003) `lib/usLocal/allegheny.js`, live SQL on
   WPRDC — the county's VALID sales (SALECODE 0) + finished living area →
   ZIP benchmark that FEEDS THE VERDICT (like NJ), last valid sale, facts.
@@ -206,8 +219,26 @@ largest metro first.
   Sales file screening not documented → not shown. Suburbs: no record.
 - Raleigh (#41): Wake (37183) `wake.js` — assessed value, heated area,
   year built. Sale price has no validity code → not shown.
-- Salt Lake City (#46): Salt Lake County (49035) `saltLake.js` — Utah UGRC
-  LIR parcels (market value + as-of date). Utah = non-disclosure.
+- Utah statewide incl. Salt Lake City (#46): `utah.js` — UGRC
+  `Parcels_<County>_LIR` for all 29 counties (market value + as-of date,
+  deduped by PARCEL_ID). Utah = non-disclosure.
+- Wisconsin statewide: `wisconsin.js` — Statewide Parcel Map V12
+  (Wisconsin_Statewide_Parcels_DB, 2025 roll): estimated fair market value,
+  assessed value, net tax. City of Milwaukee's MPROP module runs first.
+- Dispatcher (`lib/usLocal/index.js`): matching modules are tried in order
+  until one returns something — city modules can fall back to statewide ones.
+- North Carolina statewide fallback: `northCarolina.js` — NC OneMap parcels
+  (parval + the county's own parvaltype label; counties revalue on
+  different cycles → display only). Wake/Mecklenburg modules run first.
+  Some counties (Guilford) publish no site address there. Query ~3–6 s.
+- Massachusetts statewide fallback: `massachusetts.js` — MassGIS Property Tax
+  Parcels (TOTAL_VAL + town FY, RES_AREA, year built). LS_PRICE unscreened →
+  not shown. Boston module runs first. Matches on the geocoder's town name.
+- Vermont statewide: `vermont.js` — VCGI standardized parcels + Grand List
+  (REAL_FLV + GLYEAR; towns reappraise on different cycles).
+- Tucson: Pima County (04019) `pima.js` — Assessor Full Cash Value + tax
+  year via City of Tucson PropertyHousing layer 40 (regional records);
+  USPS abbreviations (PLZ/CMNO…) normalised; ZIP optional.
 - Hartford (#50) + all of CT: `connecticut.js` — OPM Real Estate Sales
   (data.ct.gov 5mzw-sjtu, Socrata): last sale only with NO non-usable code;
   town median of usable single-family sales in the latest grand-list year
@@ -226,11 +257,77 @@ largest metro first.
   open parcels have no values), Birmingham (Jefferson AL has only the tax
   assessed value, a fraction of market), Memphis (Shelby County GIS behind
   Cloudflare), San Jose / Fresno (California).
-- Not yet covered at property level (metro trend + hazards only): Fort Worth
-  (Tarrant — no valued open service), Nassau County NY (not in the NYS roll),
-  Riverside / San Francisco / San Diego (California publishes no sale prices;
-  SF's portal was rate-limiting during the build). Boston and Atlanta have no
-  recent open sale data (values only).
+- Shared matcher `lib/usLocal/_structured.js` (`structuredEvidence`): for
+  official layers with a structured situs address — number + name must
+  match, dir/type agree when both present, ZIP OR town must match, unit
+  rules, "add the unit number". New simple sources should use it.
+- Washington statewide (outside King): `washington.js` — WA Geoservices
+  "Current Parcels" (Parcels_2026, all 39 counties): county assessor land +
+  building value (Government Value), link to the county's parcel page. Some
+  counties (Pierce) have no situs city/ZIP → parcel must be within 250 m of
+  the geocoded point, number + street core match, directions agree.
+- Arkansas statewide: `arkansas.js` — AGISO County Assessor Mapping Program
+  (Planning_Cadastre layer 6): TotalValue (land + imp) as Government Value;
+  AssessValue is exactly 20% of it (Arkansas assessment ratio), not shown.
+- Minnesota statewide (outside Hennepin): `minnesota.js` — MnGeo "Parcels,
+  Compiled from Opt-In Open Data Counties" (all 87 counties): EMV total +
+  mkt_year, finished sq ft, year built. sale_value has no validity code →
+  not shown. co_code is the full 5-digit FIPS.
+- Gwinnett GA (13135): `gwinnett.js` — county GIS Property_and_Tax Tax
+  Master Table: TOTVAL1 (land + dwelling) as Government Value, no year in
+  layer; TAXTOT1 = exactly 40% of it (GA assessment ratio) → not shown.
+- Oakland MI (26125): `oaklandMI.js` — Tax Parcel Plus: assessed value
+  shown in text; Government Value = 2 × assessed, labelled as derived
+  (Michigan assesses at 50% of true cash value, MCL 211.27a). Taxable value
+  (capped) not shown. Beds/baths/living area.
+- Colorado (Denver metro): `coloradoCounties.js` — Arapahoe (OpenDataService
+  Parcels: Appr_Value; Sale price has no validity code → not shown) and
+  Adams (Parcels address → PARCELNB → Property_Values acttotalval; several
+  accounts on one parcel → no value shown), Jefferson (GIS Parcel: sum of
+  VALACT..VALACT6 tax-class values; PRPSTRNUM zero-padded to 5) and Douglas
+  (OpenData location layer 5 → values layer 4, summed per account).
+- Nassau NY (36059): `nassau.js` — data.ny.gov 7vem-aaz7 (NYS local
+  assessment rolls): full_market_value = 1000 × assessment (Nassau's 0.1%
+  level) from the county's own rolls only (3 towns + "Glen Cove/Long Beach,
+  County Roll"; the cities' own rolls skipped). No ZIP/coords in the rows →
+  parcel's school district must match one of the geocoder's school
+  districts (geocodeRaw now returns `schoolDistricts`). Use exact street
+  strings (IN list) — LIKE is ~3 s on this dataset. nysParcel skips Nassau.
+- Honolulu (15003): `honolulu.js` — HOLIS Address Points (tmk, hyphenated
+  Oahu house numbers "47-490" parsed directly) → CadastralTables ASMTGIS
+  (land + building value, latest taxyr). Condo TMKs hold many units
+  (suffix) → a unit is needed.
+- DeKalb GA (13089): `dekalbGA.js` — county "Parcels" (address → ParcelID)
+  joined to "Tax_Parcels_2025" (APPRAISED_VALUE + TAXYR). New layer each
+  year: update TAX_LAYER to Tax_Parcels_<year>.
+- Stark County OH (39151, Canton): `starkOH.js` — Auditor GIS parcels
+  (APPRAISED_TOTAL_VALUE + TAXYR) + Sales and Transfers: last sale only if
+  the parcel's latest transfer is "0-QUALIFIED - ARMSLENGTH" and single
+  parcel; otherwise the code is named.
+- Summit County OH (39153, Akron): `summitOH.js` — Fiscal Office
+  parcels_cama/Tax_Parcel_Sales: cntmktvalue (no tax year in layer), floor
+  area, year built; town = taxing jurisdiction. Sales not shown (undocumented
+  sale codes; Parcel_Sales table ends 2020).
+- Illinois statewide (outside Cook): `illinois.js` — IDOR PTAX-203
+  transfer declarations (illinois-edp.data.socrata.com it54-y4c6, weekly,
+  since 2013). Market sale = deed recorded + 1 parcel + not split + NO Line
+  10 circumstance (10a = "0", 10b–10r false); price = Line 13 net
+  consideration. Last such sale for the address + ZIP 12-month count/median
+  of residences (Line 8 "B") — context only. Never request name columns.
+  Recompute check (Sept 2026): ZIP 60502 → 235 sales, median $405,000.
+- Texas additions (`texas.js`, generic `find` configs): Tarrant (TAD roll as
+  published by City of Fort Worth "Parcels_Public_View" — whole county, 2024
+  roll as of Sept 2026, shown with its year), Collin (CCAD's own layer; the
+  layer already holds next year's empty roll → falls back to prevVal* with
+  its year), Fort Bend (FBCAD Public Data, no tax year in layer), Denton
+  (county "Parcels_FC", value carried on the 2027 working roll — said so;
+  a 2027 appraisal cannot exist before 1 Jan 2027). DuPage IL skipped: its
+  "FCV" fields equal the billed (1/3) value — ambiguous. Williamson
+  skipped: WCAD layer's current values are 0.
+- Boston and Atlanta have no recent open sale data (values only).
+- Coverage tracker (session scratch, not in repo): county population from
+  Census 2024 estimates vs the modules' matchers — ~55% of US population had
+  a local property record as of the Nassau commit (Sept 2026).
 - Sandbox quirk: Node's built-in fetch here ignores HTTPS_PROXY for some hosts
   (King County, DCAD fail with "upstream connect error"); run local tests with
   `NODE_USE_ENV_PROXY=1`. Vercel production is unaffected — always confirm on

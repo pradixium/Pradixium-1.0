@@ -27,14 +27,22 @@ const ROLL = process.argv[2] || "2026P";
 const PORTAL = "https://floridarevenue.com/property/dataportal";
 const DOCS = "/property/dataportal/Documents/PTO Data Portal/Tax Roll Data Files";
 const MIN_SALES = 10;
-// county FIPS → FDOR county number and the name used in FDOR file names
-const COUNTIES = {
-  "12086": { co: 23, name: "Dade" }, "12011": { co: 16, name: "Broward" }, "12099": { co: 60, name: "Palm Beach" },
-  "12057": { co: 39, name: "Hillsborough" }, "12103": { co: 62, name: "Pinellas" }, "12101": { co: 61, name: "Pasco" }, "12053": { co: 37, name: "Hernando" },
-  "12095": { co: 58, name: "Orange" }, "12097": { co: 59, name: "Osceola" }, "12117": { co: 69, name: "Seminole" }, "12069": { co: 45, name: "Lake" },
-  // Jacksonville metro (#38)
-  "12031": { co: 26, name: "Duval" }, "12109": { co: 65, name: "Saint Johns" }, "12019": { co: 20, name: "Clay" }, "12089": { co: 55, name: "Nassau" }, "12003": { co: 12, name: "Baker" }
-};
+// Every Florida county: FIPS and name from the Census county list; the FDOR
+// file name uses the county name ("Dade", "Saint Johns"), and the FDOR county
+// number is read from the file itself (CO_NO), so nothing is typed by hand.
+const FDOR_NAME = { "Miami-Dade": "Dade", "St. Johns": "Saint Johns", "St. Lucie": "Saint Lucie" };
+async function floridaCounties() {
+  const res = await fetch("https://www2.census.gov/geo/docs/reference/codes2020/cou/st12_fl_cou2020.txt");
+  if (!res.ok) throw new Error(`Census county list: HTTP ${res.status}`);
+  const out = {};
+  for (const line of (await res.text()).trim().split("\n").slice(1)) {
+    const [, st, co, , name] = line.split("|");
+    const n = name.replace(/ County$/, "");
+    out[st + co] = { name: FDOR_NAME[n] || n };
+  }
+  return out;
+}
+const COUNTIES = await floridaCounties();
 const OUT = new URL("../lib/data/flSales.js", import.meta.url);
 const dir = mkdtempSync(join(tmpdir(), "fl-pto-"));
 
@@ -74,22 +82,25 @@ async function* rows(path) {
   }
 }
 const median = (xs) => { const v = [...xs].sort((a, b) => a - b), m = Math.floor(v.length / 2); return v.length % 2 ? v[m] : (v[m - 1] + v[m]) / 2; };
-const pick = (files, name) => files.find((f) => new RegExp(`^${name}\\b`, "i").test(f.Name));
+const pick = (files, name) => files.find((f) => new RegExp(`^${name}( \\d+)? Preliminary|^${name}( \\d+)? Final|^${name}\\b`, "i").test(f.Name));
 
 const [sdfFiles, nalFiles] = await Promise.all([listFiles("SDF"), listFiles("NAL")]);
 const out = {};
 let minYm = "9999-99", maxYm = "0000-00", total = 0;
 for (const [fips, c] of Object.entries(COUNTIES)) {
   const sdfFile = pick(sdfFiles, c.name), nalFile = pick(nalFiles, c.name);
-  if (!sdfFile || !nalFile) throw new Error(`${c.name}: SDF/NAL file not found in ${ROLL}`);
+  if (!sdfFile || !nalFile) { console.log(`${c.name}: no SDF/NAL file in ${ROLL} — skipped`); delete COUNTIES[fips]; continue; }
   // 1. qualified sales
   const sales = new Map();
   for await (const r of rows(await fetchCsv(sdfFile, `sdf${fips}`))) {
-    if (Number(r.CO_NO) !== c.co) throw new Error(`${c.name}: CO_NO ${r.CO_NO} in SDF, expected ${c.co}`);
+    c.co ??= Number(r.CO_NO);
+    if (Number(r.CO_NO) !== c.co) throw new Error(`${c.name}: mixed CO_NO in SDF (${r.CO_NO} vs ${c.co})`);
     const type = r.DOR_UC === "001" ? "house" : r.DOR_UC === "004" ? "condo" : null;
     const price = Number(r.SALE_PRC);
     if (!type || !["01", "02"].includes(r.QUAL_CD) || r.VI_CD !== "I" || r.MULTI_PAR_SAL || !(price > 0)) continue;
     const ym = `${r.SALE_YR}-${String(r.SALE_MO).padStart(2, "0")}`;
+    // a few counties carry blank years or months after today — drop those rows rather than guess
+    if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(ym) || ym > new Date().toISOString().slice(0, 7)) continue;
     (sales.get(r.PARCEL_ID) || sales.set(r.PARCEL_ID, []).get(r.PARCEL_ID)).push({ type, price, ym });
   }
   // 2. join to NAL for ZIP and effective area
