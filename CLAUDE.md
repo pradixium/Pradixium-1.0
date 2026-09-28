@@ -360,6 +360,10 @@ largest metro first.
   `_structured.js` now has `arcQueryNear` and optional row `sale`.
   Cobb GA (13067, Tax Assessor "taxassessorsdaily" CobbParcels: FMV_TOTAL;
   ASV = 40%; situs has no city/ZIP → spatial 250 m on ST_NUMBER).
+  Arlington VA (51013, county data hub OData API datahub-v2.arlingtonva.us:
+  Property → latest Assessment totalValueAmt + year; ALWAYS $select — the
+  records carry owner/grantee names; market sales have a blank type code
+  (undocumented) → sales not shown).
 - Indiana statewide (outside Marion): `indiana.js` reads
   `lib/data/indiana/<FIPS>.json.gz`, built by
   `python3 scripts/build-in-parcels.py 2025` from each county's DLGF
@@ -382,6 +386,13 @@ largest metro first.
   Spatial 1 km + number/street match, so two parcels sharing an address
   give "several parcels", not a guess. Check: Weld 095910101005 assessed
   45,080 / appraised 721,253 = 6.25% (CO residential rate).
+- Oregon outside Portland metro: `oregonCounties.js` — Marion (41047,
+  county GIS Public/Parcels RMVTOTAL), Deschutes (41017, OpenData tables:
+  Assessor Account → Roll Values RMV_Total + Sales; latest sale shown only
+  with reject code 33 "CONFIRMED SALE"; old MapServer — no
+  resultRecordCount), Lane (41039, Address (Site) → maptaxlot → Parcels
+  total_mkt_land + total_mkt_imp, weekly; NUMACCNTS > 1 → no value). RMV
+  only; capped assessed value not shown; no roll year in any layer.
 - Texas additions (`texas.js`, generic `find` configs): Tarrant (TAD roll as
   published by City of Fort Worth "Parcels_Public_View" — whole county, 2024
   roll as of Sept 2026, shown with its year), Collin (CCAD's own layer; the
