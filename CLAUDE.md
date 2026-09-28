@@ -153,6 +153,77 @@ largest metro first.
 - St. Louis (#23): City (29510) = last valid sale (Assessor sale type 10) +
   appraised value + ZIP context; St. Louis County (29189) = facts +
   appraised value only (Missouri: the county publishes no sale prices).
+- San Antonio (#24): Bexar (48029) in `lib/usLocal/texas.js` — BCAD final
+  (post-protest) value from Bexar County GIS "Parcels" (reloaded each fall;
+  no tax year in the layer, so none is shown).
+- Austin (#25): Travis (48453) in `texas.js` — TCAD market value from Travis
+  County TNR's published copy "TCAD_Parcels_Dec_2025" (2025 roll). TNR
+  publishes dated copies: when a newer one appears, point the URL at it and
+  update the label/year.
+- Portland (#26): Multnomah/Washington/Clackamas via Oregon Metro RLIS
+  `lib/usLocal/portlandMetro.js` — assessor Real Market Value + assessed
+  value; RLIS SALEPRICE is unscreened, so not shown. Clark County WA (the
+  Vancouver side) not yet covered.
+- Sacramento (#27): not covered at property level — California publishes no
+  sale prices and Prop 13 assessed values are not market values (same as
+  Riverside/SF/SD).
+- Pittsburgh (#28): Allegheny (42003) `lib/usLocal/allegheny.js`, live SQL on
+  WPRDC — the county's VALID sales (SALECODE 0) + finished living area →
+  ZIP benchmark that FEEDS THE VERDICT (like NJ), last valid sale, facts.
+  The county's fair market value is 2012 base-year → text only. WPRDC's
+  firewall only accepts a form-encoded POST with a User-Agent (the shared
+  `h.json(url, ms, init)` now takes fetch options).
+- Las Vegas (#29): Clark County NV (32003) `lib/usLocal/clarkNV.js` — last
+  sale only when the Assessor's Sales_view code is R ("normally … arm's
+  length", Assessor Sales Codes PDF); year built. No value in the GIS
+  (Assessor bulk files are paid → not used). Addresses carried by two
+  parcels (house + extra lot sold together) show nothing.
+- Cincinnati (#30): Hamilton County OH (39061) `lib/usLocal/hamiltonOH.js` —
+  Auditor market value, annual taxes (official check), year built, finished
+  sq ft (text). Sales not shown: VALID/SALTYP empty on every 2025+ sale
+  (checked Sept 2026). Kentucky/Butler/Warren/Clermont counties not covered.
+- Kansas City (#31): not covered yet — Jackson County MO GIS
+  (jcgis.jacksongov.org) times out from cloud IPs (sandbox + WebFetch);
+  Johnson County KS publishes no parcel values. Retry Jackson from Vercel.
+- Columbus (#32): Franklin County OH (39049) `lib/usLocal/franklinOH.js` —
+  current appraised value, above-grade living area, beds/baths; last sale
+  only if it is the parcel's latest sale AND in the Auditor's ValidSale='Y'
+  file (that file covers Jan 2023–Jul 2025); ZIP context from it (fixed
+  window from 2024-07-17), context only.
+- Indianapolis (#33): Marion County IN (18097) `lib/usLocal/marionIN.js` —
+  Assessor total assessed value (Government Value) + class. Sales: Indiana
+  SDF data is only in the DLGF/Gateway interactive search — a possible
+  future source if an official bulk file is found.
+- Cleveland (#34): Cuyahoga (39035) `cuyahoga.js` — Fiscal Officer
+  Open_Data_Parcels (Cleveland + non-Cleveland layers): certified total
+  (= market value) + tax year, living area. Transfers have no validity code.
+- Nashville (#35): Davidson (47037) `nashville.js` — Metro Nashville Parcels
+  TotlAppr. No sale validity code → sales not shown.
+- Milwaukee (#40): City of Milwaukee MPROP via CKAN datastore
+  `milwaukee.js` — current-year assessed value, finished area, beds/baths.
+  Sales file screening not documented → not shown. Suburbs: no record.
+- Raleigh (#41): Wake (37183) `wake.js` — assessed value, heated area,
+  year built. Sale price has no validity code → not shown.
+- Salt Lake City (#46): Salt Lake County (49035) `saltLake.js` — Utah UGRC
+  LIR parcels (market value + as-of date). Utah = non-disclosure.
+- Hartford (#50) + all of CT: `connecticut.js` — OPM Real Estate Sales
+  (data.ct.gov 5mzw-sjtu, Socrata): last sale only with NO non-usable code;
+  town median of usable single-family sales in the latest grand-list year
+  (context). File runs to Sep 2025 (2024 GL) as of Sept 2026.
+- Virginia Beach metro (#37): City of Norfolk (51710) `norfolk.js` — Socrata
+  g7sg-tivf (FY25 dataset, updated daily): assessed value + effective year,
+  finished living area. Virginia Beach city itself: GIS unreachable
+  (proxy 502) — not covered yet.
+- Providence (#39): City of Providence (44007) `providence.js` — 2025
+  Property Tax Roll (Socrata 6ub4-iebe): assessment + 2025 tax. Next year:
+  point at the new roll's dataset id.
+- Still metro trend + FEMA only: Kansas City (#31), OKC (#42, no official
+  open parcel values found), Richmond (#44, city GIS resets connections).
+- Not covered at property level (metro trend + FEMA only), checked Sept 2026:
+  Louisville (LOJIC/PVA layers carry no values), Grand Rapids (Kent County
+  open parcels have no values), Birmingham (Jefferson AL has only the tax
+  assessed value, a fraction of market), Memphis (Shelby County GIS behind
+  Cloudflare), San Jose / Fresno (California).
 - Not yet covered at property level (metro trend + hazards only): Fort Worth
   (Tarrant — no valued open service), Nassau County NY (not in the NYS roll),
   Riverside / San Francisco / San Diego (California publishes no sale prices;
