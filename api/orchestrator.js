@@ -682,7 +682,10 @@ async function checkEntitlement(authHeader, signature) {
     const now = Date.now();
     return rows.some((row) => {
       if (row.kind === "subscription" || row.kind === "business") return row.expires_at && new Date(row.expires_at).getTime() > now;
-      return row.kind === "report" && row.report_signature === signature;
+      // "monthly_usage" marks a report already spent from the individual
+      // monthly plan's per-cycle cap (see api/consume-monthly-slot.js) —
+      // permanent access to that specific report, same as "report".
+      return (row.kind === "report" || row.kind === "monthly_usage") && row.report_signature === signature;
     });
   } catch {
     return false;

@@ -66,7 +66,7 @@ th{color:#8994a3;font-weight:700;font-size:11px}
         <div class="stat"><div class="n" id="statRate">—</div><div class="l">COMMISSION RATE</div></div>
         <div class="stat"><div class="n" id="statEarned">$0</div><div class="l">EST. COMMISSION</div></div>
       </div>
-      <p class="note">Estimated commission is calculated from current list prices ($29/report, $299/subscription) at your commission rate — actual payouts are confirmed manually by our team.</p>
+      <p class="note">Estimated commission is calculated from current list prices ($29.99/report, $2,999.99/subscription) at your commission rate — actual payouts are confirmed manually by our team.</p>
     </div>
 
     <div class="card">
@@ -89,8 +89,8 @@ th{color:#8994a3;font-weight:700;font-size:11px}
 <script src="/supabase-config.js?v=2"></script>
 <script>
 (function(){
-  const REPORT_PRICE = 29;
-  const SUBSCRIPTION_PRICE = 299;
+  const REPORT_PRICE = 29.99;
+  const SUBSCRIPTION_PRICE = 2999.99;
 
   const client = supabase.createClient(window.PRADIXIUM_SUPABASE_URL, window.PRADIXIUM_SUPABASE_ANON_KEY);
 
@@ -134,7 +134,7 @@ th{color:#8994a3;font-weight:700;font-size:11px}
     if (rows.length) {
       historyBody.innerHTML = rows.map((p) => {
         const date = new Date(p.created_at).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
-        const type = p.kind === "subscription" ? "Subscription ($299)" : "Report ($29)";
+        const type = p.kind === "subscription" ? "Subscription ($2,999.99)" : "Report ($29.99)";
         return `<tr><td>${date}</td><td>${type}</td></tr>`;
       }).join("");
     }
