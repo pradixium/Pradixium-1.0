@@ -585,7 +585,7 @@ everyone (data-honesty rule — never degrade quality by price). The
 differentiation has to be in usage rights, not data quality. 4 ideas
 raised; user approved building all of them, this session's own priority
 order: white-label branding (shipped) → API access (shipped) → bulk/
-portfolio analysis (not started) → compliance/audit-trail PDF export (not
+portfolio analysis (shipped) → compliance/audit-trail PDF export (not
 started).
 
 **White-label branding — shipped.** `terms.html` §3a: individual-tier
@@ -627,6 +627,26 @@ tested directly in Node, and the settings-page UI screenshotted — the
 actual live key → orchestrator call was not exercised (would need a real
 Business account + a live ANTHROPIC_API_KEY, not available in this
 sandbox).
+
+**Bulk/portfolio analysis — shipped.** New page `business-portfolio.html`
+(same sign-in + active-`business`-plan gate as branding/API): paste or
+upload a CSV (address, city, country, price, size, bedrooms, bathrooms,
+propertyType, monthlyRent — only country + price required), capped at 25
+rows per run. Calls `api/orchestrator.js` directly with the signed-in
+business user's own Supabase session token (not an API key — this is the
+in-browser tool, not the API itself), 3 requests at a time, and renders a
+ranked comparison table (Score, Rating, Gross Yield, government
+Benchmark, Asking vs Market — same sign convention as `engine.js`'s
+`renderMarketEvidence()`: positive = below market = good) sorted by
+Pradixium Score once the run completes. Business plan already grants
+unlimited unredacted access per-property, so no separate paywall logic
+needed here. Verified: CSV parsing (including a quoted comma inside an
+address) tested directly in Node; the full analyze → render → sort flow
+tested in headless Chromium with Supabase and `/api/orchestrator` mocked
+(ranking, gross-yield math, and the sign convention all came back
+correct); the missing-required-field and >25-rows validation errors also
+confirmed. Not exercised: a real orchestrator call (same sandbox
+limitation as the API-access note above).
 
 ## For the other session (Claude B): Georgia data gap flagged (Sept 2026)
 
