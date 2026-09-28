@@ -202,6 +202,10 @@ largest metro first.
 - Milwaukee (#40): City of Milwaukee MPROP via CKAN datastore
   `milwaukee.js` — current-year assessed value, finished area, beds/baths.
   Sales file screening not documented → not shown. Suburbs: no record.
+- Raleigh (#41): Wake (37183) `wake.js` — assessed value, heated area,
+  year built. Sale price has no validity code → not shown.
+- Salt Lake City (#46): Salt Lake County (49035) `saltLake.js` — Utah UGRC
+  LIR parcels (market value + as-of date). Utah = non-disclosure.
 - Not yet covered at property level (metro trend + hazards only): Fort Worth
   (Tarrant — no valued open service), Nassau County NY (not in the NYS roll),
   Riverside / San Francisco / San Diego (California publishes no sale prices;
