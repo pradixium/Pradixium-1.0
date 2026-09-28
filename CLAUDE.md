@@ -297,7 +297,14 @@ largest metro first.
   nycStreet(): "WEST 57 STREET" = "W 57TH ST"; Queens "41-15" numbers kept.
   Lots can carry a house-number RANGE (125 Prospect Park W is in lot range
   "115-155") → a second DOF query for ranges, limited by the geocoder ZIP
-  (without it the query takes >7 s); same-side parity check. The city's
+  (without it the query takes >7 s); same-side parity check. Geocoding:
+  the Census geocoder knows neither "NYC" nor a street's borough ("3531 3rd
+  Avenue NYC NY" → nothing; it is in the Bronx) → `api/us-intelligence.js`
+  asks NYC DCP GeoSearch (geosearch.planninglabs.nyc, PAD, free, no key —
+  so no Geoclient key needed) IN PARALLEL, keeps it only when exactly one
+  borough has that number on that street, then re-geocodes with borough +
+  ZIP. A whole address typed into the city field is treated as the address.
+  The city's
   Socrata server answers the same query in 1–8 s → hedged requests
   (second after 3 s). Test addresses must exist: the Census geocoder
   happily interpolates non-existent numbers (1520 Metropolitan Ave).

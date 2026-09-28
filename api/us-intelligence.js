@@ -3,6 +3,7 @@ import { findUsMetroByCounty } from '../lib/data/usMetros.js';
 import { findUsHpiByCounty } from '../lib/data/usHpiCounties.js';
 import { getNjMuniSales, NJ_SALES_META } from '../lib/data/njResidentialSales.js';
 import { usLocalEvidence } from '../lib/usLocal/index.js';
+import { nycStreet } from '../lib/usLocal/nyc.js';
 const s=v=>String(v??'').trim(),enc=v=>encodeURIComponent(s(v));
 const STATES={AL:'Alabama',AK:'Alaska',AZ:'Arizona',AR:'Arkansas',CA:'California',CO:'Colorado',CT:'Connecticut',DE:'Delaware',FL:'Florida',GA:'Georgia',HI:'Hawaii',ID:'Idaho',IL:'Illinois',IN:'Indiana',IA:'Iowa',KS:'Kansas',KY:'Kentucky',LA:'Louisiana',ME:'Maine',MD:'Maryland',MA:'Massachusetts',MI:'Michigan',MN:'Minnesota',MS:'Mississippi',MO:'Missouri',MT:'Montana',NE:'Nebraska',NV:'Nevada',NH:'New Hampshire',NJ:'New Jersey',NM:'New Mexico',NY:'New York',NC:'North Carolina',ND:'North Dakota',OH:'Ohio',OK:'Oklahoma',OR:'Oregon',PA:'Pennsylvania',RI:'Rhode Island',SC:'South Carolina',SD:'South Dakota',TN:'Tennessee',TX:'Texas',UT:'Utah',VT:'Vermont',VA:'Virginia',WA:'Washington',WV:'West Virginia',WI:'Wisconsin',WY:'Wyoming',DC:'District of Columbia'};
 const STATE_CODES=Object.fromEntries(Object.entries(STATES).map(([k,v])=>[v,k]));
@@ -24,7 +25,20 @@ function streetKey(line){const w=s(line).toUpperCase().replace(/[.,]/g,' ').spli
 function sameStreet(typed,matched){const a=streetKey(typed),b=streetKey(matched);if(!a.num)return true;return a.num===b.num&&(!a.dir||a.dir===b.dir)&&(!a.name||!b.name||a.name===b.name||b.name.startsWith(a.name)||a.name.startsWith(b.name));}
 // A slow/failed geocoder call must not blank the whole report (it used to
 // throw straight into the catch-all): it just means no address-level data.
+// New York City: the Census geocoder does not know "NYC" or which borough a
+// street is in ("3531 3rd Avenue NYC NY" → no match; it is in the Bronx).
+// The city's own address search (NYC Dept. of City Planning GeoSearch, PAD
+// data, free, no key) gives the borough and ZIP — used only when exactly
+// one borough has that house number on that street (else no guess).
+const NYC_TEXT=/\b(NYC|NEW\s+YORK(\s+CITY)?|MANHATTAN|BROOKLYN|BRONX|QUEENS|STATEN\s+ISLAND)\b/i;
+const NYC_CENSUS_CITY={Manhattan:'New York',Bronx:'Bronx',Brooklyn:'Brooklyn',Queens:'Queens','Staten Island':'Staten Island'};
+async function nycAddress(text){const t=s(text).replace(/,/g,' ').replace(new RegExp(NYC_TEXT.source,'gi'),' ').replace(/\b(NY|USA|US)\b\s*(\d{5})?\s*$/i,' ').replace(/\s+/g,' ').trim();const m=t.match(/^(\d+(?:-\d+)?[A-Z]?)\s+(.+)$/i);if(!m)return null;const j=await json('https://geosearch.planninglabs.nyc/v2/search?size=20&text='+enc(t),5000).catch(()=>null);const want=nycStreet(stripUnit(m[2])),named=(s(text).match(/\b(MANHATTAN|BROOKLYN|BRONX|QUEENS|STATEN\s+ISLAND)\b/i)||[])[1];const hits=(j?.features||[]).map(f=>f.properties||{}).filter(p=>s(p.housenumber).toUpperCase()===m[1].toUpperCase()&&nycStreet(p.street)===want&&(!named||s(p.borough).toUpperCase()===named.toUpperCase().replace(/\s+/,' ')));const boros=[...new Set(hits.map(p=>p.borough))];if(boros.length!==1)return null;const p=hits[0];return {line:`${p.housenumber} ${want}`,city:NYC_CENSUS_CITY[p.borough]||p.borough,zip:s(p.postalcode)};}
 async function geocode(address,city,state,zip){address=s(address).replace(/^(\d+)([NSEW])(?=\s)/i,'$1 $2'); // "298E 26th Street" → "298 E 26th Street"
+if(!address&&/^\d+[A-Z]?\s+\S+\s+\S/i.test(s(city))){address=s(city).replace(/^(\d+)([NSEW])(?=\s)/i,'$1 $2');city='';} // whole address typed in the city field
+const nycP=NYC_TEXT.test([address,city].join(' '))?nycAddress([address,city].filter(Boolean).join(' ')).catch(()=>null):null; // in parallel: the time budget is shared
+const g=await geocodeOnce(address,city,state,zip);if(g?.latitude!=null||!nycP)return g;
+const n=await nycP;return n?(await geocodeOnce(n.line,n.city,'NY',n.zip))||g:g;}
+async function geocodeOnce(address,city,state,zip){
 const g0=await geocodeRaw(address,city,state,zip).catch(()=>null);if(!g0||!address)return g0;const typed=stripUnit(address);if(sameStreet(typed,s(g0.matchedAddress).split(',')[0]))return {...g0,addressVerified:true};
   const cityOk=city&&s(g0.matchedAddress).split(',')[1]&&s(g0.matchedAddress).split(',')[1].trim().toUpperCase()===s(city).toUpperCase();
   const typedLine=[typed.toUpperCase(),s(city).toUpperCase(),s(state).toUpperCase(),s(zip)].filter(Boolean).join(', ');
