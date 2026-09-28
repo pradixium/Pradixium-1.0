@@ -148,7 +148,8 @@ largest metro first.
   qualification is not strict enough.
 - Generated data (re-run to refresh): `node scripts/build-nj-sales.mjs`
   (NJ Treasury SR1A, monthly) and `node scripts/build-fl-sales.mjs 2026P`
-  (Florida DOR SDF+NAL, each new roll).
+  (Florida DOR SDF+NAL, each new roll — ALL Florida counties from the Census
+  county list; 66 of 67 in 2026P: Citrus had no SDF/NAL file, skipped).
   `node scripts/build-stl-sales.mjs` (City of St. Louis Assessor sales +
   parcel Access files; needs mdbtools — the city's file currently ends Nov
   2024, so its ZIP figures are context only).
@@ -166,9 +167,14 @@ largest metro first.
   `lib/usLocal/portlandMetro.js` — assessor Real Market Value + assessed
   value; RLIS SALEPRICE is unscreened, so not shown. Clark County WA (the
   Vancouver side) not yet covered.
-- Sacramento (#27): not covered at property level — California publishes no
-  sale prices and Prop 13 assessed values are not market values (same as
-  Riverside/SF/SD).
+- California counties outside LA: `california.js` — San Diego (SANDAG),
+  Riverside, Contra Costa, San Joaquin, San Francisco (DataSF roll). The Prop 13
+  assessed value is shown in the TEXT only, labelled "not current market
+  value" — never governmentValue, never the verdict (same basis as LA).
+  Parcel counts only when its ZIP or town matches (geocoder ZIPs differ).
+  CA BOE's "<County> 2026 Roll Year" services are tax-rate-area boundaries,
+  not values. Sacramento (#27), Orange, San Bernardino (no situs address),
+  Santa Clara, Alameda: no open valued parcel layer found yet.
 - Pittsburgh (#28): Allegheny (42003) `lib/usLocal/allegheny.js`, live SQL on
   WPRDC — the county's VALID sales (SALECODE 0) + finished living area →
   ZIP benchmark that FEEDS THE VERDICT (like NJ), last valid sale, facts.
