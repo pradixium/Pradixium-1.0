@@ -302,7 +302,8 @@ largest metro first.
   (suffix) → a unit is needed.
 - DeKalb GA (13089): `dekalbGA.js` — county "Parcels" (address → ParcelID)
   joined to "Tax_Parcels_2025" (APPRAISED_VALUE + TAXYR). New layer each
-  year: update TAX_LAYER to Tax_Parcels_<year>.
+  year: update TAX_LAYER to Tax_Parcels_<year>. That layer stalls on cold
+  starts (20 s) → `arcQueryHedged` (second request after 2 s, first wins).
 - Stark County OH (39151, Canton): `starkOH.js` — Auditor GIS parcels
   (APPRAISED_TOTAL_VALUE + TAXYR) + Sales and Transfers: last sale only if
   the parcel's latest transfer is "0-QUALIFIED - ARMSLENGTH" and single
