@@ -214,6 +214,11 @@ largest metro first.
   g7sg-tivf (FY25 dataset, updated daily): assessed value + effective year,
   finished living area. Virginia Beach city itself: GIS unreachable
   (proxy 502) — not covered yet.
+- Providence (#39): City of Providence (44007) `providence.js` — 2025
+  Property Tax Roll (Socrata 6ub4-iebe): assessment + 2025 tax. Next year:
+  point at the new roll's dataset id.
+- Still metro trend + FEMA only: Kansas City (#31), OKC (#42, no official
+  open parcel values found), Richmond (#44, city GIS resets connections).
 - Not covered at property level (metro trend + FEMA only), checked Sept 2026:
   Louisville (LOJIC/PVA layers carry no values), Grand Rapids (Kent County
   open parcels have no values), Birmingham (Jefferson AL has only the tax
