@@ -338,6 +338,10 @@ largest metro first.
   County Geospatial Insights & Solutions; terms "03-ARM'S LENGTH", since
   2004): last arm's-length single-parcel sale + ZIP 12-month median of
   improved residential (context). Recompute check: ZIP 49424 → 490, $385,100.
+- East Baton Rouge Parish LA (22033): `ebrLA.js` — data.brla.gov Tax Parcel
+  (ei2c-krsr; physical_address → assessment_num; its FMV field is always 0)
+  + EBRP Tax Roll (myfc-nh6n; sum of real-property lines' fair_market_val,
+  latest tax_year). No city/ZIP → SoQL intersects() with a ~600 m box.
 - Texas additions (`texas.js`, generic `find` configs): Tarrant (TAD roll as
   published by City of Fort Worth "Parcels_Public_View" — whole county, 2024
   roll as of Sept 2026, shown with its year), Collin (CCAD's own layer; the
