@@ -262,6 +262,10 @@ largest metro first.
 - Arkansas statewide: `arkansas.js` — AGISO County Assessor Mapping Program
   (Planning_Cadastre layer 6): TotalValue (land + imp) as Government Value;
   AssessValue is exactly 20% of it (Arkansas assessment ratio), not shown.
+- Minnesota statewide (outside Hennepin): `minnesota.js` — MnGeo "Parcels,
+  Compiled from Opt-In Open Data Counties" (all 87 counties): EMV total +
+  mkt_year, finished sq ft, year built. sale_value has no validity code →
+  not shown. co_code is the full 5-digit FIPS.
 - Texas additions (`texas.js`, generic `find` configs): Tarrant (TAD roll as
   published by City of Fort Worth "Parcels_Public_View" — whole county, 2024
   roll as of Sept 2026, shown with its year), Collin (CCAD's own layer; the
