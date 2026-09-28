@@ -250,6 +250,18 @@ largest metro first.
   open parcels have no values), Birmingham (Jefferson AL has only the tax
   assessed value, a fraction of market), Memphis (Shelby County GIS behind
   Cloudflare), San Jose / Fresno (California).
+- Shared matcher `lib/usLocal/_structured.js` (`structuredEvidence`): for
+  official layers with a structured situs address — number + name must
+  match, dir/type agree when both present, ZIP OR town must match, unit
+  rules, "add the unit number". New simple sources should use it.
+- Washington statewide (outside King): `washington.js` — WA Geoservices
+  "Current Parcels" (Parcels_2026, all 39 counties): county assessor land +
+  building value (Government Value), link to the county's parcel page. Some
+  counties (Pierce) have no situs city/ZIP → parcel must be within 250 m of
+  the geocoded point, number + street core match, directions agree.
+- Arkansas statewide: `arkansas.js` — AGISO County Assessor Mapping Program
+  (Planning_Cadastre layer 6): TotalValue (land + imp) as Government Value;
+  AssessValue is exactly 20% of it (Arkansas assessment ratio), not shown.
 - Texas additions (`texas.js`, generic `find` configs): Tarrant (TAD roll as
   published by City of Fort Worth "Parcels_Public_View" — whole county, 2024
   roll as of Sept 2026, shown with its year), Collin (CCAD's own layer; the
