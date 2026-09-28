@@ -420,6 +420,14 @@ largest metro first.
   full cash value — ambiguous), Delaware OH (ADDR1 undocumented: situs or
   mailing?), Richmond VA city layer (building number only, no street),
   Baldwin AL (layer owner not identifiable).
+  Greene MO (29077, Springfield; greenecountyassessor.org
+  IasWorldParcel_LatLong: sum of RES/AG/COM LAND+BLDG = the Assessor's
+  "Market" value — checked against the Assessor's own 2026 datalet for
+  1234 E O'Gorman Ct: 40,000 + 185,400 = 225,400, assessed 19%. L_ADR* =
+  situs, ADR* = mailing. The 10.41 server ignores spatial filters → town
+  match incl. "GREENE COUNTY" (unincorporated); resultRecordCount
+  unsupported). Missouri: no statewide file; many rural counties only
+  have Vanguard-hosted HTML sites (missouriassessors.com) → not used.
   Comptroller statewide file (86 other
   counties, Assessment_Data_##.dbf) requested by the user by e-mail — the
   online form needs a U.S. address. TDEC "LH_Parcel_FP" is only a ~21k
