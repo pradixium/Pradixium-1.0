@@ -250,8 +250,13 @@ largest metro first.
   open parcels have no values), Birmingham (Jefferson AL has only the tax
   assessed value, a fraction of market), Memphis (Shelby County GIS behind
   Cloudflare), San Jose / Fresno (California).
-- Not yet covered at property level (metro trend + hazards only): Fort Worth
-  (Tarrant — no valued open service), Nassau County NY (not in the NYS roll),
+- Texas additions (`texas.js`, generic `find` configs): Tarrant (TAD roll as
+  published by City of Fort Worth "Parcels_Public_View" — whole county, 2024
+  roll as of Sept 2026, shown with its year), Collin (CCAD's own layer; the
+  layer already holds next year's empty roll → falls back to prevVal* with
+  its year), Fort Bend (FBCAD Public Data, no tax year in layer). Williamson
+  skipped: WCAD layer's current values are 0.
+- Not yet covered at property level (metro trend + hazards only): Nassau County NY (not in the NYS roll),
   Riverside / San Francisco / San Diego (California publishes no sale prices;
   SF's portal was rate-limiting during the build). Boston and Atlanta have no
   recent open sale data (values only).
