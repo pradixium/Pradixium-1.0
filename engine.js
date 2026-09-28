@@ -21,6 +21,23 @@
     try { return new Intl.NumberFormat("en-US", { style: "currency", currency, maximumFractionDigits: 0 }).format(n); }
     catch { return "€" + Math.round(n).toLocaleString("en-US"); }
   };
+  // Real bug found live (Sept 2026): every price-field label on the
+  // analysis form ("Asking Price (€)", "Airbnb Nightly Rate (€)", etc.)
+  // hardcoded a euro sign regardless of the selected country — a US
+  // property showed "(€)" next to a field the user was typing dollars
+  // into. Derive the symbol from the same currencyForCountry() the rest
+  // of the app already uses, via the same Intl API money() already uses,
+  // so it's never a second source of truth.
+  const currencySymbol = (currency) => {
+    try {
+      const parts = new Intl.NumberFormat("en-US", { style: "currency", currency, currencyDisplay: "narrowSymbol" }).formatToParts(0);
+      return parts.find((p) => p.type === "currency")?.value || currency;
+    } catch { return currency; }
+  };
+  function updatePriceLabels() {
+    const symbol = currencySymbol(currencyForCountry($("country")?.value));
+    document.querySelectorAll(".cur-sym").forEach((el) => { el.textContent = symbol; });
+  }
   const pct = (v) => { const n = num(v); return n === null ? "—" : n.toFixed(2) + "%"; };
   const escapeHtml = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[c]));
 
@@ -1708,7 +1725,7 @@
       dropdown.classList.remove("hidden");
     }
 
-    input.addEventListener("input", () => renderMatches(input.value));
+    input.addEventListener("input", () => { renderMatches(input.value); updatePriceLabels(); });
     input.addEventListener("focus", () => renderMatches(input.value));
     input.addEventListener("click", () => renderMatches(input.value));
     // mousedown (not click) fires before the input's blur — preventing its
@@ -1721,6 +1738,7 @@
       input.value = opt.getAttribute("data-value");
       dropdown.classList.add("hidden");
       dropdown.innerHTML = "";
+      updatePriceLabels();
     });
     input.addEventListener("blur", () => {
       setTimeout(() => dropdown.classList.add("hidden"), 150);
@@ -1746,6 +1764,7 @@
     handleCheckoutReturn();
     prefillCountryFromUrl();
     captureReferralCode();
+    updatePriceLabels();
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
