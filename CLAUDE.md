@@ -547,16 +547,17 @@ Flagged directly to the user, unresolved as of this writing:
   this plain-HTML site never sent it anything; fixed by adding
   `<script defer src="/_vercel/insights/script.js"></script>` before
   `</body>` on all 9 top-level pages (shipped).
-- **Launch coupon (in progress):** `api/create-checkout-session.js` now sets
-  `allow_promotion_codes: true` (shipped) so Stripe's own hosted checkout
-  shows a promo-code field. The user created the Coupon itself directly in
-  the Stripe Dashboard — confirmed via the dashboard's own CSV export:
-  100% off, `once`, **max_redemptions: 20**, no `Redeem By` date — exactly
-  the first-20-free/testimonial-gathering design. Still pending: creating
-  the customer-facing **Promotion Code** (the actual code word, e.g.
-  "FIRST20") linked to that coupon — without one, nothing can be typed into
-  Checkout's promo field. No code here validates or tracks redemptions;
-  Stripe enforces the cap itself.
+- **Launch coupon — fully shipped (Sept 2026).** `api/create-checkout-session.js`
+  sets `allow_promotion_codes: true` so Stripe's own hosted checkout shows a
+  promo-code field. Coupon `001` ("Launch Deal": 100% off, `once`,
+  max_redemptions 20) was created by the user directly in the Stripe
+  Dashboard. The customer-facing **Promotion Code** — the actual code word
+  typed into Checkout — was created via the Stripe MCP connector directly
+  from this session (`promo_1UKhWiHtvGmNh6t8LoRMN5OB`, code `FIRST20`,
+  active, linked to coupon 001, no extra restrictions) once the user granted
+  write access through the connector's reconsent flow. No code here
+  validates or tracks redemptions; Stripe enforces the 20-redemption cap
+  itself. First-20-free/testimonial-gathering flow is now fully live.
 
 ## Pricing tiers (Sept 2026)
 
