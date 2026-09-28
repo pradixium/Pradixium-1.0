@@ -153,6 +153,9 @@ largest metro first.
 - St. Louis (#23): City (29510) = last valid sale (Assessor sale type 10) +
   appraised value + ZIP context; St. Louis County (29189) = facts +
   appraised value only (Missouri: the county publishes no sale prices).
+- San Antonio (#24): Bexar (48029) in `lib/usLocal/texas.js` — BCAD final
+  (post-protest) value from Bexar County GIS "Parcels" (reloaded each fall;
+  no tax year in the layer, so none is shown).
 - Not yet covered at property level (metro trend + hazards only): Fort Worth
   (Tarrant — no valued open service), Nassau County NY (not in the NYS roll),
   Riverside / San Francisco / San Diego (California publishes no sale prices;
