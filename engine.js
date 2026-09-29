@@ -570,7 +570,11 @@
           ? Math.round(Number(window.pradixiumLastScore.score))
           : (Number.isFinite(Number(agent.score)) ? Math.round(Number(agent.score)) : null),
         dealRating: agent.dealRating || $("dealRating")?.textContent || null,
-        netYieldPercent: window.pradixiumLastScore?.breakdown?.netYieldPercent ?? null,
+        // FIX: breakdown.netYieldPercent is always null now (the fabricated
+        // flat-22%-expense figure was removed for the same data-honesty
+        // reason everywhere else in this file) — saving it here meant every
+        // new Deal Discovery entry silently got a blank yield column.
+        grossYieldPercent: window.pradixiumLastScore?.breakdown?.grossYieldPercent ?? null,
         realityCheckVerdict: (rc && Array.isArray(rc.checks) && rc.checks.length >= 2) ? rc.verdict : null,
         savedAt: Date.now()
       };
