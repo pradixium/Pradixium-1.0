@@ -491,8 +491,9 @@ largest metro first.
   Portsmouth VA (layer owner not identifiable), Florence SC (building
   value only).
   Comptroller statewide file (86 other
-  counties, Assessment_Data_##.dbf) requested by the user by e-mail — the
-  online form needs a U.S. address. TDEC "LH_Parcel_FP" is only a ~21k
+  counties, Assessment_Data_##.dbf) NOT yet requested (user, Sept 2026: no
+  e-mails sent to any agency yet — no registered company) — the online form
+  needs a U.S. address. TDEC "LH_Parcel_FP" is only a ~21k
   parcel extract, not usable.
 - Indiana statewide (outside Marion): `indiana.js` reads
   `lib/data/indiana/<FIPS>.json.gz`, built by
