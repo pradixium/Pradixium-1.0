@@ -687,6 +687,24 @@ servers → not used. Check: Lieusaint 66/86 matched, C €3,222 (23), D €3,18
   .percentYear), Estonia (Maa- ja Ruumiamet Q1 2026 review €2,971/m²;
   stat.ee +5.8%), Norway trend (SSB 07221 +4.4%). Still industry bodies
   (not government): Finans Danmark / Eiendom Norge national context.
+- Finland (Sept 2026): `scripts/build-fi-prices.py` → lib/data/
+  finlandPrices.json — Statistics Finland ashi 13mu (postcode: flats by
+  1 / 2 / 3+ rooms, terraced) + 13mx (municipality: flats, terraced),
+  latest year, asset-transfer-tax data; postcode first (bedrooms 0/1/2+ →
+  1/2/3+ rooms, unknown → sales-weighted mean of the three), else
+  municipality (Swedish names mapped). Detached houses are not in these
+  statistics → said so. Check: Tampere flats 2025 €3,062 (3,402 sales).
+- Iceland (Sept 2026): `scripts/build-is-prices.py` → lib/data/
+  icelandPrices.json — HMS Kaupskrá fasteigna (every recorded purchase
+  agreement, CSV on HMS's public object storage, updated nightly):
+  ONOTHAEFUR_SAMNINGUR = 0 (HMS's own "usable" flag) + FULLBUID = 1, 12
+  months, median ISK/m² per postcode / municipality for Fjölbýli (flats),
+  Einbýli (detached), Sérbýli (semi/terraced), 10+ sales. Check: Reykjavík
+  flats 822,865 ISK/m² (2,584 sales). Re-run monthly.
+- A fixed figure for flats only is never applied to a house (orchestrator
+  `flatsOnly`). Denmark: Statistics Denmark stops at landsdel; EJEN88's
+  per-m² key figure is empty for homes. Sweden: bostadsrätter are not in
+  SCB's statistics (no official flat price).
 - Austria: `scripts/build-at-prices.py` → lib/data/austriaPrices.json —
   Statistik Austria median €/m² per political district (houses, flats;
   Vienna per Bezirk) read from Statistik Austria's STATatlas GeoServer

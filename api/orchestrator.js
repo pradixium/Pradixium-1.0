@@ -954,12 +954,19 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
       address_not_found: " The address was not found in Croatia's official address register (ISPU) — check the street and number (Croatian spelling).",
       ambiguous_address: " Several addresses in Croatia's register match — add the town.",
       no_house_values: " Croatia's official approximate values (PPV) are published for flats and land only, not houses.",
+      fi_no_detached: " Statistics Finland publishes prices per area for dwellings in housing companies (flats, terraced houses) only — not for detached houses.",
+      is_few_sales: " Iceland's purchase register has fewer than 10 usable sales of this home type there in the last 12 months — no local figure.",
+      fi_few_sales: " Statistics Finland publishes no price for this area and home type (too few sales).",
       lu_no_houses: " Luxembourg's Observatoire de l'Habitat publishes prices per commune for apartments only, not houses.",
       lu_few_sales: " Luxembourg's Observatoire de l'Habitat publishes no price for a commune with fewer than 10 apartment sales in the last 12 months."
     };
     const localNote = LOCAL_NOTES[lp?.status] || (lp?.status === "needs_district" ? ` ${lp.note}` : lp?.status === "apartments_not_covered" ? " Sweden's apartments are tenant-owner shares (bostadsrätter), not real property — the official price statistics cover houses only." : "");
     const national = recent && /national|malta & gozo/i.test(recent.area);
-    const fit = recent && !national ? recentAreaFits(recent.area, property?.city || raw.city) : false;
+    // a figure for flats only (Iceland's 60–90 m² flats, Finland's housing
+    // companies) is not a house's benchmark
+    const wantsHouseType = /house|villa|detached|chalet/i.test(String(propertyType || "")) && !/apart|flat/i.test(String(propertyType || ""));
+    const flatsOnly = Boolean(recent && wantsHouseType && /apartment|flats?\b|housing compan|multi-d|ejerlejlighed/i.test(`${recent.basis || ""} ${recent.source || ""}`));
+    const fit = recent && !national && !flatsOnly ? recentAreaFits(recent.area, property?.city || raw.city) : false;
     if (recent && national) {
       // a whole country's average says nothing about one town (Amsterdam vs
       // the Dutch average) → named as context, never the verdict
@@ -986,7 +993,9 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
         transactionValue: null,
         transactionPeriod: hpi.period ?? hpi.quarter ?? null,
         marketArea: `${countryLabel(country)} — no official price figure for ${property?.city || "this city"} yet`,
-        source: `${trendSource}. The official price figure on file covers ${recent.area} only (${recent.source}) — not applied to ${property?.city || "this city"}.${localNote}`,
+        source: flatsOnly
+          ? `${trendSource}. The official price figure on file (${recent.source}, ${recent.area}) covers flats only — not applied to a house.${localNote}`
+          : `${trendSource}. The official price figure on file covers ${recent.area} only (${recent.source}) — not applied to ${property?.city || "this city"}.${localNote}`,
         coverage: "national",
         priceTrendPercent: change ?? null
       };
