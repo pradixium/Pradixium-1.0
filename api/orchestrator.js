@@ -416,6 +416,51 @@ function nonResidentialEvidence(ev, propertyType) {
   };
 }
 
+// France, as titled blocks: the town's DVF sales, homes of a similar size
+// and land, the official energy rating (ADEME DPE) and what each class sold
+// for here, and what a renovation the customer entered can and cannot show.
+function franceParts(raw, dvf, sim, sizeFits, wantsHouse, eur) {
+  const town = raw.commune?.name || "this town";
+  const kind = wantsHouse ? "house" : "apartment";
+  const parts = [];
+  const all = sim?.all;
+  parts.push({ title: "DVF sales (official)", text: `${dvf.source || "DVF (DGFiP)"} — ${dvf.sampleSize?.toLocaleString("en-US") ?? 0} single-dwelling sales in ${town}, ${dvf.transactionWindow || "latest two years"}.${all?.sampleSize ? ` All ${kind}s: ${all.sampleSize} sales, median ${eur(all.medianEurPerM2)}/m², median size ${Math.round(all.medianSurface)} m².` : ""}` });
+  if (sim?.size) {
+    const b = sim.size;
+    parts.push({ title: "Similar size", text: b.sampleSize
+      ? `${b.sampleSize} ${kind} sales of ${sim.surfaceRange[0]}–${sim.surfaceRange[1]} m² in ${town}: median ${eur(b.medianEurPerM2)}/m²${b.sampleSize >= 4 ? ` (middle half ${eur(b.p25EurPerM2)}–${eur(b.p75EurPerM2)})` : ""}, median price ${eur(b.medianTransactionEur)}. ${sizeFits ? "Used as the benchmark: same type and similar size." : "Fewer than 10 sales — context only; the benchmark stays the town-wide figure, which includes smaller and larger homes."}`
+      : `No ${kind} sale of ${sim.surfaceRange[0]}–${sim.surfaceRange[1]} m² in ${town} in this period — the benchmark is the town-wide figure, which is based on homes of other sizes.` });
+  }
+  if (sim?.sizeLand) {
+    const b = sim.sizeLand;
+    parts.push({ title: "Similar land", text: b.sampleSize
+      ? `Of those, ${b.sampleSize} on ${sim.landRange[0]}–${sim.landRange[1]} m² of land: median ${eur(b.medianEurPerM2)}/m², median price ${eur(b.medianTransactionEur)}${b.sampleSize < 10 ? " — fewer than 10 sales, context only" : ""}.`
+      : `None of them on ${sim.landRange[0]}–${sim.landRange[1]} m² of land in this period.` });
+  }
+  const en = raw.energy;
+  if (en) {
+    const own = en.own;
+    const bc = en.byClass;
+    const ownText = own?.found
+      ? `This house's energy rating (DPE): class ${own.label}, issued ${own.date}${own.surface ? ` (${Math.round(own.surface)} m²)` : ""}.`
+      : own && !own.found ? "No DPE is registered at this address in ADEME's database (certificates since July 2021) — a DPE is compulsory for a sale: ask the seller for it." : "";
+    let classText = "";
+    if (bc?.matched) {
+      const u = bc.usable;
+      classText = ` ${bc.matched} of ${bc.salesTotal} house sales in ${town} matched to the DPE registered at the same address before the sale${u.length ? `: ${u.map((c) => `class ${c.label} median ${eur(c.medianEurPerM2)}/m² (${c.sampleSize} sales)`).join(", ")}` : ""}${bc.classes.length > u.length ? `; ${bc.classes.filter((c) => c.sampleSize < 10).map((c) => c.label).join(", ")}: fewer than 10 sales each` : ""}.`;
+      const mine = own?.found ? u.find((c) => c.label === own.label) : null, d = u.find((c) => c.label === "D");
+      if (mine && d && mine.label !== "D") classText += ` Here, class ${mine.label} houses sold ${Math.abs((mine.medianEurPerM2 / d.medianEurPerM2 - 1) * 100).toFixed(1)}% ${mine.medianEurPerM2 >= d.medianEurPerM2 ? "above" : "below"} class D (not adjusted for size or age).`;
+    } else if (en.unavailableReason === "too_many") classText = ` Prices by energy class are not computed for a town this large.`;
+    if (ownText || classText) parts.push({ title: "Energy rating (DPE)", text: `${ownText}${classText} Source: ${en.source}.` });
+  }
+  const rv = raw.renovation;
+  if (rv?.renovated) {
+    const stale = en?.own?.found && rv.year && Number(String(en.own.date).slice(0, 4)) < rv.year;
+    parts.push({ title: "Renovation", text: `Renovation entered${rv.year ? ` (${rv.year})` : ""}. The official sales above include homes in every condition, so a renovated home can justify a price above them. The measurable part is the energy class: ${en?.byClass?.usable?.length ? "the class figures above show what each class sold for here" : "no class figures are available here"}. ${stale ? "The registered DPE predates the renovation — ask for the post-work DPE. " : ""}For work that does not change the class (kitchen, bathrooms, finishes) no official figure exists — ask for the invoices.` });
+  }
+  return parts;
+}
+
 function normalizeMarketEvidence(country, raw, propertyType, property = null) {
   if (!raw) return null;
   const c = String(country || "").trim().toLowerCase();
@@ -432,7 +477,11 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
     // enough samples, falling back to the blended figure otherwise.
     const wantsHouse = /house|villa|detached|chalet|maison/i.test(String(propertyType || ""));
     const typeBucket = wantsHouse ? dvf.house : /apartment|flat|condo|appartement/i.test(String(propertyType || "")) ? dvf.apartment : null;
-    const benchmarkSource = typeBucket?.sampleSize >= 10 ? typeBucket : dvf; // 2 house sales in Lyon 2e are not a benchmark
+    // same type AND a similar size (±25%) when there are 10+ such sales —
+    // the town-wide median mixes every size (Lieusaint: 94 m² median house)
+    const sim = dvf.similar || null;
+    const sizeFits = sim?.size?.sampleSize >= 10;
+    const benchmarkSource = sizeFits ? sim.size : typeBucket?.sampleSize >= 10 ? typeBucket : dvf; // 2 house sales in Lyon 2e are not a benchmark
     const ac = String(dvf.area || ""), arr = /^751\d\d$/.test(ac) ? Number(ac.slice(3)) : /^6938\d$/.test(ac) ? Number(ac.slice(4)) : /^132\d\d$/.test(ac) ? Number(ac.slice(3)) : null; // 75108 → 8e, 69382 → 2e, 13208 → 8e
     // FIX: the commune-wide rental average is meaningless for a street like
     // Rue Cambon (Place Vendôme) — applying it there produced a confidently
@@ -451,12 +500,13 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
     return {
       benchmarkValue: benchmarkSource?.medianEurPerM2 ?? null,
       benchmarkUnit: "perSqm",
-      benchmarkLabel: wantsHouse ? "DVF Benchmark (houses)" : "DVF Benchmark",
+      benchmarkLabel: sizeFits ? `DVF Benchmark (${wantsHouse ? "houses" : "apartments"} ${sim.surfaceRange[0]}–${sim.surfaceRange[1]} m²)` : wantsHouse ? "DVF Benchmark (houses)" : "DVF Benchmark",
       governmentValue: null,
       transactionValue: benchmarkSource?.medianTransactionEur ?? null,
       transactionPeriod: dvf.transactionWindow ?? null,
       marketArea: raw.commune?.name ? raw.commune.name + (arr && !/arrondissement/i.test(raw.commune.name) ? ` — ${arr}${arr === 1 ? "er" : "e"} arrondissement` : "") : null,
       source: (cityWideNote ? cityWideNote + " " : "") + `INSEE + ${dvf.source || "DVF (DGFiP)"}${dvf.sampleSize ? ` — ${dvf.sampleSize.toLocaleString("en-US")} single-dwelling sales` : ""} + geo.api.gouv.fr`,
+      sourceParts: franceParts(raw, dvf, sim, sizeFits, wantsHouse, eur),
       coverage: benchmarkSource?.medianEurPerM2 != null ? "city" : "none",
       // Real government/open-data rental benchmark (data.gouv.fr commune
       // rental dataset) that was already being fetched but never used —
@@ -473,7 +523,7 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
       // transactions themselves were discarded — real, dated, sourced
       // comps a buyer can actually go verify, not a modeled estimate.
       comparableSales: Array.isArray(dvf.micro?.nearest) && dvf.micro.nearest.length
-        ? dvf.micro.nearest.slice(0, 5)
+        ? dvf.micro.nearest.slice(0, 5).map((x) => ({ ...x, type: [x.type, x.surface ? `${Math.round(x.surface)} m²` : null, x.land ? `land ${Math.round(x.land)} m²` : null].filter(Boolean).join(" · ") }))
         : null
     };
   }
@@ -1078,6 +1128,9 @@ async function fetchGovernmentData(property, origin) {
   // needed for them was right there in the property the user submitted.
   if (property.size) params.set("size", property.size);
   if (property.bedrooms) params.set("bedrooms", property.bedrooms);
+  if (property.landArea) params.set("landArea", property.landArea);
+  if (property.renovated) params.set("renovated", "1");
+  if (property.renovationYear) params.set("renovationYear", property.renovationYear);
 
   const controller = new AbortController();
   // market-data.js runs its 3 sources in parallel with 8s timeouts each,

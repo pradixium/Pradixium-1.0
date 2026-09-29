@@ -1073,6 +1073,9 @@
       bathrooms: inputs.bathrooms,
       propertyType: inputs.propertyType,
       monthlyRent: inputs.monthlyRent,
+      landArea: num($("landArea")?.value),
+      renovated: $("renovated")?.value === "1",
+      renovationYear: num($("renovationYear")?.value),
       // Pradixium NOI™ inputs — only the branch matching propertyType is
       // ever populated with real values, but caching both is harmless and
       // means refreshFullReportData() doesn't need to know which is live.
@@ -1684,6 +1687,9 @@
     if ($("bathrooms")) $("bathrooms").value = property.bathrooms ?? "";
     if ($("propertyType")) $("propertyType").value = property.propertyType || "Apartment";
     if ($("monthlyRent") && property.propertyType !== "Commercial") $("monthlyRent").value = property.monthlyRent ?? "";
+    if ($("landArea")) $("landArea").value = property.landArea ?? "";
+    if ($("renovated")) $("renovated").value = property.renovated ? "1" : "";
+    if ($("renovationYear")) $("renovationYear").value = property.renovationYear ?? "";
     // commercial NOI inputs (the rent above comes from cGrossRent then)
     const cm = property.commercial || {};
     [["cGrossRent", cm.grossRent], ["cUnits", cm.units], ["cVacancyPct", cm.vacancyPct], ["cOtherIncome", cm.otherIncome], ["cOpex", cm.opex], ["cLoanAmount", cm.loanAmount], ["cLoanRate", cm.loanRatePct], ["cLoanYears", cm.loanYears]]

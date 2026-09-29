@@ -596,6 +596,20 @@ two arrondissements) → grouped across files, attributed to the dwelling's
 file; a per-file recompute differs by 1–2 sales for that reason. Recompute check: Lyon 2e
 (69382, 2024–2025) 736 sales, median €5,140/m² (Python from the raw files).
 
+**Size, land, energy rating (Sept 2026, Claude B):** the benchmark is the
+same type within ±25% of the entered size when 10+ such sales exist (a 150 m²
+Lieusaint house: 13 sales, €2,886/m² vs town-wide €3,254 at a 95 m² median);
+houses with a land area also get the ±40% land subset (context). DPE: ADEME
+"dpe03existant" (data.ademe.fr, Licence Ouverte) — the house's own latest DPE
+by number + street, and DVF house sales matched to the DPE at the same
+address dated before the sale → median €/m² per class (10+ sales), towns
+with ≤ 6,000 house DPEs only (larger → not computed, said so). Houses only
+(flats share an address). A "renovated + year" input changes the text only:
+no official figure prices a renovation; the energy class is its measurable
+part. Notaires de France "valeur verte" 2024 study: its PDF answers 403 to
+servers → not used. Check: Lieusaint 66/86 matched, C €3,222 (23), D €3,189
+(40), recomputed in Python.
+
 ## Spain Catastro zones + Portugal INE local prices (Sept 2026, Claude B)
 
 - Spain: `lib/spain/catastroZone.js` — address → CartoCiudad (IGN geocoder)
