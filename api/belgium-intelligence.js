@@ -38,7 +38,15 @@ const BRUSSELS_MUNICIPALITIES = [
 const FLANDERS_CITIES = [
   "antwerp", "antwerpen", "ghent", "gent", "bruges", "brugge", "leuven",
   "mechelen", "hasselt", "kortrijk", "aalst", "ostend", "oostende",
-  "sint-niklaas", "genk", "roeselare", "turnhout"
+  "sint-niklaas", "genk", "roeselare", "turnhout",
+  // FIX: same audit as Spain's resort-town gap -- Belgium's own luxury
+  // coastal market (the "Belgian Hamptons") was entirely unmatched, so a
+  // real property there fell back to a flat national median instead of
+  // being correctly placed in Flanders. Knokke-Heist and the rest of the
+  // West Flanders coast are real, well-known towns, not a guess.
+  "knokke", "knokke-heist", "heist", "heist-aan-zee", "het zoute",
+  "duinbergen", "westkapelle", "de haan", "koksijde", "sint-idesbald",
+  "nieuwpoort", "oostduinkerke", "blankenberge", "de panne"
 ];
 
 const WALLONIA_CITIES = [

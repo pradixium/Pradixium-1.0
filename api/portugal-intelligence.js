@@ -32,7 +32,17 @@ const CITY_ALIASES = {
   algarve: 'algarve', faro: 'algarve', lagos: 'algarve', albufeira: 'algarve', portimao: 'algarve', loule: 'algarve',
   porto: 'porto', oporto: 'porto',
   coimbra: 'coimbra',
-  braga: 'braga'
+  braga: 'braga',
+  // FIX: same misrouting bug as Spain (Marbella) and Belgium (Knokke-
+  // Heist) -- these are real luxury developments/resorts that are
+  // administratively part of Loulé municipality (already mapped to
+  // "algarve" above), so a property here should resolve to the Algarve
+  // rent figure, not silently fall to the national average. Comporta and
+  // Sintra deliberately stay unmapped: they're genuinely distinct markets
+  // with no dedicated PORTUGAL_RENT figure, so an honest "not matched"
+  // fallback is correct for them rather than a guessed bucket.
+  almancil: 'algarve', "quinta do lago": 'algarve', "vale do lobo": 'algarve',
+  vilamoura: 'algarve', carvoeiro: 'algarve'
 };
 
 function normalize(value) {
