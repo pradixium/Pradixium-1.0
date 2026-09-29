@@ -570,7 +570,11 @@
           ? Math.round(Number(window.pradixiumLastScore.score))
           : (Number.isFinite(Number(agent.score)) ? Math.round(Number(agent.score)) : null),
         dealRating: agent.dealRating || $("dealRating")?.textContent || null,
-        netYieldPercent: window.pradixiumLastScore?.breakdown?.netYieldPercent ?? null,
+        // FIX: breakdown.netYieldPercent is always null now (the fabricated
+        // flat-22%-expense figure was removed for the same data-honesty
+        // reason everywhere else in this file) — saving it here meant every
+        // new Deal Discovery entry silently got a blank yield column.
+        grossYieldPercent: window.pradixiumLastScore?.breakdown?.grossYieldPercent ?? null,
         realityCheckVerdict: (rc && Array.isArray(rc.checks) && rc.checks.length >= 2) ? rc.verdict : null,
         savedAt: Date.now()
       };
@@ -1094,7 +1098,15 @@
       } else {
         renderScoreCore(json?.pradixiumScore || null);
         set("investorAction", "AI analysis unavailable right now — figures above are calculated directly from the numbers you entered.");
-        set("fairValue", "—");
+        // FIX: Fair Value is now a deterministic figure computed alongside
+        // the score itself (lib/scoring/pradixiumScore.js) — it doesn't
+        // depend on the AI call that just failed, so there's no reason to
+        // hardcode "—" here when a real (possibly Pradixium-own-estimate,
+        // clearly labeled) number already exists right there in the same
+        // response.
+        const fv = json?.pradixiumScore?.fairValue;
+        set("fairValue", Number.isFinite(fv) ? money(fv, currency) : "—");
+        set("fairValueNote", json?.pradixiumScore?.fairValueBasis || "Pradixium Fair Value™");
       }
     } catch (e) {
       console.warn("Pradixium: AI analysis failed, rule-based figures remain", e);
@@ -1709,14 +1721,24 @@
     }
   }
 
-  // Up to 3 attempts at the full, paid analysis, with a visible "working"
+  // Up to 4 attempts at the full, paid analysis, with a visible "working"
   // status. Real bug (Sept 2026): after one slow or failed attempt the
   // report opened anyway on the pre-payment snapshot — every paid section
   // ("Deal Rating", "Market Evidence", risks, action) blank.
+  //
+  // FIX (Sept 2026, second bug in the same area): refreshFullReportData()
+  // returns false immediately — before doing anything visible — if either
+  // localStorage's cached property or getAccessToken() (the Supabase
+  // session rehydrating on this fresh page load) isn't ready yet. With
+  // only 3 short attempts (0/2.5s/5s ≈ 7.5s total), a slightly slow auth
+  // rehydration could exhaust all of them, landing the person back on a
+  // seemingly-unchanged home page with no report — exactly what "you need
+  // to click several times for the report to come out" describes. One
+  // more attempt and a longer final wait gives that race more room.
   async function loadFullReport() {
     const stop = startLoadingStatus();
     try {
-      for (const wait of [0, 2500, 5000]) {
+      for (const wait of [0, 1500, 3000, 6000]) {
         if (wait) await new Promise((resolve) => setTimeout(resolve, wait));
         if (await refreshFullReportData()) return true;
       }
@@ -1733,6 +1755,19 @@
     const sessionId = params.get("session_id");
     if (!sessionId || params.get("unlock") !== "1") return;
     history.replaceState({}, "", window.location.pathname);
+
+    // FIX (Sept 2026): this whole function used to run silently — the
+    // person coming back from Stripe saw nothing change until (or unless)
+    // loadFullReport() below eventually succeeded and revealResults() ran
+    // for the first time. On a fresh page load, that easily reads as "it
+    // just took me back to the home page," prompting a manual retry
+    // before the automatic one even finished. Show unmistakable feedback
+    // the instant this fires — before the first network call — so there's
+    // never a moment that looks like nothing is happening.
+    revealResults();
+    set("investorAction", "Confirming your payment and preparing your report…");
+    set("fairValue", "Loading…");
+    set("governmentBenchmark", "Loading…");
 
     try {
       const r = await fetchWithTimeout(`/api/verify-checkout-session?session_id=${encodeURIComponent(sessionId)}`, {}, 15000);

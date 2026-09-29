@@ -45,12 +45,20 @@ export default async function handler(req, res) {
       if (value === null || value === undefined) return null;
       return String(value)
         .replace(/<[^>]*>/g, " ")
-        .replace(/&nbsp;|&#160;/gi, " ")
+        .replace(/&nbsp;/gi, " ")
         .replace(/&amp;/gi, "&")
         .replace(/&quot;/gi, '"')
-        .replace(/&#39;|&apos;/gi, "'")
-        .replace(/&#x2F;|&#47;/gi, "/")
-        .replace(/&#36;/gi, "$")
+        .replace(/&apos;/gi, "'")
+        // FIX: a real live listing title came back as "Berl&#xED;n"
+        // instead of "Berlín" — the entity list above only covered a
+        // hand-picked handful (amp/quot/apos/nbsp + a few numeric ones),
+        // so any OTHER numeric character reference (any accented letter
+        // in é/í/ñ/ü/ç/etc., which Spanish/French/Portuguese/Italian
+        // listing titles are full of) passed straight through unescaped.
+        // A general decimal/hex numeric-entity decoder covers all of them
+        // at once instead of hardcoding every possible accented letter.
+        .replace(/&#x([0-9a-f]+);/gi, (_, hex) => String.fromCodePoint(parseInt(hex, 16)))
+        .replace(/&#(\d+);/g, (_, dec) => String.fromCodePoint(parseInt(dec, 10)))
         .replace(/\s+/g, " ")
         .trim();
     }

@@ -67,7 +67,7 @@ footer a{color:inherit}
       <th data-sort="title">Property</th>
       <th data-sort="realityCheckVerdict">Reality Check™</th>
       <th data-sort="dealRating">Deal Rating</th>
-      <th data-sort="netYieldPercent">Net Yield</th>
+      <th data-sort="grossYieldPercent">Gross Yield</th>
       <th data-sort="askingPrice">Asking Price</th>
       <th></th>
     </tr></thead>
@@ -135,7 +135,11 @@ footer a{color:inherit}
     const tbody = document.getElementById("tbody");
     tbody.innerHTML = sorted.map(entry => {
       const scoreText = entry.score != null ? entry.score + "/100" : "—";
-      const yieldText = entry.netYieldPercent != null ? Number(entry.netYieldPercent).toFixed(2) + "%" : "—";
+      // entry.netYieldPercent is the old (pre-fix) saved field name, from a
+      // fabricated flat-22%-expense calculation — fall back to it only for
+      // entries saved before this fix, never for new ones.
+      const yieldValue = entry.grossYieldPercent ?? entry.netYieldPercent;
+      const yieldText = yieldValue != null ? Number(yieldValue).toFixed(2) + "%" : "—";
       const location = [entry.city, entry.country].filter(Boolean).join(", ");
       const savedDate = entry.savedAt ? new Date(entry.savedAt).toLocaleDateString() : "—";
       return '<tr>'
