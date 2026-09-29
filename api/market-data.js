@@ -232,6 +232,7 @@ export default async function handler(req, res) {
     "ciudad real": ["ciudad real"],
     cordoba: ["cordoba"],
     coruna: ["coruna"],
+    burgos: ["burgos"],
     cuenca: ["cuenca"],
     granada: ["granada"],
     guadalajara: ["guadalajara"],
