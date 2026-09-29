@@ -825,7 +825,7 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
     if (lp?.status === "ok" && Number.isFinite(lp.value)) {
       const cur = { EUR: "€", NOK: "NOK ", SEK: "SEK ", DKK: "DKK " }[lp.currency] ?? `${lp.currency} `;
       const fmt = (v) => `${cur}${Math.round(v).toLocaleString("en-US")}${lp.unit === "perSqm" ? "/m²" : ""}`;
-      const others = (lp.others || []).map((o) => `${o.type} ${fmt(o.value)} (${o.sales} sales)`).join("; ");
+      const others = (lp.others || []).map((o) => `${o.type} ${fmt(o.value)}${o.sales != null ? ` (${o.sales} sales)` : ""}`).join("; ");
       return {
         benchmarkValue: lp.value,
         benchmarkUnit: lp.unit,
@@ -840,7 +840,7 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
         priceTrendPercent: lp.yoyPercent ?? change ?? null
       };
     }
-    const localNote = lp?.status === "apartments_not_covered" ? " Sweden's apartments are tenant-owner shares (bostadsrätter), not real property — the official price statistics cover houses only." : "";
+    const localNote = lp?.status === "needs_district" ? ` ${lp.note}` : lp?.status === "apartments_not_covered" ? " Sweden's apartments are tenant-owner shares (bostadsrätter), not real property — the official price statistics cover houses only." : "";
     const national = recent && /national|malta & gozo/i.test(recent.area);
     const fit = recent && !national ? recentAreaFits(recent.area, property?.city || raw.city) : false;
     if (recent && national) {
