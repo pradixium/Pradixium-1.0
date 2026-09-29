@@ -595,6 +595,36 @@ two arrondissements) → grouped across files, attributed to the dwelling's
 file; a per-file recompute differs by 1–2 sales for that reason. Recompute check: Lyon 2e
 (69382, 2024–2025) 736 sales, median €5,140/m² (Python from the raw files).
 
+## Spain Catastro zones + Portugal INE local prices (Sept 2026, Claude B)
+
+- Spain: `lib/spain/catastroZone.js` — address → CartoCiudad (IGN geocoder)
+  → the Catastro's official values map (SECDameGeoJSON.aspx, 2027 map with
+  2026 sales data): the address's zone, its representative home and average
+  value. €/m² modules (flats, terraced) feed the verdict; detached houses
+  get a whole-home total (land included) → context only. A resort /
+  locality name (Altea Hills, Puerto Banús, Corralejo — LOCALITY_ALIASES)
+  or a street with no numbered portals (urbanisations: "C. Petunia, Altea")
+  → the range of zones within 700 m, never one zone as the property's
+  value; the MIVAU province average then becomes context only. The site's
+  single "address / city" field is parsed by `splitSpanishInput()`
+  (street, localities, town — the first part that is a town; islands /
+  coasts are not towns). Prebuilt maps for the 287 municipalities > 25,000
+  inhabitants: `lib/data/spainZones/` ← `python3 scripts/build-es-zones.py`
+  (re-run each autumn when the next map is published; each file validated
+  geographically); smaller towns are read live. Basque Country + Navarre
+  have their own cadastres → not covered. Check: Calle de Serrano 50,
+  Madrid → zone R00, €10,020/m², 158 homes (recomputed from the live map).
+- Spain MIVAU benchmark is a PROVINCE average → labelled as such; the VDP003
+  "transaction value" (province total, unit unstated) is no longer shown.
+- Portugal: `lib/portugal/inePrices.js` ← `python3 scripts/build-pt-prices.py`
+  (INE indicator 0012241, quarterly): median €/m² of sales in the last 12
+  months by parish/municipality and typology (bedrooms → T0/T1…T4+). INE
+  publishes these only for the Lisbon/Porto metros, the Algarve and towns
+  > 100k → elsewhere no local figure (said so). Check: Almancil Q1 2026
+  T4+ €7,449/m² (recomputed from INE's JSON API).
+- Single-area figures (Milan's OMI etc.) are applied only to that area
+  (`recentAreaFits` in the orchestrator).
+
 ## Net Yield / Cash-on-Cash fix (shipped Sept 2026)
 
 `engine.js` had three places computing "Net Yield" and "Cash-on-Cash" off a flat,

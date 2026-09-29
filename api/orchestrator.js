@@ -454,6 +454,27 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
     const cz = raw.catastroZone || null;
     const czPerM2 = cz?.status === "ok" && cz.product?.perM2Comparable ? cz.product.valuePerM2 : null;
     const spain = spainRecord(cz, property);
+    // local Catastro evidence exists (the zones around the place, or a zone
+    // valued on another basis): a whole-province average is context only —
+    // never the verdict for an Altea Hills villa
+    const localZones = ["area", "other_type_only", "ok"].includes(cz?.status);
+    const provinceNote = benchmark != null && raw.province ? `MIVAU appraised value, ${raw.province} province average: €${Math.round(benchmark).toLocaleString("en-US")}/m² (province-wide context — not applied to this property).` : null;
+    if (localZones && czPerM2 == null) {
+      return {
+        benchmarkValue: null,
+        benchmarkUnit: "perSqm",
+        benchmarkLabel: "Catastro value zones (see record)",
+        governmentValue: null,
+        transactionValue: null,
+        transactionPeriod: null,
+        marketArea: cz.geo?.label || raw.city || null,
+        propertyRecord: spain.record,
+        sourceParts: [...spain.parts, ...(provinceNote ? [{ title: "MIVAU (province)", text: provinceNote }] : [])],
+        source: spain.parts.map((x) => x.text).join(" ") + (provinceNote ? " " + provinceNote : ""),
+        coverage: "city",
+        priceTrendPercent: raw.annualChangePercent ?? null
+      };
+    }
     return {
       benchmarkValue: czPerM2 ?? benchmark,
       benchmarkUnit: "perSqm",
