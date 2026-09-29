@@ -577,20 +577,67 @@ export default async function handler(req, res) {
     return "LIMITED";
   };
 
-  // Resolves a resort/suburb key (e.g. "marbella") to its province's own
-  // aliases (e.g. cityAliases.malaga) via DEMAND_PROVINCE_ALIASES when
-  // there's no direct entry — same fix as cityAliases above. A postal code
-  // found anywhere in the free text (postalProvinceKey) wins over both:
-  // it needs no name list at all and is never wrong for a real Spanish
-  // postal code.
-  const resolveProvinceAliases = (key, aliasMap) =>
-    (postalProvinceKey && aliasMap[postalProvinceKey]) ||
-    aliasMap[key] ||
-    (DEMAND_PROVINCE_ALIASES[key] && aliasMap[DEMAND_PROVINCE_ALIASES[key]]) ||
-    [key];
+  // FIX (found live, second real bug in the same area): every fix above
+  // (Marbella, Altea Hills, Knokke-Heist's Spanish cousins, Burgos) only
+  // ever matched when the ENTIRE input field was nothing but the bare
+  // place name -- an exact dictionary-key lookup. But this site's own
+  // placeholder invites a full address ("Enter address, city or postal
+  // code"), and a real user typed "236 Avenue Europa Altea Hills" --
+  // "altea hills" alone already resolved correctly, but the full address
+  // string doesn't exactly equal any dictionary key, so it silently
+  // failed anyway. This is likely the actual live bug behind the empty
+  // report, more fundamental than any single missing town.
+  //
+  // Fix: scan the whole free-text field for ANY known place name --
+  // every cityAliases province key and every DEMAND_PROVINCE_ALIASES
+  // resort/suburb name -- as a whole-word match anywhere in the string,
+  // not just an exact match of the entire field. Longest name checked
+  // first so a more specific match (e.g. "las palmas de gran canaria")
+  // wins over a shorter one that happens to be a substring of it.
+  const ALL_PLACE_KEYS = [...new Set([...Object.keys(cityAliases), ...Object.keys(DEMAND_PROVINCE_ALIASES)])]
+    .sort((a, b) => b.length - a.length);
+
+  const findPlaceKeyIn = (text) => {
+    const padded = ` ${text} `;
+    for (const key of ALL_PLACE_KEYS) {
+      const escaped = key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      if (new RegExp(`[^a-z]${escaped}[^a-z]`).test(padded)) return key;
+    }
+    return null;
+  };
+
+  // A postal code found anywhere in the free text wins over name
+  // matching entirely: it needs no name list at all and is never wrong
+  // for a real Spanish postal code. Otherwise: an exact whole-field match
+  // first (cheap, common case), then a scan for any known place name
+  // appearing anywhere within a fuller address.
+  const resolveProvinceKey = (text) => {
+    if (postalProvinceKey) return postalProvinceKey;
+    const key = normalize(text);
+    if (cityAliases[key]) return key;
+    if (DEMAND_PROVINCE_ALIASES[key]) return DEMAND_PROVINCE_ALIASES[key];
+    const found = findPlaceKeyIn(key);
+    if (found) return cityAliases[found] ? found : DEMAND_PROVINCE_ALIASES[found];
+    return null;
+  };
 
   const cityKey = normalize(city);
-  const provinceAliases = resolveProvinceAliases(cityKey, cityAliases);
+  const resolvedProvinceKey = resolveProvinceKey(city);
+  const provinceAliases = (resolvedProvinceKey && cityAliases[resolvedProvinceKey]) || [cityKey];
+
+  // FIX: plain .includes() let a real town whose name starts with another
+  // province's name false-match it -- e.g. "Lugones" (a real Asturias
+  // town) contains "lugo" as its first 4 letters, so an address that
+  // couldn't be resolved to any known place fell back to matching the raw
+  // text against every province and wrongly matched Lugo province. Word-
+  // boundary-aware containment (only a whole-word match counts) fixes this
+  // without weakening the intentional substring matching this function
+  // still needs (e.g. matching "Alicante/Alacant" against just "alicante").
+  const wordBoundaryIncludes = (haystack, needle) => {
+    if (!needle) return false;
+    const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    return new RegExp(`(?:^|[^a-z])${escaped}(?:$|[^a-z])`).test(haystack);
+  };
 
   const matchesLocation = (value, aliases = provinceAliases) => {
     const normalized = normalize(repairMojibake(value));
@@ -599,10 +646,11 @@ export default async function handler(req, res) {
     }
     return aliases.some((alias) => {
       const normalizedAlias = normalize(alias);
+      if (!normalizedAlias) return false;
       return (
         normalized === normalizedAlias ||
-        normalized.includes(normalizedAlias) ||
-        normalizedAlias.includes(normalized)
+        wordBoundaryIncludes(normalized, normalizedAlias) ||
+        wordBoundaryIncludes(normalizedAlias, normalized)
       );
     });
   };
@@ -872,10 +920,13 @@ export default async function handler(req, res) {
       const PROVINCE_TO_CODE = Object.fromEntries(
         Object.entries(POSTAL_CODE_PROVINCE).map(([code, key]) => [key, [code, code.replace(/^0/, "")]])
       );
+      // Same resolvedProvinceKey computed above (postal code, then exact
+      // match, then a scan of the full address for any known place name)
+      // — reused here instead of re-deriving it from cityKey alone, which
+      // is exactly what silently broke on a full address like
+      // "236 Avenue Europa Altea Hills".
       const targetProvinceCodes =
-        (postalProvinceKey && (transactionProvinceCodes[postalProvinceKey] || PROVINCE_TO_CODE[postalProvinceKey])) ||
-        transactionProvinceCodes[cityKey] ||
-        (DEMAND_PROVINCE_ALIASES[cityKey] && (transactionProvinceCodes[DEMAND_PROVINCE_ALIASES[cityKey]] || PROVINCE_TO_CODE[DEMAND_PROVINCE_ALIASES[cityKey]])) ||
+        (resolvedProvinceKey && (transactionProvinceCodes[resolvedProvinceKey] || PROVINCE_TO_CODE[resolvedProvinceKey])) ||
         PROVINCE_TO_CODE[cityKey] ||
         [];
 
@@ -1013,7 +1064,7 @@ export default async function handler(req, res) {
    * 4. FINAL RESPONSE
    * ---------------------------------------------------------
    */
-  const demandKey = postalProvinceKey || DEMAND_PROVINCE_ALIASES[cityKey] || cityKey;
+  const demandKey = resolvedProvinceKey || cityKey;
   const demandFixture = DEMAND_INTELLIGENCE[demandKey] || null;
   const demand = demandFixture
     ? { ...demandFixture, strength: strengthFor(demandFixture.foreignBuyerShare) }
