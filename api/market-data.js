@@ -5,7 +5,10 @@ export default async function handler(req, res) {
     city: typedCity = "",
     country = "Spain",
     propertyType = "Property",
-    size = ""
+    size = "",
+    address = "",
+    zip = "",
+    postalCode = ""
   } = req.query;
   // the site's one field carries the whole address ("Calle de Serrano 50,
   // Madrid"): the MIVAU/INE lookups below need the town only
@@ -191,8 +194,121 @@ export default async function handler(req, res) {
     malaga: ["malaga"],
     murcia: ["murcia"],
     bilbao: ["bizkaia", "vizcaya"],
-    zaragoza: ["zaragoza"]
+    zaragoza: ["zaragoza"],
+    // FIX (found live, real agency test on Marbella came back completely
+    // empty): MIVAU's valuation/transaction files only report at PROVINCE
+    // level, but a real user types the actual town (Marbella, Estepona,
+    // Ibiza, Girona coast, etc.), never the province name. Those towns
+    // were only ever mapped to a province via DEMAND_PROVINCE_ALIASES
+    // below, and only for the foreign-buyer-demand section — this
+    // benchmark lookup never consulted it, so any town outside the 9
+    // major cities above got zero province match and a blank report,
+    // even though its province's real government data exists and is
+    // being fetched. These entries are keyed by the same province keys
+    // DEMAND_PROVINCE_ALIASES already resolves resort towns to.
+    baleares: ["baleares", "illes balears", "balears"],
+    tenerife: ["santa cruz de tenerife"],
+    girona: ["girona", "gerona"],
+    almeria: ["almeria"],
+    "las palmas": ["las palmas"],
+    tarragona: ["tarragona"],
+    // FIX (audit after the Marbella fix, prompted by a real "Altea Hills"
+    // test): the fix above only covered towns that already happened to be
+    // in DEMAND_PROVINCE_ALIASES. That list was itself incomplete — e.g.
+    // Cadiz province (Sotogrande) had NO entry anywhere in this file, and
+    // several well-known Costa Blanca/Costa Brava/Balearic towns were
+    // simply missing. Added cadiz as a full province here plus a much
+    // larger DEMAND_PROVINCE_ALIASES town list below.
+    cadiz: ["cadiz"],
+    // FIX (structural): the postal-code resolver below (POSTAL_CODE_PROVINCE)
+    // now covers all 52 provinces, but still needs each province's own
+    // name alias here to actually match the CSV's "provincia" text column.
+    // matchesLocation() normalizes accents (Cáceres -> caceres) and checks
+    // substring containment both ways, so a single distinctive word is
+    // enough even for official bilingual/comma-inverted forms (e.g. "rioja"
+    // matches both "La Rioja" and "Rioja, La"; "coruna" matches both
+    // "A Coruña" and "Coruña, A").
+    alava: ["alava", "araba"],
+    albacete: ["albacete"],
+    avila: ["avila"],
+    badajoz: ["badajoz"],
+    caceres: ["caceres"],
+    castellon: ["castellon", "castello"],
+    "ciudad real": ["ciudad real"],
+    cordoba: ["cordoba"],
+    coruna: ["coruna"],
+    burgos: ["burgos"],
+    cuenca: ["cuenca"],
+    granada: ["granada"],
+    guadalajara: ["guadalajara"],
+    gipuzkoa: ["gipuzkoa", "guipuzcoa"],
+    huelva: ["huelva"],
+    huesca: ["huesca"],
+    jaen: ["jaen"],
+    leon: ["leon"],
+    lleida: ["lleida", "lerida"],
+    "la rioja": ["rioja"],
+    lugo: ["lugo"],
+    navarra: ["navarra", "nafarroa"],
+    ourense: ["ourense", "orense"],
+    asturias: ["asturias"],
+    palencia: ["palencia"],
+    pontevedra: ["pontevedra"],
+    salamanca: ["salamanca"],
+    cantabria: ["cantabria"],
+    segovia: ["segovia"],
+    soria: ["soria"],
+    teruel: ["teruel"],
+    toledo: ["toledo"],
+    valladolid: ["valladolid"],
+    zamora: ["zamora"],
+    ceuta: ["ceuta"],
+    melilla: ["melilla"]
   };
+
+  // FIX (structural, not another name patch): every town-name fix above
+  // (Marbella, Altea Hills, Sotogrande...) only ever covers the specific
+  // towns someone thought to add -- the next unlisted resort town hits
+  // the exact same silent failure. Spanish postal codes are a real,
+  // stable, government-assigned fact: the first 2 digits deterministically
+  // identify one of the 52 provinces (Correos' own alphabetical
+  // assignment when the system was set up), covering every town in Spain
+  // with no name list at all. This site's own city/address input already
+  // invites a postal code ("Enter address, city or postal code" — see
+  // index.html), so this is extracted from whatever free text the user
+  // typed and used as the PRIMARY resolver; the name-based aliases above
+  // remain as a fallback for the case where no postal code was typed.
+  const POSTAL_CODE_PROVINCE = {
+    "01": "alava", "02": "albacete", "03": "alicante", "04": "almeria",
+    "05": "avila", "06": "badajoz", "07": "baleares", "08": "barcelona",
+    "09": "burgos", "10": "caceres", "11": "cadiz", "12": "castellon",
+    "13": "ciudad real", "14": "cordoba", "15": "coruna", "16": "cuenca",
+    "17": "girona", "18": "granada", "19": "guadalajara", "20": "gipuzkoa",
+    "21": "huelva", "22": "huesca", "23": "jaen", "24": "leon",
+    "25": "lleida", "26": "la rioja", "27": "lugo", "28": "madrid",
+    "29": "malaga", "30": "murcia", "31": "navarra", "32": "ourense",
+    "33": "asturias", "34": "palencia", "35": "las palmas", "36": "pontevedra",
+    "37": "salamanca", "38": "tenerife", "39": "cantabria", "40": "segovia",
+    "41": "sevilla", "42": "soria", "43": "tarragona", "44": "teruel",
+    "45": "toledo", "46": "valencia", "47": "valladolid", "48": "bilbao",
+    "49": "zamora", "50": "zaragoza", "51": "ceuta", "52": "melilla"
+  };
+
+  // A Spanish postal code is exactly 5 digits, first digit 0-5. Only
+  // matches when found as its own token (not part of a longer number) so
+  // this never misreads part of a street number or phone number.
+  const spanishPostalCode = (...texts) => {
+    for (const text of texts) {
+      const match = String(text || "").match(/\b([0-5]\d{4})\b/);
+      if (match) return match[1];
+    }
+    return null;
+  };
+
+  const postalProvinceKey = (() => {
+    const code = spanishPostalCode(city, address, zip, postalCode);
+    return code ? POSTAL_CODE_PROVINCE[code.slice(0, 2)] || null : null;
+  })();
 
   // Foreign buyer / demand intelligence — Colegio de Registradores
   // "Estadistica Registral Inmobiliaria" (foreign-buyer share of
@@ -384,7 +500,74 @@ export default async function handler(req, res) {
     "gran canaria": "las palmas",
     maspalomas: "las palmas",
     salou: "tarragona",
-    cambrils: "tarragona"
+    cambrils: "tarragona",
+    // FIX: audit after the Marbella incident turned up more of the same
+    // gap in Spain's other real foreign-buyer/luxury markets — Costa
+    // Blanca north of Benidorm, Costa del Sol west of Estepona, Cadiz
+    // (Sotogrande), Costa Brava beyond Lloret, Balearic villages, and
+    // Madrid/Barcelona's own luxury suburbs, none of which match their
+    // province's literal name either. Town-to-province geography is a
+    // stable fact (not a figure needing a live citation), but this is
+    // still a curated list, not a geocoder -- a town genuinely missing
+    // here still correctly falls through to "not enough evidence" rather
+    // than a wrong match.
+    altea: "alicante",
+    "altea hills": "alicante",
+    javea: "alicante",
+    xabia: "alicante",
+    moraira: "alicante",
+    calpe: "alicante",
+    calp: "alicante",
+    benissa: "alicante",
+    finestrat: "alicante",
+    "villajoyosa": "alicante",
+    "orihuela costa": "alicante",
+    "guardamar del segura": "alicante",
+    "santa pola": "alicante",
+    "la zenia": "alicante",
+    "puerto banus": "malaga",
+    "puerto banús": "malaga",
+    "nueva andalucia": "malaga",
+    "san pedro de alcantara": "malaga",
+    benahavis: "malaga",
+    manilva: "malaga",
+    casares: "malaga",
+    "rincon de la victoria": "malaga",
+    sotogrande: "cadiz",
+    tarifa: "cadiz",
+    "vejer de la frontera": "cadiz",
+    "zahara de los atunes": "cadiz",
+    "chiclana de la frontera": "cadiz",
+    "conil de la frontera": "cadiz",
+    "el puerto de santa maria": "cadiz",
+    sitges: "barcelona",
+    "sagaro": "girona",
+    "s'agaro": "girona",
+    "platja d'aro": "girona",
+    "platja daro": "girona",
+    "tossa de mar": "girona",
+    begur: "girona",
+    cadaques: "girona",
+    pals: "girona",
+    roses: "girona",
+    "l'escala": "girona",
+    palamos: "girona",
+    "port andratx": "baleares",
+    "puerto andratx": "baleares",
+    deia: "baleares",
+    valldemossa: "baleares",
+    formentera: "baleares",
+    "santa ponsa": "baleares",
+    "puerto portals": "baleares",
+    "camp de mar": "baleares",
+    "costa adeje": "tenerife",
+    "playa de las americas": "tenerife",
+    "puerto de la cruz": "tenerife",
+    "playa del ingles": "las palmas",
+    "la moraleja": "madrid",
+    "pozuelo de alarcon": "madrid",
+    "boadilla del monte": "madrid",
+    "las rozas": "madrid"
   };
 
   const strengthFor = (share) => {
@@ -394,8 +577,20 @@ export default async function handler(req, res) {
     return "LIMITED";
   };
 
+  // Resolves a resort/suburb key (e.g. "marbella") to its province's own
+  // aliases (e.g. cityAliases.malaga) via DEMAND_PROVINCE_ALIASES when
+  // there's no direct entry — same fix as cityAliases above. A postal code
+  // found anywhere in the free text (postalProvinceKey) wins over both:
+  // it needs no name list at all and is never wrong for a real Spanish
+  // postal code.
+  const resolveProvinceAliases = (key, aliasMap) =>
+    (postalProvinceKey && aliasMap[postalProvinceKey]) ||
+    aliasMap[key] ||
+    (DEMAND_PROVINCE_ALIASES[key] && aliasMap[DEMAND_PROVINCE_ALIASES[key]]) ||
+    [key];
+
   const cityKey = normalize(city);
-  const provinceAliases = cityAliases[cityKey] || [cityKey];
+  const provinceAliases = resolveProvinceAliases(cityKey, cityAliases);
 
   const matchesLocation = (value, aliases = provinceAliases) => {
     const normalized = normalize(repairMojibake(value));
@@ -659,9 +854,30 @@ export default async function handler(req, res) {
         malaga: ["29", "29067"],
         murcia: ["30", "30030"],
         bilbao: ["48", "48020"],
-        zaragoza: ["50", "50297"]
+        zaragoza: ["50", "50297"],
+        // FIX: same resort-town gap as cityAliases above — a resort town
+        // resolves to its province's transaction-count/value data via
+        // DEMAND_PROVINCE_ALIASES instead of matching nothing.
+        baleares: ["07", "7"],
+        tenerife: ["38"],
+        girona: ["17"],
+        almeria: ["04", "4"],
+        "las palmas": ["35"],
+        tarragona: ["43"],
+        cadiz: ["11"]
       };
-      const targetProvinceCodes = transactionProvinceCodes[cityKey] || [];
+      // Derived once from the same POSTAL_CODE_PROVINCE table used for the
+      // valuation lookup above, so all 52 provinces have a transaction code
+      // without hand-duplicating the list a second time.
+      const PROVINCE_TO_CODE = Object.fromEntries(
+        Object.entries(POSTAL_CODE_PROVINCE).map(([code, key]) => [key, [code, code.replace(/^0/, "")]])
+      );
+      const targetProvinceCodes =
+        (postalProvinceKey && (transactionProvinceCodes[postalProvinceKey] || PROVINCE_TO_CODE[postalProvinceKey])) ||
+        transactionProvinceCodes[cityKey] ||
+        (DEMAND_PROVINCE_ALIASES[cityKey] && (transactionProvinceCodes[DEMAND_PROVINCE_ALIASES[cityKey]] || PROVINCE_TO_CODE[DEMAND_PROVINCE_ALIASES[cityKey]])) ||
+        PROVINCE_TO_CODE[cityKey] ||
+        [];
 
       transactionMatches = transactionRows.filter((row) => {
         if (transactionProvinceTextHeader) {
@@ -797,7 +1013,7 @@ export default async function handler(req, res) {
    * 4. FINAL RESPONSE
    * ---------------------------------------------------------
    */
-  const demandKey = DEMAND_PROVINCE_ALIASES[cityKey] || cityKey;
+  const demandKey = postalProvinceKey || DEMAND_PROVINCE_ALIASES[cityKey] || cityKey;
   const demandFixture = DEMAND_INTELLIGENCE[demandKey] || null;
   const demand = demandFixture
     ? { ...demandFixture, strength: strengthFor(demandFixture.foreignBuyerShare) }
