@@ -722,6 +722,7 @@
   function getCommercialInputs() {
     return {
       grossRent: num($("cGrossRent")?.value),
+      units: num($("cUnits")?.value),
       vacancyPct: num($("cVacancyPct")?.value),
       otherIncome: num($("cOtherIncome")?.value),
       opex: num($("cOpex")?.value),
@@ -761,15 +762,18 @@
   function computeCommercialNOI(price, c) {
     if (c.grossRent == null || c.opex == null) return null;
     const vacancyPct = c.vacancyPct ?? 0;
-    const egi = c.grossRent * (1 - vacancyPct / 100) + (c.otherIncome || 0);
+    const vacancyLoss = c.grossRent * (vacancyPct / 100);
+    const egi = c.grossRent - vacancyLoss + (c.otherIncome || 0);
     const noi = egi - c.opex;
+    // care homes, hotels, student housing… are judged per bed / room
+    const perUnit = c.units > 0 ? { price: price ? price / c.units : null, income: egi / c.units, noi: noi / c.units } : null;
     const capRate = price ? (noi / price) * 100 : null;
     const expenseRatio = egi > 0 ? (c.opex / egi) * 100 : null;
     const debtService = annualDebtService(c.loanAmount, c.loanRatePct, c.loanYears);
     const dscr = debtService ? noi / debtService : null;
     const equity = (price && c.loanAmount) ? price - c.loanAmount : null;
     const cashOnCash = (debtService != null && equity && equity > 0) ? ((noi - debtService) / equity) * 100 : null;
-    return { egi, noi, capRate, expenseRatio, debtService, dscr, cashOnCash };
+    return { egi, noi, capRate, expenseRatio, debtService, dscr, cashOnCash, vacancyPct, vacancyLoss, perUnit, paybackYears: noi > 0 && price ? price / noi : null };
   }
 
   // Standard institutional land-development pro forma: cost to build →
@@ -819,6 +823,11 @@
       set("noiDscr", r.dscr != null ? r.dscr.toFixed(2) + "x" : "— (no loan entered)");
       set("noiCashOnCash", r.cashOnCash != null ? pct(r.cashOnCash) : "— (no loan entered)");
       const notes = [];
+      const m = (x) => money(x, currency);
+      // the arithmetic itself, so every figure above can be checked by hand
+      notes.push(`NOI: ${m(c.grossRent)} income${r.vacancyLoss ? ` − ${r.vacancyPct}% vacancy (${m(r.vacancyLoss)})` : ""}${c.otherIncome ? ` + ${m(c.otherIncome)} other income` : ""} = ${m(r.egi)}; − ${m(c.opex)} expenses = ${m(r.noi)}.${r.vacancyLoss ? " If the income you entered is already what was actually collected (e.g. from the accounts), set vacancy to 0." : ""}`);
+      if (r.perUnit) notes.push(`Per unit (${c.units}): price ${m(r.perUnit.price)}, income ${m(r.perUnit.income)}/year, NOI ${m(r.perUnit.noi)}/year.`);
+      if (r.capRate != null && r.capRate > 20) notes.push(`Verify why: at these figures the NOI repays the whole price in ${r.paybackYears.toFixed(1)} years. An unusually high return gets the same scrutiny as an unusually low one — check that the income is verified (accounts), that every cost is included (staff, management, maintenance, insurance, regulation), and whether the price covers the property only or the operating business too.`);
       if (r.dscr != null) {
         notes.push(r.dscr >= 1.25
           ? `DSCR of ${r.dscr.toFixed(2)}x is comfortable — most commercial lenders require at least 1.25x.`
@@ -1677,7 +1686,7 @@
     if ($("monthlyRent") && property.propertyType !== "Commercial") $("monthlyRent").value = property.monthlyRent ?? "";
     // commercial NOI inputs (the rent above comes from cGrossRent then)
     const cm = property.commercial || {};
-    [["cGrossRent", cm.grossRent], ["cVacancyPct", cm.vacancyPct], ["cOtherIncome", cm.otherIncome], ["cOpex", cm.opex], ["cLoanAmount", cm.loanAmount], ["cLoanRate", cm.loanRatePct], ["cLoanYears", cm.loanYears]]
+    [["cGrossRent", cm.grossRent], ["cUnits", cm.units], ["cVacancyPct", cm.vacancyPct], ["cOtherIncome", cm.otherIncome], ["cOpex", cm.opex], ["cLoanAmount", cm.loanAmount], ["cLoanRate", cm.loanRatePct], ["cLoanYears", cm.loanYears]]
       .forEach(([id, v]) => { if ($(id) && v != null) $(id).value = v; });
     toggleCommercialFields();
 
