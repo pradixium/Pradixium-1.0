@@ -44,6 +44,13 @@ async function fetchJson(url, timeoutMs = 8000) {
 // Tries several plausible shapes for CBS's response rather than assuming
 // one — see the file header on why the exact schema isn't verified.
 function extractLatest(json) {
+  // CBS's actual shape (checked Sept 2026): { month: [{ code, name, date:
+  // [{ year, month, percent, percentYear, currBase: { value } }] }] },
+  // newest first; percentYear = change on the same two months a year ago
+  const m = json?.month?.[0]?.date?.[0];
+  if (m && Number.isFinite(m.percentYear)) {
+    return { period: `two months to ${String(m.month).padStart(2, "0")}/${m.year}`, annualChangePercent: m.percentYear, indexValue: m.currBase?.value ?? null, monthDesc: m.monthDesc || null };
+  }
   const candidates = [
     json?.DataSet?.Data,
     json?.Data,

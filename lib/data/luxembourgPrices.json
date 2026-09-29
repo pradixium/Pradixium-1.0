@@ -1,0 +1,708 @@
+{
+"period": "1er Juillet 2025 – 30 Juin 2026",
+"source": "Ministère du Logement — Observatoire de l'Habitat, Prix de vente des appartements par commune",
+"sourceUrl": "https://data.public.lu/fr/datasets/prix-de-vente-des-appartements-par-commune/",
+"file": "https://download.data.public.lu/resources/prix-de-vente-des-appartements-par-commune/20260924-084407/prix-moyen-au-metre-carre-enregistre-par-commune-2026t2.xls",
+"communes": {
+"Beaufort": {
+"sales": 3,
+"avg": null,
+"range": null,
+"vefaSales": 7,
+"vefaAvg": null
+},
+"Bech": {
+"sales": 1,
+"avg": null,
+"range": null,
+"vefaSales": 0,
+"vefaAvg": null
+},
+"Beckerich": {
+"sales": 7,
+"avg": null,
+"range": null,
+"vefaSales": 0,
+"vefaAvg": null
+},
+"Berdorf": {
+"sales": 7,
+"avg": null,
+"range": null,
+"vefaSales": 0,
+"vefaAvg": null
+},
+"Bertrange": {
+"sales": 45,
+"avg": 10081,
+"range": "7548 € - 13220 €",
+"vefaSales": 19,
+"vefaAvg": 12245
+},
+"Bettembourg": {
+"sales": 48,
+"avg": 7280,
+"range": "5009 € - 8900 €",
+"vefaSales": 4,
+"vefaAvg": null
+},
+"Bettendorf": {
+"sales": 9,
+"avg": null,
+"range": null,
+"vefaSales": 0,
+"vefaAvg": null
+},
+"Betzdorf": {
+"sales": 4,
+"avg": null,
+"range": null,
+"vefaSales": 0,
+"vefaAvg": null
+},
+"Bissen": {
+"sales": 16,
+"avg": 6583,
+"range": "3773 € - 8737 €",
+"vefaSales": 1,
+"vefaAvg": null
+},
+"Biwer": {
+"sales": 2,
+"avg": null,
+"range": null,
+"vefaSales": 0,
+"vefaAvg": null
+},
+"Boulaide": {
+"sales": 0,
+"avg": null,
+"range": null,
+"vefaSales": 0,
+"vefaAvg": null
+},
+"Bourscheid": {
+"sales": 4,
+"avg": null,
+"range": null,
+"vefaSales": 0,
+"vefaAvg": null
+},
+"Bous-Waldbredimus": {
+"sales": 0,
+"avg": null,
+"range": null,
+"vefaSales": 0,
+"vefaAvg": null
+},
+"Clervaux": {
+"sales": 26,
+"avg": 5519,
+"range": "3276 € - 6899 €",
+"vefaSales": 0,
+"vefaAvg": null
+},
+"Colmar-Berg": {
+"sales": 18,
+"avg": 6520,
+"range": "5181 € - 8012 €",
+"vefaSales": 0,
+"vefaAvg": null
+},
+"Consdorf": {
+"sales": 1,
+"avg": null,
+"range": null,
+"vefaSales": 0,
+"vefaAvg": null
+},
+"Contern": {
+"sales": 18,
+"avg": 8797,
+"range": "5861 € - 11631 €",
+"vefaSales": 15,
+"vefaAvg": 10189
+},
+"Dalheim": {
+"sales": 6,
+"avg": null,
+"range": null,
+"vefaSales": 0,
+"vefaAvg": null
+},
+"Diekirch": {
+"sales": 36,
+"avg": 6979,
+"range": "4795 € - 9119 €",
+"vefaSales": 0,
+"vefaAvg": null
+},
+"Differdange": {
+"sales": 223,
+"avg": 6768,
+"range": "4796 € - 8574 €",
+"vefaSales": 4,
+"vefaAvg": null
+},
+"Dippach": {
+"sales": 24,
+"avg": 7123,
+"range": "5435 € - 8783 €",
+"vefaSales": 4,
+"vefaAvg": null
+},
+"Dudelange": {
+"sales": 130,
+"avg": 6512,
+"range": "4534 € - 8901 €",
+"vefaSales": 11,
+"vefaAvg": 8553
+},
+"Echternach": {
+"sales": 31,
+"avg": 5739,
+"range": "3960 € - 8657 €",
+"vefaSales": 2,
+"vefaAvg": null
+},
+"Ell": {
+"sales": 8,
+"avg": null,
+"range": null,
+"vefaSales": 0,
+"vefaAvg": null
+},
+"Erpeldange-sur-Sûre": {
+"sales": 15,
+"avg": 6854,
+"range": "4410 € - 9536 €",
+"vefaSales": 18,
+"vefaAvg": 9338
+},
+"Esch-sur-Alzette": {
+"sales": 239,
+"avg": 6427,
+"range": "4147 € - 8709 €",
+"vefaSales": 22,
+"vefaAvg": 8678
+},
+"Esch-sur-Sûre": {
+"sales": 14,
+"avg": 6400,
+"range": "3481 € - 8637 €",
+"vefaSales": 9,
+"vefaAvg": null
+},
+"Ettelbruck": {
+"sales": 57,
+"avg": 6651,
+"range": "4053 € - 9234 €",
+"vefaSales": 0,
+"vefaAvg": null
+},
+"Feulen": {
+"sales": 6,
+"avg": null,
+"range": null,
+"vefaSales": 0,
+"vefaAvg": null
+},
+"Fischbach": {
+"sales": 6,
+"avg": null,
+"range": null,
+"vefaSales": 0,
+"vefaAvg": null
+},
+"Flaxweiler": {
+"sales": 0,
+"avg": null,
+"range": null,
+"vefaSales": 0,
+"vefaAvg": null
+},
+"Frisange": {
+"sales": 25,
+"avg": 7024,
+"range": "4606 € - 9565 €",
+"vefaSales": 4,
+"vefaAvg": null
+},
+"Garnich": {
+"sales": 3,
+"avg": null,
+"range": null,
+"vefaSales": 0,
+"vefaAvg": null
+},
+"Goesdorf": {
+"sales": 4,
+"avg": null,
+"range": null,
+"vefaSales": 0,
+"vefaAvg": null
+},
+"Grevenmacher": {
+"sales": 41,
+"avg": 6574,
+"range": "4765 € - 8199 €",
+"vefaSales": 6,
+"vefaAvg": null
+},
+"Groussbus-Wal": {
+"sales": 0,
+"avg": null,
+"range": null,
+"vefaSales": 0,
+"vefaAvg": null
+},
+"Habscht": {
+"sales": 22,
+"avg": 6485,
+"range": "5025 € - 9081 €",
+"vefaSales": 2,
+"vefaAvg": null
+},
+"Heffingen": {
+"sales": 5,
+"avg": null,
+"range": null,
+"vefaSales": 3,
+"vefaAvg": null
+},
+"Helperknapp": {
+"sales": 13,
+"avg": 6841,
+"range": "3142 € - 9746 €",
+"vefaSales": 4,
+"vefaAvg": null
+},
+"Hesperange": {
+"sales": 88,
+"avg": 8577,
+"range": "6490 € - 11703 €",
+"vefaSales": 15,
+"vefaAvg": 12698
+},
+"Junglinster": {
+"sales": 24,
+"avg": 7737,
+"range": "5260 € - 9441 €",
+"vefaSales": 28,
+"vefaAvg": 8793
+},
+"Käerjeng": {
+"sales": 54,
+"avg": 6979,
+"range": "5080 € - 9294 €",
+"vefaSales": 9,
+"vefaAvg": null
+},
+"Kayl": {
+"sales": 60,
+"avg": 7257,
+"range": "4539 € - 9467 €",
+"vefaSales": 2,
+"vefaAvg": null
+},
+"Kehlen": {
+"sales": 19,
+"avg": 7973,
+"range": "4919 € - 10169 €",
+"vefaSales": 17,
+"vefaAvg": 8362
+},
+"Kiischpelt": {
+"sales": 1,
+"avg": null,
+"range": null,
+"vefaSales": 0,
+"vefaAvg": null
+},
+"Koerich": {
+"sales": 4,
+"avg": null,
+"range": null,
+"vefaSales": 4,
+"vefaAvg": null
+},
+"Kopstal": {
+"sales": 18,
+"avg": 9708,
+"range": "6319 € - 12385 €",
+"vefaSales": 1,
+"vefaAvg": null
+},
+"Lac de la Haute-Sûre": {
+"sales": 9,
+"avg": null,
+"range": null,
+"vefaSales": 0,
+"vefaAvg": null
+},
+"Larochette": {
+"sales": 12,
+"avg": 5896,
+"range": "3942 € - 7449 €",
+"vefaSales": 0,
+"vefaAvg": null
+},
+"Lenningen": {
+"sales": 5,
+"avg": null,
+"range": null,
+"vefaSales": 0,
+"vefaAvg": null
+},
+"Leudelange": {
+"sales": 4,
+"avg": null,
+"range": null,
+"vefaSales": 17,
+"vefaAvg": 8770
+},
+"Lintgen": {
+"sales": 25,
+"avg": 7423,
+"range": "5285 € - 10270 €",
+"vefaSales": 3,
+"vefaAvg": null
+},
+"Lorentzweiler": {
+"sales": 20,
+"avg": 8404,
+"range": "6706 € - 10241 €",
+"vefaSales": 3,
+"vefaAvg": null
+},
+"Luxembourg-Ville": {
+"sales": 613,
+"avg": 10269,
+"range": "6991 € - 14126 €",
+"vefaSales": 128,
+"vefaAvg": 12162
+},
+"Mamer": {
+"sales": 28,
+"avg": 8522,
+"range": "5847 € - 10588 €",
+"vefaSales": 17,
+"vefaAvg": 9470
+},
+"Manternach": {
+"sales": 3,
+"avg": null,
+"range": null,
+"vefaSales": 0,
+"vefaAvg": null
+},
+"Mersch": {
+"sales": 41,
+"avg": 7618,
+"range": "5618 € - 9491 €",
+"vefaSales": 17,
+"vefaAvg": 8745
+},
+"Mertert": {
+"sales": 48,
+"avg": 7626,
+"range": "4573 € - 9777 €",
+"vefaSales": 3,
+"vefaAvg": null
+},
+"Mertzig": {
+"sales": 1,
+"avg": null,
+"range": null,
+"vefaSales": 0,
+"vefaAvg": null
+},
+"Mondercange": {
+"sales": 39,
+"avg": 7079,
+"range": "5157 € - 9478 €",
+"vefaSales": 4,
+"vefaAvg": null
+},
+"Mondorf-les-Bains": {
+"sales": 40,
+"avg": 7283,
+"range": "4713 € - 10110 €",
+"vefaSales": 0,
+"vefaAvg": null
+},
+"Niederanven": {
+"sales": 5,
+"avg": null,
+"range": null,
+"vefaSales": 0,
+"vefaAvg": null
+},
+"Nommern": {
+"sales": 1,
+"avg": null,
+"range": null,
+"vefaSales": 3,
+"vefaAvg": null
+},
+"Parc Hosingen": {
+"sales": 13,
+"avg": 5818,
+"range": "3859 € - 7479 €",
+"vefaSales": 0,
+"vefaAvg": null
+},
+"Petange": {
+"sales": 142,
+"avg": 6606,
+"range": "4473 € - 8687 €",
+"vefaSales": 0,
+"vefaAvg": null
+},
+"Preizerdaul": {
+"sales": 8,
+"avg": null,
+"range": null,
+"vefaSales": 0,
+"vefaAvg": null
+},
+"Putscheid": {
+"sales": 1,
+"avg": null,
+"range": null,
+"vefaSales": 0,
+"vefaAvg": null
+},
+"Rambrouch": {
+"sales": 6,
+"avg": null,
+"range": null,
+"vefaSales": 0,
+"vefaAvg": null
+},
+"Reckange-sur-Mess": {
+"sales": 5,
+"avg": null,
+"range": null,
+"vefaSales": 12,
+"vefaAvg": 9129
+},
+"Redange": {
+"sales": 6,
+"avg": null,
+"range": null,
+"vefaSales": 19,
+"vefaAvg": 6767
+},
+"Reisdorf": {
+"sales": 1,
+"avg": null,
+"range": null,
+"vefaSales": 0,
+"vefaAvg": null
+},
+"Remich": {
+"sales": 36,
+"avg": 6870,
+"range": "4942 € - 8894 €",
+"vefaSales": 7,
+"vefaAvg": null
+},
+"Roeser": {
+"sales": 48,
+"avg": 8207,
+"range": "6475 € - 10385 €",
+"vefaSales": 0,
+"vefaAvg": null
+},
+"Rosport-Mompach": {
+"sales": 3,
+"avg": null,
+"range": null,
+"vefaSales": 0,
+"vefaAvg": null
+},
+"Rumelange": {
+"sales": 23,
+"avg": 5717,
+"range": "3732 € - 7032 €",
+"vefaSales": 0,
+"vefaAvg": null
+},
+"Saeul": {
+"sales": 0,
+"avg": null,
+"range": null,
+"vefaSales": 0,
+"vefaAvg": null
+},
+"Sandweiler": {
+"sales": 19,
+"avg": 7997,
+"range": "6722 € - 9676 €",
+"vefaSales": 0,
+"vefaAvg": null
+},
+"Sanem": {
+"sales": 117,
+"avg": 7149,
+"range": "5053 € - 9573 €",
+"vefaSales": 19,
+"vefaAvg": 8927
+},
+"Schengen": {
+"sales": 15,
+"avg": 6319,
+"range": "4301 € - 8059 €",
+"vefaSales": 0,
+"vefaAvg": null
+},
+"Schieren": {
+"sales": 5,
+"avg": null,
+"range": null,
+"vefaSales": 2,
+"vefaAvg": null
+},
+"Schifflange": {
+"sales": 78,
+"avg": 7375,
+"range": "4654 € - 9830 €",
+"vefaSales": 3,
+"vefaAvg": null
+},
+"Schuttrange": {
+"sales": 10,
+"avg": 7597,
+"range": "5300 € - 9524 €",
+"vefaSales": 4,
+"vefaAvg": null
+},
+"Stadtbredimus": {
+"sales": 10,
+"avg": 6460,
+"range": "5360 € - 7904 €",
+"vefaSales": 0,
+"vefaAvg": null
+},
+"Steinfort": {
+"sales": 24,
+"avg": 7541,
+"range": "4076 € - 9755 €",
+"vefaSales": 6,
+"vefaAvg": null
+},
+"Steinsel": {
+"sales": 21,
+"avg": 7855,
+"range": "5989 € - 10946 €",
+"vefaSales": 19,
+"vefaAvg": 9693
+},
+"Strassen": {
+"sales": 58,
+"avg": 9983,
+"range": "6780 € - 13215 €",
+"vefaSales": 9,
+"vefaAvg": null
+},
+"Tandel": {
+"sales": 2,
+"avg": null,
+"range": null,
+"vefaSales": 0,
+"vefaAvg": null
+},
+"Troisvierges": {
+"sales": 3,
+"avg": null,
+"range": null,
+"vefaSales": 0,
+"vefaAvg": null
+},
+"Useldange": {
+"sales": 8,
+"avg": null,
+"range": null,
+"vefaSales": 1,
+"vefaAvg": null
+},
+"Vallée de l'Ernz": {
+"sales": 6,
+"avg": null,
+"range": null,
+"vefaSales": 2,
+"vefaAvg": null
+},
+"Vianden": {
+"sales": 5,
+"avg": null,
+"range": null,
+"vefaSales": 1,
+"vefaAvg": null
+},
+"Vichten": {
+"sales": 3,
+"avg": null,
+"range": null,
+"vefaSales": 0,
+"vefaAvg": null
+},
+"Waldbillig": {
+"sales": 4,
+"avg": null,
+"range": null,
+"vefaSales": 0,
+"vefaAvg": null
+},
+"Walferdange": {
+"sales": 50,
+"avg": 8425,
+"range": "6184 € - 10921 €",
+"vefaSales": 0,
+"vefaAvg": null
+},
+"Weiler-la-Tour": {
+"sales": 4,
+"avg": null,
+"range": null,
+"vefaSales": 0,
+"vefaAvg": null
+},
+"Weiswampach": {
+"sales": 23,
+"avg": 6152,
+"range": "4808 € - 8128 €",
+"vefaSales": 0,
+"vefaAvg": null
+},
+"Wiltz": {
+"sales": 33,
+"avg": 5253,
+"range": "3458 € - 8933 €",
+"vefaSales": 0,
+"vefaAvg": null
+},
+"Wincrange": {
+"sales": 5,
+"avg": null,
+"range": null,
+"vefaSales": 0,
+"vefaAvg": null
+},
+"Winseler": {
+"sales": 8,
+"avg": null,
+"range": null,
+"vefaSales": 0,
+"vefaAvg": null
+},
+"Wormeldange": {
+"sales": 7,
+"avg": null,
+"range": null,
+"vefaSales": 2,
+"vefaAvg": null
+}
+}
+}

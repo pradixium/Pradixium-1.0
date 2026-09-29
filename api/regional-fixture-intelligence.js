@@ -327,18 +327,6 @@ const FIXTURES = {
     source: "Ministry of Land, Infrastructure, Transport and Tourism (MLIT) — Residential Property Price Index, November 2025",
     officialSource: "https://www.mlit.go.jp/en/"
   },
-  vietnam: {
-    country: "Vietnam",
-    period: "2025",
-    nationalChangePercent: null,
-    cityName: "Ho Chi Minh City",
-    cityChangePercent: 65,
-    cityBenchmarkValue: 6113,
-    benchmarkUnit: "perSqm",
-    coverageNote: "Primary (new-build) apartment market only, in USD. Hanoi ran hot too this period at $3,852/m² (+32% YoY). The Ministry of Construction reports apartment prices nationwide rose 20-30% in 2025, with some areas exceeding 40% — 2026 growth is forecast to moderate to roughly 10-15%.",
-    source: "Vietnam Ministry of Construction — primary apartment market price data, 2025",
-    officialSource: "https://en.nso.gov.vn/"
-  },
   "sri lanka": {
     country: "Sri Lanka",
     period: "2025",

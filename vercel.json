@@ -16,7 +16,7 @@
       "includeFiles": "lib/data/italyComuni.json"
     },
     "api/eurostat-hpi-intelligence.js": {
-      "includeFiles": "lib/data/austriaPrices.json"
+      "includeFiles": "lib/data/*Prices.json"
     }
   }
 }

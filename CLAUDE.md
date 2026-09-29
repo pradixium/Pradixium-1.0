@@ -669,6 +669,24 @@ servers → not used. Check: Lieusaint 66/86 matched, C €3,222 (23), D €3,18
   said so. Other countries have no official condition split (checked:
   UK HPI/Price Paid, Spain Catastro zones, Portugal INE, NL/NO/SE/IE/DK/AT
   statistics, Croatia PPV) → the input changes nothing there.
+- Luxembourg (Sept 2026): `scripts/build-lu-prices.py` →
+  lib/data/luxembourgPrices.json — Ministère du Logement / Observatoire de
+  l'Habitat (data.public.lu, CC0): registered average €/m² of existing
+  apartments per commune, 12 months (Luxembourg-Ville Jul 2025–Jun 2026:
+  €10,269, 613 sales); capital's quarters → Luxembourg-Ville; no price
+  under 10 sales; houses not published. Re-run each quarter. (The
+  "prix affinés" file is a modelled price → not used.)
+- Source audit (Sept 2026): every figure must link to the official body
+  itself. Removed (secondary links only, primary not verifiable from here):
+  Cyprus (landbank), Malta (pedament; nso.gov.mt 403), Latvia (news),
+  Georgia asking prices, Milan blog figure (OMI is live), Dubai level
+  (famproperties) and trend (CBRE) — Dubai Pulse unreachable from the
+  sandbox; Vietnam fixture (+65%, market reports) → pending. Replaced with
+  primary: Israel (CBS release 256/2026: Tel Aviv Q2 2026 ₪4,553,500;
+  israel-intelligence now parses api.cbs.gov.il month[0].date[0]
+  .percentYear), Estonia (Maa- ja Ruumiamet Q1 2026 review €2,971/m²;
+  stat.ee +5.8%), Norway trend (SSB 07221 +4.4%). Still industry bodies
+  (not government): Finans Danmark / Eiendom Norge national context.
 - Austria: `scripts/build-at-prices.py` → lib/data/austriaPrices.json —
   Statistik Austria median €/m² per political district (houses, flats;
   Vienna per Bezirk) read from Statistik Austria's STATatlas GeoServer

@@ -19,6 +19,11 @@ const PENDING_COUNTRIES = {
   // Egypt: the CBE index is still in development and built from listings
   nigeria: "Nigeria",
   egypt: "Egypt",
+  // Maldives: no official house-price statistics found; Vietnam: the only
+  // figures found (Ho Chi Minh City +65%) came from market reports, not a
+  // verifiable Ministry of Construction / GSO release
+  maldives: "Maldives",
+  vietnam: "Vietnam",
   armenia: "Armenia",
   azerbaijan: "Azerbaijan",
   uzbekistan: "Uzbekistan",

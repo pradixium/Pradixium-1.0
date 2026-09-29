@@ -151,7 +151,7 @@ const COUNTRY_ENDPOINTS = {
   "south korea": "regional-fixture-intelligence",
   "india": "regional-fixture-intelligence",
   "japan": "regional-fixture-intelligence",
-  "vietnam": "regional-fixture-intelligence",
+  "vietnam": "pending-intelligence",
   "sri lanka": "regional-fixture-intelligence",
   "cambodia": "regional-fixture-intelligence",
   // Listed in the dropdown for global coverage, but no verified official
@@ -334,7 +334,7 @@ function spainRecord(cz, property) {
 const RECENT_AREA_ALIASES = {
   "canton of zurich": ["zurich", "zuerich", "zürich", "winterthur"],
   "capital region (höfuðborgarsvæðið)": ["reykjavik", "reykjavík", "kopavogur", "kópavogur", "hafnarfjordur", "hafnarfjörður", "gardabaer", "garðabær", "mosfellsbaer", "mosfellsbær", "seltjarnarnes"],
-  "prague": ["prague", "praha"], "warsaw": ["warsaw", "warszawa"], "tel aviv": ["tel aviv", "tel aviv-yafo", "tel aviv yafo", "jaffa", "yafo"],
+  "prague": ["prague", "praha"], "warsaw": ["warsaw", "warszawa"], "tel aviv": ["tel aviv", "tel aviv-yafo", "tel aviv yafo", "jaffa", "yafo"], "tel aviv-yafo": ["tel aviv", "tel aviv-yafo", "tel aviv yafo", "tel-aviv", "jaffa", "yafo", "תל אביב", "תל אביב-יפו", "תל-אביב"],
   "luxembourg city": ["luxembourg", "luxembourg city", "luxemburg"], "nicosia (new-build apartments)": ["nicosia", "lefkosia", "lefkoşa"],
   "dublin": ["dublin", "baile atha cliath"], "saburtalo, tbilisi": ["saburtalo"], "milan": ["milan", "milano"], "helsinki": ["helsinki", "helsingfors"],
   "riga": ["riga"], "berlin": ["berlin"], "zagreb": ["zagreb"], "budapest": ["budapest"], "bratislava": ["bratislava", "pressburg"],
@@ -953,7 +953,9 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
       needs_address: " Croatia's official approximate values (PPV) are per street block — enter the street and number (e.g. \"Marmontova 5, Split\").",
       address_not_found: " The address was not found in Croatia's official address register (ISPU) — check the street and number (Croatian spelling).",
       ambiguous_address: " Several addresses in Croatia's register match — add the town.",
-      no_house_values: " Croatia's official approximate values (PPV) are published for flats and land only, not houses."
+      no_house_values: " Croatia's official approximate values (PPV) are published for flats and land only, not houses.",
+      lu_no_houses: " Luxembourg's Observatoire de l'Habitat publishes prices per commune for apartments only, not houses.",
+      lu_few_sales: " Luxembourg's Observatoire de l'Habitat publishes no price for a commune with fewer than 10 apartment sales in the last 12 months."
     };
     const localNote = LOCAL_NOTES[lp?.status] || (lp?.status === "needs_district" ? ` ${lp.note}` : lp?.status === "apartments_not_covered" ? " Sweden's apartments are tenant-owner shares (bostadsrätter), not real property — the official price statistics cover houses only." : "");
     const national = recent && /national|malta & gozo/i.test(recent.area);
@@ -1023,7 +1025,7 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
     "serbia", "bosnia and herzegovina", "montenegro", "north macedonia", "ukraine", "albania", "andorra", "monaco",
     "russia", "kazakhstan", "canada", "mexico", "brazil", "australia", "new zealand", "argentina",
     "chile", "colombia", "peru", "uruguay", "dominican republic", "georgia", "south africa", "morocco", "kenya",
-    "thailand", "indonesia", "south korea", "india", "japan", "vietnam", "sri lanka", "cambodia"
+    "thailand", "indonesia", "south korea", "india", "japan", "sri lanka", "cambodia"
   ];
   if (REGIONAL_FIXTURE_COUNTRIES.includes(c) && (raw.cityTrends || raw.nationalTypeTrends)) {
     // official price TRENDS only (Stats SA metros, Morocco IPAI, KNBS):
