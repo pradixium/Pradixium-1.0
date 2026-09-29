@@ -1068,7 +1068,7 @@
           ...(token ? { Authorization: `Bearer ${token}` } : {})
         },
         body: JSON.stringify({ property })
-      }, 35000);
+      }, 60000); // same 60s budget as handleCheckoutReturn() below — matches api/orchestrator.js's own 60s maxDuration (vercel.json). This call site was still at the old 35s that handleCheckoutReturn() already proved too aggressive ("35 s aborted real paid reports") — it just never got the same fix, so the FIRST analysis a visitor ever runs (this one) kept silently timing out into the "AI analysis unavailable" fallback while a slower government-data country was still legitimately working server-side.
       const json = await r.json().catch(() => null);
 
       renderMarketEvidence(inputs.country, json?.marketEvidence || null, json?.pradixiumScore?.breakdown?.valueGapPercent);
@@ -1121,11 +1121,19 @@
       btn.disabled = true;
       btn.setAttribute("aria-busy", "true");
       btn.innerHTML = "Analyzing…";
+      // Pure fallback for a hung promise that never settles — not meant to
+      // fire during a normal request. Must stay above the orchestrator
+      // fetch's own 60s timeout (analyzeProperty()'s try/finally already
+      // resets the button the instant that fetch actually settles); at the
+      // old 30s this fired mid-flight on any real analysis slower than 30s,
+      // resetting "Analyzing…" back to the normal label while the request
+      // was still legitimately running — looking exactly like a freeze/
+      // failure and inviting a duplicate click.
       const safety = setTimeout(() => {
         btn.disabled = false;
         btn.removeAttribute("aria-busy");
         btn.innerHTML = originalHTML;
-      }, 30000);
+      }, 65000);
       try {
         await analyzeProperty();
       } catch (e) {
