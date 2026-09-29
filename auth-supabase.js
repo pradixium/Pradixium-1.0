@@ -81,7 +81,7 @@
     if (passwordInput) passwordInput.setAttribute('autocomplete', signup ? 'new-password' : 'current-password');
     if (title) title.textContent = signup ? 'Create your Pradixium account' : 'Welcome back';
     if (subtitle) subtitle.textContent = signup
-      ? 'Create a free account to unlock your full report and save your analyses.'
+      ? 'Create a free account to see your property analysis and save your reports.'
       : 'Sign in to continue to your Pradixium workspace.';
     if (submit) submit.textContent = signup ? 'Create Account' : 'Sign In';
     setError('');

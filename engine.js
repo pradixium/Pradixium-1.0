@@ -1049,6 +1049,14 @@
     const errEl = $("error");
     if (errEl) errEl.textContent = "";
 
+    // Browsing and filling in a property is free; seeing the analysis needs a free account.
+    const analysisToken = await getAccessToken();
+    if (!analysisToken) {
+      if (window.pradixiumShowAuthGate) window.pradixiumShowAuthGate("Create a free account to see your analysis.");
+      else alert("Please sign in first.");
+      throw new Error("Not signed in");
+    }
+
     // 1) Fast, rule-based render — the person sees real numbers within
     //    a second, not a blank screen.
     const { currency } = renderRuleBasedResult(inputs);
