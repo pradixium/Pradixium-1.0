@@ -663,6 +663,13 @@ price, the property's own economics) is unaffected. `cashOnCashReturnPercent()` 
 now a stub that always returns null, with a comment explaining why — the mortgage
 debt-service math it used to combine with the fake opex is not dead-code-removed,
 just no longer used for this figure, in case a real expense source shows up later.
+**Follow-up (Sept 2026, Claude B):** the server still computed net yield with
+the same 22% in `lib/scoring/pradixiumScore.js`, feeding the score and the
+Reality Check text ("Net yield (2.6%) is thin…" on a live LA report). Now
+gross yield only: Reality Check PASS at ≥ 4% gross (the old 3%-net line ÷
+0.78), yield score 8% gross → 100, cost-of-entry uses gross < 5%;
+`netYieldPercent` is always null; the AI agent is told never to state a net
+yield.
 
 ## Report feedback field (shipped Sept 2026)
 

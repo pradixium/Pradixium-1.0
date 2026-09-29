@@ -476,10 +476,9 @@
       return `Asking price is ${fmt(c.valueGapPercent)}% above the government/market benchmark — the evidence does not support this price.`;
     }
     if (c.id === "yield") {
-      const y = c.netYieldPercent.toFixed(1);
-      if (c.result === "PASS") return `Net yield (${y}%) clears a sane minimum for the rental-income story.`;
-      if (c.result === "WARN") return `Net yield (${y}%) is thin — barely above breakeven after costs.`;
-      return `Net yield (${y}%) is negative — the rental-income story does not add up at this price and rent.`;
+      const y = c.grossYieldPercent.toFixed(1);
+      if (c.result === "PASS") return `Gross yield (${y}%: rent ÷ price, before running costs) clears the 4% line for the rental-income story.`;
+      return `Gross yield (${y}%: rent ÷ price, before running costs) is below 4% — thin once costs are paid.`;
     }
     if (c.id === "momentum") {
       const t = c.priceTrendPercent.toFixed(1);
@@ -856,8 +855,6 @@
     set("stripRent", money(b.estimatedMonthlyRent, currency) + "/month (est.)");
     set("annualRent", money(annualRent, currency) + "/year (estimated)");
     set("grossYield", pct(b.grossYieldPercent) + " (est.)");
-    set("netYield", pct(b.netYieldPercent) + " (est.)");
-    set("netYield2", pct(b.netYieldPercent) + " (est.)");
   }
 
   const LOCKED_LIST_ITEM = "<li>🔒 Unlock the full report — $29.99 — to see this</li>";
