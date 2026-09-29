@@ -380,6 +380,35 @@ function nycSalesContext(n) {
   return null;
 }
 
+// Every area benchmark, price index, rent figure and comparable sale above
+// is about HOMES (HPI, DVF flats/houses, INE, Catastro zones, …). None of
+// them says anything about a commercial building or a development site, so
+// for those types they are shown as context only — never the benchmark, the
+// price trend, the yield basis or the comparables. The property's OWN
+// official record (a US parcel's assessed value / last sale) still applies.
+function nonResidentialEvidence(ev, propertyType) {
+  const t = String(propertyType || "");
+  if (!ev || !/commercial|land/i.test(t)) return ev;
+  const kind = /land/i.test(t) ? "land / development site" : "commercial property";
+  const ownRecord = ev.coverage === "property" || Boolean(ev.propertyRecord?.found);
+  const note = `The official figures below are for homes (residential) — no official ${kind} price benchmark is connected, so none of them is applied to this ${kind}.`;
+  return {
+    ...ev,
+    benchmarkValue: null,
+    benchmarkLabel: `${ev.benchmarkLabel || "Official benchmark"} — residential, not applied`,
+    governmentValue: ownRecord ? ev.governmentValue ?? null : null,
+    transactionValue: ownRecord ? ev.transactionValue ?? null : null,
+    marketArea: `${ev.marketArea ? `${ev.marketArea} — ` : ""}no official ${kind} benchmark`,
+    source: `${note} ${ev.source || ""}`.trim(),
+    sourceParts: Array.isArray(ev.sourceParts) ? [{ title: "Property type", text: note }, ...ev.sourceParts] : ev.sourceParts,
+    coverage: ownRecord ? ev.coverage : "none",
+    priceTrendPercent: null,
+    rentalBenchmark: null,
+    comparableSales: null,
+    residentialOnly: true
+  };
+}
+
 function normalizeMarketEvidence(country, raw, propertyType, property = null) {
   if (!raw) return null;
   const c = String(country || "").trim().toLowerCase();
@@ -518,7 +547,9 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
     const gbp = (x) => "£" + Math.round(x).toLocaleString("en-US");
     const txText = tx.available && tx.level
       ? `HM Land Registry Price Paid — ${tx.sampleSize} market sales of ${tx.typeLabel} in ${tx.level} ${tx.areaName} (${tx.transactionWindow}): median ${gbp(tx.medianTransactionPrice)}, middle half ${gbp(tx.p25TransactionPrice)}–${gbp(tx.p75TransactionPrice)}.`
-      : "HM Land Registry Price Paid — no area with enough recent market sales matched this address (add the postcode).";
+      : tx.reason === "not_residential"
+        ? "HM Land Registry Price Paid — covers home sales only; not used for this property type."
+        : "HM Land Registry Price Paid — no area with enough recent market sales matched this address (add the postcode).";
     const hpiText = raw.averagePrice != null
       ? `UK House Price Index (HM Land Registry / ONS), ${raw.hpiArea}, ${raw.period}: average price of ${raw.hpiTypeLabel} ${gbp(raw.averagePrice)}${raw.annualChangePercent != null ? `, ${raw.annualChangePercent >= 0 ? "+" : ""}${raw.annualChangePercent}% in a year` : ""}.`
       : "UK House Price Index — no local authority matched this address, so no local average is applied (the national figure is not used as a local one).";
@@ -1217,7 +1248,7 @@ export default async function handler(req, res) {
     marketDataError = fetched.error;
   }
 
-  const marketEvidence = normalizeMarketEvidence(property.country, marketData, property.propertyType, property);
+  const marketEvidence = nonResidentialEvidence(normalizeMarketEvidence(property.country, marketData, property.propertyType, property), property.propertyType);
 
   // The Pradixium Score is a deterministic, weighted calculation over
   // whatever real data is available (rental yield, the asking price vs
