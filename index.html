@@ -72,7 +72,7 @@
     .input-label{display:block;font-size:8px;color:#6c7581;text-transform:uppercase;letter-spacing:.35px;margin:0 0 5px}
     .field{width:100%;height:31px;border:1px solid #d9dee6;border-radius:4px;background:#fff;color:#27313d;padding:0 9px;outline:none;font-size:9px;margin-bottom:10px;position:relative;z-index:2;pointer-events:auto;touch-action:manipulation}
     .field:focus{border-color:#5b8cf1;box-shadow:0 0 0 2px rgba(47,124,255,.08)}
-    .primary{width:100%;height:32px;border:0;border-radius:4px;background:linear-gradient(90deg,#2568ed,#2e79f4);color:#fff;font-size:9px;font-weight:600;box-shadow:0 3px 8px rgba(37,104,237,.18)}
+    .paste-toggle{display:block;width:100%;margin:-2px 0 12px;padding:10px 14px;border:1px solid #2568ed;border-radius:6px;background:#fff;color:#2568ed;font-size:13px;font-weight:600;cursor:pointer;transition:background .15s}.paste-toggle:hover{background:#f0f5ff}.paste-fill{display:block;width:100%;margin-top:8px;padding:10px 14px;border:0;border-radius:6px;background:linear-gradient(90deg,#2568ed,#2e79f4);color:#fff;font-size:13px;font-weight:600;box-shadow:0 3px 8px rgba(37,104,237,.18);cursor:pointer}.primary{width:100%;height:32px;border:0;border-radius:4px;background:linear-gradient(90deg,#2568ed,#2e79f4);color:#fff;font-size:9px;font-weight:600;box-shadow:0 3px 8px rgba(37,104,237,.18)}
     .secure{font-size:7px;color:#929ba7;text-align:center;margin-top:10px}
     .error{color:#c94141;font-size:8px;margin-top:8px;min-height:10px}
 
@@ -283,10 +283,10 @@
             <label class="input-label" for="propertyUrl">Property URL</label>
             <input id="propertyUrl" class="field" type="url" placeholder="Paste property listing URL">
             <p id="urlStatus" class="data-note" style="display:none;margin:-6px 0 10px;font-size:12px"></p>
-            <a href="#" id="listingTextToggle" style="display:inline-block;font-size:12px;margin:-4px 0 10px">Site blocks the link? Paste the listing's text instead</a>
+            <button type="button" id="listingTextToggle" class="paste-toggle">Paste the listing text instead</button>
             <div id="listingTextBox" style="display:none;margin-bottom:12px">
               <textarea id="listingText" class="field" rows="5" placeholder="On the listing page: select all (Ctrl/Cmd+A), copy, and paste here"></textarea>
-              <button type="button" id="listingTextBtn" class="primary" style="margin-top:6px;padding:10px 16px;font-size:14px;width:auto">Fill from text</button>
+              <button type="button" id="listingTextBtn" class="paste-fill">Fill from text</button>
             </div>
 
             <label class="input-label" for="country">Select Country</label>
