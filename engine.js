@@ -98,8 +98,17 @@
       bedrooms: num($("bedrooms")?.value),
       bathrooms: num($("bathrooms")?.value),
       propertyType: $("propertyType")?.value || window.pradixiumPropertyType || "Apartment",
-      monthlyRent: num($("monthlyRent")?.value)
+      monthlyRent: rentForType()
     };
+  }
+
+  // A commercial property's rent is the annual gross rent entered in the
+  // NOI fields (the residential rent field is hidden then); land has none.
+  function rentForType() {
+    const type = $("propertyType")?.value;
+    if (type === "Land") return null;
+    if (type === "Commercial") { const g = num($("cGrossRent")?.value); return g ? g / 12 : null; }
+    return num($("monthlyRent")?.value);
   }
 
   async function loadFromUrlIfNeeded() {
@@ -1211,7 +1220,7 @@
     const priceEl = $("askingPrice");
     const price = num(priceEl?.value);
     const size = num($("size")?.value);
-    const monthlyRent = num($("monthlyRent")?.value);
+    const monthlyRent = rentForType();
     const annualRent = monthlyRent ? monthlyRent * 12 : null;
     const agent = window.pradixiumLastAgent || {};
     const hasScore = agent.score !== null && agent.score !== undefined && Number.isFinite(Number(agent.score));
@@ -1665,7 +1674,12 @@
     if ($("bedrooms")) $("bedrooms").value = property.bedrooms ?? "";
     if ($("bathrooms")) $("bathrooms").value = property.bathrooms ?? "";
     if ($("propertyType")) $("propertyType").value = property.propertyType || "Apartment";
-    if ($("monthlyRent")) $("monthlyRent").value = property.monthlyRent ?? "";
+    if ($("monthlyRent") && property.propertyType !== "Commercial") $("monthlyRent").value = property.monthlyRent ?? "";
+    // commercial NOI inputs (the rent above comes from cGrossRent then)
+    const cm = property.commercial || {};
+    [["cGrossRent", cm.grossRent], ["cVacancyPct", cm.vacancyPct], ["cOtherIncome", cm.otherIncome], ["cOpex", cm.opex], ["cLoanAmount", cm.loanAmount], ["cLoanRate", cm.loanRatePct], ["cLoanYears", cm.loanYears]]
+      .forEach(([id, v]) => { if ($(id) && v != null) $(id).value = v; });
+    toggleCommercialFields();
 
     window.pradixiumPropertyAddress = property.address || null;
     const { currency } = renderRuleBasedResult(property);

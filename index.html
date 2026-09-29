@@ -860,7 +860,8 @@
             );
           }
 
-          const type = window.pradixiumPropertyType || 'Apartment';
+          const typeSel = get('propertyType');
+          const type = (typeSel && typeSel.value ? typeSel.options[typeSel.selectedIndex].text.replace(/\s*\(.*\)$/, '') : '') || window.pradixiumPropertyType || 'Apartment';
           setIfChanged(get('metaType'), type);
 
           const asking = get('displayAskingPrice');

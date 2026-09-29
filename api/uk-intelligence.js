@@ -129,7 +129,10 @@ function ukRentFor(city) {
 
 function postcodeFrom(value) {
   const match = String(value || '').toUpperCase().match(/\b([A-Z]{1,2}\d[A-Z\d]?\s*\d[A-Z]{2})\b/);
-  return match ? match[1].replace(/\s+/g, ' ') : null;
+  // "DL148ED" and "DL14 8ED" are the same postcode: the inward part is
+  // always the last three characters
+  const pc = match ? match[1].replace(/\s+/g, '') : null;
+  return pc ? `${pc.slice(0, -3)} ${pc.slice(-3)}` : null;
 }
 
 function median(values) {
@@ -204,8 +207,11 @@ async function fetchTransactionEvidence(city, address, propertyType) {
   const base = { source: 'HM Land Registry Price Paid Data', transactionWindow: cache.year ? `sales registered in ${cache.year} to date` : 'unavailable' };
   if (!cache.rows.length) return { ...base, available: false, sampleSize: 0, error: cache.error || 'Official Price Paid Data unavailable' };
   const text = [address, city].filter(Boolean).join(', ');
-  const types = ukTypes(propertyType);
-  if (!types) return { ...base, available: false, sampleSize: 0, reason: 'not_residential' };
+  // commercial / land: home sales still locate the local authority (its
+  // HPI average is then shown as residential context only), but no sales
+  // figure is returned for the property
+  const nonResidential = !ukTypes(propertyType);
+  const types = ukTypes(propertyType) || { codes: ['D', 'S', 'T', 'F'] };
   const market = cache.rows.filter((r) => r.category === 'A' && r.status !== 'D' && types.codes.includes(r.propertyType));
   const pc = postcodeFrom(text);
   const levels = [];
@@ -252,6 +258,7 @@ async function fetchTransactionEvidence(city, address, propertyType) {
   // only a postcode area or a named local authority lies in ONE authority
   // (the "town" London spans 33 boroughs)
   const localAuthority = level && level !== 'town' ? Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0] || null : null;
+  if (nonResidential) return { ...base, available: false, sampleSize: 0, reason: 'not_residential', localAuthority };
   const prices = selected.map((r) => r.price);
   const latest = [...selected].sort((a, b) => String(b.date || '').localeCompare(String(a.date || ''))).slice(0, 15);
   const q = (p) => { const a = [...prices].sort((x, y) => x - y); return a.length ? a[Math.floor((a.length - 1) * p)] : null; };
