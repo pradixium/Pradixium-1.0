@@ -109,7 +109,7 @@
   function refresh() {
     if (gate && currentUser) gate.classList.add('hidden');
     if (accountName) {
-      accountName.textContent = authenticated
+      accountName.textContent = currentUser
         ? (currentUser.user_metadata && currentUser.user_metadata.full_name) || currentUser.email
         : 'Account';
     }

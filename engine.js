@@ -111,44 +111,93 @@
     return num($("monthlyRent")?.value);
   }
 
+  // Reads the pasted listing link (api/property-url.js) and fills the empty
+  // fields only — never overwrites what the customer typed — and says what
+  // it filled, or why it could not (sites that block automatic reading).
+  let urlLoadedFor = null;
+  function urlStatus(text, bad) {
+    const el = $("urlStatus");
+    if (!el) return;
+    el.textContent = text || "";
+    el.style.display = text ? "" : "none";
+    el.style.color = bad ? "#b45309" : "";
+  }
   async function loadFromUrlIfNeeded() {
     const urlField = $("propertyUrl");
     const url = urlField?.value?.trim();
-    if (!url) return;
-    const price = num($("askingPrice")?.value);
-    const size = num($("size")?.value);
-    if (price && size) return; // already have the basics, don't overwrite
-
+    if (!url || url === urlLoadedFor) return;
+    if (!/^https?:\/\//i.test(url)) { urlStatus("Paste the full link of one listing (starting with https://).", true); return; }
+    urlLoadedFor = url;
+    urlStatus("Reading the listing…");
     try {
       const r = await fetchWithTimeout(`/api/property-url?url=${encodeURIComponent(url)}`, {}, 12000);
-      if (!r.ok) return;
-      const json = await r.json();
-      if (!json.success || !json.property) return;
-      const p = json.property;
-      if (p.price) $("askingPrice").value = p.price;
-      if (p.size) $("size").value = p.size;
-      if (p.bedrooms) $("bedrooms").value = p.bedrooms;
-      if (p.bathrooms) $("bathrooms").value = p.bathrooms;
-      if (p.monthlyRent) $("monthlyRent").value = p.monthlyRent;
+      const json = r.ok ? await r.json() : null;
+      if (!json?.success || !json.property) {
+        urlStatus((json?.error || "The listing could not be read — please type the details.") + " Or paste the listing's text below.", true);
+        showPasteBox(true);
+        return;
+      }
+      applyListing(json.property);
+    } catch (e) {
+      urlStatus("The listing could not be read — please type the details, or paste the listing's text below.", true);
+      showPasteBox(true);
+    }
+  }
+
+  function showPasteBox(open) {
+    const box = $("listingTextBox");
+    if (box) box.style.display = open ? "" : "none";
+  }
+
+  // the listing text the customer copied from the page (any site, any
+  // country — nothing is fetched from the portal itself)
+  async function importFromText() {
+    const text = $("listingText")?.value || "";
+    if (text.trim().length < 20) { urlStatus("Paste the listing's text (price, size, address) first.", true); return; }
+    urlStatus("Reading the pasted text…");
+    try {
+      const r = await fetchWithTimeout("/api/property-url", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ text, url: $("propertyUrl")?.value?.trim() || undefined }) }, 12000);
+      const json = r.ok ? await r.json() : null;
+      if (!json?.success || !json.property) { urlStatus(json?.error || "Nothing could be read from that text — please type the details.", true); return; }
+      applyListing(json.property);
+    } catch (e) {
+      urlStatus("Nothing could be read from that text — please type the details.", true);
+    }
+  }
+
+  function applyListing(p) {
+    {
+      const filled = [];
+      const fill = (id, v, label) => { const el = $(id); if (el && v != null && v !== "" && !el.value) { el.value = v; filled.push(label); } };
+      const countryEl = $("country");
+      const countryOptions = $("countryOptions");
+      if (countryEl && countryOptions && p.country && !countryEl.value) {
+        const match = Array.from(countryOptions.options).find((o) => o.value.toLowerCase() === String(p.country).toLowerCase());
+        if (match) { countryEl.value = match.value; filled.push("country"); try { updatePriceLabels(); } catch (e) {} }
+      }
+      // a price in another currency than the country's is not entered —
+      // it would be compared with local figures as if it were local money
+      const knownCountry = countryEl?.value || p.country;
+      const localCur = knownCountry ? currencyForCountry(knownCountry) : null;
+      const otherCurrency = p.currency && localCur && p.currency !== localCur;
+      if (!otherCurrency) fill("askingPrice", p.price, "price");
+      fill("size", p.size, "size");
+      fill("bedrooms", p.bedrooms, "bedrooms");
+      fill("bathrooms", p.bathrooms, "bathrooms");
+      fill("monthlyRent", p.monthlyRent, "rent");
+      fill("city", p.address || p.city, "address");
       if (p.propertyType) {
         window.pradixiumPropertyType = p.propertyType;
         const typeEl = $("propertyType");
         if (typeEl) {
           const t = String(p.propertyType).toLowerCase();
-          const match = Array.from(typeEl.options).find((o) => t.includes(o.value.toLowerCase()) || (o.value === "House" && /villa|house|detached|chalet/.test(t)));
-          if (match) typeEl.value = match.value;
+          const match = Array.from(typeEl.options).find((o) => t.includes(o.value.toLowerCase()) || (o.value === "House" && /villa|house|detached|chalet|singlefamily/.test(t)));
+          if (match) { typeEl.value = match.value; typeEl.dispatchEvent(new Event("change", { bubbles: true })); }
         }
       }
-      const countryEl = $("country");
-      const countryOptions = $("countryOptions");
-      if (countryEl && countryOptions && p.country) {
-        const match = Array.from(countryOptions.options).find((o) => o.value.toLowerCase() === String(p.country).toLowerCase());
-        if (match) countryEl.value = match.value;
-      }
-      if ($("city") && p.city) $("city").value = p.city;
-      window.pradixiumPropertyAddress = p.address || p.city || "";
-    } catch (e) {
-      console.warn("Pradixium: could not load property from URL", e);
+      window.pradixiumPropertyAddress = p.address || p.city || window.pradixiumPropertyAddress || "";
+      const note = otherCurrency ? ` The listing's price is in ${p.currency} — enter it in ${localCur}.` : (!knownCountry && p.currency && p.price ? ` The price is in ${p.currency} — choose the country it belongs to.` : "");
+      urlStatus(filled.length ? `Filled from the listing: ${filled.join(", ")} — please check them.${note}` : `Nothing new to fill from this listing.${note}`, Boolean(note));
     }
   }
 
@@ -1934,6 +1983,13 @@
     });
   }
 
+  function wireUrlImport() {
+    const el = $("propertyUrl");
+    if (el) el.addEventListener("change", () => loadFromUrlIfNeeded());
+    $("listingTextToggle")?.addEventListener("click", (e) => { e.preventDefault(); showPasteBox($("listingTextBox")?.style.display === "none"); });
+    $("listingTextBtn")?.addEventListener("click", (e) => { e.preventDefault(); importFromText(); });
+  }
+
   function wirePropertyTypeToggle() {
     const select = $("propertyType");
     if (!select) return;
@@ -1946,6 +2002,7 @@
     wireReportButtons();
     wireCountryAutocomplete();
     wirePropertyTypeToggle();
+    wireUrlImport();
     wireDealDiscoveryButton();
     handleCheckoutReturn();
     prefillCountryFromUrl();

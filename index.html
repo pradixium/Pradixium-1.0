@@ -282,6 +282,12 @@
 
             <label class="input-label" for="propertyUrl">Property URL</label>
             <input id="propertyUrl" class="field" type="url" placeholder="Paste property listing URL">
+            <p id="urlStatus" class="data-note" style="display:none;margin:-6px 0 10px;font-size:12px"></p>
+            <a href="#" id="listingTextToggle" style="display:inline-block;font-size:12px;margin:-4px 0 10px">Site blocks the link? Paste the listing's text instead</a>
+            <div id="listingTextBox" style="display:none;margin-bottom:12px">
+              <textarea id="listingText" class="field" rows="5" placeholder="On the listing page: select all (Ctrl/Cmd+A), copy, and paste here"></textarea>
+              <button type="button" id="listingTextBtn" class="primary" style="margin-top:6px;padding:10px 16px;font-size:14px;width:auto">Fill from text</button>
+            </div>
 
             <label class="input-label" for="country">Select Country</label>
             <div class="country-picker">

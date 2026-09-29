@@ -724,6 +724,24 @@ price level is published":
   development and built from listings). Mauritius skipped: Statistics
   Mauritius primary release not reachable/verifiable.
 
+## Listing link / pasted listing import (Sept 2026, Claude B)
+
+`api/property-url.js` + `lib/listing/detect.js`: country from the listing's
+JSON-LD (ISO codes/names), the site's domain (country TLDs + ~50 national
+portals on .com) — never guessed; currency from JSON-LD or the symbol next
+to the price (₪ TL AED zł Kč Ft …); square feet → m² (unitCode FTK/SQF or
+"sq ft" next to the number); text regexes run on the visible text only (an
+SVG path once gave "£80"); price from og:description first; room labels
+only as "BEDROOMS 1" / "Bedrooms: 1" (in "3 beds 2 baths" the label is
+followed by the other number). Checked Sept 2026: most big portals block
+server reads (Idealista, Zillow, Zoopla, Immobiliare, Madlan, Bayut,
+Domain, Daft, Hemnet… 403/captcha) — never worked around. Instead: POST
+{ text, url } = the listing text the customer copies from the page (any
+site); the form shows it automatically when a link is blocked. The client
+fills EMPTY fields only, says what it filled, and does not enter a price in
+another currency than the chosen country's. Real test: Rightmove
+146099750 → £499,000, 47 m² (506 sq ft), 1 bed, 1 bath.
+
 ## Net Yield / Cash-on-Cash fix (shipped Sept 2026)
 
 `engine.js` had three places computing "Net Yield" and "Cash-on-Cash" off a flat,

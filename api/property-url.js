@@ -1,9 +1,18 @@
+import { countryFromHost, countryFromValue, currencyFromText, looksBlocked } from "../lib/listing/detect.js";
+
 export default async function handler(req, res) {
-  if (req.method !== "GET") {
+  if (req.method !== "GET" && req.method !== "POST") {
     return res.status(405).json({ success: false, error: "Method not allowed" });
   }
+  // POST { text, url? }: the listing text the customer copied from the page
+  // (works for every site, including those that block automatic reading —
+  // nothing is fetched from the portal)
+  const pasted = req.method === "POST" ? String(req.body?.text || "").slice(0, 200000) : null;
+  if (req.method === "POST" && pasted.trim().length < 20) {
+    return res.status(400).json({ success: false, error: "Paste the text of the listing page (price, size, address)." });
+  }
 
-  const url = req.query.url;
+  const url = req.method === "POST" ? (req.body?.url || "https://pasted.listing/") : req.query.url;
   if (!url) {
     return res.status(400).json({ success: false, error: "Missing property URL" });
   }
@@ -16,11 +25,13 @@ export default async function handler(req, res) {
     return res.status(400).json({ success: false, error: "Invalid property URL" });
   }
 
-  const hostname = targetUrl.hostname.toLowerCase();
+  let hostname = targetUrl.hostname.toLowerCase();
   const isFranceSource = hostname.includes("meilleursagents.com") || hostname.endsWith(".fr");
 
   try {
-    const response = await fetch(targetUrl.toString(), {
+    const response = pasted != null
+      ? { ok: true, status: 200, text: async () => pasted.replace(/</g, " ").replace(/\r?\n/g, "<br>\n") }
+      : await fetch(targetUrl.toString(), {
       redirect: "follow",
       headers: {
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0 Safari/537.36",
@@ -31,15 +42,20 @@ export default async function handler(req, res) {
       }
     });
 
-    if (!response.ok) {
-      return res.status(502).json({
+    const html = response.ok ? await response.text() : "";
+    if (pasted != null && hostname === "pasted.listing") hostname = "";
+    // Many portals block automated readers (Cloudflare, DataDome…). That is
+    // never worked around: the customer is told to type the figures in.
+    if (pasted == null && (!response.ok || looksBlocked(response.status, html))) {
+      return res.status(200).json({
         success: false,
-        error: `Property page returned ${response.status}`,
+        blocked: looksBlocked(response.status, html),
+        error: looksBlocked(response.status, html)
+          ? `${hostname} does not allow automatic reading of its pages — please type the price, size and address from the listing.`
+          : `The listing page answered with an error (HTTP ${response.status}) — please check the link or type the details.`,
         source: hostname
       });
     }
-
-    const html = await response.text();
 
     function clean(value) {
       if (value === null || value === undefined) return null;
@@ -91,9 +107,13 @@ export default async function handler(req, res) {
       return Number.isFinite(result) ? result : null;
     }
 
-    function extract(patterns) {
+    // what a visitor sees: no scripts (except JSON-LD), styles or SVG
+    // drawings — a price regex once picked "80" out of an SVG path
+    const visible = html.replace(/<script(?![^>]*ld\+json)[\s\S]*?<\/script>|<style[\s\S]*?<\/style>|<svg[\s\S]*?<\/svg>|<noscript[\s\S]*?<\/noscript>/gi, " ");
+    const visibleText = visible.replace(/<[^>]+>/g, " ").replace(/&nbsp;/gi, " ").replace(/\s+/g, " ");
+    function extract(patterns, src = visible) {
       for (const pattern of patterns) {
-        const match = html.match(pattern);
+        const match = src.match(pattern);
         if (match && match[1]) return clean(match[1]);
       }
       return null;
@@ -168,6 +188,7 @@ export default async function handler(req, res) {
     // type, or a /search//zoeken//recherche/ path) and say so plainly
     // instead of either failing silently or extracting the wrong number.
     const jsonLdBlocks = parseJsonLd();
+    const metaDescription = extractMeta("og:description") || extractMeta("description") || extractMeta("twitter:description") || "";
     const looksLikeListIndex = jsonLdBlocks.some((item) => {
       const types = [item].flat().flatMap((v) => (Array.isArray(v?.["@type"]) ? v["@type"] : [v?.["@type"]])).filter(Boolean);
       return types.some((t) => /itemlist|searchresultspage|collectionpage/i.test(String(t)));
@@ -201,9 +222,13 @@ export default async function handler(req, res) {
         extractMeta("og:price:amount"),
         extractMeta("price"),
         extractMeta("twitter:data1"),
+        // the page's own description ("… for £499,000") before any loose number
+        extract([/([$€£₪₺]\s?[0-9][0-9,\.]{3,})/, /((?:AED|USD|EUR|GBP|CHF|TRY|ILS)\s?[0-9][0-9,\.]{3,})/, /([0-9][0-9,\.\s]{3,}\s?(?:€|£|₪|₺|zł|Kč|Ft|TL|AED|CHF))/], metaDescription),
         extract([
-          /(?:"|')?(?:askingPrice|listPrice|listingPrice|salePrice|priceValue|priceText)(?:"|')?\s*:\s*(?:"|')([^"']+)(?:"|')/i,
-          /(?:"|')?(?:askingPrice|listPrice|listingPrice|salePrice|priceValue|priceText)(?:"|')?\s*:\s*([0-9][0-9,\.\s]*)/i,
+          /(?:"|')?(?:askingPrice|listPrice|listingPrice|salePrice|priceValue|priceText|primaryPrice|displayPrice)(?:"|')?\s*:\s*(?:"|')([^"']+)(?:"|')/i,
+          /(?:"|')?(?:askingPrice|listPrice|listingPrice|salePrice|priceValue|priceText)(?:"|')?\s*:\s*([0-9][0-9,\.\s]*)/i
+        ], html),
+        extract([
           /data-(?:asking-)?price=["']([^"']+)["']/i,
           /(?:class|id)=["'][^"']*(?:listing-price|asking-price|sale-price|property-price|price)[^"']*["'][^>]*>\s*([^<]{2,80})</i,
           /([$€£]\s?[0-9][0-9,\.\s]{2,})/i,
@@ -226,9 +251,9 @@ export default async function handler(req, res) {
       currency = currencyMatch?.[1] || null;
     }
     if (!currency) {
-      if (/US\$\s*[0-9]/i.test(html) || /\bUSD\b/i.test(html)) currency = "USD";
-      else if (/£|GBP/i.test(html)) currency = "GBP";
-      else if (/€|EUR/i.test(html)) currency = "EUR";
+      // a symbol next to a number, else anywhere in the page's meta/title
+      const near = html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").match(/.{0,6}[0-9][0-9.,\s]{3,}.{0,6}/g) || [];
+      currency = currencyFromText(near.slice(0, 40).join(" ")) || null;
     }
 
     let address = null;
@@ -246,7 +271,9 @@ export default async function handler(req, res) {
     let bedrooms = entity.numberOfBedrooms || listing?.numberOfBedrooms || null;
     let bathrooms = entity.numberOfBathroomsTotal || entity.numberOfBathrooms || listing?.numberOfBathroomsTotal || null;
     let floorSize = entity.floorSize || listing?.floorSize || null;
-    let size = floorSize && typeof floorSize === "object" ? floorSize.value : floorSize;
+    let size = floorSize && typeof floorSize === "object" ? numberFromText(floorSize.value) : numberFromText(floorSize);
+    // schema.org unitCode FTK / SQF = square feet (US, UK, Dubai listings)
+    let sizeInFeet = floorSize && typeof floorSize === "object" && /^(FTK|SQF|sq ?ft|ft2|ft²)$/i.test(String(floorSize.unitCode || floorSize.unitText || ""));
 
     const domainCountry =
       /(^|\.)(idealista\.com|fotocasa\.es|pisos\.com|habitaclia\.com|kyero\.com)$/.test(hostname) && hostname.includes(".es") ? "Spain" :
@@ -262,39 +289,45 @@ export default async function handler(req, res) {
       null;
 
     const isUS = !domainCountry && (/\b(United States|USA)\b/i.test(html) || /US\$\s*[0-9]/i.test(html) || /\$\s*[0-9][0-9,\.]{2,}/.test(html));
-    const french = isFranceSource || /\b(France|Paris|Lyon|Marseille|Nice|Bordeaux|Toulouse|Nantes|Montpellier|Strasbourg|Lille|Rennes|Cannes|Antibes|Versailles)\b/i.test(html);
+    const french = isFranceSource || (!domainCountry && !countryFromHost(hostname) && /\b(France|Paris|Lyon|Marseille|Bordeaux|Toulouse|Nantes|Montpellier|Strasbourg)\b/.test(visible));
 
     if (!price) {
       price = numberFromText(extract([
-        /(?:Price|List Price|Asking Price|Listed at|Sale Price|Prix)[^0-9$€£]{0,120}([$€£]?\s*[0-9][0-9,\.\s]*)/i,
+        /(?:Price|List Price|Asking Price|Listed at|Sale Price|Prix|Precio|Prezzo|Preço|Preis|Kaufpreis|Vraagprijs|Cena|Ár|Fiyat|Τιμή|מחיר|Цена)[^0-9$€£₪₺]{0,120}([$€£₪₺]?\s*[0-9][0-9,\.\s]*)/i,
+        /([₪₺]\s*[0-9][0-9,\.\s]{2,})/,
+        /(?:AED|USD|EUR|GBP|CHF|TRY|ILS|NIS|PLN|CZK|HUF|RON|BGN|SEK|NOK|DKK|ZAR|MAD|CAD|AUD|NZD|MXN|BRL|INR|THB|JPY|GEL|R\$)\s*([0-9][0-9,\.\s]{2,})/,
+        /([0-9][0-9,\.\s]{2,})\s*(?:₪|₺|AED|zł|Kč|Ft|CHF|PLN|CZK|HUF|TRY|ILS|RON|BGN|SEK|NOK|DKK)/,
         /([$€£]\s*[0-9][0-9,\.\s]{2,})/i,
         /([0-9][0-9,\.\s]{2,})\s*(?:USD|US\$|EUR|GBP|€|£)/i
       ]));
     }
 
     if (!size) {
-      size = numberFromText(extract([
-        /(?:Living Area|Living Space|Floor Area|Square Feet|Sq\.?\s*Ft\.?|Surface habitable|Surface Carrez|Surface|Superficie|Built area)[^0-9]{0,100}([0-9][0-9,\.\s]*)\s*(?:sq\.?\s*ft\.?|ft²|m(?:²|2))/i,
-        /([0-9][0-9,\.\s]*)\s*(?:sq\.?\s*ft\.?|ft²|m(?:²|2))/i
-      ]));
+      // the unit is captured with the number: square feet are converted
+      const m = (metaDescription + " " + visible).replace(/<[^>]+>/g, " ").match(/(?:Living Area|Living Space|Floor Area|Built area|Interior|Surface habitable|Surface Carrez|Surface|Superficie|Superficie construida|Área|Area|Wohnfläche|Woonoppervlakte|Metraż|Powierzchnia|Užitná plocha|Alapterület|Brutto|Net|שטח)?[^0-9<]{0,60}?([0-9][0-9,\.\s]{0,9})\s*(sq\.?\s*ft\.?|sqft|ft²|ft2|square feet|m²|m2|sq\.?\s*m|sqm|מ"ר|מ״ר|кв\.?\s*м)/i);
+      if (m) { size = numberFromText(m[1]); if (/ft|feet/i.test(m[2])) sizeInFeet = true; }
     }
+    if (size && sizeInFeet) size = Math.round(size * 0.092903);
 
     if (!bedrooms) {
       bedrooms = numberFromText(extract([
+        // "BEDROOMS 1" / "Bedrooms: 3" (a label, not a sentence)
+        /(?:BEDROOMS?|Bedrooms?:|Beds?:)\s*([0-9]+)\b/,
         /([0-9]+)\s*(?:bedrooms?|beds?)/i,
-        /(?:Bedrooms?|Beds?)[^0-9]{0,40}([0-9]+)/i,
         /([0-9]+)\s*(?:chambres?|chambre)\b/i,
+        /([0-9]+)\s*(?:dormitorios?|habitaciones?|quartos?|camere(?:\s+da\s+letto)?|Schlafzimmer|slaapkamers?|sypialnie|ložnice|hálószoba|υπνοδωμάτια|yatak odası)(?![a-z])/i,
         // "pièces" is total room count (living room, kitchen, etc. included),
         // not bedrooms — only used as a last-resort fallback.
         /([0-9]+)\s*(?:pièces?|pieces?)/i
-      ]));
+      ], visibleText));
     }
 
     if (!bathrooms) {
       bathrooms = numberFromText(extract([
-        /([0-9]+(?:\.[0-9]+)?)\s*(?:bathrooms?|baths?|salles?\s*de\s*bain|baños?)/i,
-        /(?:Bathrooms?|Baths?|Salles?\s*de\s*bain)[^0-9]{0,40}([0-9]+(?:\.[0-9]+)?)/i
-      ]));
+        /(?:BATHROOMS?|Bathrooms?:|Baths?:)\s*([0-9]+(?:\.[0-9]+)?)\b/,
+        /([0-9]+(?:\.[0-9]+)?)\s*(?:bathrooms?|baths?|salles?\s*de\s*bain|baños?|bagni|casas?\s*de\s*banho|Badezimmer|badkamers?|łazienki|koupelny|fürdőszoba|μπάνια)/i,
+        /(?:Salles?\s*de\s*bain)\s*:?\s*([0-9]+)\b/i
+      ], visibleText));
     }
 
     if (!address) {
@@ -324,8 +357,7 @@ export default async function handler(req, res) {
     // German, Italian or any other unrecognized listing got silently
     // mislabeled as Spain. No signal at all means no guess: leave country
     // null and let the form keep whatever the person already selected.
-    if (!country) country = domainCountry || cityCountry || (isUS ? "United States" : (french ? "France" : null));
-    if (!currency) currency = country === "United States" ? "USD" : country === "United Kingdom" ? "GBP" : "EUR";
+    country = countryFromValue(country) || domainCountry || countryFromHost(hostname) || cityCountry || (isUS ? "United States" : (french ? "France" : null));
 
     const typeValue = entity["@type"] || listing?.["@type"] || "Apartment";
     const propertyType = Array.isArray(typeValue) ? typeValue[0] : typeValue;
