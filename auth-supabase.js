@@ -349,9 +349,17 @@
     }
     if (target.id === 'accountLogoutBtn') {
       client.auth.signOut();
-      if (accountMenu) { accountMenu.classList.remove('open'); accountMenu.setAttribute('aria-hidden', 'true'); }
-      form?.reset();
-      setMode('signin');
+      // Sign-out used to only end the Supabase session -- the last
+      // analysis/report a paying account had loaded stayed cached in
+      // localStorage and kept rendering on screen exactly as before,
+      // looking like signing out "did nothing". A full reload is the only
+      // way to guarantee nothing from the previous session's report is
+      // still visible afterward.
+      try {
+        localStorage.removeItem('pradixiumReportData');
+        localStorage.removeItem('pradixiumPropertyInputs');
+      } catch (e) {}
+      window.location.reload();
     }
   }
 
