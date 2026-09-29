@@ -1537,7 +1537,11 @@
     }
     const token = await getAccessToken();
     if (!token) {
-      alert("Please sign in first.");
+      // FIX: the account gate no longer opens automatically for every
+      // visitor (see auth-supabase.js) — it now opens on demand right
+      // here, at the one point that actually needs an account: paying.
+      if (window.pradixiumShowAuthGate) window.pradixiumShowAuthGate("Please sign in to unlock this report.");
+      else alert("Please sign in first.");
       return;
     }
     try {
@@ -1631,7 +1635,11 @@
   // one either).
   async function startBusinessSignup() {
     const token = await getAccessToken();
-    if (!token) { alert("Please sign in first, then click Business again."); return; }
+    if (!token) {
+      if (window.pradixiumShowAuthGate) window.pradixiumShowAuthGate("Please sign in, then click Business again.");
+      else alert("Please sign in first, then click Business again.");
+      return;
+    }
     startCheckout({ title: "Business Plan Signup" }, "business");
   }
 
