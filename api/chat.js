@@ -43,7 +43,7 @@ const COUNTRIES = {
   switzerland: "Switzerland", tajikistan: "Tajikistan", thailand: "Thailand",
   "trinidad and tobago": "Trinidad and Tobago", turkmenistan: "Turkmenistan", ukraine: "Ukraine",
   "united arab emirates": "United Arab Emirates", "united kingdom": "United Kingdom", "united states": "United States",
-  uruguay: "Uruguay", uzbekistan: "Uzbekistan", vietnam: "Vietnam"
+  uruguay: "Uruguay", "south africa": "South Africa", morocco: "Morocco", kenya: "Kenya", nigeria: "Nigeria", egypt: "Egypt", uzbekistan: "Uzbekistan", vietnam: "Vietnam"
 };
 
 function detectCountries(text) {

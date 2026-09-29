@@ -17,6 +17,46 @@
  * number is found.
  */
 const FIXTURES = {
+  // ── Africa (Sept 2026, Claude B) — official price TRENDS by metro/city:
+  // these sources publish indices, not price levels → trend + context only,
+  // never a price benchmark.
+  "south africa": {
+    country: "South Africa",
+    period: "April 2026",
+    nationalChangePercent: 7.9,
+    typeNote: "flats = sectional title, houses = freehold",
+    cityTrends: [
+      { name: "City of Cape Town", aliases: ["cape town", "city of cape town", "kaapstad", "sea point", "camps bay", "clifton", "bantry bay", "green point", "constantia", "claremont", "rondebosch", "bloubergstrand", "durbanville", "hout bay", "llandudno", "fresnaye", "tamboerskloof", "muizenberg", "kalk bay", "somerset west"], total: 11.0, flats: 10.3, houses: 10.2 },
+      { name: "City of Johannesburg", aliases: ["johannesburg", "joburg", "jozi", "sandton", "rosebank", "randburg", "roodepoort", "soweto", "midrand", "fourways", "bryanston", "parktown", "melville", "houghton", "morningside"], total: 5.4, flats: 0.5, houses: 10.8 },
+      { name: "City of Tshwane", aliases: ["pretoria", "tshwane", "centurion", "hatfield", "menlyn", "waterkloof", "irene", "soshanguve", "mamelodi"], total: 3.8, flats: 1.8, houses: 8.3 },
+      { name: "Ekurhuleni", aliases: ["ekurhuleni", "germiston", "boksburg", "benoni", "kempton park", "edenvale", "alberton", "brakpan", "bedfordview"], total: 4.9, flats: 1.5, houses: 6.3 },
+      { name: "eThekwini (Durban)", aliases: ["durban", "ethekwini", "umhlanga", "umhlanga rocks", "westville", "pinetown", "amanzimtoti", "la lucia", "umdloti"], total: 3.7, flats: 5.3, houses: 3.5 },
+      { name: "Nelson Mandela Bay", aliases: ["gqeberha", "port elizabeth", "nelson mandela bay", "uitenhage", "kariega", "summerstrand"], total: 6.4, flats: 5.4, houses: 6.2 },
+      { name: "Buffalo City", aliases: ["east london", "buffalo city", "qonce", "king william's town"], total: 5.0, flats: 0.5, houses: 8.0 },
+      { name: "Mangaung", aliases: ["bloemfontein", "mangaung", "mangaung metro"], total: 2.8, flats: 8.2, houses: 1.6 }
+    ],
+    source: "Statistics South Africa (Stats SA) — Residential Property Price Index P0160, April 2026 (Deeds Office transactions)",
+    officialSource: "https://www.statssa.gov.za/publications/P0160/P0160April2026.pdf"
+  },
+  morocco: {
+    country: "Morocco",
+    period: "Q2 2026",
+    nationalChangePercent: 1.0,
+    nationalTypeTrends: { flats: 1.1, houses: -0.7, villas: -0.3 },
+    cityQuarterly: { Casablanca: 0.5, Rabat: 1.9, Marrakech: 0.5, Tanger: 2.3, Agadir: -0.1, Fès: 1.7, Kénitra: 0.7, "El Jadida": 0.0, Meknès: -0.9, Oujda: -0.9 },
+    coverageNote: "Year-on-year change is published nationally; by city only the quarter-on-quarter change",
+    source: "Bank Al-Maghrib & ANCFCC — Indice des prix des actifs immobiliers (IPAI) n° 67, Q2 2026 (repeat sales of registered transactions)",
+    officialSource: "https://www.ancfcc.gov.ma/media/ipai/ipai-t2-2026-fr.pdf"
+  },
+  kenya: {
+    country: "Kenya",
+    period: "Q1 2026",
+    nationalChangePercent: 4.8,
+    nationalTypeTrends: { flats: -3.0, houses: 8.5 },
+    coverageNote: "National index (index 118.4 vs 113.0 a year earlier); no city breakdown published",
+    source: "Kenya National Bureau of Statistics (KNBS) — Kenya Residential Property Price Index, First Quarter 2026",
+    officialSource: "https://www.knbs.or.ke/reports/kenya-residential-property-price-index-first-quarter-2026/"
+  },
   // Geostat's RPPI covers NEW homes in Tbilisi only. Its district €/m²
   // chart is built from web-scraped ASKING prices (Myhome, ss.ge — said in
   // the release) → not used as a price; the index change is.
@@ -361,6 +401,10 @@ export default async function handler(req, res) {
       cityBenchmarkValue: fixture.cityBenchmarkValue ?? null,
       benchmarkUnit: fixture.benchmarkUnit,
       coverageNote: fixture.coverageNote ?? null,
+      cityTrends: fixture.cityTrends ?? null,
+      nationalTypeTrends: fixture.nationalTypeTrends ?? null,
+      cityQuarterly: fixture.cityQuarterly ?? null,
+      typeNote: fixture.typeNote ?? null,
       cityLevelStatus: "REGIONAL_DATA_LAYER_PENDING",
       sources: { official: fixture.source },
       sourceUrls: { official: fixture.officialSource },

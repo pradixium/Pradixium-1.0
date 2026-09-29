@@ -668,6 +668,23 @@ file; a per-file recompute differs by 1–2 sales for that reason. Recompute che
   Gazette PDFs; BoG publishes indices only), Bulgaria (NSI per-city prices ended
   2014), Cyprus/Romania (no open per-area price data found).
 
+## Africa (Sept 2026, Claude B)
+
+Trend-only fixtures in `api/regional-fixture-intelligence.js` — none of these
+publishes an official price LEVEL, so benchmarkValue stays null and the
+orchestrator's trend-only branch shows "official price trend; no official
+price level is published":
+- South Africa: Stats SA RPPI P0160 (Deeds Office transactions, monthly PDF;
+  statssa.gov.za blocks curl → read via WebFetch, never bypassed): YoY for the
+  8 metros × all/flats (sectional title)/houses (freehold); outside a metro →
+  national YoY as context. Update each month's PDF.
+- Morocco: Bank Al-Maghrib & ANCFCC IPAI (quarterly): national YoY by type +
+  city quarter-on-quarter only (that is all it publishes by city).
+- Kenya: KNBS house price index (quarterly): national flats/houses YoY.
+- Nigeria, Egypt → pending (NBS has no house prices; CBE's index is still in
+  development and built from listings). Mauritius skipped: Statistics
+  Mauritius primary release not reachable/verifiable.
+
 ## Net Yield / Cash-on-Cash fix (shipped Sept 2026)
 
 `engine.js` had three places computing "Net Yield" and "Cash-on-Cash" off a flat,

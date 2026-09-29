@@ -15,6 +15,10 @@
  * change needed.
  */
 const PENDING_COUNTRIES = {
+  // Nigeria: NBS publishes no house-price statistics (only private indices);
+  // Egypt: the CBE index is still in development and built from listings
+  nigeria: "Nigeria",
+  egypt: "Egypt",
   armenia: "Armenia",
   azerbaijan: "Azerbaijan",
   uzbekistan: "Uzbekistan",

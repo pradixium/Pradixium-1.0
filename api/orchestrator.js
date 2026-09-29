@@ -160,6 +160,11 @@ const COUNTRY_ENDPOINTS = {
   // than a fabricated number.
   "armenia": "pending-intelligence",
   "georgia": "regional-fixture-intelligence",
+  "south africa": "regional-fixture-intelligence",
+  "morocco": "regional-fixture-intelligence",
+  "kenya": "regional-fixture-intelligence",
+  "nigeria": "pending-intelligence",
+  "egypt": "pending-intelligence",
   "azerbaijan": "pending-intelligence",
   "uzbekistan": "pending-intelligence",
   "kyrgyzstan": "pending-intelligence",
@@ -920,9 +925,46 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
   const REGIONAL_FIXTURE_COUNTRIES = [
     "serbia", "bosnia and herzegovina", "montenegro", "north macedonia", "ukraine", "albania", "andorra", "monaco",
     "russia", "kazakhstan", "canada", "mexico", "brazil", "australia", "new zealand", "argentina",
-    "chile", "colombia", "peru", "uruguay", "dominican republic", "georgia",
+    "chile", "colombia", "peru", "uruguay", "dominican republic", "georgia", "south africa", "morocco", "kenya",
     "thailand", "indonesia", "south korea", "india", "japan", "vietnam", "sri lanka", "cambodia"
   ];
+  if (REGIONAL_FIXTURE_COUNTRIES.includes(c) && (raw.cityTrends || raw.nationalTypeTrends)) {
+    // official price TRENDS only (Stats SA metros, Morocco IPAI, KNBS):
+    // no price level exists in these sources → never a benchmark
+    const where = String(property?.city || raw.city || "");
+    const w = ` ${where.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9']+/g, " ")} `;
+    const kind = /apart|flat|studio|penthouse|condo/i.test(propertyType || "") ? "flats" : /house|villa|town|home/i.test(propertyType || "") ? "houses" : null;
+    const fmt = (x) => `${x >= 0 ? "+" : ""}${x}%`;
+    const metro = (raw.cityTrends || []).find((m) => m.aliases.some((a) => w.includes(` ${a} `)));
+    const nat = raw.nationalChangePercent ?? null;
+    let trend = nat, area = countryLabel(country), detail;
+    if (metro) {
+      const t = kind && metro[kind] != null ? metro[kind] : metro.total;
+      trend = t; area = metro.name;
+      detail = `${metro.name}: ${fmt(metro.total)} over 12 months (all homes)${metro.flats != null ? `; flats ${fmt(metro.flats)}, houses ${fmt(metro.houses)}` : ""}${raw.typeNote ? ` (${raw.typeNote})` : ""}.`;
+    } else if (raw.cityTrends) {
+      detail = `No metro match for ${where || "this place"} — the official index is published for the 8 metros only; national ${fmt(nat)} shown as context.`;
+    } else {
+      const tt = raw.nationalTypeTrends || {};
+      const t = kind === "flats" ? tt.flats : kind === "houses" ? (tt.houses ?? tt.villas) : null;
+      if (t != null) trend = t;
+      const q = raw.cityQuarterly ? Object.entries(raw.cityQuarterly).find(([k]) => w.includes(` ${k.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")} `) || (k === "Tanger" && /\btangier\b/.test(w)) || (k === "Fès" && /\bfez\b/.test(w))) : null;
+      detail = `National ${fmt(nat)} over 12 months${Object.keys(tt).length ? ` (${Object.entries(tt).map(([k, v]) => `${k} ${fmt(v)}`).join(", ")})` : ""}.${q ? ` ${q[0]}: ${fmt(q[1])} on the previous quarter (only the quarterly change is published by city).` : ""}${raw.coverageNote ? ` ${raw.coverageNote}.` : ""}`;
+    }
+    return {
+      benchmarkValue: null,
+      benchmarkUnit: "perSqm",
+      benchmarkLabel: `${countryLabel(country)} official price index (trend only)`,
+      governmentValue: null,
+      transactionValue: null,
+      transactionPeriod: raw.period ?? null,
+      marketArea: `${area} — official price trend; no official price level is published`,
+      source: `${raw.sources?.official || countryLabel(country)}, ${raw.period}: ${detail}`,
+      sourceUrl: raw.sourceUrls?.official || null,
+      coverage: metro ? "city" : "national",
+      priceTrendPercent: trend
+    };
+  }
   if (REGIONAL_FIXTURE_COUNTRIES.includes(c)) {
     // a city's figure applies only to that city; a national figure is
     // context, never a town's benchmark (same rule as recentAreaFits above)

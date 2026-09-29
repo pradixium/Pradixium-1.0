@@ -68,6 +68,11 @@
     if (c === "ukraine") return "UAH";
     if (c === "albania") return "ALL";
     if (c === "israel") return "ILS";
+    if (c === "south africa") return "ZAR";
+    if (c === "morocco") return "MAD";
+    if (c === "kenya") return "KES";
+    if (c === "nigeria") return "NGN";
+    if (c === "egypt") return "EGP";
     // Eurasia + Americas + Oceania.
     if (c === "russia") return "RUB";
     if (c === "kazakhstan") return "KZT";
@@ -161,7 +166,7 @@
     "trinidad and tobago": "TT", "barbados": "BB", "jamaica": "JM", "israel": "IL",
     "united arab emirates": "AE", "thailand": "TH", "indonesia": "ID", "south korea": "KR",
     "india": "IN", "japan": "JP", "vietnam": "VN", "sri lanka": "LK", "cambodia": "KH",
-    "maldives": "MV"
+    "maldives": "MV", "south africa": "ZA", "morocco": "MA", "kenya": "KE", "nigeria": "NG", "egypt": "EG"
   };
 
   // A unique, incrementing reference for each analysis run — like a
