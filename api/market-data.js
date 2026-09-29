@@ -203,7 +203,15 @@ export default async function handler(req, res) {
     girona: ["girona", "gerona"],
     almeria: ["almeria"],
     "las palmas": ["las palmas"],
-    tarragona: ["tarragona"]
+    tarragona: ["tarragona"],
+    // FIX (audit after the Marbella fix, prompted by a real "Altea Hills"
+    // test): the fix above only covered towns that already happened to be
+    // in DEMAND_PROVINCE_ALIASES. That list was itself incomplete — e.g.
+    // Cadiz province (Sotogrande) had NO entry anywhere in this file, and
+    // several well-known Costa Blanca/Costa Brava/Balearic towns were
+    // simply missing. Added cadiz as a full province here plus a much
+    // larger DEMAND_PROVINCE_ALIASES town list below.
+    cadiz: ["cadiz"]
   };
 
   // Foreign buyer / demand intelligence — Colegio de Registradores
@@ -396,7 +404,74 @@ export default async function handler(req, res) {
     "gran canaria": "las palmas",
     maspalomas: "las palmas",
     salou: "tarragona",
-    cambrils: "tarragona"
+    cambrils: "tarragona",
+    // FIX: audit after the Marbella incident turned up more of the same
+    // gap in Spain's other real foreign-buyer/luxury markets — Costa
+    // Blanca north of Benidorm, Costa del Sol west of Estepona, Cadiz
+    // (Sotogrande), Costa Brava beyond Lloret, Balearic villages, and
+    // Madrid/Barcelona's own luxury suburbs, none of which match their
+    // province's literal name either. Town-to-province geography is a
+    // stable fact (not a figure needing a live citation), but this is
+    // still a curated list, not a geocoder -- a town genuinely missing
+    // here still correctly falls through to "not enough evidence" rather
+    // than a wrong match.
+    altea: "alicante",
+    "altea hills": "alicante",
+    javea: "alicante",
+    xabia: "alicante",
+    moraira: "alicante",
+    calpe: "alicante",
+    calp: "alicante",
+    benissa: "alicante",
+    finestrat: "alicante",
+    "villajoyosa": "alicante",
+    "orihuela costa": "alicante",
+    "guardamar del segura": "alicante",
+    "santa pola": "alicante",
+    "la zenia": "alicante",
+    "puerto banus": "malaga",
+    "puerto banús": "malaga",
+    "nueva andalucia": "malaga",
+    "san pedro de alcantara": "malaga",
+    benahavis: "malaga",
+    manilva: "malaga",
+    casares: "malaga",
+    "rincon de la victoria": "malaga",
+    sotogrande: "cadiz",
+    tarifa: "cadiz",
+    "vejer de la frontera": "cadiz",
+    "zahara de los atunes": "cadiz",
+    "chiclana de la frontera": "cadiz",
+    "conil de la frontera": "cadiz",
+    "el puerto de santa maria": "cadiz",
+    sitges: "barcelona",
+    "sagaro": "girona",
+    "s'agaro": "girona",
+    "platja d'aro": "girona",
+    "platja daro": "girona",
+    "tossa de mar": "girona",
+    begur: "girona",
+    cadaques: "girona",
+    pals: "girona",
+    roses: "girona",
+    "l'escala": "girona",
+    palamos: "girona",
+    "port andratx": "baleares",
+    "puerto andratx": "baleares",
+    deia: "baleares",
+    valldemossa: "baleares",
+    formentera: "baleares",
+    "santa ponsa": "baleares",
+    "puerto portals": "baleares",
+    "camp de mar": "baleares",
+    "costa adeje": "tenerife",
+    "playa de las americas": "tenerife",
+    "puerto de la cruz": "tenerife",
+    "playa del ingles": "las palmas",
+    "la moraleja": "madrid",
+    "pozuelo de alarcon": "madrid",
+    "boadilla del monte": "madrid",
+    "las rozas": "madrid"
   };
 
   const strengthFor = (share) => {
@@ -683,7 +758,8 @@ export default async function handler(req, res) {
         girona: ["17"],
         almeria: ["04", "4"],
         "las palmas": ["35"],
-        tarragona: ["43"]
+        tarragona: ["43"],
+        cadiz: ["11"]
       };
       const targetProvinceCodes =
         transactionProvinceCodes[cityKey] ||
