@@ -505,15 +505,24 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
   if (c === "united kingdom" || c === "uk") {
     const tx = raw.transactionEvidence || {};
     const rental = raw.rental || {};
+    const gbp = (x) => "£" + Math.round(x).toLocaleString("en-US");
+    const txText = tx.available && tx.level
+      ? `HM Land Registry Price Paid — ${tx.sampleSize} market sales of ${tx.typeLabel} in ${tx.level} ${tx.areaName} (${tx.transactionWindow}): median ${gbp(tx.medianTransactionPrice)}, middle half ${gbp(tx.p25TransactionPrice)}–${gbp(tx.p75TransactionPrice)}.`
+      : "HM Land Registry Price Paid — no area with enough recent market sales matched this address (add the postcode).";
+    const hpiText = raw.averagePrice != null
+      ? `UK House Price Index (HM Land Registry / ONS), ${raw.hpiArea}, ${raw.period}: average price of ${raw.hpiTypeLabel} ${gbp(raw.averagePrice)}${raw.annualChangePercent != null ? `, ${raw.annualChangePercent >= 0 ? "+" : ""}${raw.annualChangePercent}% in a year` : ""}.`
+      : "UK House Price Index — no local authority matched this address, so no local average is applied (the national figure is not used as a local one).";
+    const own = tx.ownSale ? ` This property's last registered sale: ${gbp(tx.ownSale.price)} on ${String(tx.ownSale.date).slice(0, 10)}${tx.ownSale.category === "B" ? " (not a standard market sale)" : ""}.` : "";
     return {
       benchmarkValue: raw.averagePrice ?? null,
       benchmarkUnit: "total",
-      benchmarkLabel: "UK HPI Average Price",
+      benchmarkLabel: raw.averagePrice != null ? `UK HPI average price — ${raw.hpiArea}, ${raw.hpiTypeLabel}` : "UK HPI Average Price",
       governmentValue: null,
-      transactionValue: tx.medianTransactionPrice ?? null,
-      transactionPeriod: tx.transactionWindow ?? null,
-      marketArea: raw.city || "United Kingdom",
-      source: "HM Land Registry — House Price Index + Price Paid Data",
+      transactionValue: tx.available && tx.level ? tx.medianTransactionPrice : null,
+      transactionPeriod: tx.available && tx.level ? tx.transactionWindow : null,
+      marketArea: tx.level ? `${tx.areaName} (${tx.level})${raw.hpiArea ? ` — ${raw.hpiArea}` : ""}` : (raw.hpiArea || null),
+      source: `${hpiText} ${txText}${own}`,
+      sourceParts: [{ title: "UK House Price Index", text: hpiText }, { title: "Price Paid (market sales)", text: txText + own }],
       coverage: raw.averagePrice != null ? "city" : "none",
       priceTrendPercent: raw.annualChangePercent ?? null,
       // ONS's average rent by region is a flat total for the area, not a

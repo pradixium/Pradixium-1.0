@@ -17,10 +17,10 @@ async function resolveLatestUkHpiFiles(maxMonthsBack = 6) {
   for (let i = 0; i <= maxMonthsBack; i += 1) {
     const label = monthLabel(now, i);
     const averageUrl = `https://publicdata.landregistry.gov.uk/market-trend-data/house-price-index-data/Average-prices-${label}.csv`;
-    const indexUrl = `https://publicdata.landregistry.gov.uk/market-trend-data/house-price-index-data/Indices-${label}.csv`;
     try {
-      const [averageText, indexText] = await Promise.all([fetchText(averageUrl), fetchText(indexUrl)]);
-      if (averageText && indexText) return { label, averageText, indexText };
+      const typeUrl = `https://publicdata.landregistry.gov.uk/market-trend-data/house-price-index-data/Average-prices-Property-Type-${label}.csv`;
+      const [averageText, typeText] = await Promise.all([fetchText(averageUrl), fetchText(typeUrl).catch(() => null)]);
+      if (averageText) return { label, averageText, typeText };
     } catch (_error) {
       // This month's release isn't published under this filename (yet, or ever) — try the prior month.
     }
@@ -170,7 +170,8 @@ async function loadPricePaid() {
         town: row[11] || null,
         district: row[12] || null,
         county: row[13] || null,
-        category: row[14] || null
+        category: row[14] || null,
+        status: row[15] || null
       });
     }
     ppdCache = { loadedAt: now, rows: parsed, year: resolved.year, error: null };
@@ -181,72 +182,94 @@ async function loadPricePaid() {
   }
 }
 
+// Site property type → Price Paid / UK HPI property types
+function ukTypes(propertyType) {
+  const t = normalise(propertyType);
+  if (/apart|flat|studio|penthouse|maison/.test(t)) return { codes: ['F'], hpi: 'Flat', label: 'flats' };
+  if (/town|terrace/.test(t)) return { codes: ['T'], hpi: 'Terraced', label: 'terraced houses' };
+  if (/semi/.test(t)) return { codes: ['S'], hpi: 'Semi_Detached', label: 'semi-detached houses' };
+  if (/detached|villa/.test(t) && !/house/.test(t)) return { codes: ['D'], hpi: 'Detached', label: 'detached houses' };
+  if (/house|home|cottage|bungalow/.test(t)) return { codes: ['D', 'S', 'T'], hpi: null, label: 'houses' };
+  return null; // commercial / land: no residential evidence applies
+}
+
+// Market sales only: PPD category A ("standard price paid": a single
+// residential property sold for full market value) — category B holds
+// repossessions, buy-to-lets, transfers to companies, and "O" (other)
+// property types are not homes. The area is the narrowest one with enough
+// sales: postcode → postcode sector → postcode district, or a named town /
+// local authority. Never the whole country as if it were the place.
 async function fetchTransactionEvidence(city, address, propertyType) {
   const cache = await loadPricePaid();
-  if (!cache.rows.length) {
-    return {
-      available: false,
-      source: 'HM Land Registry Price Paid Data',
-      transactionWindow: cache.year ? `${cache.year} year-to-date file` : 'unavailable',
-      sampleSize: 0,
-      error: cache.error || 'Official Price Paid Data unavailable'
-    };
+  const base = { source: 'HM Land Registry Price Paid Data', transactionWindow: cache.year ? `sales registered in ${cache.year} to date` : 'unavailable' };
+  if (!cache.rows.length) return { ...base, available: false, sampleSize: 0, error: cache.error || 'Official Price Paid Data unavailable' };
+  const text = [address, city].filter(Boolean).join(', ');
+  const types = ukTypes(propertyType);
+  if (!types) return { ...base, available: false, sampleSize: 0, reason: 'not_residential' };
+  const market = cache.rows.filter((r) => r.category === 'A' && r.status !== 'D' && types.codes.includes(r.propertyType));
+  const pc = postcodeFrom(text);
+  const levels = [];
+  if (pc) {
+    const [out, inw] = pc.split(' ');
+    levels.push(['postcode', pc, (r) => r.postcode === pc, 5]);
+    levels.push(['postcode sector', `${out} ${inw[0]}`, (r) => r.postcode.startsWith(`${out} ${inw[0]}`), 10]);
+    levels.push(['postcode district', out, (r) => r.postcode.split(' ')[0] === out, 10]);
+    // too few sales around the postcode: its local authority, as the
+    // registry records it for every sale in that postcode district
+    const c = {};
+    for (const r of cache.rows) if (r.postcode.split(' ')[0] === out && r.district) c[r.district] = (c[r.district] || 0) + 1;
+    const pcLa = Object.entries(c).sort((a, b) => b[1] - a[1])[0]?.[0];
+    if (pcLa) levels.push(['local authority', pcLa.replace(/\b\w+/g, (w) => w[0] + w.slice(1).toLowerCase()), (r) => r.district === pcLa, 10]);
   }
-
-  const query = normalise(address || city);
-  const postcode = postcodeFrom(address || city);
-  const cityKey = normalise(city);
-  const addressKey = normalise(address);
-  const typeKey = normalise(propertyType);
-  const typeMap = { detached: 'D', 'semi-detached': 'S', terraced: 'T', flat: 'F', maisonette: 'F' };
-  const requestedType = Object.keys(typeMap).find((key) => typeKey.includes(key));
-
-  let matches = cache.rows;
-  if (postcode) {
-    matches = matches.filter((row) => row.postcode === postcode);
-  } else if (cityKey) {
-    matches = matches.filter((row) => normalise(row.town) === cityKey || normalise(row.locality) === cityKey || normalise(row.district) === cityKey);
+  const parts = text.split(',').map((x) => x.replace(/\b[A-Z]{1,2}\d[A-Z\d]?\s*\d[A-Z]{2}\b/i, '').trim()).filter(Boolean);
+  // most specific place first ("Kensington, London" → Kensington and
+  // Chelsea before London); "London" is never the City of London
+  for (const part of parts) {
+    const k = normalise(part);
+    if (!k || /\d/.test(k) || /^(uk|united kingdom|england|great britain|gb|wales|scotland)$/.test(k)) continue;
+    const la = (r) => { const d = normalise(r.district); return d === k || (k !== 'london' && d === `city of ${k}`) || d.startsWith(`${k} and `) || d.endsWith(` and ${k}`); };
+    levels.push(['local authority', part, la, 10]);
+    levels.push(['town', part, (r) => normalise(r.town) === k, 10]);
   }
-
-  if (requestedType) {
-    const typed = matches.filter((row) => row.propertyType === typeMap[requestedType]);
-    if (typed.length >= 3) matches = typed;
+  let selected = [], level = null, areaName = null;
+  for (const [lv, name, pred, min] of levels) {
+    const m = market.filter(pred);
+    if (m.length >= min) { selected = m; level = lv; areaName = name; break; }
   }
-
-  const exactAddress = addressKey && addressKey.length > 5
-    ? matches.filter((row) => {
-        const haystack = normalise([row.paon, row.saon, row.street, row.locality, row.town, row.postcode].filter(Boolean).join(' '));
-        return haystack.includes(addressKey) || addressKey.includes(haystack);
-      })
-    : [];
-
-  const selected = exactAddress.length >= 1 ? exactAddress : matches;
-  const prices = selected.map((row) => row.price);
+  // the property's own last registered sale: same postcode + its number/name
+  let ownSale = null;
+  if (pc) {
+    const toks = new Set(normalise(text.split(',')[0]).split(/[^a-z0-9]+/).filter(Boolean));
+    const own = cache.rows.filter((r) => r.postcode === pc && r.paon && normalise(r.paon).split(/[^a-z0-9]+/).every((w) => toks.has(w))
+      && (!r.saon || normalise(r.saon).split(/[^a-z0-9]+/).every((w) => toks.has(w))));
+    if (own.length === 1) ownSale = { date: own[0].date, price: own[0].price, category: own[0].category, address: [own[0].saon, own[0].paon, own[0].street, own[0].town, own[0].postcode].filter(Boolean).join(', ') };
+  }
+  // the local authority the area lies in (as the Land Registry records it)
+  const counts = {};
+  for (const r of selected) counts[r.district] = (counts[r.district] || 0) + 1;
+  // only a postcode area or a named local authority lies in ONE authority
+  // (the "town" London spans 33 boroughs)
+  const localAuthority = level && level !== 'town' ? Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0] || null : null;
+  const prices = selected.map((r) => r.price);
   const latest = [...selected].sort((a, b) => String(b.date || '').localeCompare(String(a.date || ''))).slice(0, 15);
-
+  const q = (p) => { const a = [...prices].sort((x, y) => x - y); return a.length ? a[Math.floor((a.length - 1) * p)] : null; };
   return {
+    ...base,
     available: selected.length > 0,
-    source: 'HM Land Registry Price Paid Data',
-    transactionWindow: `${cache.year} year-to-date file`,
+    level, areaName, localAuthority, typeLabel: types.label,
     sampleSize: selected.length,
-    exactAddressMatch: exactAddress.length > 0,
+    ownSale,
     medianTransactionPrice: median(prices),
-    meanTransactionPrice: mean(prices),
-    minTransactionPrice: prices.length ? Math.min(...prices) : null,
-    maxTransactionPrice: prices.length ? Math.max(...prices) : null,
+    p25TransactionPrice: q(0.25), p75TransactionPrice: q(0.75),
     latestTransactions: latest.map((row) => ({
       transactionId: row.transactionId,
       date: row.date,
       price: row.price,
       propertyType: row.propertyType,
       tenure: row.tenure,
-      address: [row.paon, row.saon, row.street, row.locality, row.town, row.postcode].filter(Boolean).join(', ')
+      address: [row.saon, row.paon, row.street, row.locality, row.town, row.postcode].filter(Boolean).join(', ')
     })),
-    methodology: exactAddress.length
-      ? 'Exact-address evidence from the current official HM Land Registry Price Paid dataset.'
-      : postcode
-        ? 'Postcode-level transaction evidence from the current official HM Land Registry Price Paid dataset.'
-        : 'City/district-level transaction evidence from the current official HM Land Registry Price Paid dataset.'
+    methodology: level ? `Market sales (Price Paid category A) of ${types.label} in ${level} ${areaName}, ${cache.year} to date.` : 'No area with enough market sales matched this address.'
   };
 }
 
@@ -267,25 +290,28 @@ export default async function handler(req, res) {
 
     if (!hpiFiles) throw new Error('No HM Land Registry HPI file found for the last 6 months');
 
-    const averageRows = parseCsv(hpiFiles.averageText).map((row) => row);
-    const indexRows = parseCsv(hpiFiles.indexText).map((row) => row);
-
     const parseObjectCsv = (rows) => {
       if (!rows.length) return [];
-      const headers = rows[0];
+      // the Land Registry writes "Region_Name", "Average_Price" … — keys
+      // without underscores, so both spellings work
+      const headers = rows[0].map((h) => String(h).replace(/_/g, ''));
       return rows.slice(1).map((values) => Object.fromEntries(headers.map((h, i) => [h, values[i] ?? ''])));
     };
-
-    const averages = parseObjectCsv(averageRows);
-    const indexes = parseObjectCsv(indexRows);
-    const findLatest = (rows) => {
-      const candidates = rows.filter((row) => !requested || normalise(row.RegionName).includes(requested) || requested.includes(normalise(row.RegionName)));
-      return candidates[candidates.length - 1] || null;
-    };
-
-    const nationalAverage = findLatest(averages.filter((row) => normalise(row.RegionName) === 'united kingdom')) || averages[averages.length - 1] || null;
-    const regional = findLatest(averages) || nationalAverage;
-    const latestIndex = findLatest(indexes.filter((row) => normalise(row.RegionName) === 'united kingdom')) || indexes[indexes.length - 1] || null;
+    const averages = parseObjectCsv(parseCsv(hpiFiles.averageText));
+    const byType = hpiFiles.typeText ? parseObjectCsv(parseCsv(hpiFiles.typeText)) : [];
+    const lastDate = (rows) => rows.reduce((m, r) => (r.Date > m ? r.Date : m), '');
+    const latestRows = (rows) => { const d = lastDate(rows); return rows.filter((r) => r.Date === d); };
+    const la = transactionEvidence?.localAuthority || null;
+    // exact name only: the local authority of the matched sales, else a
+    // typed place that IS an HPI area ("Manchester", "Kensington and Chelsea")
+    const names = [la, ...[address, city].join(',').split(',').map((x) => x.replace(/\b[A-Z]{1,2}\d[A-Z\d]?\s*\d[A-Z]{2}\b/i, '').trim())].filter(Boolean).map(normalise);
+    const same = (region, n) => { const r = normalise(region); return r === n || (n !== 'london' && r === `city of ${n}`) || (r.startsWith('city of ') && r.slice(8) === n.replace(/^city of /, '') && n.startsWith('city of')); };
+    const pick = (rows) => { const latest = latestRows(rows); for (const n of names) { const r = latest.find((x) => same(x.RegionName, n)); if (r) return r; } return null; };
+    const regional = pick(averages);
+    const regionalType = byType.length ? pick(byType) : null;
+    const nationalAverage = latestRows(averages).find((r) => normalise(r.RegionName) === 'united kingdom') || null;
+    const types = ukTypes(propertyType);
+    const typed = regionalType && types?.hpi ? Number(regionalType[`${types.hpi.replace(/_/g, '')}AveragePrice`]) || null : null;
     const rental = ukRentFor(city);
 
     return res.status(200).json({
@@ -294,12 +320,14 @@ export default async function handler(req, res) {
       city: regional?.RegionName || city || 'United Kingdom',
       data: {
         market: 'UK House Price Index',
-        period: hpiFiles.label,
-        averagePrice: Number(regional?.AveragePrice) || null,
+        period: regional?.Date ? regional.Date.slice(0, 7) : hpiFiles.label,
+        hpiArea: regional?.RegionName || null,
+        hpiTypeLabel: typed ? types.label : regional ? 'all homes' : null,
+        averagePrice: typed ?? (Number(regional?.AveragePrice) || null),
+        allHomesAveragePrice: Number(regional?.AveragePrice) || null,
         nationalAveragePrice: Number(nationalAverage?.AveragePrice) || null,
-        index: Number(latestIndex?.Index) || null,
-        annualChangePercent: Number(regional?.AnnualChange) || null,
-        monthlyChangePercent: Number(regional?.MonthlyChange) || null,
+        annualChangePercent: regional && regional.AnnualChange !== '' ? Number(regional.AnnualChange) : null,
+        monthlyChangePercent: regional && regional.MonthlyChange !== '' ? Number(regional.MonthlyChange) : null,
         transactionEvidence,
         rental: {
           available: true,
