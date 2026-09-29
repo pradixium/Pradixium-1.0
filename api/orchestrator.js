@@ -266,6 +266,77 @@ function usAreaMedian(n) {
   return null;
 }
 
+// Spain: the Catastro zone as uniform record rows (rendered by the same
+// "Official property record" table as the US)
+function spainRecord(cz, property) {
+  const eur = (x) => "€" + Math.round(x).toLocaleString("en-US");
+  const prod = (t) => `${t.type}, ${String(t.category || "").toLowerCase()} category, ${t.builtM2} m² built${t.plotM2 ? `, plot ${t.plotM2.toLocaleString("en-US")} m²` : ""}, ${t.ageYears} years old`;
+  const val = (t) => t.perM2Comparable ? `${eur(t.valuePerM2)}/m² (${eur(t.value)} for the ${t.builtM2} m² representative home)` : `${eur(t.value)} for the representative home (land included — not a per-m² price)`;
+  const src = (y) => `Catastro — official values map ${y || ""}, built from every sale signed before a notary or registered`;
+  if (!cz) return { record: null, parts: [] };
+  const why = {
+    no_address: "Enter the street and number (or the resort / development's name as the town) for this property's official Catastro value zone.",
+    not_geocoded: "The address was not found in Spain's official address register (CartoCiudad) — check the street name and number, and enter the town (not the island or coast).",
+    no_town: "Add the town after the street (e.g. \"Calle Mayor 5, Altea\") for this property's official Catastro value zone.",
+    town_only: "Only the town was recognised — enter the street and number for the property's own zone.",
+    no_map: "No Catastro values map for this place: the Basque Country and Navarre keep their own cadastres (not covered yet), or the Catastro service did not answer.",
+    several_zones: "The address sits on a boundary between Catastro zones — no single zone value is shown.",
+    outside_zones: "The address is outside the Catastro's urban residential value zones.",
+    area_no_product: "No representative home of this type in the Catastro zones around this place.",
+    geocoder_error: "Spain's official address register (CartoCiudad) did not answer this time — run the analysis again for the property's Catastro zone.",
+    error: "The Catastro service could not be read this time."
+  }[cz.status];
+  const price = Number(property?.price), size = Number(property?.size);
+  const rows = [{ label: "Official record", value: why ? why : `${src(cz.mapYear)}${cz.zone ? ` — zone ${cz.zone}` : ""}`, url: why ? null : cz.sourceUrl }];
+  if (cz.geo?.label) rows.push({ label: "Address matched", value: `${cz.geo.label}${cz.geo.refCatastral ? ` (cadastral ref. ${cz.geo.refCatastral})` : ""}` });
+  const parts = [];
+  if (cz.status === "ok") {
+    const t = cz.product;
+    rows.push({ label: "Zone's representative home", value: prod(t) });
+    rows.push({ label: "Official average value (zone)", value: val(t) });
+    if (t.perM2Comparable && price > 0 && size > 0) {
+      const ask = price / size, gap = (ask / t.valuePerM2 - 1) * 100;
+      rows.push({ label: "Asking price, same basis", value: `${eur(ask)}/m² — ${Math.abs(gap).toFixed(1)}% ${gap >= 0 ? "above" : "below"} the zone's value` });
+    } else if (!t.perM2Comparable && price > 0) {
+      rows.push({ label: "Asking price vs zone", value: `${eur(price)} vs ${eur(t.value)} for the zone's representative home (${t.builtM2} m², plot ${t.plotM2 || "—"} m²) — compare size and plot before concluding` });
+    }
+    rows.push({ label: "Homes in this zone", value: `${Number(cz.homesInZone || 0).toLocaleString("en-US")} (values map ${cz.mapYear}, sales data ${cz.dataYear || "—"})` });
+    parts.push({ title: "Catastro value zone", text: `Official Catastro values map ${cz.mapYear}: this address is in zone ${cz.zone} (${cz.homesInZone} homes). The zone's representative home — ${prod(t)} — has an average value of ${val(t)}. The Catastro derives these modules from every sale formalised before a notary or registered; they are the basis of each property's official valor de referencia.` });
+  } else if (cz.status === "other_type_only") {
+    cz.otherProducts.forEach((t) => rows.push({ label: "Zone's representative home (other type)", value: `${prod(t)} → ${val(t)}` }));
+    parts.push({ title: "Catastro value zone", text: `Official Catastro values map ${cz.mapYear}, zone ${cz.zone}: its representative home is a different type from this property (${cz.otherProducts.map(prod).join("; ")}), so no like-for-like value is given — context only.` });
+  } else if (cz.status === "area") {
+    const short = (t) => t.perM2Comparable ? `${eur(t.valuePerM2)}/m²` : `${eur(t.value)} whole home incl. plot`;
+    const lo = (cz.rangeLow || cz.areaZones[0]).product, hi = (cz.rangeHigh || cz.areaZones[cz.areaZones.length - 1]).product;
+    rows.push({ label: "Official zones around this place", value: `${cz.zonesAround || cz.areaZones.length} zones within 700 m — representative home from ${short(lo)} to ${short(hi)}${lo.perM2Comparable ? "" : " (a total for the zone's typical home, land included — not a per-m² price)"}; the ${cz.areaZones.length} closest:` });
+    cz.areaZones.forEach((a) => rows.push({ label: `Zone ${a.zone}`, value: `${prod(a.product)} → ${short(a.product)} (${a.homesInZone} homes)` }));
+    rows.push({ label: "For this property's own zone", value: cz.addressNotFound ? `the street address was not found in the official register (CartoCiudad) — showing the zones around ${cz.geo?.label}; check the street and number` : "enter its street and number" });
+    parts.push({ title: "Catastro value zones around this place", text: `Official Catastro values map ${cz.mapYear}: ${cz.zonesAround || cz.areaZones.length} value zones within 700 m of ${cz.geo?.label}. Representative homes range from ${short(lo)} to ${short(hi)}${lo.perM2Comparable ? "" : " (totals for each zone's typical home, land included)"}. A named area is not an address, so no single zone value is applied to this property.` });
+  } else if (why) {
+    parts.push({ title: "Catastro value zone", text: why });
+  }
+  return { record: { found: cz.status === "ok" || cz.status === "area" || cz.status === "other_type_only", rows }, parts };
+}
+
+// Does a property in `city` belong to the area an official figure covers?
+const RECENT_AREA_ALIASES = {
+  "canton of zurich": ["zurich", "zuerich", "zürich", "winterthur"],
+  "capital region (höfuðborgarsvæðið)": ["reykjavik", "reykjavík", "kopavogur", "kópavogur", "hafnarfjordur", "hafnarfjörður", "gardabaer", "garðabær", "mosfellsbaer", "mosfellsbær", "seltjarnarnes"],
+  "prague": ["prague", "praha"], "warsaw": ["warsaw", "warszawa"], "tel aviv": ["tel aviv", "tel aviv-yafo", "tel aviv yafo", "jaffa", "yafo"],
+  "luxembourg city": ["luxembourg", "luxembourg city", "luxemburg"], "nicosia (new-build apartments)": ["nicosia", "lefkosia", "lefkoşa"],
+  "dublin": ["dublin", "baile atha cliath"], "saburtalo, tbilisi": ["saburtalo"], "milan": ["milan", "milano"], "helsinki": ["helsinki", "helsingfors"],
+  "riga": ["riga"], "berlin": ["berlin"], "zagreb": ["zagreb"], "budapest": ["budapest"], "bratislava": ["bratislava", "pressburg"],
+  "ljubljana": ["ljubljana"], "tallinn": ["tallinn"], "dubai (citywide, all residential property types)": ["dubai"]
+};
+function recentAreaFits(area, city) {
+  const a = String(area || "").toLowerCase();
+  if (/^national/.test(a)) return true; // labelled national by the caller
+  const c = String(city || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").split(",")[0].trim();
+  if (!c) return false;
+  const names = (RECENT_AREA_ALIASES[a] || [a.split(/[,(]/)[0].trim()]).map((n) => n.normalize("NFD").replace(/[\u0300-\u036f]/g, ""));
+  return names.some((n) => c === n || c.startsWith(n + " ") || c.endsWith(" " + n));
+}
+
 function nycSalesContext(n) {
   if (!n) return null;
   const zip = n.zip ? `ZIP ${n.zip}` : "this ZIP";
@@ -299,7 +370,7 @@ function nycSalesContext(n) {
   return null;
 }
 
-function normalizeMarketEvidence(country, raw, propertyType) {
+function normalizeMarketEvidence(country, raw, propertyType, property = null) {
   if (!raw) return null;
   const c = String(country || "").trim().toLowerCase();
 
@@ -375,15 +446,31 @@ function normalizeMarketEvidence(country, raw, propertyType) {
     const transactionPeriod = tx.latestYear != null && tx.latestQuarter != null
       ? `Q${tx.latestQuarter} ${tx.latestYear}`
       : null;
+    // The address's own Catastro value zone (lib/spain/catastroZone.js) is
+    // far more specific than the province-level MIVAU figure: when it gives
+    // a per-m² module (flats, terraced houses) that is the benchmark; a
+    // detached house's module is a total for the zone's representative home
+    // (land included) → context only, never divided into a fake per-m² value.
+    const cz = raw.catastroZone || null;
+    const czPerM2 = cz?.status === "ok" && cz.product?.perM2Comparable ? cz.product.valuePerM2 : null;
+    const spain = spainRecord(cz, property);
     return {
-      benchmarkValue: benchmark,
+      benchmarkValue: czPerM2 ?? benchmark,
       benchmarkUnit: "perSqm",
-      benchmarkLabel: "MIVAU Benchmark",
-      governmentValue: raw.governmentValue ?? null,
-      transactionValue: tx.transactionValue ?? null,
-      transactionPeriod,
-      marketArea: raw.city || raw.province || null,
-      source: "MIVAU / INE / Catastro",
+      // the MIVAU figure is the PROVINCE's average appraised value — named
+      // as such, never as the town's
+      benchmarkLabel: czPerM2 != null ? `Catastro zone ${cz.zone} value / m²` : benchmark != null && raw.province ? `MIVAU appraised value — ${raw.province} province average` : "MIVAU Benchmark",
+      governmentValue: czPerM2 != null ? null : (raw.governmentValue ?? null),
+      // VDP003's "transaction value" is a province-wide quarterly total in
+      // an unstated unit — not a price for this property → not shown
+      transactionValue: null,
+      transactionPeriod: null,
+      marketArea: czPerM2 != null ? `${cz.geo?.muni || raw.city} — Catastro zone ${cz.zone}`
+        : cz?.geo?.label && ["area", "other_type_only", "ok"].includes(cz.status) ? `${cz.geo.label}${benchmark != null && raw.province ? ` (benchmark: ${raw.province} province)` : ""}`
+        : benchmark != null && raw.province ? `${raw.province} province` : null,
+      propertyRecord: spain.record,
+      sourceParts: spain.parts.length ? [...spain.parts, { title: "MIVAU / INE", text: "MIVAU appraised values (province) and INE municipal indicators." }] : null,
+      source: spain.parts.length ? spain.parts.map((x) => x.text).join(" ") + " MIVAU / INE." : "MIVAU / INE / Catastro",
       coverage: benchmark != null ? "city" : "none",
       priceTrendPercent: raw.annualChangePercent ?? null,
       // A finer-grained, independently-sourced municipality-level
@@ -567,6 +654,32 @@ function normalizeMarketEvidence(country, raw, propertyType) {
     const hpi = raw.housingPriceIndex || {};
     const change = hpi.annualChangePercent ?? hpi.annualVariation ?? null;
     const rental = raw.rental || {};
+    const lp = raw.localPrice || null;
+    if (lp?.status === "ok" && (lp.typeMatch?.value ?? lp.medianEurPerM2) != null) {
+      // INE's own local figure: median €/m² of the actual sales in the 12
+      // months to the quarter, for this parish/municipality (by typology
+      // when the bedrooms are known) — the same kind of evidence as France's
+      // DVF median, published by INE itself.
+      const value = lp.typeMatch?.value ?? lp.medianEurPerM2;
+      const typ = lp.typeMatch ? lp.typeMatch.key.replace(" ou mais", "+").replace(" ou ", "/") : null;
+      const where = lp.level === "parish" ? `${lp.area} (parish${lp.municipality ? `, ${lp.municipality}` : ""})` : lp.area;
+      return {
+        benchmarkValue: value,
+        benchmarkUnit: "perSqm",
+        benchmarkLabel: `INE median sale price / m² — ${lp.area}${typ ? `, ${typ}` : ""}`,
+        governmentValue: null,
+        transactionValue: null,
+        transactionPeriod: lp.period,
+        marketArea: where,
+        source: `INE Portugal — median price of homes sold in ${where}, 12 months to ${lp.period}: €${value.toLocaleString("en-US")}/m²${typ ? ` (${typ} homes; all homes €${lp.medianEurPerM2?.toLocaleString("en-US") ?? "—"}/m²)` : ""}${lp.yoyPercent != null ? `, ${lp.yoyPercent >= 0 ? "+" : ""}${lp.yoyPercent}% vs ${lp.comparedWith}` : ""}. National index ${change != null ? (change >= 0 ? "+" : "") + change + "% YoY" : "unavailable"}.`,
+        sourceUrl: lp.sourceUrl,
+        coverage: "city",
+        priceTrendPercent: lp.yoyPercent ?? change ?? null,
+        rentalBenchmark: rental.available
+          ? { monthlyRentPerSqm: rental.rentEurPerM2 ?? null, grossYieldPercent: null, source: rental.source }
+          : null
+      };
+    }
     return {
       benchmarkValue: null,
       benchmarkUnit: "perSqm",
@@ -574,8 +687,10 @@ function normalizeMarketEvidence(country, raw, propertyType) {
       governmentValue: null,
       transactionValue: null,
       transactionPeriod: hpi.period ?? hpi.quarter ?? null,
-      marketArea: `${countryLabel(country)} — city-level price data not yet connected`,
-      source: `INE Portugal — national index ${change != null ? (change >= 0 ? "+" : "") + change + "% YoY" : "unavailable"}`,
+      marketArea: lp?.status === "not_covered"
+        ? `${countryLabel(country)} — INE publishes no local price figure for this place`
+        : `${countryLabel(country)} — city-level price data not yet connected`,
+      source: `${lp?.status === "not_covered" ? "INE publishes local sale prices only for the Lisbon and Porto metro areas, the Algarve and municipalities over 100,000 inhabitants — none for this place, so no local benchmark is applied. " : ""}INE Portugal — national index ${change != null ? (change >= 0 ? "+" : "") + change + "% YoY" : "unavailable"}`,
       coverage: "national",
       priceTrendPercent: change ?? null,
       // INE's median-rent-per-m² for new rental contracts is a real,
@@ -630,6 +745,26 @@ function normalizeMarketEvidence(country, raw, propertyType) {
     // found one; countries without a credible source stay blank rather
     // than guess, same discipline as every other data module here.
     const recent = getRecentTransactionPrice(country);
+    // Real bug (Sept 2026): a figure published for ONE area (Milan, Berlin,
+    // Tel Aviv, Nicosia, Zagreb…) was applied to every city of the country
+    // — an Olbia villa was measured against Milan. Now it is the benchmark
+    // only for a property in that area (or when it is a national figure,
+    // labelled national); elsewhere it is named as context, not applied.
+    const fit = recent ? recentAreaFits(recent.area, property?.city || raw.city) : false;
+    if (recent && !fit) {
+      return {
+        benchmarkValue: null,
+        benchmarkUnit: recent.unit,
+        benchmarkLabel: `${sourceName} HPI (National)`,
+        governmentValue: null,
+        transactionValue: null,
+        transactionPeriod: hpi.period ?? hpi.quarter ?? null,
+        marketArea: `${countryLabel(country)} — no official price figure for ${property?.city || "this city"} yet`,
+        source: `${trendSource}. The official price figure on file covers ${recent.area} only (${recent.source}) — not applied to ${property?.city || "this city"}.`,
+        coverage: "national",
+        priceTrendPercent: change ?? null
+      };
+    }
     if (recent) {
       return {
         benchmarkValue: recent.value,
@@ -719,6 +854,7 @@ async function fetchGovernmentData(property, origin) {
   // "Asking vs Market" gap silently stayed empty even when everything
   // needed for them was right there in the property the user submitted.
   if (property.size) params.set("size", property.size);
+  if (property.bedrooms) params.set("bedrooms", property.bedrooms);
 
   const controller = new AbortController();
   // market-data.js runs its 3 sources in parallel with 8s timeouts each,
@@ -896,7 +1032,7 @@ export default async function handler(req, res) {
     marketDataError = fetched.error;
   }
 
-  const marketEvidence = normalizeMarketEvidence(property.country, marketData, property.propertyType);
+  const marketEvidence = normalizeMarketEvidence(property.country, marketData, property.propertyType, property);
 
   // The Pradixium Score is a deterministic, weighted calculation over
   // whatever real data is available (rental yield, the asking price vs

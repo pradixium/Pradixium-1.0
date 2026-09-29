@@ -5,6 +5,12 @@
     },
     "api/orchestrator.js": {
       "maxDuration": 60
+    },
+    "api/market-data.js": {
+      "includeFiles": "lib/data/spainZones/**"
+    },
+    "api/portugal-intelligence.js": {
+      "includeFiles": "lib/data/portugalPrices.json"
     }
   }
 }

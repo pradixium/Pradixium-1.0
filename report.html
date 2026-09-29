@@ -54,7 +54,7 @@ const pct=x=>{const z=n(x);return z==null?'—':z.toFixed(2)+'%'};
 // here (both these gaps are "positive = cheaper for the buyer").
 const gapText=(x,positiveLabel,negativeLabel,atMarketLabel)=>{const z=n(x);if(z==null)return'—';if(z===0)return atMarketLabel;return Math.abs(z).toFixed(2)+'% '+(z>0?positiveLabel:negativeLabel)};
 const countryNorm=String(a.country||'').trim().toLowerCase();
-v('benchmarkLabel',countryNorm==='spain'?'MIVAU Benchmark':countryNorm==='france'?'DVF Benchmark':'Market Benchmark');
+v('benchmarkLabel',a.benchmarkLabel&&!/^market benchmark$/i.test(a.benchmarkLabel)?a.benchmarkLabel:countryNorm==='spain'?'MIVAU Benchmark':countryNorm==='france'?'DVF Benchmark':'Market Benchmark');
 v('propertyTitle',a.title||a.propertyTitle||a.name||'Property analysis');v('propertyLocation',[a.city,a.country].filter(Boolean).join(', ')||a.location);
 v('score',a.score);v('asking',money(a.askingPrice??a.price));v('size',a.size==null?'—':n(a.size)+' m²');v('priceM2',money(a.priceM2));v('rent',a.rent==null?'—':money(a.rent)+'/month');v('fair',money(a.fairValue));v('gross',pct(a.gross));v('net',pct(a.net));v('deal',a.dealRating);v('confidence',a.confidence);v('offer',money(a.suggestedOffer));v('decision',a.decision);v('benchmark',a.governmentBenchmark);v('government',money(a.governmentValue));v('transaction',money(a.transactionValue));v('transactionPeriod',a.transactionPeriod);v('marketArea',a.marketArea);v('marketSource',a.marketSource);v('foreignShare',pct(a.foreignBuyerShare));v('demandStrength',a.demandStrength);v('demandGeography',a.demandGeography);v('demandPeriod',a.demandPeriod);v('demandSource',a.demandSource);v('buyers',a.buyers);
 const hasForeignAccess=a.foreignAccessStatus&&a.foreignAccessStatus!=='—';
@@ -271,7 +271,7 @@ const escH=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'
 function renderPropertyRecord(lang){
   const L=PR_LABELS[lang]||PR_LABELS.en,box=g('propertyRecordRows'),r=a.propertyRecord;
   if(box){
-    if(!r){box.innerHTML='';}else{
+    if(!r){box.innerHTML='';}else if(Array.isArray(r.rows)){box.innerHTML='<div class="row" style="border-bottom:0;padding-top:14px"><span style="font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#0f1b2d">'+escH(L.title)+'</span><strong></strong></div>'+r.rows.map(x=>'<div class="row"><span>'+escH(x.label)+'</span><strong>'+(x.url?'<a href="'+escH(x.url)+'" target="_blank" rel="noopener">'+escH(x.value)+'</a>':escH(x.value))+'</strong></div>').join('');}else{
       const num=x=>Number(x).toLocaleString('en-US');
       const rows=[[L.authority,r.found===false?L.notFound:(r.authority||L.none),r.found===false?null:r.authorityUrl],
         [L.gov,r.governmentValue!=null?money(r.governmentValue)+(r.governmentValueLabel?' · '+r.governmentValueLabel:''):r.nonMarketValue?money(r.nonMarketValue.value)+' · '+r.nonMarketValue.label:L.noValue],

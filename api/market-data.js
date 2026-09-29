@@ -1,10 +1,15 @@
+import { spainCatastroZone, splitSpanishInput } from "../lib/spain/catastroZone.js";
+
 export default async function handler(req, res) {
   const {
-    city = "",
+    city: typedCity = "",
     country = "Spain",
     propertyType = "Property",
     size = ""
   } = req.query;
+  // the site's one field carries the whole address ("Calle de Serrano 50,
+  // Madrid"): the MIVAU/INE lookups below need the town only
+  const city = splitSpanishInput(req.query.address, typedCity).town || typedCity;
 
   const normalize = (value) =>
     String(value || "")
@@ -483,6 +488,9 @@ export default async function handler(req, res) {
   // await) inside nested try/catches. Now they all fire at once — total
   // wait time is however long the *slowest* one takes, not the sum of
   // all three.
+  // the address's own Catastro value zone (lib/spain/catastroZone.js) runs
+  // alongside the MIVAU/INE downloads
+  const catastroZonePromise = spainCatastroZone({ address: String(req.query.address || ""), city: typedCity, propertyType }).catch((e) => ({ status: "error", error: String(e?.message || e) }));
   const [valuationText, transactionText, ineText] = await Promise.all([
     safeFetchText(valuationUrl, 8000, "MIVAU valuation dataset"),
     safeFetchText(transactionUrl, 8000, "MIVAU transaction dataset"),
@@ -864,6 +872,7 @@ export default async function handler(req, res) {
       estimatedMunicipalValue,
       municipalMarket,
       demand,
+      catastroZone: await catastroZonePromise,
       year: latestValuation ? latestValuation.year : null,
       quarter: latestValuation ? latestValuation.quarter : null,
       regime: latestValuation ? latestValuation.regime : null,

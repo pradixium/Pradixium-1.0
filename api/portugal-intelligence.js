@@ -1,3 +1,5 @@
+import { portugalLocalPrice } from '../lib/portugal/inePrices.js';
+
 const MARKET = {
   country: 'Portugal',
   quarter: '2026-Q1',
@@ -53,12 +55,15 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   const city = String(req.query?.city || '').trim().slice(0, 120);
   const rent = rentFor(city);
+  const address = String(req.query?.address || '').trim().slice(0, 200);
+  const localPrice = portugalLocalPrice({ city, address, bedrooms: req.query?.bedrooms });
   return res.status(200).json({
     success: true,
     country: 'Portugal',
     city: city || null,
     data: {
       housingPriceIndex: MARKET,
+      localPrice,
       localData: 'INE Portugal publishes transaction-based local housing prices down to municipality level.',
       rental: {
         available: true,

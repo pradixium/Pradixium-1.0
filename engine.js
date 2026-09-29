@@ -247,6 +247,8 @@
   const escHtml = (x) => String(x ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   function propertyRecordRows(r, currency) {
     if (!r) return [];
+    // countries whose record is built server-side (Spain: Catastro zone)
+    if (Array.isArray(r.rows)) return r.rows.map((x) => [x.label, x.value, x.url || null]);
     const none = "Not provided by this source";
     const num = (x) => Number(x).toLocaleString("en-US");
     return [
@@ -1247,6 +1249,7 @@
       suggestedOffer: agent.fairValue ? agent.fairValue * 0.95 : null,
       decision: decisionFromRating(agent.dealRating || $("dealRating")?.textContent, agent.confidence || $("confidence")?.textContent),
       governmentBenchmark: $("governmentBenchmark")?.textContent,
+      benchmarkLabel: $("benchmarkLabel")?.textContent || null,
       governmentValue: $("governmentValue")?.textContent,
       governmentGap,
       transactionValue: $("transactionValue")?.textContent,
