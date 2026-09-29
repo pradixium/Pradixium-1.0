@@ -306,7 +306,7 @@ export default async function handler(req, res) {
   };
 
   const postalProvinceKey = (() => {
-    const code = spanishPostalCode(city, address, zip, postalCode);
+    const code = spanishPostalCode(typedCity, address, zip, postalCode);
     return code ? POSTAL_CODE_PROVINCE[code.slice(0, 2)] || null : null;
   })();
 
