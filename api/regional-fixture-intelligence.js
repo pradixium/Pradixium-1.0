@@ -17,6 +17,18 @@
  * number is found.
  */
 const FIXTURES = {
+  // Geostat's RPPI covers NEW homes in Tbilisi only. Its district €/m²
+  // chart is built from web-scraped ASKING prices (Myhome, ss.ge — said in
+  // the release) → not used as a price; the index change is.
+  georgia: {
+    country: "Georgia",
+    period: "2026-Q2",
+    cityName: "Tbilisi",
+    cityChangePercent: 4.9,
+    coverageNote: "Tbilisi new-build homes only (Geostat RPPI); Batumi and other cities have no official price series",
+    source: "National Statistics Office of Georgia (Geostat) — Residential Property Price Index, Q2 2026",
+    officialSource: "https://www.geostat.ge/media/81560/Residential-Property-Price-Index---II-quarter-of-2026.pdf"
+  },
   serbia: {
     country: "Serbia",
     period: "2025-Q3",

@@ -16,7 +16,6 @@
  */
 const PENDING_COUNTRIES = {
   armenia: "Armenia",
-  georgia: "Georgia",
   azerbaijan: "Azerbaijan",
   uzbekistan: "Uzbekistan",
   kyrgyzstan: "Kyrgyzstan",

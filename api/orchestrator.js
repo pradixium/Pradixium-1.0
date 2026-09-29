@@ -159,7 +159,7 @@ const COUNTRY_ENDPOINTS = {
   // was checked. Returns an honest "not yet connected" status rather
   // than a fabricated number.
   "armenia": "pending-intelligence",
-  "georgia": "pending-intelligence",
+  "georgia": "regional-fixture-intelligence",
   "azerbaijan": "pending-intelligence",
   "uzbekistan": "pending-intelligence",
   "kyrgyzstan": "pending-intelligence",
@@ -326,7 +326,12 @@ const RECENT_AREA_ALIASES = {
   "luxembourg city": ["luxembourg", "luxembourg city", "luxemburg"], "nicosia (new-build apartments)": ["nicosia", "lefkosia", "lefkoşa"],
   "dublin": ["dublin", "baile atha cliath"], "saburtalo, tbilisi": ["saburtalo"], "milan": ["milan", "milano"], "helsinki": ["helsinki", "helsingfors"],
   "riga": ["riga"], "berlin": ["berlin"], "zagreb": ["zagreb"], "budapest": ["budapest"], "bratislava": ["bratislava", "pressburg"],
-  "ljubljana": ["ljubljana"], "tallinn": ["tallinn"], "dubai (citywide, all residential property types)": ["dubai"]
+  "ljubljana": ["ljubljana"], "tallinn": ["tallinn"], "dubai (citywide, all residential property types)": ["dubai"],
+  // regional fixtures (api/regional-fixture-intelligence.js)
+  "belgrade": ["belgrade", "beograd"], "coastal municipalities": ["budva", "kotor", "tivat", "herceg novi", "bar", "ulcinj", "petrovac", "becici", "sveti stefan"],
+  "tirana": ["tirana", "tirane", "tiranë"], "buenos aires (caba)": ["buenos aires", "caba", "palermo", "recoleta"], "lima metropolitana": ["lima", "miraflores", "san isidro", "barranco"],
+  "montevideo": ["montevideo"], "metropolitan region (gran santo domingo)": ["santo domingo"], "seoul": ["seoul"], "ho chi minh city": ["ho chi minh city", "ho chi minh", "saigon"],
+  "colombo": ["colombo"], "phnom penh": ["phnom penh"], "tbilisi": ["tbilisi", "saburtalo", "vake", "mtatsminda"]
 };
 function recentAreaFits(area, city) {
   const a = String(area || "").toLowerCase();
@@ -907,12 +912,33 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
   const REGIONAL_FIXTURE_COUNTRIES = [
     "serbia", "bosnia and herzegovina", "montenegro", "north macedonia", "ukraine", "albania", "andorra", "monaco",
     "russia", "kazakhstan", "canada", "mexico", "brazil", "australia", "new zealand", "argentina",
-    "chile", "colombia", "peru", "uruguay", "dominican republic",
+    "chile", "colombia", "peru", "uruguay", "dominican republic", "georgia",
     "thailand", "indonesia", "south korea", "india", "japan", "vietnam", "sri lanka", "cambodia"
   ];
   if (REGIONAL_FIXTURE_COUNTRIES.includes(c)) {
-    const benchmarkValue = raw.cityBenchmarkValue ?? raw.nationalBenchmarkValue ?? null;
-    const changePercent = raw.cityBenchmarkValue != null ? raw.cityChangePercent : (raw.nationalChangePercent ?? raw.cityChangePercent);
+    // a city's figure applies only to that city; a national figure is
+    // context, never a town's benchmark (same rule as recentAreaFits above)
+    const where = property?.city || raw.city || "";
+    const fits = raw.cityName ? recentAreaFits(raw.cityName, where) : false;
+    if (!fits) {
+      const cityTxt = raw.cityName && raw.cityBenchmarkValue != null ? ` The official figure on file covers ${raw.cityName} only (${Math.round(raw.cityBenchmarkValue).toLocaleString("en-US")} per m²) — not applied to ${where || "this place"}.` : "";
+      const natTxt = raw.nationalBenchmarkValue != null ? ` National average ${Math.round(raw.nationalBenchmarkValue).toLocaleString("en-US")}${raw.benchmarkUnit === "total" ? " per home" : " per m²"} — whole-country context only.` : "";
+      const nat = raw.nationalChangePercent ?? null;
+      return {
+        benchmarkValue: null,
+        benchmarkUnit: raw.benchmarkUnit || "perSqm",
+        benchmarkLabel: `${countryLabel(country)} Official Estimate`,
+        governmentValue: null,
+        transactionValue: null,
+        transactionPeriod: raw.period ?? null,
+        marketArea: `${countryLabel(country)} — no official local price figure for ${where || "this place"} yet`,
+        source: `${raw.sources?.official || countryLabel(country)}${nat != null ? ` — national ${nat >= 0 ? "+" : ""}${nat}% YoY` : ""}.${cityTxt}${natTxt}`,
+        coverage: "national",
+        priceTrendPercent: nat
+      };
+    }
+    const benchmarkValue = raw.cityBenchmarkValue ?? null;
+    const changePercent = raw.cityChangePercent ?? raw.nationalChangePercent ?? null;
     const area = raw.cityName || countryLabel(country);
     return {
       benchmarkValue,
@@ -923,7 +949,7 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
       transactionPeriod: raw.period ?? null,
       marketArea: area,
       source: `${raw.sources?.official || countryLabel(country)}${changePercent != null ? ` — ${changePercent >= 0 ? "+" : ""}${changePercent}% YoY` : ""}${raw.coverageNote ? ` (${raw.coverageNote})` : ""}`,
-      coverage: benchmarkValue != null ? (raw.cityBenchmarkValue != null ? "city" : "national") : "national",
+      coverage: benchmarkValue != null ? "city" : "national",
       priceTrendPercent: changePercent ?? null
     };
   }
