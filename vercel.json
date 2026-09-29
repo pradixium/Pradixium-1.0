@@ -11,6 +11,9 @@
     },
     "api/portugal-intelligence.js": {
       "includeFiles": "lib/data/portugalPrices.json"
+    },
+    "api/italy-intelligence.js": {
+      "includeFiles": "lib/data/italyComuni.json"
     }
   }
 }

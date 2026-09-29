@@ -625,6 +625,33 @@ file; a per-file recompute differs by 1–2 sales for that reason. Recompute che
 - Single-area figures (Milan's OMI etc.) are applied only to that area
   (`recentAreaFits` in the orchestrator).
 
+## Europe local prices (Sept 2026, Claude B)
+
+- UK (`api/uk-intelligence.js`): HM Land Registry renamed the HPI columns
+  (Region_Name/Average_Price) — every local UK figure had been empty. Now:
+  UK HPI average of the property's local authority AND type (Property-Type
+  file), Price Paid category-A market sales only, narrowest area with
+  enough sales (postcode → sector → district → local authority → town).
+  No local match → no benchmark (never the national one). "London" is
+  never the City of London.
+- `lib/europe/localPrices.js` (called by api/eurostat-hpi-intelligence.js):
+  NL CBS 83625NED per municipality (PDOK geocoder), NO SSB 06035 €/m² per
+  municipality + type, SE SCB BO0501 houses per municipality (apartments =
+  bostadsrätter, not covered — said so), IE CSO HPM08 per Eircode routing
+  area / HPM07 per county, DK Statistics Denmark EJEN77 per landsdel
+  (Dataforsyningen geocoder). National averages are context only.
+- Italy (`lib/italy/omi.js`): Agenzia delle Entrate OMI quotations via its
+  public GEOPOI OMI service (zoneomi.php richiesta=3/5/8, stampaomi.php):
+  a locality typed by the customer is matched to the OMI zone NAMES of the
+  municipality (Porto Cervo → Arzachena E7). One zone → midpoint of the
+  prevailing-condition range is the benchmark; several → town range as
+  context; > 20 zones (Rome, Milan) → asks for the neighbourhood.
+  Municipality list: `python3 scripts/build-it-comuni.py`.
+- Not possible yet (checked Sept 2026): Greece (zone values only as
+  Gazette PDFs; BoG publishes indices only), Austria (district prices only
+  in the STATatlas map, no OGD file), Bulgaria (NSI per-city prices ended
+  2014), Cyprus/Croatia/Romania (no open per-area price data found).
+
 ## Net Yield / Cash-on-Cash fix (shipped Sept 2026)
 
 `engine.js` had three places computing "Net Yield" and "Cash-on-Cash" off a flat,

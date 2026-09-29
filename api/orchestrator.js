@@ -780,6 +780,45 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
     // — an Olbia villa was measured against Milan. Now it is the benchmark
     // only for a property in that area (or when it is a national figure,
     // labelled national); elsewhere it is named as context, not applied.
+    // Italy: the OMI zone quotation (lib/italy/omi.js)
+    const omi = c === "italy" ? raw.omi : null;
+    if (omi && ["ok", "comune_range", "needs_locality"].includes(omi.status)) {
+      const eur = (x) => "€" + Math.round(x).toLocaleString("en-US");
+      const r = (x) => `${x.type.toLowerCase()} (${x.state.toLowerCase()} condition) ${eur(x.min)}–${eur(x.max)}/m²`;
+      if (omi.status === "ok") {
+        const mid = (omi.main.min + omi.main.max) / 2;
+        const zoneTxt = `OMI zone ${omi.zone} of ${omi.comune} ("${omi.zoneName}")`;
+        return {
+          benchmarkValue: mid,
+          benchmarkUnit: "perSqm",
+          benchmarkLabel: `OMI zone ${omi.zone} — midpoint of ${eur(omi.main.min)}–${eur(omi.main.max)}/m²`,
+          governmentValue: null,
+          transactionValue: null,
+          transactionPeriod: omi.period,
+          marketArea: `${omi.comune} — ${zoneTxt.replace(` of ${omi.comune}`, "")}`,
+          source: `${omi.source}, ${omi.period}: ${zoneTxt}. The agency's €/m² ranges (gross area) for this zone: ${omi.rows.map(r).join("; ")}. Benchmark = midpoint of the range for the zone's most common condition (${omi.main.state.toLowerCase()}); OMI ranges are calibrated on registered deeds. ${trendSource}.`,
+          sourceUrl: omi.sourceUrl,
+          coverage: "city",
+          priceTrendPercent: change ?? null
+        };
+      }
+      const ctx = omi.status === "comune_range"
+        ? `${omi.source}, ${omi.period}: ${omi.comune} has ${omi.zonesTotal} OMI zones; for this home type they range from ${eur(omi.low.main.min)}/m² (zone ${omi.low.zone}, "${omi.low.zoneName}") to ${eur(omi.high.main.max)}/m² (zone ${omi.high.zone}, "${omi.high.zoneName}"). Name the locality / neighbourhood to get the property's own zone — a town-wide range is not applied to this property.`
+        : `${omi.source}, ${omi.period}: ${omi.comune} is divided into ${omi.zonesTotal} OMI zones with very different values — enter the neighbourhood (quartiere) with the address, e.g. "Testaccio, Roma", for the property's own zone.`;
+      return {
+        benchmarkValue: null,
+        benchmarkUnit: "perSqm",
+        benchmarkLabel: "OMI zone value (see source)",
+        governmentValue: null,
+        transactionValue: null,
+        transactionPeriod: omi.period,
+        marketArea: omi.comune,
+        source: `${ctx} ${trendSource}.`,
+        sourceUrl: omi.sourceUrl,
+        coverage: "city",
+        priceTrendPercent: change ?? null
+      };
+    }
     // the national statistics office's own LOCAL figure for this place
     // (municipality / Eircode area / county) — lib/europe/localPrices.js
     const lp = raw.localPrice;

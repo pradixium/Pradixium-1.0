@@ -1,3 +1,5 @@
+import { italyOmi } from '../lib/italy/omi.js';
+
 const ITALY_HPI = {
   quarter: '2026-Q1',
   quarterlyVariation: 1.0,
@@ -14,12 +16,16 @@ export default async function handler(req, res) {
   const city = String(req.query?.city || '').trim().slice(0, 120);
   if (!city) return res.status(400).json({ success: false, error: 'City is required.' });
 
+  // the zone's official OMI quotation (lib/italy/omi.js)
+  const omi = await italyOmi({ city, address: String(req.query?.address || '').trim().slice(0, 200), propertyType: String(req.query?.propertyType || '') })
+    .catch((e) => ({ status: 'error', error: String(e?.message || e) }));
   return res.status(200).json({
     success: true,
     country: 'Italy',
     city,
     data: {
       housingPriceIndex: ITALY_HPI,
+      omi,
       sources: {
         istat: 'Istat — House Price Index (IPAB)',
         omi: 'Agenzia delle Entrate — Osservatorio del Mercato Immobiliare'
