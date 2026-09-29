@@ -57,6 +57,45 @@
   let mode = 'signup';
   let currentUser = null;
 
+  // ---- CAPTCHA (Cloudflare Turnstile) ----
+  // window.PRADIXIUM_TURNSTILE_SITE_KEY (supabase-config.js) is blank until
+  // a real site key is set -- every function below is then a no-op, so
+  // signUp/signInWithPassword/resetPasswordForEmail run exactly as they did
+  // before, with no captchaToken. Once a site key is set here AND "Enable
+  // CAPTCHA protection" is turned on in the Supabase Dashboard, every one of
+  // those calls needs a valid token or Supabase rejects it -- the two are
+  // meant to be turned on together, not one before the other.
+  const TURNSTILE_SITE_KEY = window.PRADIXIUM_TURNSTILE_SITE_KEY || '';
+  let mainTurnstileWidgetId = null;
+  let mainTurnstileToken = '';
+
+  function whenTurnstileReady(cb, triesLeft) {
+    if (window.turnstile) return cb();
+    if (triesLeft === undefined) triesLeft = 40; // ~6s of polling, then give up quietly
+    if (triesLeft <= 0) return;
+    setTimeout(() => whenTurnstileReady(cb, triesLeft - 1), 150);
+  }
+
+  function renderMainTurnstile() {
+    if (!TURNSTILE_SITE_KEY) return;
+    const container = $('authTurnstile');
+    if (!container) return;
+    whenTurnstileReady(() => {
+      if (mainTurnstileWidgetId !== null) return;
+      mainTurnstileWidgetId = window.turnstile.render(container, {
+        sitekey: TURNSTILE_SITE_KEY,
+        callback: (token) => { mainTurnstileToken = token; },
+        'expired-callback': () => { mainTurnstileToken = ''; },
+        'error-callback': () => { mainTurnstileToken = ''; }
+      });
+    });
+  }
+
+  function resetMainTurnstile() {
+    mainTurnstileToken = '';
+    if (window.turnstile && mainTurnstileWidgetId !== null) window.turnstile.reset(mainTurnstileWidgetId);
+  }
+
   function setError(message) { if (errorEl) errorEl.textContent = message || ''; }
 
   function setBusy(busy) {
@@ -128,6 +167,7 @@
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return setError('Please enter a valid email address.');
     if (password.length < 6) return setError('Password must be at least 6 characters.');
     if (mode === 'signup' && !name) return setError('Please enter your full name.');
+    if (TURNSTILE_SITE_KEY && !mainTurnstileToken) return setError('Please complete the CAPTCHA.');
 
     setBusy(true);
     try {
@@ -135,7 +175,7 @@
         const { data, error } = await client.auth.signUp({
           email,
           password,
-          options: { data: { full_name: name } }
+          options: { data: { full_name: name }, captchaToken: mainTurnstileToken || undefined }
         });
         if (error) return setError(error.message);
         if (data.user && !data.session) {
@@ -147,7 +187,7 @@
         // Session came back immediately (email confirmation disabled in project settings).
         form?.reset();
       } else {
-        const { error } = await client.auth.signInWithPassword({ email, password });
+        const { error } = await client.auth.signInWithPassword({ email, password, options: { captchaToken: mainTurnstileToken || undefined } });
         if (error) return setError(error.message === 'Invalid login credentials'
           ? 'Incorrect email or password. Please check your details.'
           : error.message);
@@ -157,6 +197,7 @@
       console.error('[Pradixium Auth] Unexpected error during submit:', err);
       setError('Unexpected error: ' + (err && err.message ? err.message : String(err)));
     } finally {
+      resetMainTurnstile();
       setBusy(false);
     }
   }
@@ -194,14 +235,34 @@
       openModal('Reset your password',
         '<p style="font-size:13px;color:#687383;line-height:1.5;margin:0 0 15px">Enter the email for your Pradixium account. We will send you a reset link.</p>' +
         '<input id="resetEmail" type="email" placeholder="you@example.com" style="width:100%;height:43px;border:1px solid #d8dee7;border-radius:8px;padding:0 12px;font-size:14px;box-sizing:border-box">' +
+        '<div id="resetTurnstile" style="margin:10px 0"></div>' +
         '<div id="resetMsg" style="min-height:18px;color:#5f6b7b;font-size:11px;font-weight:600;margin-top:8px"></div>' +
         '<button type="button" id="resetSend" style="width:100%;height:44px;border:0;border-radius:8px;background:#2463d6;color:#fff;font-weight:750;cursor:pointer;margin-top:4px">Send Reset Link</button>');
+      // Freshly rendered every time this modal opens, since openModal()
+      // tears down the previous one entirely -- own widget id/token per open.
+      let resetTurnstileWidgetId = null;
+      let resetTurnstileToken = '';
+      if (TURNSTILE_SITE_KEY) {
+        whenTurnstileReady(() => {
+          const container = $('resetTurnstile');
+          if (!container) return;
+          resetTurnstileWidgetId = window.turnstile.render(container, {
+            sitekey: TURNSTILE_SITE_KEY,
+            callback: (token) => { resetTurnstileToken = token; },
+            'expired-callback': () => { resetTurnstileToken = ''; },
+            'error-callback': () => { resetTurnstileToken = ''; }
+          });
+        });
+      }
       $('resetSend').onclick = async function () {
         const email = ($('resetEmail').value || '').trim().toLowerCase();
         const msg = $('resetMsg');
         if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { msg.style.color = '#c64747'; msg.textContent = 'Enter a valid email address.'; return; }
+        if (TURNSTILE_SITE_KEY && !resetTurnstileToken) { msg.style.color = '#c64747'; msg.textContent = 'Please complete the CAPTCHA.'; return; }
         msg.style.color = '#5f6b7b'; msg.textContent = 'Sending…';
-        const { error } = await client.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + window.location.pathname });
+        const { error } = await client.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + window.location.pathname, captchaToken: resetTurnstileToken || undefined });
+        if (window.turnstile && resetTurnstileWidgetId !== null) window.turnstile.reset(resetTurnstileWidgetId);
+        resetTurnstileToken = '';
         if (error) { msg.style.color = '#c64747'; msg.textContent = error.message; return; }
         msg.style.color = '#1a8f5c'; msg.textContent = 'Check your email for a reset link.';
       };
@@ -288,9 +349,17 @@
     }
     if (target.id === 'accountLogoutBtn') {
       client.auth.signOut();
-      if (accountMenu) { accountMenu.classList.remove('open'); accountMenu.setAttribute('aria-hidden', 'true'); }
-      form?.reset();
-      setMode('signin');
+      // Sign-out used to only end the Supabase session -- the last
+      // analysis/report a paying account had loaded stayed cached in
+      // localStorage and kept rendering on screen exactly as before,
+      // looking like signing out "did nothing". A full reload is the only
+      // way to guarantee nothing from the previous session's report is
+      // still visible afterward.
+      try {
+        localStorage.removeItem('pradixiumReportData');
+        localStorage.removeItem('pradixiumPropertyInputs');
+      } catch (e) {}
+      window.location.reload();
     }
   }
 
@@ -317,6 +386,7 @@
     document.addEventListener('submit', onSubmit, true);
     ensureForgotPasswordButton();
     ensureProfileHandler();
+    renderMainTurnstile();
     setMode('signup');
 
     client.auth.onAuthStateChange((event, session) => {
