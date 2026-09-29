@@ -109,7 +109,7 @@ export default async function handler(req, res) {
 
   // the country's own local figure (lib/europe/localPrices.js), in
   // parallel with the Eurostat trend
-  const localPromise = europeLocalPrice({ country: geo.name, city, address: String(req.query?.address || "").trim(), propertyType: String(req.query?.propertyType || "") }).catch(() => null);
+  const localPromise = europeLocalPrice({ country: geo.name, city, address: String(req.query?.address || "").trim(), propertyType: String(req.query?.propertyType || ""), size: req.query?.size }).catch(() => null);
   const url = `https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/prc_hpi_q?format=JSON&unit=RCH_A&purchase=TOTAL&geo=${geo.code}&lastTimePeriod=1`;
 
   try {

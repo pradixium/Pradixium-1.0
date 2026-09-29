@@ -647,10 +647,24 @@ file; a per-file recompute differs by 1–2 sales for that reason. Recompute che
   prevailing-condition range is the benchmark; several → town range as
   context; > 20 zones (Rome, Milan) → asks for the neighbourhood.
   Municipality list: `python3 scripts/build-it-comuni.py`.
+- Austria: `scripts/build-at-prices.py` → lib/data/austriaPrices.json —
+  Statistik Austria median €/m² per political district (houses, flats;
+  Vienna per Bezirk) read from Statistik Austria's STATatlas GeoServer
+  (gs-atlas, map them_v_immopreise) + Gemeindeverzeichnis.
+- Croatia: statutory "Plan približnih vrijednosti" (PPV 1.1.2026) via the
+  ministry geoportal ISPU (api/v1/gis/search-text → search-geom →
+  identify, catalog item 383 / WMS layer 405): €/m² for flats by size
+  band per price block. No house values in the PPV. New plan each year →
+  update PPV_FLATS in lib/europe/localPrices.js from gis/catalog-izbornik.
+- Georgia: Geostat RPPI trend only (Tbilisi new builds); its district
+  €/m² are web-scraped asking prices (Geostat says so) → not used.
+- Regional fixtures (Serbia, Montenegro, LatAm, Asia…): city figure only
+  for that city, national figures as context.
+- Turkey: TCMB EVDS has official TL/m² by province but needs a free API
+  key (user must register) — not connected.
 - Not possible yet (checked Sept 2026): Greece (zone values only as
-  Gazette PDFs; BoG publishes indices only), Austria (district prices only
-  in the STATatlas map, no OGD file), Bulgaria (NSI per-city prices ended
-  2014), Cyprus/Croatia/Romania (no open per-area price data found).
+  Gazette PDFs; BoG publishes indices only), Bulgaria (NSI per-city prices ended
+  2014), Cyprus/Romania (no open per-area price data found).
 
 ## Net Yield / Cash-on-Cash fix (shipped Sept 2026)
 

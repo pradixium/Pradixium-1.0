@@ -845,7 +845,13 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
         priceTrendPercent: lp.yoyPercent ?? change ?? null
       };
     }
-    const localNote = lp?.status === "needs_district" ? ` ${lp.note}` : lp?.status === "apartments_not_covered" ? " Sweden's apartments are tenant-owner shares (bostadsrätter), not real property — the official price statistics cover houses only." : "";
+    const LOCAL_NOTES = {
+      needs_address: " Croatia's official approximate values (PPV) are per street block — enter the street and number (e.g. \"Marmontova 5, Split\").",
+      address_not_found: " The address was not found in Croatia's official address register (ISPU) — check the street and number (Croatian spelling).",
+      ambiguous_address: " Several addresses in Croatia's register match — add the town.",
+      no_house_values: " Croatia's official approximate values (PPV) are published for flats and land only, not houses."
+    };
+    const localNote = LOCAL_NOTES[lp?.status] || (lp?.status === "needs_district" ? ` ${lp.note}` : lp?.status === "apartments_not_covered" ? " Sweden's apartments are tenant-owner shares (bostadsrätter), not real property — the official price statistics cover houses only." : "");
     const national = recent && /national|malta & gozo/i.test(recent.area);
     const fit = recent && !national ? recentAreaFits(recent.area, property?.city || raw.city) : false;
     if (recent && national) {
@@ -874,7 +880,7 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
         transactionValue: null,
         transactionPeriod: hpi.period ?? hpi.quarter ?? null,
         marketArea: `${countryLabel(country)} — no official price figure for ${property?.city || "this city"} yet`,
-        source: `${trendSource}. The official price figure on file covers ${recent.area} only (${recent.source}) — not applied to ${property?.city || "this city"}.`,
+        source: `${trendSource}. The official price figure on file covers ${recent.area} only (${recent.source}) — not applied to ${property?.city || "this city"}.${localNote}`,
         coverage: "national",
         priceTrendPercent: change ?? null
       };
@@ -888,7 +894,7 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
         transactionValue: null,
         transactionPeriod: recent.period,
         marketArea: recent.area,
-        source: `${recent.source} — ${recent.basis}. ${trendSource}.`,
+        source: `${recent.source} — ${recent.basis}. ${trendSource}.${localNote}`,
         coverage: /national/i.test(recent.area) ? "national" : "city",
         priceTrendPercent: change ?? null
       };
@@ -903,7 +909,7 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
       // Dubai's index isn't a UAE-wide figure — say so rather than implying
       // national coverage the source doesn't have.
       marketArea: c === "united arab emirates" ? "Dubai only — other emirates not covered" : `${countryLabel(country)} — city-level data not yet connected`,
-      source: trendSource,
+      source: `${trendSource}${localNote ? "." + localNote : ""}`,
       coverage: "national",
       priceTrendPercent: change ?? null
     };
