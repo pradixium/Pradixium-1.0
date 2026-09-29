@@ -186,7 +186,24 @@ export default async function handler(req, res) {
     malaga: ["malaga"],
     murcia: ["murcia"],
     bilbao: ["bizkaia", "vizcaya"],
-    zaragoza: ["zaragoza"]
+    zaragoza: ["zaragoza"],
+    // FIX (found live, real agency test on Marbella came back completely
+    // empty): MIVAU's valuation/transaction files only report at PROVINCE
+    // level, but a real user types the actual town (Marbella, Estepona,
+    // Ibiza, Girona coast, etc.), never the province name. Those towns
+    // were only ever mapped to a province via DEMAND_PROVINCE_ALIASES
+    // below, and only for the foreign-buyer-demand section — this
+    // benchmark lookup never consulted it, so any town outside the 9
+    // major cities above got zero province match and a blank report,
+    // even though its province's real government data exists and is
+    // being fetched. These entries are keyed by the same province keys
+    // DEMAND_PROVINCE_ALIASES already resolves resort towns to.
+    baleares: ["baleares", "illes balears", "balears"],
+    tenerife: ["santa cruz de tenerife"],
+    girona: ["girona", "gerona"],
+    almeria: ["almeria"],
+    "las palmas": ["las palmas"],
+    tarragona: ["tarragona"]
   };
 
   // Foreign buyer / demand intelligence — Colegio de Registradores
@@ -389,8 +406,14 @@ export default async function handler(req, res) {
     return "LIMITED";
   };
 
+  // Resolves a resort/suburb key (e.g. "marbella") to its province's own
+  // aliases (e.g. cityAliases.malaga) via DEMAND_PROVINCE_ALIASES when
+  // there's no direct entry — same fix as cityAliases above.
+  const resolveProvinceAliases = (key, aliasMap) =>
+    aliasMap[key] || (DEMAND_PROVINCE_ALIASES[key] && aliasMap[DEMAND_PROVINCE_ALIASES[key]]) || [key];
+
   const cityKey = normalize(city);
-  const provinceAliases = cityAliases[cityKey] || [cityKey];
+  const provinceAliases = resolveProvinceAliases(cityKey, cityAliases);
 
   const matchesLocation = (value, aliases = provinceAliases) => {
     const normalized = normalize(repairMojibake(value));
@@ -651,9 +674,21 @@ export default async function handler(req, res) {
         malaga: ["29", "29067"],
         murcia: ["30", "30030"],
         bilbao: ["48", "48020"],
-        zaragoza: ["50", "50297"]
+        zaragoza: ["50", "50297"],
+        // FIX: same resort-town gap as cityAliases above — a resort town
+        // resolves to its province's transaction-count/value data via
+        // DEMAND_PROVINCE_ALIASES instead of matching nothing.
+        baleares: ["07", "7"],
+        tenerife: ["38"],
+        girona: ["17"],
+        almeria: ["04", "4"],
+        "las palmas": ["35"],
+        tarragona: ["43"]
       };
-      const targetProvinceCodes = transactionProvinceCodes[cityKey] || [];
+      const targetProvinceCodes =
+        transactionProvinceCodes[cityKey] ||
+        (DEMAND_PROVINCE_ALIASES[cityKey] && transactionProvinceCodes[DEMAND_PROVINCE_ALIASES[cityKey]]) ||
+        [];
 
       transactionMatches = transactionRows.filter((row) => {
         if (transactionProvinceTextHeader) {
