@@ -81,15 +81,33 @@
     if (passwordInput) passwordInput.setAttribute('autocomplete', signup ? 'new-password' : 'current-password');
     if (title) title.textContent = signup ? 'Create your Pradixium account' : 'Welcome back';
     if (subtitle) subtitle.textContent = signup
-      ? 'Create an account before using Property Intelligence and generating analysis reports.'
+      ? 'Create a free account to see your property analysis and save your reports.'
       : 'Sign in to continue to your Pradixium workspace.';
     if (submit) submit.textContent = signup ? 'Create Account' : 'Sign In';
     setError('');
   }
 
+  // FIX (Sept 2026, explicit product decision): this used to force the
+  // sign-up/sign-in modal open for EVERY visitor on page load, before they
+  // could see anything — including the free preview. api/orchestrator.js
+  // already tolerates an anonymous request (no Authorization header) and
+  // simply returns the redacted/free-preview shape; startCheckout() below
+  // already has its own explicit "please sign in" gate at the one point
+  // that actually needs an account (paying). So this blanket up-front wall
+  // was stricter than the backend itself requires, and was costing casual
+  // visitors who'd otherwise have tried the free analysis first. The gate
+  // now only opens on demand (showAuthGate(), called from startCheckout()
+  // and anywhere else that hits a real "must be signed in" requirement),
+  // never automatically just because no one is logged in yet.
+  function showAuthGate(message) {
+    if (!gate) return;
+    gate.classList.remove('hidden');
+    if (message) setError(message);
+  }
+  window.pradixiumShowAuthGate = showAuthGate;
+
   function refresh() {
-    const authenticated = !!currentUser;
-    if (gate) gate.classList.toggle('hidden', authenticated);
+    if (gate && currentUser) gate.classList.add('hidden');
     if (accountName) {
       accountName.textContent = authenticated
         ? (currentUser.user_metadata && currentUser.user_metadata.full_name) || currentUser.email
