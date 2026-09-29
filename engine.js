@@ -1094,7 +1094,15 @@
       } else {
         renderScoreCore(json?.pradixiumScore || null);
         set("investorAction", "AI analysis unavailable right now — figures above are calculated directly from the numbers you entered.");
-        set("fairValue", "—");
+        // FIX: Fair Value is now a deterministic figure computed alongside
+        // the score itself (lib/scoring/pradixiumScore.js) — it doesn't
+        // depend on the AI call that just failed, so there's no reason to
+        // hardcode "—" here when a real (possibly Pradixium-own-estimate,
+        // clearly labeled) number already exists right there in the same
+        // response.
+        const fv = json?.pradixiumScore?.fairValue;
+        set("fairValue", Number.isFinite(fv) ? money(fv, currency) : "—");
+        set("fairValueNote", json?.pradixiumScore?.fairValueBasis || "Pradixium Fair Value™");
       }
     } catch (e) {
       console.warn("Pradixium: AI analysis failed, rule-based figures remain", e);
