@@ -866,7 +866,7 @@
 
         try {
           const country = get('country');
-          const countryName = country ? country.value : 'Spain';
+          const countryName = country ? country.value : '';
 
           [
             ['bedrooms', 'metaBeds', ' beds'],
@@ -887,7 +887,7 @@
           if (city && location && city.value.trim()) {
             setIfChanged(
               location,
-              city.value.trim() + ', ' + countryName
+              [city.value.trim(), countryName].filter(Boolean).join(', ')
             );
           }
 

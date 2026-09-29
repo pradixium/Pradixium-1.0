@@ -1,4 +1,4 @@
-import { countryFromHost, countryFromValue, currencyFromText, looksBlocked } from "../lib/listing/detect.js";
+import { countryFromHost, countryFromValue, currencyFromText, looksBlocked, countryNamedIn, addressFromText } from "../lib/listing/detect.js";
 
 export default async function handler(req, res) {
   if (req.method !== "GET" && req.method !== "POST") {
@@ -358,6 +358,12 @@ export default async function handler(req, res) {
     // mislabeled as Spain. No signal at all means no guess: leave country
     // null and let the form keep whatever the person already selected.
     country = countryFromValue(country) || domainCountry || countryFromHost(hostname) || cityCountry || (isUS ? "United States" : (french ? "France" : null));
+    // pasted listing text: its own address lines and a country it names
+    if (pasted != null) {
+      const a = addressFromText(pasted);
+      if (a && !(addressObject && typeof addressObject === "object")) address = a;
+      if (!country) country = countryNamedIn(pasted);
+    }
 
     const typeValue = entity["@type"] || listing?.["@type"] || "Apartment";
     const propertyType = Array.isArray(typeValue) ? typeValue[0] : typeValue;

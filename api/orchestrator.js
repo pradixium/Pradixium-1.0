@@ -348,10 +348,13 @@ const RECENT_AREA_ALIASES = {
 function recentAreaFits(area, city) {
   const a = String(area || "").toLowerCase();
   if (/^national/.test(a)) return true; // labelled national by the caller
-  const c = String(city || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").split(",")[0].trim();
-  if (!c) return false;
+  // every part of what was typed ("Kastanienallee 12, 10435 Berlin"), with
+  // postcodes / house numbers removed — the town is rarely the first part
+  const parts = String(city || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").split(",")
+    .map((p) => p.replace(/\b[a-z]{0,2}-?\d[\d\s-]*\b/g, " ").replace(/\s+/g, " ").trim()).filter(Boolean);
+  if (!parts.length) return false;
   const names = (RECENT_AREA_ALIASES[a] || [a.split(/[,(]/)[0].trim()]).map((n) => n.normalize("NFD").replace(/[\u0300-\u036f]/g, ""));
-  return names.some((n) => c === n || c.startsWith(n + " ") || c.endsWith(" " + n));
+  return parts.some((c) => names.some((n) => c === n || c.startsWith(n + " ") || c.endsWith(" " + n)));
 }
 
 function nycSalesContext(n) {

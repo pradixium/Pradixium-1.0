@@ -197,7 +197,11 @@
       }
       window.pradixiumPropertyAddress = p.address || p.city || window.pradixiumPropertyAddress || "";
       const note = otherCurrency ? ` The listing's price is in ${p.currency} — enter it in ${localCur}.` : (!knownCountry && p.currency && p.price ? ` The price is in ${p.currency} — choose the country it belongs to.` : "");
-      urlStatus(filled.length ? `Filled from the listing: ${filled.join(", ")} — please check them.${note}` : `Nothing new to fill from this listing.${note}`, Boolean(note));
+      const still = [!$("country")?.value && "country", !$("city")?.value && "address", !$("askingPrice")?.value && "price", !$("size")?.value && "size (m²)"].filter(Boolean);
+      const need = still.length ? ` Still needed: ${still.join(", ")} — please fill ${still.length > 1 ? "them" : "it"} in below.` : "";
+      urlStatus(`${filled.length ? `Filled from the listing: ${filled.join(", ")} — please check.` : "Nothing new to fill from this listing."}${note}${need}`, Boolean(note || need));
+      const first = still[0] && $({ country: "country", address: "city", price: "askingPrice", "size (m²)": "size" }[still[0]]);
+      if (first) first.style.borderColor = "#dc2626", setTimeout(() => { first.style.borderColor = ""; }, 5000);
     }
   }
 
@@ -1090,9 +1094,19 @@
     await loadFromUrlIfNeeded();
     const inputs = getInputs();
 
-    if (!inputs.price || !inputs.size) {
+    // country + address + price + size, or no analysis: a report built on
+    // a missing country would be empty (it used to show "Spain")
+    const validCountry = Array.from($("countryOptions")?.options || []).some((o) => o.value.toLowerCase() === String(inputs.country || "").trim().toLowerCase());
+    const missing = !validCountry ? ["country", "Choose the country from the list."]
+      : !inputs.city ? ["city", "Enter the property's address or city."]
+      : !inputs.price ? ["askingPrice", "Enter the asking price."]
+      : !inputs.size ? ["size", "Enter the size in m²."] : null;
+    if (missing) {
       const errEl = $("error");
-      if (errEl) errEl.textContent = "Please enter at least an asking price and size.";
+      if (errEl) errEl.textContent = missing[1];
+      const field = $(missing[0]);
+      if (field) { field.scrollIntoView({ behavior: "smooth", block: "center" }); field.focus(); field.style.borderColor = "#dc2626"; setTimeout(() => { field.style.borderColor = ""; }, 4000); }
+      urlStatus(missing[1], true);
       throw new Error("Missing required fields");
     }
     const errEl = $("error");
