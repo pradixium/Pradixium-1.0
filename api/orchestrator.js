@@ -186,7 +186,14 @@ const COUNTRY_ENDPOINTS = {
   // Dubai Land Department publishes a real, keyless, direct-download CSV
   // of its official Residential Sales Price Index — no API key needed
   // for this specific file (unlike DLD's transaction-level API).
-  "united arab emirates": "uae-intelligence"
+  "united arab emirates": "uae-intelligence",
+  // TÜİK (Turkey's statistics institute) only publishes sales VOLUME
+  // stats, not prices — the real official price benchmark is TCMB's
+  // (the central bank's) Konut Fiyat Endeksi (Housing Price Index),
+  // series TP.KFE.TR, via its EVDS API. Needs a free registered API key
+  // (TCMB_EVDS_API_KEY env var) — degrades honestly if unset, same
+  // pattern as ANTHROPIC_API_KEY.
+  "turkey": "turkey-intelligence"
 };
 
 // Every country adapter returns data shaped around whatever its own
@@ -767,10 +774,10 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
     "croatia", "cyprus", "denmark", "estonia", "finland", "ireland", "latvia", "lithuania",
     "luxembourg", "malta", "romania", "slovakia", "slovenia", "sweden", "norway", "iceland"
   ];
-  if (c === "germany" || c === "italy" || c === "israel" || c === "united arab emirates" || EUROSTAT_ONLY_COUNTRIES.includes(c)) {
+  if (c === "germany" || c === "italy" || c === "israel" || c === "united arab emirates" || c === "turkey" || EUROSTAT_ONLY_COUNTRIES.includes(c)) {
     const hpi = raw.housingPriceIndex || {};
     const change = hpi.annualChangePercent ?? hpi.annualVariation ?? null;
-    const sourceName = c === "germany" ? "Destatis" : c === "italy" ? "Istat" : c === "israel" ? "CBS Israel" : c === "united arab emirates" ? "Dubai Land Department" : "Eurostat";
+    const sourceName = c === "germany" ? "Destatis" : c === "italy" ? "Istat" : c === "israel" ? "CBS Israel" : c === "united arab emirates" ? "Dubai Land Department" : c === "turkey" ? "TCMB" : "Eurostat";
     const trendSource = `${sourceName} — national index ${change != null ? (change >= 0 ? "+" : "") + change + "% YoY" : "unavailable"}`;
     // FIX: this branch only ever had a % trend (no absolute price), leaving
     // "Market Benchmark" blank for every one of these countries — the exact
