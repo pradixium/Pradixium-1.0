@@ -186,7 +186,32 @@ export default async function handler(req, res) {
     malaga: ["malaga"],
     murcia: ["murcia"],
     bilbao: ["bizkaia", "vizcaya"],
-    zaragoza: ["zaragoza"]
+    zaragoza: ["zaragoza"],
+    // FIX (found live, real agency test on Marbella came back completely
+    // empty): MIVAU's valuation/transaction files only report at PROVINCE
+    // level, but a real user types the actual town (Marbella, Estepona,
+    // Ibiza, Girona coast, etc.), never the province name. Those towns
+    // were only ever mapped to a province via DEMAND_PROVINCE_ALIASES
+    // below, and only for the foreign-buyer-demand section — this
+    // benchmark lookup never consulted it, so any town outside the 9
+    // major cities above got zero province match and a blank report,
+    // even though its province's real government data exists and is
+    // being fetched. These entries are keyed by the same province keys
+    // DEMAND_PROVINCE_ALIASES already resolves resort towns to.
+    baleares: ["baleares", "illes balears", "balears"],
+    tenerife: ["santa cruz de tenerife"],
+    girona: ["girona", "gerona"],
+    almeria: ["almeria"],
+    "las palmas": ["las palmas"],
+    tarragona: ["tarragona"],
+    // FIX (audit after the Marbella fix, prompted by a real "Altea Hills"
+    // test): the fix above only covered towns that already happened to be
+    // in DEMAND_PROVINCE_ALIASES. That list was itself incomplete — e.g.
+    // Cadiz province (Sotogrande) had NO entry anywhere in this file, and
+    // several well-known Costa Blanca/Costa Brava/Balearic towns were
+    // simply missing. Added cadiz as a full province here plus a much
+    // larger DEMAND_PROVINCE_ALIASES town list below.
+    cadiz: ["cadiz"]
   };
 
   // Foreign buyer / demand intelligence — Colegio de Registradores
@@ -379,7 +404,74 @@ export default async function handler(req, res) {
     "gran canaria": "las palmas",
     maspalomas: "las palmas",
     salou: "tarragona",
-    cambrils: "tarragona"
+    cambrils: "tarragona",
+    // FIX: audit after the Marbella incident turned up more of the same
+    // gap in Spain's other real foreign-buyer/luxury markets — Costa
+    // Blanca north of Benidorm, Costa del Sol west of Estepona, Cadiz
+    // (Sotogrande), Costa Brava beyond Lloret, Balearic villages, and
+    // Madrid/Barcelona's own luxury suburbs, none of which match their
+    // province's literal name either. Town-to-province geography is a
+    // stable fact (not a figure needing a live citation), but this is
+    // still a curated list, not a geocoder -- a town genuinely missing
+    // here still correctly falls through to "not enough evidence" rather
+    // than a wrong match.
+    altea: "alicante",
+    "altea hills": "alicante",
+    javea: "alicante",
+    xabia: "alicante",
+    moraira: "alicante",
+    calpe: "alicante",
+    calp: "alicante",
+    benissa: "alicante",
+    finestrat: "alicante",
+    "villajoyosa": "alicante",
+    "orihuela costa": "alicante",
+    "guardamar del segura": "alicante",
+    "santa pola": "alicante",
+    "la zenia": "alicante",
+    "puerto banus": "malaga",
+    "puerto banús": "malaga",
+    "nueva andalucia": "malaga",
+    "san pedro de alcantara": "malaga",
+    benahavis: "malaga",
+    manilva: "malaga",
+    casares: "malaga",
+    "rincon de la victoria": "malaga",
+    sotogrande: "cadiz",
+    tarifa: "cadiz",
+    "vejer de la frontera": "cadiz",
+    "zahara de los atunes": "cadiz",
+    "chiclana de la frontera": "cadiz",
+    "conil de la frontera": "cadiz",
+    "el puerto de santa maria": "cadiz",
+    sitges: "barcelona",
+    "sagaro": "girona",
+    "s'agaro": "girona",
+    "platja d'aro": "girona",
+    "platja daro": "girona",
+    "tossa de mar": "girona",
+    begur: "girona",
+    cadaques: "girona",
+    pals: "girona",
+    roses: "girona",
+    "l'escala": "girona",
+    palamos: "girona",
+    "port andratx": "baleares",
+    "puerto andratx": "baleares",
+    deia: "baleares",
+    valldemossa: "baleares",
+    formentera: "baleares",
+    "santa ponsa": "baleares",
+    "puerto portals": "baleares",
+    "camp de mar": "baleares",
+    "costa adeje": "tenerife",
+    "playa de las americas": "tenerife",
+    "puerto de la cruz": "tenerife",
+    "playa del ingles": "las palmas",
+    "la moraleja": "madrid",
+    "pozuelo de alarcon": "madrid",
+    "boadilla del monte": "madrid",
+    "las rozas": "madrid"
   };
 
   const strengthFor = (share) => {
@@ -389,8 +481,14 @@ export default async function handler(req, res) {
     return "LIMITED";
   };
 
+  // Resolves a resort/suburb key (e.g. "marbella") to its province's own
+  // aliases (e.g. cityAliases.malaga) via DEMAND_PROVINCE_ALIASES when
+  // there's no direct entry — same fix as cityAliases above.
+  const resolveProvinceAliases = (key, aliasMap) =>
+    aliasMap[key] || (DEMAND_PROVINCE_ALIASES[key] && aliasMap[DEMAND_PROVINCE_ALIASES[key]]) || [key];
+
   const cityKey = normalize(city);
-  const provinceAliases = cityAliases[cityKey] || [cityKey];
+  const provinceAliases = resolveProvinceAliases(cityKey, cityAliases);
 
   const matchesLocation = (value, aliases = provinceAliases) => {
     const normalized = normalize(repairMojibake(value));
@@ -651,9 +749,22 @@ export default async function handler(req, res) {
         malaga: ["29", "29067"],
         murcia: ["30", "30030"],
         bilbao: ["48", "48020"],
-        zaragoza: ["50", "50297"]
+        zaragoza: ["50", "50297"],
+        // FIX: same resort-town gap as cityAliases above — a resort town
+        // resolves to its province's transaction-count/value data via
+        // DEMAND_PROVINCE_ALIASES instead of matching nothing.
+        baleares: ["07", "7"],
+        tenerife: ["38"],
+        girona: ["17"],
+        almeria: ["04", "4"],
+        "las palmas": ["35"],
+        tarragona: ["43"],
+        cadiz: ["11"]
       };
-      const targetProvinceCodes = transactionProvinceCodes[cityKey] || [];
+      const targetProvinceCodes =
+        transactionProvinceCodes[cityKey] ||
+        (DEMAND_PROVINCE_ALIASES[cityKey] && transactionProvinceCodes[DEMAND_PROVINCE_ALIASES[cityKey]]) ||
+        [];
 
       transactionMatches = transactionRows.filter((row) => {
         if (transactionProvinceTextHeader) {
