@@ -36,8 +36,26 @@ async function nycAddress(text){const t=s(text).replace(/,/g,' ').replace(new Re
 async function geocode(address,city,state,zip){address=s(address).replace(/^(\d+)([NSEW])(?=\s)/i,'$1 $2'); // "298E 26th Street" → "298 E 26th Street"
 if(!address&&/^\d+(?:-\d+)?[A-Z]?\s+\S+\s+\S/i.test(s(city))){address=s(city).replace(/^(\d+)([NSEW])(?=\s)/i,'$1 $2');city='';} // whole address typed in the city field
 const nycP=NYC_TEXT.test([address,city].join(' '))?nycAddress([address,city].filter(Boolean).join(' ')).catch(()=>null):null; // in parallel: the time budget is shared
-const g=await geocodeOnce(address,city,state,zip);if(g?.latitude!=null||!nycP)return g;
+const laP=!nycP&&LA_TEXT.test([address,city].join(' '))?laAddress([address,city].filter(Boolean).join(', ')).catch(()=>null):null; // in parallel too
+const g=await geocodeOnce(address,city,state,zip);if(g?.latitude!=null)return g;
+if(!nycP){const la=laP?await laP:null;return la?(await geocodeOnce(la.line,la.city,'CA',la.zip))||g:g;}
 const n=await nycP;return n?(await geocodeOnce(n.line,n.city,'NY',n.zip))||g:g;}
+// Los Angeles: the Census register files City of LA addresses under their
+// POSTAL community ("4644 Willowcrest Ave, Studio City"), so "…, Los
+// Angeles" finds nothing for most of the Valley, Hollywood, Venice, San
+// Pedro… One Census batch request tries the city's postal community names;
+// kept only when every match is the same point (one address, one place).
+const LA_TEXT=/\bLOS\s+ANGELES\b|,\s*LA\b/i;
+const LA_COMMUNITIES=['Studio City','North Hollywood','Sherman Oaks','Van Nuys','Encino','Tarzana','Woodland Hills','Reseda','Northridge','Granada Hills','Chatsworth','Canoga Park','Winnetka','West Hills','Porter Ranch','Sylmar','Pacoima','Arleta','Sun Valley','Sunland','Tujunga','Panorama City','North Hills','Mission Hills','Valley Village','Toluca Lake','Hollywood','Venice','Playa del Rey','Playa Vista','Pacific Palisades','San Pedro','Wilmington','Harbor City','Lake View Terrace'];
+async function laAddress(text){const t=s(text).replace(/\bLOS\s+ANGELES\b.*$/i,'').replace(/,\s*LA\b.*$/i,'').replace(/[,\s]+$/,'').trim();const m=t.match(/^(\d+[A-Z]?)\s+(.+)$/i);if(!m)return null;const zip=(s(text).match(/\b(9\d{4})\b/)||[])[1]||'';
+  // 6 small batches in parallel (one batch of 35 takes ~8 s)
+  const line=stripUnit(t).replace(/"/g,'');const chunks=[];for(let i=0;i<LA_COMMUNITIES.length;i+=6)chunks.push(LA_COMMUNITIES.slice(i,i+6));
+  const batch=async(list,off)=>{const fd=new FormData();fd.append('addressFile',new Blob([list.map((c,i)=>`${off+i},"${line}","${c}",CA,${zip}`).join('\n')],{type:'text/csv'}),'a.csv');fd.append('benchmark','Public_AR_Current');
+    const c=new AbortController(),tm=setTimeout(()=>c.abort(),6000);try{const r=await fetch('https://geocoding.geo.census.gov/geocoder/locations/addressbatch',{method:'POST',body:fd,signal:c.signal});return r.ok?await r.text():'';}catch{return '';}finally{clearTimeout(tm);}};
+  const body=(await Promise.all(chunks.map((ch,k)=>batch(ch,k*6)))).join('\n');
+  const rows=body.split(/\r?\n/).map(l=>l.match(/"([^"]*)"/g)?.map(x=>x.slice(1,-1))).filter(r=>r&&r[2]==='Match');if(!rows.length)return null;
+  const pts=new Set(rows.map(r=>r[5]));if(pts.size!==1)return null; // the number exists on that street in two places
+  const ma=rows[0][4].split(',').map(x=>x.trim());return {line:ma[0],city:ma[1],zip:ma[3]||zip};}
 async function geocodeOnce(address,city,state,zip){
 const g0=await geocodeRaw(address,city,state,zip).catch(()=>null);if(!g0||!address)return g0;const typed=stripUnit(address);if(sameStreet(typed,s(g0.matchedAddress).split(',')[0]))return {...g0,addressVerified:true};
   const cityOk=city&&s(g0.matchedAddress).split(',')[1]&&s(g0.matchedAddress).split(',')[1].trim().toUpperCase()===s(city).toUpperCase();

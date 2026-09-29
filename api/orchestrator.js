@@ -634,8 +634,8 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
     // always present for a US property, so the layout never changes; found:false = rows say so
     const usRecord = {
       found: hasUsRecord,
-      authority: macro.local?.source || val.source || null,
-      authorityUrl: macro.local?.sourceUrl || null,
+      authority: macro.local?.source || val.source || (macro.laAssessor?.parcel ? macro.laAssessor.source || "Los Angeles County Assessor" : null),
+      authorityUrl: macro.local?.sourceUrl || (macro.laAssessor?.parcel ? macro.laAssessor.sourceUrl || null : null),
       governmentValue: gv?.value ?? val.fairValue ?? null,
       governmentValueLabel: gv ? [gv.label, gv.asOf && !String(gv.label || "").includes(gv.asOf) ? gv.asOf : null].filter(Boolean).join(" · ") : (val.fairValue != null ? (val.method || null) : null),
       nonMarketValue: macro.local?.nonMarketValue || null,
