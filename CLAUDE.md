@@ -662,7 +662,8 @@ file; a per-file recompute differs by 1–2 sales for that reason. Recompute che
 - Regional fixtures (Serbia, Montenegro, LatAm, Asia…): city figure only
   for that city, national figures as context.
 - Turkey: TCMB EVDS has official TL/m² by province but needs a free API
-  key (user must register) — not connected.
+  key (user must register). **Assigned by the user to the OTHER session
+  (Claude A / "Pradixium 1.0"), Sept 2026 — Claude B does not build Turkey.**
 - Not possible yet (checked Sept 2026): Greece (zone values only as
   Gazette PDFs; BoG publishes indices only), Bulgaria (NSI per-city prices ended
   2014), Cyprus/Romania (no open per-area price data found).
