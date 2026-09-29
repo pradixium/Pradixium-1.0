@@ -77,6 +77,17 @@ tr:last-child td{border-bottom:0}
         <h2>Recent Signups</h2>
         <table><thead><tr><th>Email</th><th>Date</th></tr></thead><tbody id="signupsBody"></tbody></table>
       </div>
+
+      <div class="card">
+        <h2>Testimonials — Pending Approval</h2>
+        <table><thead><tr><th>Rating</th><th>Name shown</th><th>Country</th><th>Text</th><th>Date</th><th></th></tr></thead><tbody id="testimonialsPendingBody"></tbody></table>
+        <p class="note">Nothing here is ever shown on the site until you approve it — no auto-publish, no public voting.</p>
+      </div>
+
+      <div class="card">
+        <h2>Testimonials — Approved &amp; Live</h2>
+        <table><thead><tr><th>Rating</th><th>Name shown</th><th>Country</th><th>Text</th><th>Date</th><th></th></tr></thead><tbody id="testimonialsApprovedBody"></tbody></table>
+      </div>
     </div>
   </div>
 </main>
@@ -95,6 +106,47 @@ tr:last-child td{border-bottom:0}
     catch { return "—"; }
   }
   const esc = (s) => String(s ?? "—").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[c]));
+  const stars = (n) => "★".repeat(n) + "☆".repeat(5 - n);
+
+  async function loadTestimonials(key) {
+    try {
+      const r = await fetch("/api/owner-testimonials", { headers: { Authorization: `Bearer ${key}` } });
+      const json = await r.json().catch(() => null);
+      if (!r.ok || !json?.success) return;
+      renderTestimonials(key, json.testimonials || []);
+    } catch {}
+  }
+
+  function testimonialRow(t, key) {
+    const actions = t.approved
+      ? `<button type="button" data-act="delete" data-id="${t.id}" class="tAction">Remove</button>`
+      : `<button type="button" data-act="approve" data-id="${t.id}" class="tAction">Approve</button> <button type="button" data-act="delete" data-id="${t.id}" class="tAction">Reject</button>`;
+    return `<tr><td>${stars(t.rating)}</td><td>${esc(t.display_name)}</td><td>${esc(t.country)}</td><td style="max-width:260px">${esc(t.text)}</td><td>${fmtDate(t.created_at)}</td><td>${actions}</td></tr>`;
+  }
+
+  function renderTestimonials(key, rows) {
+    const pending = rows.filter((t) => !t.approved);
+    const approved = rows.filter((t) => t.approved);
+    $("testimonialsPendingBody").innerHTML = pending.length ? pending.map((t) => testimonialRow(t, key)).join("") : `<tr><td colspan="6">Nothing pending.</td></tr>`;
+    $("testimonialsApprovedBody").innerHTML = approved.length ? approved.map((t) => testimonialRow(t, key)).join("") : `<tr><td colspan="6">None approved yet.</td></tr>`;
+
+    document.querySelectorAll(".tAction").forEach((btn) => {
+      btn.style.cssText = "border:1px solid #b9c9e7;background:#fff;color:#2463f5;border-radius:6px;padding:4px 9px;font-size:12px;cursor:pointer;margin-right:4px";
+      btn.addEventListener("click", async () => {
+        btn.disabled = true;
+        try {
+          await fetch("/api/owner-testimonials", {
+            method: "POST",
+            headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+            body: JSON.stringify({ id: btn.getAttribute("data-id"), action: btn.getAttribute("data-act") })
+          });
+          loadTestimonials(key);
+        } catch {
+          btn.disabled = false;
+        }
+      });
+    });
+  }
 
   async function load(key) {
     $("lockScreen").style.display = "none";
@@ -113,6 +165,7 @@ tr:last-child td{border-bottom:0}
         throw new Error(json?.error || "Could not load dashboard data.");
       }
       render(json);
+      loadTestimonials(key);
     } catch (e) {
       $("status").textContent = (e && e.message) || "Could not load dashboard data.";
     }

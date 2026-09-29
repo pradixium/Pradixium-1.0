@@ -1049,6 +1049,14 @@
     const errEl = $("error");
     if (errEl) errEl.textContent = "";
 
+    // Browsing and filling in a property is free; seeing the analysis needs a free account.
+    const analysisToken = await getAccessToken();
+    if (!analysisToken) {
+      if (window.pradixiumShowAuthGate) window.pradixiumShowAuthGate("Create a free account to see your analysis.");
+      else alert("Please sign in first.");
+      throw new Error("Not signed in");
+    }
+
     // 1) Fast, rule-based render — the person sees real numbers within
     //    a second, not a blank screen.
     const { currency } = renderRuleBasedResult(inputs);
@@ -1540,7 +1548,11 @@
     }
     const token = await getAccessToken();
     if (!token) {
-      alert("Please sign in first.");
+      // FIX: the account gate no longer opens automatically for every
+      // visitor (see auth-supabase.js) — it now opens on demand right
+      // here, at the one point that actually needs an account: paying.
+      if (window.pradixiumShowAuthGate) window.pradixiumShowAuthGate("Please sign in to unlock this report.");
+      else alert("Please sign in first.");
       return;
     }
     try {
@@ -1634,7 +1646,11 @@
   // one either).
   async function startBusinessSignup() {
     const token = await getAccessToken();
-    if (!token) { alert("Please sign in first, then click Business again."); return; }
+    if (!token) {
+      if (window.pradixiumShowAuthGate) window.pradixiumShowAuthGate("Please sign in, then click Business again.");
+      else alert("Please sign in first, then click Business again.");
+      return;
+    }
     startCheckout({ title: "Business Plan Signup" }, "business");
   }
 
