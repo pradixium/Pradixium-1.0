@@ -780,7 +780,47 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
     // — an Olbia villa was measured against Milan. Now it is the benchmark
     // only for a property in that area (or when it is a national figure,
     // labelled national); elsewhere it is named as context, not applied.
-    const fit = recent ? recentAreaFits(recent.area, property?.city || raw.city) : false;
+    // the national statistics office's own LOCAL figure for this place
+    // (municipality / Eircode area / county) — lib/europe/localPrices.js
+    const lp = raw.localPrice;
+    if (lp?.status === "ok" && Number.isFinite(lp.value)) {
+      const cur = { EUR: "€", NOK: "NOK ", SEK: "SEK ", DKK: "DKK " }[lp.currency] ?? `${lp.currency} `;
+      const fmt = (v) => `${cur}${Math.round(v).toLocaleString("en-US")}${lp.unit === "perSqm" ? "/m²" : ""}`;
+      const others = (lp.others || []).map((o) => `${o.type} ${fmt(o.value)} (${o.sales} sales)`).join("; ");
+      return {
+        benchmarkValue: lp.value,
+        benchmarkUnit: lp.unit,
+        benchmarkLabel: `${lp.source.split(" — ")[0]} — ${lp.area}, ${lp.typeLabel}`,
+        governmentValue: null,
+        transactionValue: null,
+        transactionPeriod: lp.period,
+        marketArea: lp.area,
+        source: `${lp.source}: ${lp.basis}. ${lp.area}, ${lp.typeLabel}, ${lp.period}: ${fmt(lp.value)}${lp.salesCount ? ` (${lp.salesCount.toLocaleString("en-US")} sales)` : ""}${lp.yoyPercent != null ? `, ${lp.yoyPercent >= 0 ? "+" : ""}${lp.yoyPercent}% on the year before` : ""}.${others ? ` Other home types there: ${others}.` : ""} ${trendSource}.`,
+        sourceUrl: lp.sourceUrl,
+        coverage: "city",
+        priceTrendPercent: lp.yoyPercent ?? change ?? null
+      };
+    }
+    const localNote = lp?.status === "apartments_not_covered" ? " Sweden's apartments are tenant-owner shares (bostadsrätter), not real property — the official price statistics cover houses only." : "";
+    const national = recent && /national|malta & gozo/i.test(recent.area);
+    const fit = recent && !national ? recentAreaFits(recent.area, property?.city || raw.city) : false;
+    if (recent && national) {
+      // a whole country's average says nothing about one town (Amsterdam vs
+      // the Dutch average) → named as context, never the verdict
+      const fmt = recent.unit === "perSqm" ? `${Math.round(recent.value).toLocaleString("en-US")} per m²` : `${Math.round(recent.value).toLocaleString("en-US")} per home`;
+      return {
+        benchmarkValue: null,
+        benchmarkUnit: recent.unit,
+        benchmarkLabel: `${sourceName} HPI (National)`,
+        governmentValue: null,
+        transactionValue: null,
+        transactionPeriod: recent.period ?? hpi.period ?? null,
+        marketArea: `${countryLabel(country)} — no official local price figure for ${property?.city || "this place"} yet`,
+        source: `${trendSource}. National average (${recent.source}, ${recent.period || "latest"}): ${fmt} — whole-country context only, not applied to ${property?.city || "this property"}.${localNote}`,
+        coverage: "national",
+        priceTrendPercent: change ?? null
+      };
+    }
     if (recent && !fit) {
       return {
         benchmarkValue: null,

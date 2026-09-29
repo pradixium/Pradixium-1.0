@@ -1,3 +1,4 @@
+import { europeLocalPrice } from "../lib/europe/localPrices.js";
 /* PRADIXIUM™ — EUROSTAT HOUSE PRICE INDEX ADAPTER
  * One shared, keyless, official data source (prc_hpi_q — House Price
  * Index, quarterly) covering national-level trend data for every European
@@ -106,6 +107,9 @@ export default async function handler(req, res) {
     return res.status(404).json({ success: false, error: "Country not covered by the Eurostat adapter", supportedCountries: Object.values(GEO_CODES).map((g) => g.name) });
   }
 
+  // the country's own local figure (lib/europe/localPrices.js), in
+  // parallel with the Eurostat trend
+  const localPromise = europeLocalPrice({ country: geo.name, city, address: String(req.query?.address || "").trim(), propertyType: String(req.query?.propertyType || "") }).catch(() => null);
   const url = `https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/prc_hpi_q?format=JSON&unit=RCH_A&purchase=TOTAL&geo=${geo.code}&lastTimePeriod=1`;
 
   try {
@@ -125,6 +129,7 @@ export default async function handler(req, res) {
           unit: "Annual rate of change, all dwellings",
           source: "Eurostat — House Price Index (prc_hpi_q)"
         },
+        localPrice: await localPromise,
         cityLevelStatus: "REGIONAL_DATA_LAYER_PENDING",
         cityLevelNote: "Eurostat's House Price Index is national-level only. City/regional-level valuation should use the relevant national land registry or statistics office once that adapter exists.",
         sources: { eurostat: "Eurostat — House Price Index (prc_hpi_q)" },
@@ -141,6 +146,7 @@ export default async function handler(req, res) {
         market: `${geo.name} Residential Property Market`,
         status: "SOURCE_TEMPORARILY_UNAVAILABLE",
         message: "Eurostat House Price Index could not be fetched at this moment.",
+        localPrice: await localPromise,
         error: String(error?.message || error),
         sourceUrls: { eurostat: "https://ec.europa.eu/eurostat/databrowser/view/prc_hpi_q/default/table" }
       }
