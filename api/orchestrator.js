@@ -546,7 +546,9 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
       // in engine.js and report.html handle both shapes.
       comparableSales: Array.isArray(tx.latestTransactions) && tx.latestTransactions.length
         ? tx.latestTransactions.slice(0, 5).map((t) => ({
-            address: t.address,
+            // the area the customer typed, never a sale's address (Price
+            // Paid address data: non-commercial licence only)
+            location: tx.level ? `${tx.level} ${tx.areaName}` : null,
             // HM Land Registry's raw PPD code (D/S/T/F/O) — decode to a
             // readable word, same convention as France's full-word type.
             type: { D: "Detached", S: "Semi-detached", T: "Terraced", F: "Flat/Maisonette", O: "Other" }[t.propertyType] || null,

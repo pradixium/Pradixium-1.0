@@ -242,7 +242,9 @@ async function fetchTransactionEvidence(city, address, propertyType) {
     const toks = new Set(normalise(text.split(',')[0]).split(/[^a-z0-9]+/).filter(Boolean));
     const own = cache.rows.filter((r) => r.postcode === pc && r.paon && normalise(r.paon).split(/[^a-z0-9]+/).every((w) => toks.has(w))
       && (!r.saon || normalise(r.saon).split(/[^a-z0-9]+/).every((w) => toks.has(w))));
-    if (own.length === 1) ownSale = { date: own[0].date, price: own[0].price, category: own[0].category, address: [own[0].saon, own[0].paon, own[0].street, own[0].town, own[0].postcode].filter(Boolean).join(', ') };
+    // no address in the output: Price Paid's addresses are Royal Mail / OS
+    // address data licensed for personal, non-commercial use only
+    if (own.length === 1) ownSale = { date: own[0].date, price: own[0].price, category: own[0].category };
   }
   // the local authority the area lies in (as the Land Registry records it)
   const counts = {};
@@ -266,8 +268,9 @@ async function fetchTransactionEvidence(city, address, propertyType) {
       date: row.date,
       price: row.price,
       propertyType: row.propertyType,
-      tenure: row.tenure,
-      address: [row.saon, row.paon, row.street, row.locality, row.town, row.postcode].filter(Boolean).join(', ')
+      tenure: row.tenure
+      // no address: Price Paid's address data (Royal Mail PAF / OS
+      // AddressBase) is licensed for non-commercial use only
     })),
     methodology: level ? `Market sales (Price Paid category A) of ${types.label} in ${level} ${areaName}, ${cache.year} to date.` : 'No area with enough market sales matched this address.'
   };

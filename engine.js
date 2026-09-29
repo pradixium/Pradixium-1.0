@@ -319,7 +319,7 @@
         // price) — fall back to the address rather than fabricate a figure.
         const location = Number.isFinite(Number(c.distanceKm))
           ? Number(c.distanceKm).toFixed(2) + " km"
-          : (c.address || "—");
+          : (c.location || c.address || "—");
         const type = c.type ? c.type.charAt(0).toUpperCase() + c.type.slice(1) : "—";
         const price = c.eurPerM2 != null
           ? money(c.eurPerM2, currency) + "/m²"

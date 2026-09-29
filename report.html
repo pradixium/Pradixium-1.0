@@ -84,7 +84,7 @@ if(comps.length){
     // UK's Price Paid Data only has a matched address and total price) —
     // fall back to the address rather than fabricate a figure. Same fix as
     // engine.js's renderComparableSales().
-    const location=Number.isFinite(Number(c.distanceKm))?Number(c.distanceKm).toFixed(2)+' km':(c.address||'—');
+    const location=Number.isFinite(Number(c.distanceKm))?Number(c.distanceKm).toFixed(2)+' km':(c.location||c.address||'—');
     const type=c.type?String(c.type).charAt(0).toUpperCase()+String(c.type).slice(1):'—';
     const price=c.eurPerM2!=null?money(c.eurPerM2)+'/m²':(c.price!=null?money(c.price):'—');
     const date=c.date||'—';
