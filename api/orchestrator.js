@@ -881,11 +881,20 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
     // only for a property in that area (or when it is a national figure,
     // labelled national); elsewhere it is named as context, not applied.
     // Italy: the OMI zone quotation (lib/italy/omi.js)
-    const omi = c === "italy" ? raw.omi : null;
+    let omi = c === "italy" ? raw.omi : null;
     if (omi && ["ok", "comune_range", "needs_locality"].includes(omi.status)) {
       const eur = (x) => "€" + Math.round(x).toLocaleString("en-US");
       const r = (x) => `${x.type.toLowerCase()} (${x.state.toLowerCase()} condition) ${eur(x.min)}–${eur(x.max)}/m²`;
       if (omi.status === "ok") {
+        // a renovated home: the agency's own range for excellent condition
+        // ("ottimo") of the same type, when the zone publishes one
+        const best = property?.renovated ? omi.rows.find((x) => x.type === omi.main.type && /^ottimo$/i.test(x.state)) : null;
+        const renoNote = property?.renovated
+          ? best && best !== omi.main
+            ? ` Renovation entered${property.renovationYear ? ` (${property.renovationYear})` : ""}: the benchmark uses the agency's range for EXCELLENT condition (ottimo) instead of the zone's usual ${omi.main.state.toLowerCase()} condition — an official price difference between conditions, not an estimate.`
+            : best ? ` Renovation entered: the zone's usual condition is already excellent (ottimo).` : ` Renovation entered, but this zone publishes no separate range for excellent condition — the benchmark stays the usual condition.`
+          : "";
+        if (best) omi = { ...omi, main: best };
         const mid = (omi.main.min + omi.main.max) / 2;
         const zoneTxt = `OMI zone ${omi.zone} of ${omi.comune} ("${omi.zoneName}")`;
         return {
@@ -896,7 +905,7 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
           transactionValue: null,
           transactionPeriod: omi.period,
           marketArea: `${omi.comune} — ${zoneTxt.replace(` of ${omi.comune}`, "")}`,
-          source: `${omi.source}, ${omi.period}: ${zoneTxt}. The agency's €/m² ranges (gross area) for this zone: ${omi.rows.map(r).join("; ")}. Benchmark = midpoint of the range for the zone's most common condition (${omi.main.state.toLowerCase()}); OMI ranges are calibrated on registered deeds. ${trendSource}.`,
+          source: `${omi.source}, ${omi.period}: ${zoneTxt}. The agency's €/m² ranges (gross area) for this zone: ${omi.rows.map(r).join("; ")}. Benchmark = midpoint of the range for ${best ? `${omi.main.state.toLowerCase()} condition` : `the zone's most common condition (${omi.main.state.toLowerCase()})`}; OMI ranges are calibrated on registered deeds.${renoNote} ${trendSource}.`,
           sourceUrl: omi.sourceUrl,
           coverage: "city",
           priceTrendPercent: change ?? null

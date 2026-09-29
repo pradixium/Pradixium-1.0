@@ -662,6 +662,13 @@ servers → not used. Check: Lieusaint 66/86 matched, C €3,222 (23), D €3,18
   prevailing-condition range is the benchmark; several → town range as
   context; > 20 zones (Rome, Milan) → asks for the neighbourhood.
   Municipality list: `python3 scripts/build-it-comuni.py`.
+- Italy renovation (Sept 2026): the "Renovated?" input switches the OMI
+  benchmark to the agency's own EXCELLENT-condition ("ottimo") range of the
+  same type when the zone publishes one (Porto Cervo E7 flats: normale
+  €4,000–5,800 → ottimo €5,200–7,700/m²); otherwise the usual condition,
+  said so. Other countries have no official condition split (checked:
+  UK HPI/Price Paid, Spain Catastro zones, Portugal INE, NL/NO/SE/IE/DK/AT
+  statistics, Croatia PPV) → the input changes nothing there.
 - Austria: `scripts/build-at-prices.py` → lib/data/austriaPrices.json —
   Statistik Austria median €/m² per political district (houses, flats;
   Vienna per Bezirk) read from Statistik Austria's STATatlas GeoServer
