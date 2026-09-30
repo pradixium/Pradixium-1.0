@@ -212,6 +212,13 @@ largest metro first.
   Homes (residential, condo, townhouse, zero lot line, two-unit, triplex)
   → benchmark; others context. Check: ZIP 55406 residential 355 sales,
   $373,000 (raw query).
+  Maryland (Sept 30 2026, all counties incl. Baltimore + DC suburbs):
+  ZIP × RESITYP (SF/TH/CN) median of SDAT CONVEY1 = 1 (private arm's-
+  length, improved) transfers, 12 months to the file's latest transfer
+  (May 2026 roll → 2025-04-29..2026-04-28), PREBUILT lib/data/mdSales.js
+  ← `NODE_USE_ENV_PROXY=1 node scripts/build-md-sales.mjs` (monthly, after
+  each SDAT refresh). Each account holds its latest transfer only. Check:
+  ZIP 20814 SF 159 sales, $1,322,750 (direct query).
   Rejected: none left from this pass.
 - St. Louis (#23): City (29510) = last valid sale (Assessor sale type 10) +
   appraised value + ZIP context; St. Louis County (29189) = facts +
