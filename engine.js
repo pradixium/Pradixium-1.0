@@ -1807,8 +1807,23 @@
 
       const agent = json?.results?.["property-investment"];
       if (!agent) {
+        // Paid, but the AI commentary did not come back (e.g. the AI
+        // service is unavailable). Every official figure above is already
+        // rendered — open the report with it and say plainly which part is
+        // missing, instead of blocking a paying customer. Nothing is
+        // invented for the AI fields.
         renderScoreCore(json?.pradixiumScore || null);
-        return false;
+        const AI_MISSING = "The AI commentary (highlights, risks, recommendation) is temporarily unavailable. Tap \"View Full Analysis\" again later to add it — no new charge.";
+        set("fairValue", "—");
+        set("fairValueNote", "Pradixium Fair Value™ needs the AI commentary — temporarily unavailable.");
+        set("fairDelta", "—");
+        set("suggestedOffer", "—");
+        const hl = $("highlights"); if (hl) hl.innerHTML = "<li>" + escapeHtml(AI_MISSING) + "</li>";
+        const rk = $("risks"); if (rk) rk.innerHTML = "<li>" + escapeHtml(AI_MISSING) + "</li>";
+        set("investorAction", AI_MISSING);
+        window.pradixiumAnalysisPaid = true;
+        currentReportData();
+        return true;
       }
       renderAgentResult(agent, currency, true);
       window.pradixiumAnalysisPaid = true;
