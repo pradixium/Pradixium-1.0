@@ -189,7 +189,15 @@ largest metro first.
   scripts/build-detroit-sales.mjs` (monthly; the live service takes 30 s+
   on a neighborhood filter). Condos have "C…" ECF neighborhoods. Check:
   4R406 → 81 sales, $70,000 (raw query recompute).
-  Rejected: Oklahoma County (the layer keeps only ~10 days of sales),
+  Oklahoma County (Sept 30 2026, user asked for it despite the short
+  window): TaxParcelsPublics_view carries a price only for deeds recorded
+  in the last ~10 days (Annual_Deed_2025 / Annual_Deeds have NO prices) →
+  median of the Assessor's Valid sales of improved (market > land)
+  residential accounts of the same kind (condo by subdivision name /
+  manufactured home = "MH" nbhd / house): nbhd with 10+, else the city;
+  text says "short window". Generic hook `areaMedian` in _structured.js.
+  Check: Oklahoma City houses 212 sales, $237,000 (Sept 14–23).
+  Rejected:
   Shelby TN (no type, no situs ZIP).
 - St. Louis (#23): City (29510) = last valid sale (Assessor sale type 10) +
   appraised value + ZIP context; St. Louis County (29189) = facts +
