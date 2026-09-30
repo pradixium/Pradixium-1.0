@@ -1,5 +1,6 @@
 import { europeLocalPrice } from "../lib/europe/localPrices.js";
 import { cyprusRegionalTrend } from "../lib/europe/cyprus.js";
+import { bulgariaRegionalTrend } from "../lib/europe/bulgaria.js";
 /* PRADIXIUM™ — EUROSTAT HOUSE PRICE INDEX ADAPTER
  * One shared, keyless, official data source (prc_hpi_q — House Price
  * Index, quarterly) covering national-level trend data for every European
@@ -119,7 +120,7 @@ export default async function handler(req, res) {
     const annualChangePercent = readJsonStatValue(dataset, { unit: "RCH_A", purchase: "TOTAL", geo: geo.code });
     // the national central bank's own newer index by district and type, where one is published
     let regional = null;
-    try { regional = geo.code === "CY" ? cyprusRegionalTrend({ city, address: String(req.query?.address || "") }) : null; } catch { regional = null; }
+    try { regional = geo.code === "CY" ? cyprusRegionalTrend({ city, address: String(req.query?.address || "") }) : geo.code === "BG" ? bulgariaRegionalTrend({ city, address: String(req.query?.address || "") }) : null; } catch { regional = null; }
 
     return res.status(200).json({
       success: true,

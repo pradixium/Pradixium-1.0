@@ -807,6 +807,12 @@ servers → not used. Check: Lieusaint 66/86 matched, C €3,222 (23), D €3,18
   comparable-sales service is for registered valuers only. Re-run each
   quarter. Check: Limassol flats 154.14/142.96 → +7.8%; national +8.5% =
   the CBC release.
+- Bulgaria (Sept 30 2026): `lib/europe/bulgaria.js` — NSI housing price
+  statistics Q2 2026 (all dwellings, transaction prices): +15.5% on Q2
+  2025 as the trend (newer than Eurostat), + the city's change on the
+  previous quarter for Sofia/Plovdiv/Varna/Burgas/Stara Zagora (the only
+  per-city figure the release gives) as text. Per-city annual indices sit
+  only in the Infostat JSF app (no open export). Update each quarter.
 - Poland (Sept 30 2026, flats only — both sources cover lokale mieszkalne;
   a house → "flats only", no flat price applied): the 16 voivodeship
   capitals + Gdynia → NBP BaRN TRANSACTION prices (average, VAT incl.,

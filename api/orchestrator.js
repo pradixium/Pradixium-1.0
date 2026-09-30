@@ -898,7 +898,8 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
     if (deReg && deChange != null) {
       const houseWord = c === "germany" ? "one- and two-family houses" : "houses";
       const overall = c === "germany" ? ` (Germany overall ${change >= 0 ? "+" : ""}${change}%)` : deReg.national || deReg.nationalAll == null ? "" : ` (${countryLabel(country)} overall ${deReg.nationalAll >= 0 ? "+" : ""}${deReg.nationalAll}%, ${deReg.period} vs ${deReg.comparedWith})`;
-      trendSource = `${deReg.sourceName || sourceName} house price index ${deReg.period}, ${deReg.area}: ${deFlat ? "flats" : houseWord} ${deChange >= 0 ? "+" : ""}${deChange}% on a year earlier${overall}`;
+      const typeWord = deReg.allTypes ? "all dwellings" : deFlat ? "flats" : houseWord;
+      trendSource = `${deReg.sourceName || sourceName} house price index ${deReg.period}, ${deReg.area}: ${typeWord} ${deChange >= 0 ? "+" : ""}${deChange}% on a year earlier${overall}${deReg.note ? `. ${deReg.note}` : ""}`;
       change = deChange;
     }
     // FIX: this branch only ever had a % trend (no absolute price), leaving
