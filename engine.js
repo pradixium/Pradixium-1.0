@@ -75,6 +75,17 @@
     return COUNTRY_CURRENCY[String(country || "").trim().toLowerCase()] || "EUR";
   }
 
+  // The site's language selector (top bar) also picks the report language:
+  // the report has full translations for these; English (and any site
+  // language the report does not have yet) keeps the default — English
+  // plus the property country's language.
+  function reportLanguageChoice() {
+    let l = "";
+    try { l = localStorage.getItem("pradixiumLanguage") || ""; } catch (e) {}
+    if (l === "vlaams") l = "nl";
+    return ["fr", "es", "de", "it", "pt", "nl"].includes(l) ? l : "";
+  }
+
   function getInputs() {
     return {
       country: $("country")?.value || "",
@@ -1133,9 +1144,10 @@
       landArea: num($("landArea")?.value),
       renovated: $("renovated")?.value === "1",
       renovationYear: num($("renovationYear")?.value),
-      // the customer's report language ("" = English + the property
-      // country's language); never part of the purchase signature
-      reportLanguage: $("reportLanguage")?.value || "",
+      // the site language the customer chose = the report's language
+      // ("" = English + the property country's language); never part of
+      // the purchase signature
+      reportLanguage: reportLanguageChoice(),
       // Pradixium NOI™ inputs — only the branch matching propertyType is
       // ever populated with real values, but caching both is harmless and
       // means refreshFullReportData() doesn't need to know which is live.
@@ -1393,7 +1405,7 @@
       reportLanguageCode: window.pradixiumReportLanguage?.code || null,
       reportLanguageLabel: window.pradixiumReportLanguage?.label || null,
       // the language the customer chose → the report opens in it
-      reportLanguagePreferred: $("reportLanguage")?.value || null,
+      reportLanguagePreferred: reportLanguageChoice() || null,
       actionLocal: agent.localizedContent?.investorAction || null,
       highlightsLocal: Array.isArray(agent.localizedContent?.investmentHighlights) ? agent.localizedContent.investmentHighlights : null,
       risksLocal: Array.isArray(agent.localizedContent?.keyRisks) ? agent.localizedContent.keyRisks : null,
@@ -1784,7 +1796,6 @@
     if ($("landArea")) $("landArea").value = property.landArea ?? "";
     if ($("renovated")) $("renovated").value = property.renovated ? "1" : "";
     if ($("renovationYear")) $("renovationYear").value = property.renovationYear ?? "";
-    if ($("reportLanguage")) $("reportLanguage").value = property.reportLanguage || "";
     // commercial NOI inputs (the rent above comes from cGrossRent then)
     const cm = property.commercial || {};
     [["cGrossRent", cm.grossRent], ["cUnits", cm.units], ["cVacancyPct", cm.vacancyPct], ["cOtherIncome", cm.otherIncome], ["cOpex", cm.opex], ["cLoanAmount", cm.loanAmount], ["cLoanRate", cm.loanRatePct], ["cLoanYears", cm.loanYears]]
