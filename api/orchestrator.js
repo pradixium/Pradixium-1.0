@@ -1387,6 +1387,16 @@ export default async function handler(req, res) {
   }
 
   const marketEvidence = nonResidentialEvidence(normalizeMarketEvidence(property.country, marketData, property.propertyType, property), property.propertyType);
+  // Germany: the municipality's Zensus 2022 average rent — used for the
+  // yield only when no rent was entered (flagged as estimated there)
+  const deRent = /^germany$/i.test(String(property.country || "").trim()) && !/commercial|land/i.test(String(property.propertyType || "")) ? marketData?.rent : null;
+  if (marketEvidence && deRent?.rentPerSqm) {
+    const sz = Number(property.size);
+    const text = `Zensus 2022 (census of ${deRent.date}): average net cold rent (Nettokaltmiete) of let dwellings in ${deRent.municipality} (${deRent.land}): €${deRent.rentPerSqm.toFixed(2)}/m²${deRent.letDwellings ? ` over ${deRent.letDwellings.toLocaleString("en-US")} let dwellings` : ""}. It covers all existing tenancies, not the rent of a new letting today.${property.monthlyRent ? "" : sz > 0 ? ` No rent was entered, so the yield uses ${sz} m² × €${deRent.rentPerSqm.toFixed(2)} = €${Math.round(sz * deRent.rentPerSqm).toLocaleString("en-US")}/month (estimated).` : ""}`;
+    marketEvidence.rentalBenchmark = { monthlyRentPerSqm: deRent.rentPerSqm, grossYieldPercent: null, source: deRent.source };
+    marketEvidence.sourceParts = [...(marketEvidence.sourceParts || [{ title: "Market evidence", text: marketEvidence.source }]), { title: "Rent (Zensus 2022)", text }];
+    marketEvidence.source = `${marketEvidence.source} ${text}`;
+  }
 
   // The Pradixium Score is a deterministic, weighted calculation over
   // whatever real data is available (rental yield, the asking price vs
