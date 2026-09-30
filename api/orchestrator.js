@@ -1054,6 +1054,8 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
       is_few_sales: " Iceland's purchase register has fewer than 10 usable sales of this home type there in the last 12 months — no local figure.",
       fi_few_sales: " Statistics Finland publishes no price for this area and home type (too few sales).",
       lu_no_houses: " Luxembourg's Observatoire de l'Habitat publishes prices per commune for apartments only, not houses.",
+      pl_flats_only: " Poland's official price statistics (GUS per powiat, NBP per city) cover flats only — no official price per m² for houses, so a flat price is not applied.",
+      pl_few_sales: " GUS publishes no median for this powiat and flat type (fewer than 20 market sales).",
       lu_few_sales: " Luxembourg's Observatoire de l'Habitat publishes no price for a commune with fewer than 10 apartment sales in the last 12 months."
     };
     const localNote = irwNote + (LOCAL_NOTES[lp?.status] || (lp?.status === "needs_district" ? ` ${lp.note}` : lp?.status === "apartments_not_covered" ? " Sweden's apartments are tenant-owner shares (bostadsrätter), not real property — the official price statistics cover houses only." : ""));

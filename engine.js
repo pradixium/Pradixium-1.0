@@ -48,45 +48,31 @@
     finally { clearTimeout(timer); }
   }
 
+  // The currency a property is priced in there — the currency of the
+  // official benchmark the report compares with. Serbia, Peru and Uruguay:
+  // the official price statistics (RGZ, BCRP, INE) and the market itself
+  // quote EUR/USD, so the form asks for EUR/USD (Sept 2026: Poland, Czech
+  // Republic, Hungary, Japan… fell back to EUR while their benchmarks are in
+  // PLN/CZK/HUF/JPY — the "asking vs market" figure was wrong). Keep the
+  // three copies (engine.js, compliance-report.html, business-portfolio.html)
+  // identical.
+  const COUNTRY_CURRENCY = {
+    "united states": "USD", usa: "USD", us: "USD", "puerto rico": "USD", ecuador: "USD", cambodia: "USD",
+    "united kingdom": "GBP", uk: "GBP", denmark: "DKK", sweden: "SEK", norway: "NOK", iceland: "ISK",
+    switzerland: "CHF", liechtenstein: "CHF", poland: "PLN", "czech republic": "CZK", czechia: "CZK",
+    hungary: "HUF", romania: "RON", moldova: "MDL", ukraine: "UAH", belarus: "BYN", russia: "RUB",
+    serbia: "EUR", "bosnia and herzegovina": "BAM", "north macedonia": "MKD", albania: "ALL",
+    turkey: "TRY", georgia: "GEL", armenia: "AMD", azerbaijan: "AZN", kazakhstan: "KZT", kyrgyzstan: "KGS",
+    tajikistan: "TJS", turkmenistan: "TMT", uzbekistan: "UZS",
+    israel: "ILS", "united arab emirates": "AED", egypt: "EGP", morocco: "MAD", "south africa": "ZAR", kenya: "KES", nigeria: "NGN",
+    india: "INR", "sri lanka": "LKR", maldives: "MVR", thailand: "THB", vietnam: "VND", indonesia: "IDR",
+    japan: "JPY", "south korea": "KRW", australia: "AUD", "new zealand": "NZD",
+    canada: "CAD", mexico: "MXN", brazil: "BRL", argentina: "ARS", chile: "CLP", colombia: "COP", peru: "USD",
+    uruguay: "USD", paraguay: "PYG", bolivia: "BOB", "dominican republic": "DOP", jamaica: "JMD",
+    "trinidad and tobago": "TTD", bahamas: "BSD", barbados: "BBD", "cayman islands": "KYD"
+  };
   function currencyForCountry(country) {
-    const c = String(country || "").toLowerCase();
-    if (c === "united states" || c === "usa" || c === "us") return "USD";
-    if (c === "united kingdom" || c === "uk") return "GBP";
-    // Non-euro EU/EEA members added alongside the rest of Europe — without
-    // these, a Danish or Swedish asking price would render with a "€"
-    // symbol, which is simply the wrong currency, not just cosmetic.
-    if (c === "denmark") return "DKK";
-    if (c === "sweden") return "SEK";
-    if (c === "norway") return "NOK";
-    if (c === "iceland") return "ISK";
-    // Balkans/Eastern Europe additions that don't use the euro. Montenegro,
-    // Andorra and Monaco all use the euro unilaterally despite not being
-    // in the Eurozone, so they need no entry here.
-    if (c === "serbia") return "RSD";
-    if (c === "bosnia and herzegovina") return "BAM";
-    if (c === "north macedonia") return "MKD";
-    if (c === "ukraine") return "UAH";
-    if (c === "albania") return "ALL";
-    if (c === "israel") return "ILS";
-    if (c === "south africa") return "ZAR";
-    if (c === "morocco") return "MAD";
-    if (c === "kenya") return "KES";
-    if (c === "nigeria") return "NGN";
-    if (c === "egypt") return "EGP";
-    // Eurasia + Americas + Oceania.
-    if (c === "russia") return "RUB";
-    if (c === "kazakhstan") return "KZT";
-    if (c === "canada") return "CAD";
-    if (c === "mexico") return "MXN";
-    if (c === "brazil") return "BRL";
-    if (c === "argentina") return "ARS";
-    if (c === "australia") return "AUD";
-    if (c === "new zealand") return "NZD";
-    if (c === "united arab emirates") return "AED";
-    if (c === "chile") return "CLP";
-    if (c === "colombia") return "COP";
-    if (c === "peru") return "PEN";
-    return "EUR";
+    return COUNTRY_CURRENCY[String(country || "").trim().toLowerCase()] || "EUR";
   }
 
   function getInputs() {

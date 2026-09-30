@@ -779,6 +779,28 @@ servers → not used. Check: Lieusaint 66/86 matched, C €3,222 (23), D €3,18
   comparable-sales service is for registered valuers only. Re-run each
   quarter. Check: Limassol flats 154.14/142.96 → +7.8%; national +8.5% =
   the CBC release.
+- Poland (Sept 30 2026, flats only — both sources cover lokale mieszkalne;
+  a house → "flats only", no flat price applied): the 16 voivodeship
+  capitals + Gdynia → NBP BaRN TRANSACTION prices (average, VAT incl.,
+  REPORTED BY AGENTS AND DEVELOPERS to the NBP — not notarial deeds), latest
+  quarter, + NBP's hedonic y-o-y index per city as the trend
+  (`scripts/build-pl-nbp.py`, static.nbp.pl/dane/rynek-nieruchomosci/
+  ceny_mieszkan.xlsx — nbp.pl itself sits behind Incapsula, not used);
+  everywhere else → GUS BDL median per m² of ALL market sales per powiat,
+  by market and size band (P3787/P3783, 20+ sales; newest powiat year is
+  2024 — the 2025 quarters are listed but empty at powiat level)
+  (`scripts/build-pl-prices.py`, gmina → powiat via unit id[:9]+"000";
+  124 duplicate gmina names → not matched). Check: Kraków NBP Q2 2026
+  14,792 zł/m², hedonic −1.5% (raw 98.548); GUS 2024 Kraków 14,378 (6,081
+  sales). The old Warsaw fixture (wrongly "notarial deeds") was removed.
+- Currency (Sept 30 2026, site-wide bug): the form's currency fell back to
+  EUR for every country off a short list, while the benchmarks are in local
+  currency (Prague CZK 131,520/m², Budapest HUF, Japan JPY) → "asking vs
+  market" was wrong. Now `COUNTRY_CURRENCY` (identical in engine.js,
+  compliance-report.html, business-portfolio.html) = the currency of the
+  official benchmark: local currency, except Serbia EUR (RGZ), Peru and
+  Uruguay USD (BCRP/INE and the market quote them), Cambodia/Ecuador/Puerto
+  Rico USD. Bulgaria = EUR since 1 Jan 2026.
 - Greece (checked Sept 30 2026): the tax zone values (APAA) service on
   maps.gsis.gr answers only through the map app's proxy (404 direct) and
   minfin.gov.gr (zone tables + the transfer-values register) sits behind a
