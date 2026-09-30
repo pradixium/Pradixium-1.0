@@ -205,6 +205,13 @@ largest metro first.
   SINGLE-FAMILY → benchmark; MULTI-FAMILY → context. Sales query needs
   ESRI_OID in outFields (else 400). Check: NBHD 00709G04 LUC 062 → 33
   sales, $342,800 (raw recompute incl. multi-parcel rule).
+  Minneapolis (Sept 30 2026): Hennepin ZIP median of SALE_CODE "W"
+  (warranty deed) sales of the same PR_TYP_NM1, 12 months, month-level
+  dates. The codes are exclusive (R = "EXCLUDED FROM RATIO STUDIES",
+  M = multi-parcel, Q/C/O/L) → W = kept in the county's ratio studies.
+  Homes (residential, condo, townhouse, zero lot line, two-unit, triplex)
+  → benchmark; others context. Check: ZIP 55406 residential 355 sales,
+  $373,000 (raw query).
   Rejected: none left from this pass.
 - St. Louis (#23): City (29510) = last valid sale (Assessor sale type 10) +
   appraised value + ZIP context; St. Louis County (29189) = facts +
