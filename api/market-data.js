@@ -258,6 +258,12 @@ export default async function handler(req, res) {
     aviles: ["asturias"],
     ourense: ["ourense", "orense"],
     asturias: ["asturias"],
+    logrono: ["rioja"],
+    vitoria: ["alava", "araba"],
+    "vitoria gasteiz": ["alava", "araba"],
+    gasteiz: ["alava", "araba"],
+    adeje: ["santa cruz de tenerife"],
+    arona: ["santa cruz de tenerife"],
     palencia: ["palencia"],
     pontevedra: ["pontevedra"],
     salamanca: ["salamanca"],
@@ -316,166 +322,69 @@ export default async function handler(req, res) {
     return code ? POSTAL_CODE_PROVINCE[code.slice(0, 2)] || null : null;
   })();
 
-  // Foreign buyer / demand intelligence — Colegio de Registradores
-  // "Estadistica Registral Inmobiliaria" (foreign-buyer share of
-  // residential purchases) and its buyer-origin nationality breakdown.
-  // The Registradores dataset isn't published as a stable machine-readable
-  // CSV, so — same as the reference values already used elsewhere in this
-  // codebase for this province — the most recent published figures are
-  // kept here as a static table and extended as new provinces are added.
-  const DEMAND_INTELLIGENCE = {
-    alicante: {
-      foreignBuyerShare: 43.53,
-      annualForeignBuyerShare: 43.29,
-      geography: "Alicante Province",
-      currentPeriod: "Q1 2026",
-      annualPeriod: "2025 Annual",
-      source: "Registradores",
-      level: "Province",
-      buyerOrigin: {
-        Netherlands: 12,
-        UnitedKingdom: 10,
-        Belgium: 9,
-        period: "2025 Annual",
-        source: "Registradores",
-        geography: "Alicante Province"
-      }
-    },
-    torrevieja: {
-      foreignBuyerShare: 43.53,
-      annualForeignBuyerShare: 43.29,
-      geography: "Alicante Province",
-      currentPeriod: "Q1 2026",
-      annualPeriod: "2025 Annual",
-      source: "Registradores",
-      level: "Province",
-      buyerOrigin: {
-        Netherlands: 12,
-        UnitedKingdom: 10,
-        Belgium: 9,
-        period: "2025 Annual",
-        source: "Registradores",
-        geography: "Alicante Province"
-      }
-    },
-    // FIX: these additional provinces come from secondary reporting on the
-    // same Registradores dataset (news coverage of the Q3/annual 2025
-    // report), not a figure this codebase has verified against the
-    // primary registradores.org report directly — registradores.org,
-    // ine.es and mivau.gob.es are all unreachable from this sandbox's
-    // network policy, so the numbers below couldn't be cross-checked
-    // against the source table. No buyer-nationality breakdown is
-    // available for them (unlike Alicante), so buyerOrigin is omitted
-    // rather than guessed. Treat as approximate until confirmed.
-    malaga: {
-      foreignBuyerShare: 32.8,
-      annualForeignBuyerShare: 32.8,
-      geography: "Malaga Province",
-      currentPeriod: "2025 Annual",
-      annualPeriod: "2025 Annual",
-      source: "Registradores (secondary source, unverified)",
-      level: "Province"
-    },
-    baleares: {
-      foreignBuyerShare: 32.8,
-      annualForeignBuyerShare: 32.8,
-      geography: "Balearic Islands",
-      currentPeriod: "2025 Annual",
-      annualPeriod: "2025 Annual",
-      source: "Registradores (secondary source, unverified)",
-      level: "Province"
-    },
-    tenerife: {
-      foreignBuyerShare: 30.04,
-      annualForeignBuyerShare: 30.04,
-      geography: "Santa Cruz de Tenerife Province",
-      currentPeriod: "2025 Annual",
-      annualPeriod: "2025 Annual",
-      source: "Registradores (secondary source, unverified)",
-      level: "Province"
-    },
-    girona: {
-      foreignBuyerShare: 28.9,
-      annualForeignBuyerShare: 28.9,
-      geography: "Girona Province",
-      currentPeriod: "2025 Annual",
-      annualPeriod: "2025 Annual",
-      source: "Registradores (secondary source, unverified)",
-      level: "Province"
-    },
-    murcia: {
-      foreignBuyerShare: 22.8,
-      annualForeignBuyerShare: 22.8,
-      geography: "Murcia Province",
-      currentPeriod: "2025 Annual",
-      annualPeriod: "2025 Annual",
-      source: "Registradores (secondary source, unverified)",
-      level: "Province"
-    },
-    almeria: {
-      foreignBuyerShare: 20,
-      annualForeignBuyerShare: 20,
-      geography: "Almeria Province",
-      currentPeriod: "2025 Annual",
-      annualPeriod: "2025 Annual",
-      source: "Registradores (secondary source, unverified)",
-      level: "Province"
-    },
-    "las palmas": {
-      foreignBuyerShare: 20.31,
-      annualForeignBuyerShare: 20.31,
-      geography: "Las Palmas Province",
-      currentPeriod: "Q4 2025",
-      annualPeriod: "Q4 2025",
-      source: "Registradores (secondary source, unverified)",
-      level: "Province"
-    },
-    tarragona: {
-      foreignBuyerShare: 16.11,
-      annualForeignBuyerShare: 16.11,
-      geography: "Tarragona Province",
-      currentPeriod: "Q4 2025",
-      annualPeriod: "Q4 2025",
-      source: "Registradores (secondary source, unverified)",
-      level: "Province"
-    },
-    // FIX: coverage previously stopped at the coastal/resort provinces
-    // with the HIGHEST foreign-buyer share, silently omitting Spain's
-    // three biggest cities — exactly the ones most people analyzing a
-    // Spanish property actually search for. Registradores' own national
-    // report does break these out, just at much lower shares (interior/
-    // urban demand vs. coastal second-home demand); reported here via the
-    // same secondary press coverage as the province entries above, not
-    // cross-checked against the primary report (unreachable from this
-    // sandbox's network policy).
-    madrid: {
-      foreignBuyerShare: 4.6,
-      annualForeignBuyerShare: 4.6,
-      geography: "Madrid (city)",
-      currentPeriod: "2025",
-      annualPeriod: "2025",
-      source: "Registradores (secondary source, unverified)",
-      level: "Municipality"
-    },
-    barcelona: {
-      foreignBuyerShare: 9.5,
-      annualForeignBuyerShare: 9.5,
-      geography: "Barcelona (city)",
-      currentPeriod: "2025",
-      annualPeriod: "2025",
-      source: "Registradores (secondary source, unverified)",
-      level: "Municipality"
-    },
-    valencia: {
-      foreignBuyerShare: 12.8,
-      annualForeignBuyerShare: 12.8,
-      geography: "Valencia (city)",
-      currentPeriod: "2025",
-      annualPeriod: "2025",
-      source: "Registradores (secondary source, unverified)",
-      level: "Municipality"
-    }
-  };
+  // Foreign-buyer demand — Colegio de Registradores, Estadística Registral
+  // Inmobiliaria, Anuario 2025 (p. 76 "Compras de vivienda por extranjeros
+  // en provincias"): the share of home purchases registered by foreign
+  // buyers in 2025 and its change on 2024 (percentage points), for every
+  // province the yearbook lists (Ceuta and Melilla are not listed). Copied
+  // from the PDF; update each spring from the next yearbook. No city-level
+  // figure and no nationality breakdown per province is published there,
+  // so none is shown.
+  const ERI_YEAR = "2025";
+  const ERI_SOURCE = "Colegio de Registradores — Estadística Registral Inmobiliaria, Anuario 2025";
+  const ERI_URL = "https://www.registradores.org/actualidad/portal-estadistico-registral/estadisticas-de-propiedad";
+  const ERI_FOREIGN_SHARE = [
+    ["Alicante/Alacant", 43.29, -0.55],
+    ["Málaga", 32.8, 0.42],
+    ["Santa Cruz de Tenerife", 30.04, -3.08],
+    ["Illes Balears", 29.86, -2.76],
+    ["Girona", 25.0, -2.11],
+    ["Las Palmas", 21.72, -0.54],
+    ["Murcia", 21.42, -2.21],
+    ["Almería", 17.47, -2.32],
+    ["Tarragona", 15.86, -1.07],
+    ["Barcelona", 14.21, -0.11],
+    ["Castellón/Castelló", 13.21, -0.7],
+    ["Valencia/València", 12.23, -1.63],
+    ["Lleida", 9.44, -1.18],
+    ["Cuenca", 8.62, -0.11],
+    ["Huelva", 8.54, 0.19],
+    ["Huesca", 8.08, -0.6],
+    ["Zaragoza", 7.78, -0.12],
+    ["Granada", 7.56, -0.04],
+    ["La Rioja", 7.17, -0.13],
+    ["Toledo", 6.9, 1.6],
+    ["Madrid", 6.89, -0.11],
+    ["Asturias", 6.74, 0.9],
+    ["Guadalajara", 6.39, -0.19],
+    ["Navarra", 5.89, 0.67],
+    ["Soria", 5.26, -1.01],
+    ["Cádiz", 5.1, 0.05],
+    ["Gipuzkoa", 4.73, 0.65],
+    ["Burgos", 4.69, 0.44],
+    ["Ciudad Real", 4.52, -0.15],
+    ["Segovia", 4.28, -0.11],
+    ["Valladolid", 4.17, -0.25],
+    ["Palencia", 4.05, 2.05],
+    ["Ávila", 3.95, 0.48],
+    ["León", 3.73, 0.87],
+    ["Bizkaia", 3.44, -0.12],
+    ["Cantabria", 3.27, -0.32],
+    ["Lugo", 3.09, 0.65],
+    ["Araba/Álava", 3.08, -0.07],
+    ["Albacete", 3.08, 0.85],
+    ["Teruel", 2.96, -1.09],
+    ["Zamora", 2.87, 0.53],
+    ["Pontevedra", 2.78, 0.58],
+    ["Sevilla", 2.56, 0.37],
+    ["Cáceres", 2.4, 0.59],
+    ["Córdoba", 2.37, 0.62],
+    ["A Coruña", 2.3, 0.12],
+    ["Ourense", 2.07, 0.19],
+    ["Salamanca", 1.92, 0.02],
+    ["Jaén", 1.83, 0.08],
+    ["Badajoz", 1.52, 0.16]
+  ];
 
   // Common municipality/resort names mapped to the province key they fall
   // under in DEMAND_INTELLIGENCE, so a free-text city entry like
@@ -646,7 +555,8 @@ export default async function handler(req, res) {
   };
 
   const matchesLocation = (value, aliases = provinceAliases) => {
-    const normalized = normalize(repairMojibake(value));
+    // MIVAU writes "Palmas, Las", "Coruña, A", "Rioja, La" → "las palmas" …
+    const normalized = normalize(repairMojibake(value)).replace(/^(.+), (la|las|los|el|a|o)$/, "$2 $1");
     if (!normalized) {
       return false;
     }
@@ -816,7 +726,7 @@ export default async function handler(req, res) {
           quarter: parseNumber(valuationQuarterHeader ? row[valuationQuarterHeader] : null),
           value: parseNumber(valuationValueHeader ? row[valuationValueHeader] : null),
           regime: valuationRegimeHeader ? repairMojibake(row[valuationRegimeHeader]) : "",
-          province: singleProvinceName || (valuationProvinceHeader ? repairMojibake(row[valuationProvinceHeader]) : ""),
+          province: singleProvinceName || (valuationProvinceHeader ? repairMojibake(row[valuationProvinceHeader]).replace(/^(.+), (La|Las|Los|El|A|O)$/, "$2 $1").replace(/^Balears, Illes$/, "Illes Balears") : ""),
           provinceCode: valuationCodeHeader ? repairMojibake(row[valuationCodeHeader]) : "",
           autonomousCommunity: valuationCommunityHeader
             ? repairMojibake(row[valuationCommunityHeader])
@@ -1084,10 +994,21 @@ export default async function handler(req, res) {
    * 4. FINAL RESPONSE
    * ---------------------------------------------------------
    */
-  const demandKey = resolvedProvinceKey || cityKey;
-  const demandFixture = DEMAND_INTELLIGENCE[demandKey] || null;
-  const demand = demandFixture
-    ? { ...demandFixture, strength: strengthFor(demandFixture.foreignBuyerShare) }
+  // the property's province (same aliases as the MIVAU match), else none
+  const eriRow = ERI_FOREIGN_SHARE.find(([name]) => matchesLocation(name)) || null;
+  const demand = eriRow
+    ? {
+        foreignBuyerShare: eriRow[1],
+        annualForeignBuyerShare: eriRow[1],
+        annualChangePp: eriRow[2],
+        geography: `${eriRow[0]} province`,
+        currentPeriod: ERI_YEAR,
+        annualPeriod: ERI_YEAR,
+        source: ERI_SOURCE,
+        sourceUrl: ERI_URL,
+        level: "Province",
+        strength: strengthFor(eriRow[1])
+      }
     : null;
 
   const numericSize = parseNumber(size);

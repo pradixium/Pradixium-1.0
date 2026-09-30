@@ -455,7 +455,7 @@
       // Same fix as the !demand branch above — hide the NL/UK/BE boxes
       // rather than showing three irrelevant "Not available" countries.
       if (buyerSection) buyerSection.style.display = "none";
-      set("buyerOriginText", "Foreign buyer origin breakdown is not available for this country.");
+      set("buyerOriginText", "Foreign buyer origin breakdown is not published for this area.");
     }
   }
 

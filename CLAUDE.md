@@ -680,6 +680,14 @@ servers → not used. Check: Lieusaint 66/86 matched, C €3,222 (23), D €3,18
   regions (Madrid, Asturias, Navarra, Murcia) — only "Total CCAA" → that
   row is used for them (Madrid had no MIVAU figure/trend before, Sept 30
   2026; Madrid Q2 2026 €4,089.6 vs €3,630.9 → +12.6%).
+- Spain foreign-buyer demand (Sept 30 2026): the old hand table (press
+  figures marked "secondary source, unverified", several wrong — Baleares
+  32.8 vs 29.86 — plus city figures and an Alicante nationality split the
+  Registradores do not publish) was replaced by `ERI_FOREIGN_SHARE` in
+  market-data.js: Registradores ERI Anuario 2025 p. 76, all 50 provinces
+  (share of home purchases by foreigners 2025 + pp change). Update each
+  spring from the next Anuario. MIVAU names like "Palmas, Las" are
+  reordered before matching (Las Palmas had no MIVAU figure before).
 - Spain MIVAU benchmark is a PROVINCE average → labelled as such; the VDP003
   "transaction value" (province total, unit unstated) is no longer shown.
 - Portugal: `lib/portugal/inePrices.js` ← `python3 scripts/build-pt-prices.py`
