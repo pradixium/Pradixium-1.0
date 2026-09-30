@@ -557,7 +557,9 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
     // valued on another basis): a whole-province average is context only —
     // never the verdict for an Altea Hills villa
     const localZones = ["area", "other_type_only", "ok"].includes(cz?.status);
-    const provinceNote = benchmark != null && raw.province ? `MIVAU appraised value, ${raw.province} province average: €${Math.round(benchmark).toLocaleString("en-US")}/m² (province-wide context — not applied to this property).` : null;
+    const provPeriod = raw.year && raw.quarter ? `, Q${raw.quarter} ${raw.year}` : "";
+    const provTrend = raw.annualChangePercent != null ? ` Change on a year earlier: ${raw.annualChangePercent > 0 ? "+" : ""}${raw.annualChangePercent}% (the price trend used).` : "";
+    const provinceNote = benchmark != null && raw.province ? `MIVAU appraised value of free-market homes, ${raw.province} province average${provPeriod}: €${Math.round(benchmark).toLocaleString("en-US")}/m² (province-wide context — not applied to this property).${provTrend}` : null;
     if (localZones && czPerM2 == null) {
       return {
         benchmarkValue: null,
@@ -589,8 +591,9 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
         : cz?.geo?.label && ["area", "other_type_only", "ok"].includes(cz.status) ? `${cz.geo.label}${benchmark != null && raw.province ? ` (benchmark: ${raw.province} province)` : ""}`
         : benchmark != null && raw.province ? `${raw.province} province` : null,
       propertyRecord: spain.record,
-      sourceParts: spain.parts.length ? [...spain.parts, { title: "MIVAU / INE", text: "MIVAU appraised values (province) and INE municipal indicators." }] : null,
-      source: spain.parts.length ? spain.parts.map((x) => x.text).join(" ") + " MIVAU / INE." : "MIVAU / INE / Catastro",
+      sourceParts: spain.parts.length ? [...spain.parts, ...(provinceNote && czPerM2 != null ? [{ title: "MIVAU (province)", text: provinceNote }] : [])] : null,
+      source: spain.parts.length ? spain.parts.map((x) => x.text).join(" ") + (provinceNote && czPerM2 != null ? " " + provinceNote : "")
+        : benchmark != null && raw.province ? `MIVAU (Ministry of Housing) average appraised value of free-market homes, ${raw.province} province${provPeriod}.${provTrend}` : "MIVAU / INE / Catastro",
       coverage: benchmark != null ? "city" : "none",
       priceTrendPercent: raw.annualChangePercent ?? null,
       // A finer-grained, independently-sourced municipality-level

@@ -250,6 +250,12 @@ export default async function handler(req, res) {
     "la rioja": ["rioja"],
     lugo: ["lugo"],
     navarra: ["navarra", "nafarroa"],
+    pamplona: ["navarra", "nafarroa"],
+    iruna: ["navarra", "nafarroa"],
+    tudela: ["navarra", "nafarroa"],
+    oviedo: ["asturias"],
+    gijon: ["asturias"],
+    aviles: ["asturias"],
     ourense: ["ourense", "orense"],
     asturias: ["asturias"],
     palencia: ["palencia"],
@@ -789,6 +795,20 @@ export default async function handler(req, res) {
       valuationMatches = valuationRows.filter((row) =>
         valuationProvinceHeader ? matchesLocation(row[valuationProvinceHeader]) : false
       );
+      // MIVAU files the four single-province regions (Madrid, Asturias,
+      // Navarra, Murcia) only as the region's own total ("Total CCAA"), with
+      // no province row — the same area, so that row is the province's
+      // figure. Never used for a region made of several provinces.
+      const SINGLE_PROVINCE = { "madrid comunidad de": "Madrid", "asturias principado de": "Asturias", "navarra comunidad foral de": "Navarra", "murcia region de": "Murcia" };
+      let singleProvinceName = null;
+      if (!valuationMatches.length && valuationProvinceHeader && valuationCommunityHeader) {
+        valuationMatches = valuationRows.filter((row) => {
+          if (normalize(repairMojibake(row[valuationProvinceHeader])) !== "total ccaa") return false;
+          const name = SINGLE_PROVINCE[normalize(repairMojibake(row[valuationCommunityHeader])).replace(/[^a-z ]+/g, " ").replace(/\s+/g, " ").trim()];
+          if (name && matchesLocation(name)) { singleProvinceName = name; return true; }
+          return false;
+        });
+      }
 
       const validValuations = valuationMatches
         .map((row) => ({
@@ -796,7 +816,7 @@ export default async function handler(req, res) {
           quarter: parseNumber(valuationQuarterHeader ? row[valuationQuarterHeader] : null),
           value: parseNumber(valuationValueHeader ? row[valuationValueHeader] : null),
           regime: valuationRegimeHeader ? repairMojibake(row[valuationRegimeHeader]) : "",
-          province: valuationProvinceHeader ? repairMojibake(row[valuationProvinceHeader]) : "",
+          province: singleProvinceName || (valuationProvinceHeader ? repairMojibake(row[valuationProvinceHeader]) : ""),
           provinceCode: valuationCodeHeader ? repairMojibake(row[valuationCodeHeader]) : "",
           autonomousCommunity: valuationCommunityHeader
             ? repairMojibake(row[valuationCommunityHeader])
