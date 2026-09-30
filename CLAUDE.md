@@ -1133,6 +1133,25 @@ Flagged directly to the user, unresolved as of this writing:
   validates or tracks redemptions; Stripe enforces the 20-redemption cap
   itself. First-20-free/testimonial-gathering flow is now fully live.
 
+  **Two more launch coupons added since, both live in Stripe (not this
+  repo's code — `allow_promotion_codes: true` already covers any of
+  them):**
+  - `FIRST100` (coupon `launch100`, 100% off, `once`, max_redemptions 100)
+    — created directly in the Stripe Dashboard by the user, found by this
+    session on a later Stripe check rather than something the user told it
+    about; already had 8 redemptions at that point. Flagging this
+    explicitly so a future session doesn't assume the coupon list here is
+    exhaustive — always check Stripe directly before creating a new one.
+  - `FIRST1000` (coupon `launch1000`, 100% off, `once`, max_redemptions
+    1000) — created Sept 30 2026 via the Stripe MCP connector, at the
+    user's explicit direction to scale the free-trial/testimonial-gathering
+    push to 1000 people with no ad spend. Stripe coupons can't have
+    `max_redemptions` edited after creation (confirmed via the API's own
+    parameter docs — only `name`/`metadata`/`currency_options` are
+    editable), which is why this is a third coupon rather than a bump to
+    an existing one. All three codes stay valid simultaneously; each just
+    stops working once its own cap is hit.
+
 ## Pricing tiers (Sept 2026)
 
 Four ways to pay, all in `api/create-checkout-session.js`:
