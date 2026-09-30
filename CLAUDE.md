@@ -623,9 +623,19 @@ servers → not used. Check: Lieusaint 66/86 matched, C €3,222 (23), D €3,18
   Several values for one address (Solingen/Ratingen/Hilden publish one per
   house form) → all listed, none applied; another home type only → context.
   Check: 20/20 random addresses = the live BORIS-NRW WMS GetFeatureInfo.
-- Other states: home IRW are not open data (Lower Saxony, Hamburg: land
-  values only) → Berlin keeps its Gutachterausschuss FLAT median (€5,511,
-  2025; flats only — its house figure is per m² of gross floor area).
+- Other states: home IRW are not open data (checked: Lower Saxony, Hamburg,
+  Bremen, Hessen — land values only; Hessen's and Lower Saxony's price
+  calculators are paid products; Lower Saxony's district dashboards are
+  Tableau with export blocked by a WAF → not used). Instead
+  `lib/germany/cityReports.js` ← `lib/data/germany/cityReports.json`: the
+  big cities' valuation boards' own published figures, copied by hand with
+  their definition (segment, mean/median, period): Berlin, Hamburg,
+  München, Stuttgart, Leipzig, Dresden, Hannover, Bremen, Wiesbaden
+  (+ Nürnberg ranges only). Applied only for the property's type; several
+  (Munich semi/end/mid-terrace) → none. Frankfurt's site answers 403 to
+  servers and to WebFetch → not used. Brandenburg publishes only
+  state-level regional averages. Update each city when its board
+  publishes (mostly Feb–June).
 - Rent: `lib/germany/rents.js` — Zensus 2022 average net cold rent per m²
   per municipality (10,683) ← `scripts/build-de-rents.py`; existing
   tenancies, 15 May 2022 — said so; used for the yield only when no rent

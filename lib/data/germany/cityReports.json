@@ -271,6 +271,26 @@
    "notes": [
     "Resale flats sold for €1,800–6,800 per m² and new-build flats for €4,600–9,500 per m², depending on location, condition and modernisation — a range, no central figure published free of charge (the full report costs €60), so none is applied."
    ]
+  },
+  "06414000": {
+   "city": "Wiesbaden",
+   "board": "Gutachterausschuss für Immobilienwerte für den Bereich der Landeshauptstadt Wiesbaden",
+   "period": "2025",
+   "source": "Gutachterausschuss Wiesbaden — Immobilienmarktbericht 2026 (section 5.3.3)",
+   "sourceUrl": "https://www.wiesbaden.de/vv/medien/merk/66/Immobilienmarktbericht-2026.pdf",
+   "values": [
+    {
+     "type": "flats",
+     "segment": "resale flats (without penthouses)",
+     "stat": "average",
+     "value": 3842,
+     "sales": 982,
+     "use": "benchmark"
+    }
+   ],
+   "notes": [
+    "The board also publishes resale prices by district, building age, size and land-value band in the report."
+   ]
   }
  }
 }
