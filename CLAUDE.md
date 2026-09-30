@@ -958,7 +958,10 @@ servers → not used. Check: Lieusaint 66/86 matched, C €3,222 (23), D €3,18
   and unofficial"; its quarterly PDF has national indices only.
 - Checked Sept 30 2026, needs the user: Japan — MLIT Real Estate
   Information Library transaction-price API (reinfolib, official) needs a
-  free API key (401 without; the old webland API is gone); Australia — NSW
+  free API key (401 without; the old webland API is gone) — application
+  form reinfolib.mlit.go.jp/api/request/ (user type 法人, ~5 business
+  days; terms allow commercial use with MLIT's credit line, Art. 7).
+  User, Sept 30 2026: WAIT until the Irish company is registered; Australia — NSW
   Valuer General bulk sales files (every recorded sale, free) sit behind a
   Cloudflare challenge for servers → could be downloaded by the user in a
   browser (NJ/FL pattern).
