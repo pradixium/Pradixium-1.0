@@ -956,6 +956,12 @@ servers → not used. Check: Lieusaint 66/86 matched, C €3,222 (23), D €3,18
   source. Estonia — Maa- ja Ruumiamet price query (maaamet.ee/kinnisvara/
   htraru) sits behind a Cloudflare challenge and calls itself "informative
   and unofficial"; its quarterly PDF has national indices only.
+- Checked Sept 30 2026, needs the user: Japan — MLIT Real Estate
+  Information Library transaction-price API (reinfolib, official) needs a
+  free API key (401 without; the old webland API is gone); Australia — NSW
+  Valuer General bulk sales files (every recorded sale, free) sit behind a
+  Cloudflare challenge for servers → could be downloaded by the user in a
+  browser (NJ/FL pattern).
 - Not possible yet (checked Sept 2026): Greece (see above), Bulgaria (NSI per-city prices ended
   2014), Cyprus/Romania (no open per-area price data found).
 
