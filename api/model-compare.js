@@ -49,5 +49,17 @@ export default async function handler(req, res) {
       return { model, seconds: (Date.now() - t) / 1000, error: String(e?.message || e).slice(0, 400) };
     }
   }));
-  return res.status(200).json({ property, benchmark: base?.marketEvidence?.benchmarkValue ?? null, marketArea: base?.marketEvidence?.marketArea ?? null, score: base?.pradixiumScore?.score ?? null, results: out });
+  const data = { property, benchmark: base?.marketEvidence?.benchmarkValue ?? null, marketArea: base?.marketEvidence?.marketArea ?? null, score: base?.pradixiumScore?.score ?? null, results: out };
+  if (q.format === "json") return res.status(200).json(data);
+  const e = (v) => String(v ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const list = (a) => Array.isArray(a) && a.length ? "<ul>" + a.map((x) => `<li>${e(x)}</li>`).join("") + "</ul>" : "<p>—</p>";
+  const NAMES = { "claude-sonnet-4-6": "Sonnet 4.6 (today)", "claude-sonnet-5-5": "Sonnet 5.5", "claude-haiku-4-5": "Haiku 4.5" };
+  const col = (r) => `<section><h2>${e(NAMES[r.model] || r.model)} <span>${r.seconds.toFixed(1)} s</span></h2>` + (r.error ? `<p class="err">${e(r.error)}</p>` :
+    `<h3>Highlights</h3>${list(r.investmentHighlights)}<h3>Risks</h3>${list(r.keyRisks)}<h3>Investor action</h3><p>${e(r.investorAction)}</p>` +
+    (r.localizedContent ? `<h3>${e(r.localizedContent.language)}</h3><h4>Highlights</h4>${list(r.localizedContent.investmentHighlights)}<h4>Risks</h4>${list(r.localizedContent.keyRisks)}<h4>Action</h4><p>${e(r.localizedContent.investorAction)}</p>` : "")) + "</section>";
+  res.setHeader("Content-Type", "text/html; charset=utf-8");
+  return res.status(200).send ? res.status(200).send(page()) : res.end(page());
+  function page() {
+    return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Model comparison</title><style>body{font:15px/1.55 system-ui,sans-serif;margin:0;padding:16px;background:#f6f7f9;color:#1d2530}header{margin-bottom:12px}main{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}section{background:#fff;border-radius:12px;padding:14px 16px;box-shadow:0 1px 3px #0001}h2{font-size:17px;margin:0 0 6px;display:flex;justify-content:space-between}h2 span{color:#1f7a4d}h3{font-size:13px;letter-spacing:.5px;text-transform:uppercase;color:#6b7684;margin:14px 0 4px}h4{font-size:13px;margin:10px 0 2px}ul{padding-left:18px;margin:0}.err{color:#b3261e}</style></head><body><header><b>${e(property.city)}</b> — ${e(property.propertyType)}, ${e(property.size)} m², asking ${e(property.price)} · benchmark ${e(Math.round(data.benchmark || 0))}/m² (${e(data.marketArea)}) · score ${e(data.score)} — same data for every model</header><main>${out.map(col).join("")}</main></body></html>`;
+  }
 }
