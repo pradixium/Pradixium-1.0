@@ -178,7 +178,13 @@ largest metro first.
   parcel's own group, last 12 months of data (check: nbhd 72380 houses
   327 sales, $342,000 = SoQL recompute); Connecticut — the town's median
   of usable single-family sales, houses only (check: West Hartford GL
-  2024, 518 sales, $550,000). 10+ sales.
+  2024, 518 sales, $550,000). 10+ sales. DC (Sept 30 2026): the OTR
+  neighborhood's median of "Market Sale" sales of the EXACT OTR class
+  (row / semi / detached house, horizontal / vertical condo; the extract
+  holds each property's latest sale), 12 months (check: Old City 1 row
+  houses 310 sales, $950,000; Old City 2 vertical condos 231, $470,000).
+  Rejected: Oklahoma County (the layer keeps only ~10 days of sales),
+  Shelby TN (no type, no situs ZIP).
 - St. Louis (#23): City (29510) = last valid sale (Assessor sale type 10) +
   appraised value + ZIP context; St. Louis County (29189) = facts +
   appraised value only (Missouri: the county publishes no sale prices).
