@@ -1133,6 +1133,25 @@ Flagged directly to the user, unresolved as of this writing:
   validates or tracks redemptions; Stripe enforces the 20-redemption cap
   itself. First-20-free/testimonial-gathering flow is now fully live.
 
+  **Two more launch coupons added since, both live in Stripe (not this
+  repo's code — `allow_promotion_codes: true` already covers any of
+  them):**
+  - `FIRST100` (coupon `launch100`, 100% off, `once`, max_redemptions 100)
+    — created directly in the Stripe Dashboard by the user, found by this
+    session on a later Stripe check rather than something the user told it
+    about; already had 8 redemptions at that point. Flagging this
+    explicitly so a future session doesn't assume the coupon list here is
+    exhaustive — always check Stripe directly before creating a new one.
+  - `FIRST1000` (coupon `launch1000`, 100% off, `once`, max_redemptions
+    1000) — created Sept 30 2026 via the Stripe MCP connector, at the
+    user's explicit direction to scale the free-trial/testimonial-gathering
+    push to 1000 people with no ad spend. Stripe coupons can't have
+    `max_redemptions` edited after creation (confirmed via the API's own
+    parameter docs — only `name`/`metadata`/`currency_options` are
+    editable), which is why this is a third coupon rather than a bump to
+    an existing one. All three codes stay valid simultaneously; each just
+    stops working once its own cap is hit.
+
 ## Pricing tiers (Sept 2026)
 
 Four ways to pay, all in `api/create-checkout-session.js`:
@@ -1166,6 +1185,30 @@ there is still no Stripe renewal webhook in this project (same known
 limitation already accepted for `subscription`/`business` expiry). Once a
 report is spent from the quota it's unlocked for good, same model as a
 one-time `report` purchase.
+
+**Race condition fixed (Sept 30 2026).** The check-then-insert above used
+to be two separate round trips from `api/consume-monthly-slot.js` itself —
+two requests for two DIFFERENT properties arriving close together could
+each pass the count check before either INSERT committed, letting more
+than 3 reports through in one cycle. Moved into one Postgres function,
+`consume_monthly_slot` (migration `add_consume_monthly_slot_atomic_function`
++ `fix_consume_monthly_slot_stripe_session_id`), which takes a per-user
+`pg_advisory_xact_lock` before checking and inserting, so concurrent calls
+for the same user serialize instead of racing; the API route is now a thin
+wrapper that calls it via `rpc/consume_monthly_slot`. Verified live against
+a scratch `purchases` row (cleaned up after): 4 truly concurrent calls
+against a quota of 3 correctly let exactly 3 through and rejected the 4th,
+and re-consuming an already-spent signature stays idempotent. The same
+testing also caught a second, independent, already-live bug: `purchases.
+stripe_session_id` is `NOT NULL`, which the original INSERT (in both the
+old JS and my first draft of the new function) never set — every monthly
+plan slot consumption had been failing with a 502 in production before
+this fix, regardless of the race condition; the function now sets a
+synthetic `monthly_usage_<uuid>` placeholder for these rows, since a quota
+usage row isn't tied to any real Stripe session. Not yet exercised: a real
+end-to-end call through the deployed Vercel route with a live monthly-plan
+account (the Postgres function itself was tested directly; the thin HTTP
+wrapper around it was not).
 
 **Business-plan differentiation (raised by the user):** the concern was a
 company just using the cheap individual plan instead of paying for
@@ -1335,6 +1378,69 @@ remain silent (correctly — unverified). Continuing this kind of expansion
 in bounded, verified batches rather than one unverifiable sweep is the
 right pace to keep the honesty bar real; say so plainly if the user wants
 the rest pushed further in a future session.
+
+**Fourth batch (Sept 30 2026): 3 more, 62 → 65.** Added Kenya (`WORKAROUND
+REQUIRED` — Constitution of Kenya 2010, Sixth Schedule Article 8(1), a
+non-citizen's freehold reverts to a 99-year peppercorn leasehold; sourced
+via the Embassy of Kenya, Washington DC's own published PDF since the
+national legislation portal (new.kenyalaw.org) was unreachable from this
+session's network — same egress-block pattern already seen elsewhere in
+this file), Bahamas (`OPEN` — International Persons Landholding Act 1993;
+an ordinary single-family home/condo purchase is registration-only, no
+advance permit, via FAOLEX's copy of the Act since laws.bahamas.gov.bs
+wasn't reachable either), and Dominican Republic (`OPEN` — Foreign
+Investment Law 16-95 + Real Estate Registration Law 108-05, CEI-RD; equal
+treatment for foreign buyers, well-corroborated across many independent
+sources though CEI-RD's own site returned a DNS failure from this
+session). Researched via a subagent under a strict official-source-only
+brief, then cross-checked myself with follow-up searches before writing
+anything — this file's honesty bar applies to the verification step
+itself, not just the final entry.
+
+**Two more researched and deliberately NOT shipped this batch:** Nigeria
+and Ukraine. Nigeria's Land Use Act 1978 has no express foreigner
+restriction in its own text; secondary legal-analysis sources disagree
+with each other on whether foreigners can hold land at all (one line of
+analysis says yes with Governor's consent like any buyer, another says no
+foreigner can own land outright) — genuinely unresolved, not just
+unreachable, so it stays silent rather than picking a side. Ukraine's Land
+Code (Articles 81–82, allowing non-agricultural real estate but not
+agricultural land) is well-documented but zakon.rada.gov.ua was blocked
+by this session's network egress, and — separately — wartime martial law
+has affected the State Land Cadastre's actual operation since Feb 2022;
+given both an unverifiable primary source and a genuinely unstable
+real-world situation, this one needs a session that can reach the
+official portal and re-check current wartime procedure, not a guess from
+secondary sources. "60/62/65 countries" copy updated again, in the same
+3 pages.
+
+**Fifth batch (Sept 30 2026): 1 more, 65 → 66.** Added Barbados (`OPEN` —
+Exchange Control Act, Cap. 71; a non-resident needs prior Central Bank of
+Barbados exchange-control permission before completing the purchase, a
+routine step the conveyancing attorney handles, not an ownership gate).
+Sourced directly from the Central Bank of Barbados' own domain
+(centralbank.org.bb) — the strongest sourcing tier this file uses — though
+this session's own network egress block prevented a second, independent
+fetch of that exact page to double-check it word-for-word.
+
+**Four more researched this batch, deliberately NOT shipped:** Jamaica
+(OPEN-looking, but the clearest description found was a Jamaican embassy
+page, not Bank of Jamaica's own site — and a repeatedly-claimed "5 acre"
+foreign-ownership cap had no official source at all), Uruguay (OPEN
+conclusion is very likely correct and consistently reported, but no
+specific IMPO/DNR statute citation could be confirmed at all — every
+source was a law-firm or property-marketing page), Montenegro
+(WORKAROUND-shaped — reciprocity test + border/island/agricultural
+exclusions under the Law on Proprietary and Ownership Legal Relations —
+but the Official Gazette text itself wasn't directly read this session,
+only located), and Albania (OPEN for units, WORKAROUND for land — Law No.
+7980 on land, via FAOLEX rather than Albania's own gazette/cadastre
+portal). All four have a correct-looking answer backed by consistent
+secondary reporting, but none yet clears this file's "verified against
+the government's own page" bar — closing that loop (a direct read of
+IMPO, the Montenegro gazette PDF, or Albania's ASHK/QBZ) is the concrete
+next step for any future batch touching these four. "65/66 countries"
+copy updated again, in the same 3 pages.
 
 ## For the other session (Claude B): Georgia data gap flagged (Sept 2026)
 
