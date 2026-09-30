@@ -59,15 +59,33 @@ const FIXTURES = {
     source: "Kenya National Bureau of Statistics (KNBS) — Kenya Residential Property Price Index, First Quarter 2026",
     officialSource: "https://www.knbs.or.ke/reports/kenya-residential-property-price-index-first-quarter-2026/"
   },
-  // Geostat's RPPI covers NEW homes in Tbilisi only. Its district €/m²
-  // chart is built from web-scraped ASKING prices (Myhome, ss.ge — said in
-  // the release) → not used as a price; the index change is.
+  // Geostat's RPPI covers NEW homes in Tbilisi only (flats + detached
+  // houses). Its district medians per m² (release chart, p. 3) are built
+  // from web-scraped OFFER prices (Myhome, said in the release) →
+  // `askingPrices`: context only, never the benchmark. Values in GEL, read
+  // from the rendered chart and checked against the bar lengths.
   georgia: {
     country: "Georgia",
     period: "2026-Q2",
-    cityName: "Tbilisi",
-    cityChangePercent: 4.9,
-    coverageNote: "Tbilisi new-build homes only (Geostat RPPI); Batumi and other cities have no official price series",
+    currencyLabel: "GEL ",
+    askingPrices: true,
+    askingNote: "Geostat's median of web-scraped OFFER (asking) prices of new-build homes",
+    typeChanges: { flats: 4.8, houses: 5.5 },
+    regions: [
+      { name: "Mtatsminda, Tbilisi", towns: ["mtatsminda"], value: 6730, houseValue: 4409 },
+      { name: "Vake, Tbilisi", towns: ["vake"], value: 5914, houseValue: 4656 },
+      { name: "Krtsanisi, Tbilisi", towns: ["krtsanisi"], value: 4630, houseValue: 2926 },
+      { name: "Saburtalo, Tbilisi", towns: ["saburtalo"], value: 4307, houseValue: 3510 },
+      { name: "Didube, Tbilisi", towns: ["didube"], value: 4184, houseValue: 3477 },
+      { name: "Isani, Tbilisi", towns: ["isani"], value: 4088, houseValue: 3268 },
+      { name: "Chughureti, Tbilisi", towns: ["chughureti"], value: 4064, houseValue: 3524 },
+      { name: "Nadzaladevi, Tbilisi", towns: ["nadzaladevi"], value: 4038, houseValue: 2778 },
+      { name: "Gldani, Tbilisi", towns: ["gldani"], value: 3867, houseValue: 2811 },
+      { name: "Samgori, Tbilisi", towns: ["samgori"], value: 3680, houseValue: 2992 },
+      { name: "Tbilisi", towns: ["tbilisi", "tiflis"], value: null,
+        note: "district medians run from GEL 3,680/m² (Samgori) to GEL 6,730/m² (Mtatsminda) for flats and GEL 2,778–4,656/m² for houses — enter the district for its own figure" }
+    ],
+    coverageNote: "Tbilisi new-build homes only (Geostat RPPI, Q2 2026: flats +4.8%, detached houses +5.5% on a year earlier); Batumi and other cities have no official price series.",
     source: "National Statistics Office of Georgia (Geostat) — Residential Property Price Index, Q2 2026",
     officialSource: "https://www.geostat.ge/media/81560/Residential-Property-Price-Index---II-quarter-of-2026.pdf"
   },
@@ -98,6 +116,7 @@ const FIXTURES = {
     flatsOnly: true,
     askingPrices: true,
     askingNote: "built by the Cadastre Committee from contract prices of sold flats together with offer (asking) prices",
+    askingPartly: true,
     regions: [
       { name: "Kentron, Yerevan", towns: ["kentron", "center yerevan", "centre yerevan"], value: 946000, prev: 882700, change: 7.2 },
       { name: "Arabkir, Yerevan", towns: ["arabkir"], value: 684900, prev: 620000, change: 10.5 },
@@ -444,8 +463,16 @@ export default async function handler(req, res) {
   if (fixture?.regions) {
     const w = ` ${[city, req.query?.address].filter(Boolean).join(" ").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, " ")} `;
     const r = fixture.regions.find((x) => x.towns.some((t) => w.includes(` ${t} `)) && (!x.requires || x.requires.some((t) => w.includes(` ${t} `))));
-    if (r) Object.assign(fixture, { cityName: r.name, cityBenchmarkValue: r.value, cityChangePercent: r.change, regionMatch: true,
-      coverageNote: `${fixture.coverageNote} ${r.name}: ${r.value != null ? `${fixture.country === "Armenia" ? "AMD " : "€"}${r.value.toLocaleString("en-US")}/m²` : ""}${r.note ? ` (${r.note})` : ""}${r.prev != null ? ` (a year earlier: ${fixture.country === "Armenia" ? "AMD " : "€"}${r.prev.toLocaleString("en-US")}/m²)` : ""}${r.change == null && r.value != null ? " — the change is not shown: too few sales for a stable comparison" : ""}.` });
+    // a figure per home type (Georgia: flats / detached houses)
+    const houseQ = /house|villa|town|home/i.test(String(req.query?.propertyType || "")) && !/apart|flat|studio|penthouse|condo/i.test(String(req.query?.propertyType || ""));
+    const cur = fixture.currencyLabel || (fixture.country === "Armenia" ? "AMD " : "€");
+    if (r) {
+      const val = houseQ && r.houseValue != null ? r.houseValue : r.value;
+      const typeWord = r.houseValue != null ? (houseQ ? " (detached houses)" : " (flats)") : "";
+      const chg = fixture.typeChanges ? (houseQ ? fixture.typeChanges.houses : fixture.typeChanges.flats) : r.change;
+      Object.assign(fixture, { cityName: r.name, cityBenchmarkValue: val, cityChangePercent: chg, regionMatch: true,
+        coverageNote: `${fixture.coverageNote} ${r.name}${typeWord}: ${val != null ? `${cur}${val.toLocaleString("en-US")}/m²` : ""}${r.note ? ` (${r.note})` : ""}${r.prev != null ? ` (a year earlier: ${cur}${r.prev.toLocaleString("en-US")}/m²)` : ""}${r.change == null && r.value != null && !fixture.typeChanges ? " — the change is not shown: too few sales for a stable comparison" : ""}.` });
+    }
   }
 
   if (!fixture) {
@@ -473,6 +500,8 @@ export default async function handler(req, res) {
       flatsOnly: fixture.flatsOnly ?? false,
       askingPrices: fixture.askingPrices ?? false,
       askingNote: fixture.askingNote ?? null,
+      askingPartly: fixture.askingPartly ?? false,
+      currencyLabel: fixture.currencyLabel ?? null,
       changeIsMonthly: fixture.changeIsMonthly ?? false,
       regionMatch: fixture.regionMatch ?? false,
       cityLevelStatus: "REGIONAL_DATA_LAYER_PENDING",

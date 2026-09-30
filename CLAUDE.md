@@ -780,8 +780,17 @@ servers → not used. Check: Lieusaint 66/86 matched, C €3,222 (23), D €3,18
   identify, catalog item 383 / WMS layer 405): €/m² for flats by size
   band per price block. No house values in the PPV. New plan each year →
   update PPV_FLATS in lib/europe/localPrices.js from gis/catalog-izbornik.
-- Georgia: Geostat RPPI trend only (Tbilisi new builds); its district
-  €/m² are web-scraped asking prices (Geostat says so) → not used.
+- Georgia (Sept 30 2026): Geostat RPPI Q2 2026 (Tbilisi NEW homes only):
+  flats +4.8%, detached houses +5.5% as the trend (by type); the release's
+  district medians per m² (GEL, flats + houses, read from the p. 3 chart
+  and checked against the bar lengths) are web-scraped OFFER prices →
+  regional fixture with `askingPrices` = context only, never the
+  benchmark. Batumi / other cities: no official series (said so).
+- Greece (Sept 30 2026): the Bank of Greece APARTMENT price index is
+  labelled by its real area (Athens, Thessaloniki, small islands/resorts
+  → "other areas"; any other town → national, never guessed as "other
+  cities"); not used as a house's trend. bankofgreece.gr answers 403 to
+  servers and WebFetch → Q2 2026 not verifiable yet, Q1 2026 kept.
 - Regional fixtures (Serbia, Montenegro, LatAm, Asia…): city figure only
   for that city, national figures as context.
 - Turkey: TCMB EVDS has official TL/m² by province but needs a free API

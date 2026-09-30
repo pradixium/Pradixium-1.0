@@ -1235,8 +1235,8 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
         governmentValue: null,
         transactionValue: null,
         transactionPeriod: raw.period ?? null,
-        marketArea: `${raw.cityName || countryLabel(country)} — official figure ${raw.askingPrices ? (raw.askingNote ? "partly from asking prices" : "from asking prices") : "for apartments only"}, not applied`,
-        source: `${raw.sources?.official || countryLabel(country)}: ${raw.cityName || countryLabel(country)}${raw.cityBenchmarkValue != null ? ` ${Math.round(raw.cityBenchmarkValue).toLocaleString("en-US")}${raw.benchmarkUnit === "total" ? " per home" : " per m²"}` : ""} (${raw.period}) — ${why}.${trendRF != null ? ` Change ${trendRF >= 0 ? "+" : ""}${trendRF}% on a year earlier.` : ""}${raw.coverageNote ? ` ${raw.coverageNote}` : ""}`,
+        marketArea: `${raw.cityName || countryLabel(country)} — official figure ${raw.askingPrices ? (raw.askingPartly ? "partly from asking prices" : "from asking prices") : "for apartments only"}, not applied`,
+        source: `${raw.sources?.official || countryLabel(country)}: ${raw.cityName || countryLabel(country)}${raw.cityBenchmarkValue != null ? ` ${raw.currencyLabel || ""}${Math.round(raw.cityBenchmarkValue).toLocaleString("en-US")}${raw.benchmarkUnit === "total" ? " per home" : " per m²"}` : ""} (${raw.period}) — ${why}.${trendRF != null ? ` Change ${trendRF >= 0 ? "+" : ""}${trendRF}% on a year earlier.` : ""}${raw.coverageNote ? ` ${raw.coverageNote}` : ""}`,
         sourceUrl: raw.sourceUrls?.official || null,
         coverage: "city",
         priceTrendPercent: trendRF
