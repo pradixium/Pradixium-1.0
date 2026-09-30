@@ -53,6 +53,7 @@
   const accountName = $('accountName');
   const accountProfileBtn = $('accountProfileBtn');
   const accountLogoutBtn = $('accountLogoutBtn');
+  const accountSubDot = $('accountSubDot');
 
   let mode = 'signup';
   let currentUser = null;
@@ -163,6 +164,26 @@
       accountName.textContent = currentUser
         ? (currentUser.user_metadata && currentUser.user_metadata.full_name) || currentUser.email
         : 'Account';
+    }
+    refreshSubscriberDot();
+  }
+
+  // Green dot on the account avatar for anyone with an active recurring
+  // plan (subscription/business/monthly) -- a one-time "report" purchase
+  // doesn't count, since this marks an ongoing member, not a single sale.
+  async function refreshSubscriberDot() {
+    if (!accountSubDot) return;
+    if (!currentUser) { accountSubDot.classList.remove('show'); return; }
+    try {
+      const { data: rows, error } = await client.from('purchases').select('kind, expires_at');
+      if (error || !rows) { accountSubDot.classList.remove('show'); return; }
+      const now = Date.now();
+      const active = rows.some((row) =>
+        ['subscription', 'business', 'monthly'].includes(row.kind) && row.expires_at && new Date(row.expires_at).getTime() > now
+      );
+      accountSubDot.classList.toggle('show', active);
+    } catch (e) {
+      accountSubDot.classList.remove('show');
     }
   }
 
