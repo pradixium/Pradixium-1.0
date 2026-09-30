@@ -847,6 +847,18 @@ servers → not used. Check: Lieusaint 66/86 matched, C €3,222 (23), D €3,18
   sales still "V preverjanju") → not used directly. The mass-valuation file
   (EV, generalised values as at 1 Jan 2025) also carries OWNER NAMES → not
   used. Re-run each spring with the next report's year.
+- Latvia (Sept 30 2026): `latvia` in lib/europe/localPrices.js ←
+  `python3 scripts/build-lv-prices.py` (VZD market statistical indicators,
+  data.gov.lv "tirgus-statistika", CC BY 4.0, from Land Register sales):
+  per city/town/parish, median WHOLE price of apartments by rooms (1–4)
+  and houses by floor-area band, last full year. VZD says they are made
+  automatically without reviewing each sale (min €10 in the file), Riga
+  only as a whole → CONTEXT only, 10+ sales per figure. Check: Riga
+  2-room 2025 from VZD's raw NĪTIS file (single apartment, whole share)
+  4,973 sales, median €52,000 vs VZD 4,985 / €51,700. VZD's raw NĪTIS
+  transaction file (nekustama-ipasuma-tirgus-datu-bazes-atvertie-dati)
+  has no market-sale flag → not used for our own statistics. Re-run each
+  February.
 - Checked Sept 30 2026, not usable: Dubai — DLD transaction search behind
   reCAPTCHA; its indexes GraphQL (gateway.dubailand.gov.ae/indexes-api) is
   open but publicly WRITABLE (full of test/pentest rows) → not a verifiable
