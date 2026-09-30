@@ -768,7 +768,12 @@ servers → not used. Check: Lieusaint 66/86 matched, C €3,222 (23), D €3,18
   months by parish/municipality and typology (bedrooms → T0/T1…T4+). INE
   publishes these only for the Lisbon/Porto metros, the Algarve and towns
   > 100k → elsewhere no local figure (said so). Check: Almancil Q1 2026
-  T4+ €7,449/m² (recomputed from INE's JSON API).
+  T4+ €7,449/m² (recomputed from INE's JSON API). Sept 30 2026: INE
+  0012236 (same median, by buyer sector) adds the all-dwellings figure
+  for EVERY municipality (304 with a value, incl. Madeira/Azores) →
+  `allTypesOnly` areas; its Total = 0012241's Total where both exist
+  (Cascais 4,687 / Braga 2,100 / Tavira 3,152 / Funchal 3,322). Check:
+  Évora €2,255, Óbidos €2,242, Viseu €1,595 (Q1 2026).
 - Single-area figures (Milan's OMI etc.) are applied only to that area
   (`recentAreaFits` in the orchestrator).
 
