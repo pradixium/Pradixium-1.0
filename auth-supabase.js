@@ -378,6 +378,16 @@
     if (target.id === 'signUpTab') return setMode('signup');
     if (target.id === 'signInTab') return setMode('signin');
     if (target.id === 'accountBtn') {
+      // FIX (Sept 2026, real bug): clicking the avatar always just
+      // toggled this menu, even when signed out -- but the menu's only
+      // real content (Profile / Sign Out) makes no sense without a
+      // session, and there was no other way to open the sign-in form from
+      // the avatar. A signed-out visitor who'd just signed out had no way
+      // back in except finding a "must sign in" gate elsewhere (paying,
+      // e.g.) -- clicking the one obviously account-shaped button did
+      // nothing useful. Signed-out now opens the real sign-in form instead
+      // of the menu.
+      if (!currentUser) { setMode('signin'); showAuthGate(); return; }
       if (accountMenu) {
         accountMenu.classList.toggle('open');
         accountMenu.setAttribute('aria-hidden', accountMenu.classList.contains('open') ? 'false' : 'true');
