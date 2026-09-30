@@ -17,6 +17,9 @@
     },
     "api/eurostat-hpi-intelligence.js": {
       "includeFiles": "lib/data/*Prices.json"
+    },
+    "api/germany-intelligence.js": {
+      "includeFiles": "lib/data/germany/**"
     }
   }
 }

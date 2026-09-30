@@ -931,6 +931,61 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
         priceTrendPercent: change ?? null
       };
     }
+    // Germany / NRW: the Gutachterausschuss' Immobilienrichtwert of the
+    // address's own zone (lib/germany/irw.js) — € per m² of living area for
+    // the board's stated reference home, from its register of all sales
+    const irw = c === "germany" ? raw.irw : null;
+    const eurDe = (x) => "€" + Math.round(x).toLocaleString("en-US");
+    const irwOne = (z) => `${eurDe(z.value)}/m² (${z.reference || "reference home not stated"}${z.area ? `; zone ${z.area}` : ""})`;
+    if (irw?.stag) { const [dd, mm, yy] = String(irw.stag).split("."); const M = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][Number(mm) - 1]; if (M && yy) irw.stag = `${Number(dd)} ${M} ${yy}`; }
+    const irwHead = irw ? `BORIS-NRW, Immobilienrichtwerte as of ${irw.stag || "1 Jan"}${irw.street ? ` — ${irw.street} ${irw.number}, ${irw.municipality}` : irw.municipality ? ` — ${irw.municipality}` : ""}` : "";
+    if (irw?.status === "ok") {
+      const z = irw.main;
+      const others = (irw.others || []).map((o) => `${o.submarket} ${irwOne(o)}`).join("; ");
+      const text = `${irwHead}: ${z.board || "the local Gutachterausschuss"} publishes ${eurDe(z.value)} per m² of living area for ${z.submarket} in this zone${z.area ? ` (${z.area})` : ""}, derived from its register of all purchase contracts. Reference home: ${z.reference || "not stated"}. The value is for that reference home — the board's own conversion factors for another size, age, standard or floor (its published PDF, linked as the source) are not applied here.${others ? ` Other reference values at this address: ${others}.` : ""}`;
+      return {
+        benchmarkValue: z.value,
+        benchmarkUnit: "perSqm",
+        benchmarkLabel: `Immobilienrichtwert — ${irw.municipality}${z.area ? ` ${z.area}` : ""}, ${z.submarket}`,
+        governmentValue: null,
+        transactionValue: null,
+        transactionPeriod: irw.stag,
+        marketArea: `${irw.municipality}${z.area ? ` — ${z.area}` : ""} (reference-value zone ${z.number || ""})`.replace(" )", ")"),
+        source: `${text} ${trendSource}.`,
+        sourceParts: [{ title: "Immobilienrichtwert (Gutachterausschuss)", text }, { title: "Price trend", text: `${trendSource}.` }],
+        sourceUrl: z.factorsUrl || irw.sourceUrl,
+        coverage: "city",
+        priceTrendPercent: change ?? null
+      };
+    }
+    const irwNote = !irw ? "" : irw.status === "several"
+      ? ` ${irwHead}: the Gutachterausschuss publishes ${irw.candidates.length} reference values for ${irw.submarket} at this address, one per reference home — ${irw.candidates.map(irwOne).join("; ")}. No single one is applied: compare the property with each reference home.`
+      : irw.status === "no_zone_for_type"
+        ? ` ${irwHead}: no reference value for ${irw.submarket} at this address.${irw.others?.length ? ` Published there: ${irw.others.map((o) => `${o.submarket} ${irwOne(o)}`).join("; ")} — another home type, not applied.` : ""}`
+        : irw.status === "no_zone" ? ` ${irwHead}: the local Gutachterausschuss has published no reference-value zone for this spot.`
+        : irw.status === "street_not_found" || irw.status === "number_not_found" ? ` BORIS-NRW: "${irw.street}${irw.number ? " " + irw.number : ""}" was not found in NRW's official address register (Geobasis NRW) for ${irw.municipality} — check the street spelling and house number for the zone's reference value.`
+        : irw.status === "needs_address" ? ` NRW publishes official reference values per zone (BORIS-NRW) — enter the street and house number in ${irw.municipality} for this property's value.`
+        : "";
+    // an NRW address with official reference values that cannot be applied
+    // as one benchmark (several reference homes, another home type only…):
+    // shown as they are — never replaced by another city's figure
+    if (irwNote && irw.status !== "needs_address") {
+      const n = irw.status === "several" ? `${irw.candidates.length} official reference values — see source` : irw.status === "no_zone_for_type" ? `no official reference value for ${irw.submarket} here` : irw.status === "no_zone" ? "no official reference-value zone here" : "address not found in NRW's register";
+      return {
+        benchmarkValue: null,
+        benchmarkUnit: "perSqm",
+        benchmarkLabel: "Immobilienrichtwert (see source)",
+        governmentValue: null,
+        transactionValue: null,
+        transactionPeriod: irw.stag,
+        marketArea: `${irw.municipality} — ${n}`,
+        source: `${irwNote.trim()} ${trendSource}.`,
+        sourceParts: [{ title: "Immobilienrichtwert (Gutachterausschuss)", text: irwNote.trim() }, { title: "Price trend", text: `${trendSource}.` }],
+        sourceUrl: irw.sourceUrl,
+        coverage: "city",
+        priceTrendPercent: change ?? null
+      };
+    }
     // the national statistics office's own LOCAL figure for this place
     // (municipality / Eircode area / county) — lib/europe/localPrices.js
     const lp = raw.localPrice;
@@ -963,7 +1018,7 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
       lu_no_houses: " Luxembourg's Observatoire de l'Habitat publishes prices per commune for apartments only, not houses.",
       lu_few_sales: " Luxembourg's Observatoire de l'Habitat publishes no price for a commune with fewer than 10 apartment sales in the last 12 months."
     };
-    const localNote = LOCAL_NOTES[lp?.status] || (lp?.status === "needs_district" ? ` ${lp.note}` : lp?.status === "apartments_not_covered" ? " Sweden's apartments are tenant-owner shares (bostadsrätter), not real property — the official price statistics cover houses only." : "");
+    const localNote = irwNote + (LOCAL_NOTES[lp?.status] || (lp?.status === "needs_district" ? ` ${lp.note}` : lp?.status === "apartments_not_covered" ? " Sweden's apartments are tenant-owner shares (bostadsrätter), not real property — the official price statistics cover houses only." : ""));
     const national = recent && /national|malta & gozo/i.test(recent.area);
     // a figure for flats only (Iceland's 60–90 m² flats, Finland's housing
     // companies) is not a house's benchmark

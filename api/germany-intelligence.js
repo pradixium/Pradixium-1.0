@@ -1,3 +1,5 @@
+import { nrwReferenceValue } from '../lib/germany/irw.js';
+
 const esc = (value) => String(value || '').trim().slice(0, 160);
 
 const GERMANY_HPI = {
@@ -42,6 +44,11 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
 
   const city = esc(req.query?.city);
+  const address = esc(req.query?.address);
+  // NRW: the address's own Immobilienrichtwert zone (null elsewhere)
+  let irw = null;
+  try { irw = nrwReferenceValue({ address, city, propertyType: esc(req.query?.propertyType), size: esc(req.query?.size) }); } catch { irw = null; }
+  if (irw?.status === 'not_nrw') irw = null;
   const key = normalise(city);
   const resolvedCity = CITY_ALIASES[key] || city || 'Germany';
 
@@ -52,6 +59,7 @@ export default async function handler(req, res) {
     data: {
       market: 'German Residential Property Market',
       housingPriceIndex: GERMANY_HPI,
+      irw,
       cityLevelStatus: city ? 'REGIONAL_DATA_LAYER_PENDING' : 'NATIONAL_DATA_AVAILABLE',
       cityLevelNote: 'Germany does not publish a single nationwide open transaction database equivalent to France DVF or England and Wales Price Paid Data. City-level valuation should use the relevant local Gutachterausschuss / BORIS regional source rather than estimated figures.',
       sources: {
