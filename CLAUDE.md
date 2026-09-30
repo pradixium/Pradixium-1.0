@@ -1118,6 +1118,8 @@ Blockers found — do not retry the same route:
   not used (read CBS's full city table when reachable; cbs.gov.il does
   not answer from the sandbox, the PDF came via WebFetch). Hebrew RTL text
   layer is scrambled → read from the rendered page image.
+  nadlan.gov.il (Tax Authority deals, every sale) → its API
+  (api.nadlan.gov.il) sits behind reCAPTCHA Enterprise → not used.
 
 ## Africa (Sept 2026, Claude B)
 
