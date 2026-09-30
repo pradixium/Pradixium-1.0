@@ -1336,6 +1336,41 @@ in bounded, verified batches rather than one unverifiable sweep is the
 right pace to keep the honesty bar real; say so plainly if the user wants
 the rest pushed further in a future session.
 
+**Fourth batch (Sept 30 2026): 3 more, 62 → 65.** Added Kenya (`WORKAROUND
+REQUIRED` — Constitution of Kenya 2010, Sixth Schedule Article 8(1), a
+non-citizen's freehold reverts to a 99-year peppercorn leasehold; sourced
+via the Embassy of Kenya, Washington DC's own published PDF since the
+national legislation portal (new.kenyalaw.org) was unreachable from this
+session's network — same egress-block pattern already seen elsewhere in
+this file), Bahamas (`OPEN` — International Persons Landholding Act 1993;
+an ordinary single-family home/condo purchase is registration-only, no
+advance permit, via FAOLEX's copy of the Act since laws.bahamas.gov.bs
+wasn't reachable either), and Dominican Republic (`OPEN` — Foreign
+Investment Law 16-95 + Real Estate Registration Law 108-05, CEI-RD; equal
+treatment for foreign buyers, well-corroborated across many independent
+sources though CEI-RD's own site returned a DNS failure from this
+session). Researched via a subagent under a strict official-source-only
+brief, then cross-checked myself with follow-up searches before writing
+anything — this file's honesty bar applies to the verification step
+itself, not just the final entry.
+
+**Two more researched and deliberately NOT shipped this batch:** Nigeria
+and Ukraine. Nigeria's Land Use Act 1978 has no express foreigner
+restriction in its own text; secondary legal-analysis sources disagree
+with each other on whether foreigners can hold land at all (one line of
+analysis says yes with Governor's consent like any buyer, another says no
+foreigner can own land outright) — genuinely unresolved, not just
+unreachable, so it stays silent rather than picking a side. Ukraine's Land
+Code (Articles 81–82, allowing non-agricultural real estate but not
+agricultural land) is well-documented but zakon.rada.gov.ua was blocked
+by this session's network egress, and — separately — wartime martial law
+has affected the State Land Cadastre's actual operation since Feb 2022;
+given both an unverifiable primary source and a genuinely unstable
+real-world situation, this one needs a session that can reach the
+official portal and re-check current wartime procedure, not a guess from
+secondary sources. "60/62/65 countries" copy updated again, in the same
+3 pages.
+
 ## For the other session (Claude B): Georgia data gap flagged (Sept 2026)
 
 The user is specifically interested in Georgia (the country) as a hot,
