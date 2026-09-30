@@ -790,7 +790,7 @@
   // uses below, taking an explicit loan/rate/term instead of the
   // residential default assumption.
   function annualDebtService(loanAmount, ratePct, years) {
-    if (!loanAmount || !ratePct || !years) return null;
+    if (!loanAmount || ratePct == null || !years) return null;
     const monthlyRate = ratePct / 100 / 12;
     const numPayments = years * 12;
     if (monthlyRate === 0) return loanAmount / years;
@@ -1193,10 +1193,27 @@
       }
     } catch (e) {
       console.warn("Pradixium: AI analysis failed, rule-based figures remain", e);
+      // Clears every section the try block above can populate -- otherwise
+      // a failed re-analysis of a NEW property leaves the PREVIOUS
+      // property's Reality Check verdict, foreign-buyer rules, closing
+      // costs, tax and currency-control figures on screen (and in any
+      // report built from these same globals), which is exactly the kind
+      // of stale/misattributed number this project's data-honesty rule
+      // exists to prevent.
       renderMarketEvidence(inputs.country, null);
       renderComparableSales(null);
       renderOfficialChecks(null);
       renderDemandIntelligence(null);
+      renderForeignBuyerAccess(null, inputs.country);
+      renderClosingCosts(null);
+      renderPropertyTax(null);
+      renderCurrencyControls(null);
+      renderRealityCheck(null);
+      window.pradixiumAnalysisPaid = false;
+      window.pradixiumLastScore = null;
+      window.pradixiumLastComparableSales = null;
+      window.pradixiumLastCurrencyControls = null;
+      window.pradixiumLastRealityCheck = null;
       set("investorAction", "AI analysis unavailable right now — figures above are calculated directly from the numbers you entered.");
       set("fairValue", "—");
     } finally {
@@ -1647,7 +1664,14 @@
       // actually earned.
       const quota = await checkMonthlyQuota();
       if (quota.active && quota.remaining > 0 && (await consumeMonthlySlot(data))) {
-        await attachWatermark(data);
+        // The slot is now spent, so /api/orchestrator's entitlement check
+        // will see it and return the unlocked agent result -- without this,
+        // `data` is still the pre-payment snapshot built while unpaid, and
+        // the report would open on the 🔒 placeholders despite the slot
+        // having just been consumed for real.
+        if (!(await loadFullReport())) { alert(FULL_REPORT_DELAYED); return; }
+        const full = JSON.parse(localStorage.getItem("pradixiumReportData") || "null") || data;
+        await attachWatermark(full);
         window.location.href = "/report.html";
         return;
       }
