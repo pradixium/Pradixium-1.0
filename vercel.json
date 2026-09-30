@@ -4,7 +4,8 @@
       "includeFiles": "lib/data/indiana/**"
     },
     "api/orchestrator.js": {
-      "maxDuration": 60
+      "maxDuration": 60,
+      "includeFiles": "lib/data/serbiaPrices.json"
     },
     "api/market-data.js": {
       "includeFiles": "lib/data/spainZones/**"
@@ -20,6 +21,18 @@
     },
     "api/germany-intelligence.js": {
       "includeFiles": "lib/data/germany/**"
+    },
+    "api/regional-fixture-intelligence.js": {
+      "includeFiles": "lib/data/serbiaPrices.json"
+    },
+    "api/chat.js": {
+      "includeFiles": "lib/data/serbiaPrices.json"
+    },
+    "api/global-index.js": {
+      "includeFiles": "lib/data/serbiaPrices.json"
+    },
+    "api/pending-intelligence.js": {
+      "includeFiles": "lib/data/serbiaPrices.json"
     }
   }
 }

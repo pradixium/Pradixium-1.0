@@ -685,6 +685,23 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
         priceTrendPercent: raw.annualChangePercent ?? null
       };
     }
+    // a national median is never a town's benchmark; Statbel's own
+    // "too few sales" note (Brussels detached houses) → context only
+    if (!region || raw.volatilityNote) {
+      return {
+        benchmarkValue: null,
+        benchmarkUnit: "total",
+        benchmarkLabel: region ? `Statbel Median Price (${region}) — context only` : "Statbel Median Price (National) — context only",
+        governmentValue: null,
+        transactionValue: null,
+        transactionPeriod: raw.period ?? null,
+        marketArea: region ? `${region} — too few sales for a reliable figure, not applied` : `${countryLabel(country)} — town not matched to a Belgian region; national figure not applied`,
+        source: `Statbel (${raw.period}): ${region || "Belgium"} median ${raw.medianPrice != null ? "€" + raw.medianPrice.toLocaleString("en-US") : "n/a"} per ${bucket || "home"}${raw.annualChangePercent != null ? `, ${raw.annualChangePercent >= 0 ? "+" : ""}${raw.annualChangePercent}% YoY` : ""}${raw.volatilityNote ? ` — ${raw.volatilityNote}` : " — a national figure, shown as context only"}.`,
+        sourceUrl: raw.sourceUrls?.statbel || null,
+        coverage: "none",
+        priceTrendPercent: raw.volatilityNote ? (raw.nationalAnnualChangePercent ?? null) : (raw.annualChangePercent ?? null)
+      };
+    }
     return {
       benchmarkValue: raw.medianPrice ?? null,
       benchmarkUnit: "total",
@@ -1065,8 +1082,10 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
     // a figure for flats only (Iceland's 60–90 m² flats, Finland's housing
     // companies) is not a house's benchmark
     const wantsHouseType = /house|villa|detached|chalet/i.test(String(propertyType || "")) && !/apart|flat/i.test(String(propertyType || ""));
-    const flatsOnly = Boolean(recent && wantsHouseType && /apartment|flats?\b|housing compan|multi-d|ejerlejlighed/i.test(`${recent.basis || ""} ${recent.source || ""}`));
-    const fit = recent && !national && !flatsOnly ? recentAreaFits(recent.area, property?.city || raw.city) : false;
+    const flatsOnly = Boolean(recent && wantsHouseType && (recent.appliesTo === "flats" || /apartment|flats?\b|housing compan|multi-d|ejerlejlighed|condominium|stockwerkeigentum/i.test(`${recent.basis || ""} ${recent.source || ""}`)));
+    // a figure whose source does not say which homes it covers is context only
+    const typeUnstated = recent?.appliesTo === "unstated";
+    const fit = recent && !national && !flatsOnly && !typeUnstated ? recentAreaFits(recent.area, property?.city || raw.city) : false;
     if (recent && national) {
       // a whole country's average says nothing about one town (Amsterdam vs
       // the Dutch average) → named as context, never the verdict
@@ -1093,7 +1112,9 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
         transactionValue: null,
         transactionPeriod: hpi.period ?? hpi.quarter ?? null,
         marketArea: `${countryLabel(country)} — no official price figure for ${property?.city || "this city"} yet`,
-        source: flatsOnly
+        source: typeUnstated
+          ? `${trendSource}. Official figure on file (${recent.source}, ${recent.area}, ${recent.period}): ${Math.round(recent.value).toLocaleString("en-US")}${recent.unit === "perSqm" ? " per m²" : " per home"} — the published table does not state which home types it covers, so it is context only.${localNote}`
+          : flatsOnly
           ? `${trendSource}. The official price figure on file (${recent.source}, ${recent.area}) covers flats only — not applied to a house.${localNote}`
           : `${trendSource}. The official price figure on file covers ${recent.area} only (${recent.source}) — not applied to ${property?.city || "this city"}.${localNote}`,
         coverage: "national",
@@ -1123,8 +1144,8 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
       transactionPeriod: lp?.status === "context" && lp.period ? lp.period : deReg && deChange != null ? deReg.period : (hpi.period ?? hpi.quarter ?? null),
       // Dubai's index isn't a UAE-wide figure — say so rather than implying
       // national coverage the source doesn't have.
-      marketArea: c === "united arab emirates" ? "Dubai only — other emirates not covered" : deReg && deChange != null && !deReg.national && c !== "germany" ? `${deReg.area} — official price trend; no official price level is published` : lp?.status === "context" && lp.area ? (lp.marketArea || `${lp.area} — official figure on another basis, not applied (see source)`) : `${countryLabel(country)} — city-level data not yet connected`,
-      source: `${trendSource}${localNote ? "." + localNote : ""}`,
+      marketArea: c === "united arab emirates" ? (raw.status === "NO_CURRENT_OFFICIAL_SOURCE" ? "United Arab Emirates — no current official price source reachable" : "Dubai only — other emirates not covered") : deReg && deChange != null && !deReg.national && c !== "germany" ? `${deReg.area} — official price trend; no official price level is published` : lp?.status === "context" && lp.area ? (lp.marketArea || `${lp.area} — official figure on another basis, not applied (see source)`) : `${countryLabel(country)} — city-level data not yet connected`,
+      source: c === "united arab emirates" && raw.status === "NO_CURRENT_OFFICIAL_SOURCE" ? raw.message : `${trendSource}${localNote ? "." + localNote : ""}`,
       coverage: "national",
       priceTrendPercent: change ?? null
     };
@@ -1177,11 +1198,11 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
     // a city's figure applies only to that city; a national figure is
     // context, never a town's benchmark (same rule as recentAreaFits above)
     const where = property?.city || raw.city || "";
-    const fits = raw.cityName ? recentAreaFits(raw.cityName, where) : false;
+    const fits = raw.regionMatch ? true : raw.cityName ? recentAreaFits(raw.cityName, where) : false;
     if (!fits) {
       const cityTxt = raw.cityName && raw.cityBenchmarkValue != null ? ` The official figure on file covers ${raw.cityName} only (${Math.round(raw.cityBenchmarkValue).toLocaleString("en-US")} per m²) — not applied to ${where || "this place"}.` : "";
       const natTxt = raw.nationalBenchmarkValue != null ? ` National average ${Math.round(raw.nationalBenchmarkValue).toLocaleString("en-US")}${raw.benchmarkUnit === "total" ? " per home" : " per m²"} — whole-country context only.` : "";
-      const nat = raw.nationalChangePercent ?? null;
+      const nat = raw.changeIsMonthly ? null : (raw.nationalChangePercent ?? null);
       return {
         benchmarkValue: null,
         benchmarkUnit: raw.benchmarkUnit || "perSqm",
@@ -1195,8 +1216,29 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
         priceTrendPercent: nat
       };
     }
+    // a figure for flats only is never a house's benchmark; offer (asking)
+    // prices are never a benchmark; a month-on-month change is never shown
+    // as the yearly trend
+    const kindRF = /apart|flat|studio|penthouse|condo/i.test(propertyType || "") ? "flats" : /house|villa|town|home/i.test(propertyType || "") ? "houses" : null;
+    const trendRF = raw.changeIsMonthly ? null : (raw.cityChangePercent ?? raw.nationalChangePercent ?? null);
+    if (raw.askingPrices || (raw.flatsOnly && kindRF === "houses")) {
+      const why = raw.askingPrices ? "built from OFFER (asking) prices, not closed sales — shown as context, never as the benchmark" : "for apartments only — not applied to a house";
+      return {
+        benchmarkValue: null,
+        benchmarkUnit: raw.benchmarkUnit || "perSqm",
+        benchmarkLabel: `${countryLabel(country)} official figure (context only)`,
+        governmentValue: null,
+        transactionValue: null,
+        transactionPeriod: raw.period ?? null,
+        marketArea: `${raw.cityName || countryLabel(country)} — official figure ${raw.askingPrices ? "from asking prices" : "for apartments only"}, not applied`,
+        source: `${raw.sources?.official || countryLabel(country)}: ${raw.cityName || countryLabel(country)} ${Math.round(raw.cityBenchmarkValue).toLocaleString("en-US")}${raw.benchmarkUnit === "total" ? " per home" : " per m²"} (${raw.period}) — ${why}.${trendRF != null ? ` Change ${trendRF >= 0 ? "+" : ""}${trendRF}% on a year earlier.` : ""}${raw.coverageNote ? ` ${raw.coverageNote}` : ""}`,
+        sourceUrl: raw.sourceUrls?.official || null,
+        coverage: "city",
+        priceTrendPercent: trendRF
+      };
+    }
     const benchmarkValue = raw.cityBenchmarkValue ?? null;
-    const changePercent = raw.cityChangePercent ?? raw.nationalChangePercent ?? null;
+    const changePercent = trendRF;
     const area = raw.cityName || countryLabel(country);
     return {
       benchmarkValue,
@@ -1206,7 +1248,8 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
       transactionValue: null,
       transactionPeriod: raw.period ?? null,
       marketArea: area,
-      source: `${raw.sources?.official || countryLabel(country)}${changePercent != null ? ` — ${changePercent >= 0 ? "+" : ""}${changePercent}% YoY` : ""}${raw.coverageNote ? ` (${raw.coverageNote})` : ""}`,
+      source: `${raw.sources?.official || countryLabel(country)}${changePercent != null ? ` — ${raw.cityChangePercent == null && raw.cityName ? "national " : ""}${changePercent >= 0 ? "+" : ""}${changePercent}% YoY` : ""}${raw.coverageNote ? ` (${raw.coverageNote})` : ""}`,
+      sourceUrl: raw.sourceUrls?.official || null,
       coverage: benchmarkValue != null ? "city" : "national",
       priceTrendPercent: changePercent ?? null
     };

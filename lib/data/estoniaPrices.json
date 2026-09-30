@@ -1,0 +1,11 @@
+{
+ "source": "Maa- ja Ruumiamet (Estonian Land and Spatial Board) — Kinnisvaraturg ja hinnaindeksid 2026 I kvartalis (from its transaction database)",
+ "sourceUrl": "https://maaruum.ee/sites/default/files/documents/2026-04/Kvartali%20%C3%BClevaade%202026%20I.pdf",
+ "period": "Q1 2026",
+ "tallinnResale": { "value": 2971, "yoy": 5.9 },
+ "tallinnNew": { "value": 4583, "yoy": 8 },
+ "restResale": 1352,
+ "restNew": 3342,
+ "twoRoomResale": { "Tallinn": 2891, "Kesklinn": 3827, "Lasnamäe": 2485, "Mustamäe": 2676, "Tartu": 2400, "Pärnu": 1988 },
+ "twoRoomNew": { "Tallinn": 4533, "Pirita": 6302, "Kesklinn": 5298, "Haabersti": 3931, "Mustamäe": 4308, "Tartu": 4338, "Pärnu": 3815 }
+}

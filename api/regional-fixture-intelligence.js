@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
 /* PRADIXIUM™ — REGIONAL FIXTURE INTELLIGENCE ENGINE
  * Shared adapter for markets worldwide whose official (or, where noted,
  * most authoritative industry) statistics body publishes real figures,
@@ -69,17 +71,6 @@ const FIXTURES = {
     source: "National Statistics Office of Georgia (Geostat) — Residential Property Price Index, Q2 2026",
     officialSource: "https://www.geostat.ge/media/81560/Residential-Property-Price-Index---II-quarter-of-2026.pdf"
   },
-  serbia: {
-    country: "Serbia",
-    period: "2025-Q3",
-    nationalChangePercent: 6.0,
-    cityName: "Belgrade",
-    cityChangePercent: 6.55,
-    cityBenchmarkValue: 2517,
-    benchmarkUnit: "perSqm",
-    source: "Republic Geodetic Authority (RGZ) — Apartment Price Index, Q3 2025",
-    officialSource: "https://www.rgz.gov.rs/rga-apartment-price-index"
-  },
   "bosnia and herzegovina": {
     country: "Bosnia and Herzegovina",
     period: "2024",
@@ -89,17 +80,27 @@ const FIXTURES = {
     source: "Agency for Statistics of Bosnia and Herzegovina — average price of new-build dwellings, 2024",
     officialSource: "https://bhas.gov.ba/"
   },
+  // MONSTAT "Cijene stanova u novogradnji" (quarterly, from signed purchase
+  // contracts of NEW flats sold for the first time — resale flats and houses
+  // are not covered). Regions as MONSTAT defines them (release footnote 1).
+  // Q2 2026 release 20.08.2026 vs the Q2 2025 release. The central region
+  // doubled (1,068 → 2,131: a composition swing) → no trend shown for it.
   montenegro: {
     country: "Montenegro",
-    period: "2025-Q3",
-    nationalChangePercent: 23.2,
-    cityName: "Coastal municipalities",
-    cityChangePercent: 23.2,
-    cityBenchmarkValue: 2458,
+    period: "2026-Q2",
+    nationalChangePercent: 16.2,
+    nationalBenchmarkValue: 2557,
     benchmarkUnit: "perSqm",
-    coverageNote: "Figure covers Montenegro's coastal municipalities (the primary foreign-buyer market), not the national average.",
-    source: "Statistical Office of Montenegro (MONSTAT) — residential property prices, Q3 2025",
-    officialSource: "https://www.monstat.org/eng/"
+    flatsOnly: true,
+    regions: [
+      { name: "Podgorica (capital)", towns: ["podgorica"], value: 2510, prev: 2108, change: 19.1 },
+      { name: "Coastal region (Bar, Budva, Herceg Novi, Kotor, Tivat, Ulcinj)", towns: ["bar", "budva", "herceg novi", "kotor", "tivat", "ulcinj", "petrovac", "sveti stefan", "becici", "rafailovici", "przno", "igalo", "risan", "perast", "dobrota", "prcanj", "lustica", "sutomore", "susanj"], value: 2838, prev: 2333, change: 21.6 },
+      { name: "Central region (Cetinje, Danilovgrad, Nikšić, Tuzi, Zeta)", towns: ["cetinje", "danilovgrad", "niksic", "tuzi", "zeta", "golubovci"], value: 2131, prev: 1068, change: null },
+      { name: "Northern region", towns: ["andrijevica", "berane", "bijelo polje", "gusinje", "kolasin", "mojkovac", "petnjica", "plav", "pljevlja", "pluzine", "rozaje", "savnik", "zabljak"], value: 2145, prev: 1547, change: null }
+    ],
+    coverageNote: "New-build flats sold for the first time (developers' signed purchase contracts) — resale flats are not in MONSTAT's series; houses not covered.",
+    source: "Statistical Office of Montenegro (MONSTAT) — Cijene stanova u novogradnji (prices of new flats), Q2 2026",
+    officialSource: "https://monstat.org/uploads/files/gradjevinarstvo/Cijene%20stanova%20u%20novogradnji/2026/2/Cijene%20stanova%20u%20novogradnji_II_kvartal_2026.pdf"
   },
   "north macedonia": {
     country: "North Macedonia",
@@ -250,22 +251,23 @@ const FIXTURES = {
     cityChangePercent: 12.1,
     cityBenchmarkValue: 1868,
     benchmarkUnit: "perSqm",
+    flatsOnly: true,
     coverageNote: "Covers middle/upper-income Lima districts only, in USD. Prime districts run well above this: Barranco $2,463/m², Miraflores $2,400/m², San Isidro $2,273/m² this quarter — no verified nationwide Peru figure.",
     source: "Banco Central de Reserva del Perú (BCRP) — apartment sale price indicator, Q4 2025",
     officialSource: "https://www.bcrp.gob.pe/estadisticas/indicador-de-precios-de-venta-de-departamentos.html"
   },
+  // INE's own release page (21 Sept 2026): median USD price of all property
+  // sales, June 2026, 12-month change −5.56%. The Montevideo level could not
+  // be re-read (INE's report host answered 503) → the Feb 2025 figure that
+  // was here (19 months old) is dropped; national trend only.
   uruguay: {
     country: "Uruguay",
-    period: "2025-02",
-    nationalChangePercent: 8.65,
-    nationalBenchmarkValue: 85000,
-    cityName: "Montevideo",
-    cityChangePercent: 5.5,
-    cityBenchmarkValue: 115000,
+    period: "2026-06",
+    nationalChangePercent: -5.56,
     benchmarkUnit: "total",
-    coverageNote: "Median real estate transaction price in USD (converted at Banco República's daily selling rate), not price per m² — INE's compraventa (purchase-sale) indicator for horizontal property. Change percent is month-over-month, not year-over-year. The interior of the country (outside Montevideo) recorded USD 68,000, +13.33% MoM this period.",
-    source: "Instituto Nacional de Estadística (INE) — Indicadores de Actividad Inmobiliaria (IAI), Mercado de Compraventa, February 2025",
-    officialSource: "https://www.gub.uy/instituto-nacional-estadistica/tematica/iai-compraventa"
+    coverageNote: "12-month change of INE's median USD price of all registered property sales (June 2026); no current local price level is on file",
+    source: "Instituto Nacional de Estadística (INE) — Indicadores de Actividad Inmobiliaria (IAI), Mercado de Compraventa, July 2026 release (June 2026 data)",
+    officialSource: "https://www.gub.uy/instituto-nacional-estadistica/comunicacion/publicaciones/indicadores-actividad-inmobiliaria-iai-mercado-compraventa-julio-2026"
   },
   "dominican republic": {
     country: "Dominican Republic",
@@ -275,6 +277,8 @@ const FIXTURES = {
     cityChangePercent: 12.2,
     cityBenchmarkValue: 122699,
     benchmarkUnit: "perSqm",
+    flatsOnly: true,
+    askingPrices: true,
     coverageNote: "Covers apartments in the Metropolitan Region (Gran Santo Domingo) only, in Dominican pesos (RD$) — no verified nationwide figure. Sourced from ONE's Registro de Oferta de Edificaciones (registered building supply), not confirmed closed-sale transactions. Prices vary sharply by municipality: Santo Domingo (Distrito Nacional) RD$132,730/m² down to Los Alcarrizos RD$31,738/m²; within Santo Domingo, Piantini tops out around RD$172,377/m².",
     source: "Oficina Nacional de Estadística (ONE) — Registro de Oferta de Edificaciones (ROE), H1 2026",
     officialSource: "https://www.one.gob.do/"
@@ -358,8 +362,40 @@ function normalizeCountry(value) {
 // Reused by api/global-index.js to build the Pradixium Global Index from
 // this same dated-fixture data, without duplicating it or triggering an
 // HTTP round-trip to this endpoint's own handler.
+// Serbia: RGZ quarterly report (Register of Real Estate Prices) — median
+// €/m² of flats sold per city and per Belgrade inner municipality
+// (lib/data/serbiaPrices.json ← scripts/build-rs-prices.py). Built into a
+// regions fixture: a Belgrade municipality first (Palilula / Stari grad only
+// together with "Beograd" — Niš has a Palilula too), then the city.
+let rsDoc;
+function serbiaFixture() {
+  if (rsDoc === undefined) { try { rsDoc = JSON.parse(readFileSync(path.join(process.cwd(), "lib", "data", "serbiaPrices.json"), "utf8")); } catch { rsDoc = null; } }
+  if (!rsDoc) return null;
+  const key = (x) => x.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "dj").replace(/[^a-z0-9]+/g, " ").trim();
+  const q = rsDoc.quarter.replace(/^([IV]+) (\d{4})$/, (m, r, y) => `${y}-Q${{ I: 1, II: 2, III: 3, IV: 4 }[r]}`);
+  const row = (name, e, extra = {}) => ({ name, value: e.all.median, change: e.all.yoy, prev: null, sales: e.all.sales,
+    note: `median of ${e.all.sales} flat sales; existing flats €${e.existing.median?.toLocaleString("en-US") ?? "—"}/m², new flats €${e.new.median?.toLocaleString("en-US") ?? "—"}/m²`, ...extra });
+  const regions = [];
+  for (const [n, e] of Object.entries(rsDoc.belgrade)) {
+    const k = key(n), needCity = k === "palilula" || k === "stari grad";
+    regions.push(row(`${n} (Belgrade)`, e, { towns: [k, ...(k === "stara rakovica" ? ["rakovica"] : [])], requires: needCity ? ["beograd", "belgrade"] : null }));
+  }
+  for (const [n, e] of Object.entries(rsDoc.cities)) {
+    const k = key(n);
+    regions.push(row(n === "Beograd" ? "Belgrade (inner urban area)" : n, e, { towns: n === "Beograd" ? ["beograd", "belgrade"] : [k] }));
+  }
+  const bg = rsDoc.cities.Beograd;
+  return {
+    country: "Serbia", period: q, nationalChangePercent: null, benchmarkUnit: "perSqm", flatsOnly: true, regions,
+    coverageNote: `Median price per m² of flats sold (RGZ Register of Real Estate Prices), change on the same quarter a year earlier. ${rsDoc.belgradeNote}. Houses are not in these city tables.`,
+    source: rsDoc.source, officialSource: rsDoc.sourceUrl, _belgrade: bg
+  };
+}
+
 export function getRegionalFixture(country) {
-  const fixture = FIXTURES[normalizeCountry(country)];
+  const c = normalizeCountry(country);
+  const fixture = c === "serbia" ? serbiaFixture() : FIXTURES[c];
+  if (fixture && c === "serbia" && fixture._belgrade) return { ...fixture, cityName: "Belgrade", cityChangePercent: fixture._belgrade.all.yoy };
   return fixture ? { ...fixture } : null;
 }
 
@@ -368,8 +404,16 @@ export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
 
   const country = normalizeCountry(req.query?.country);
-  const fixture = FIXTURES[country];
+  const fixture = country === "serbia" ? serbiaFixture() : FIXTURES[country] ? { ...FIXTURES[country] } : null;
   const city = String(req.query?.city || "").trim() || null;
+
+  // a fixture with official regions (Montenegro): the town's own region
+  if (fixture?.regions) {
+    const w = ` ${[city, req.query?.address].filter(Boolean).join(" ").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, " ")} `;
+    const r = fixture.regions.find((x) => x.towns.some((t) => w.includes(` ${t} `)) && (!x.requires || x.requires.some((t) => w.includes(` ${t} `))));
+    if (r) Object.assign(fixture, { cityName: r.name, cityBenchmarkValue: r.value, cityChangePercent: r.change, regionMatch: true,
+      coverageNote: `${fixture.coverageNote} ${r.name}: €${r.value.toLocaleString("en-US")}/m²${r.note ? ` (${r.note})` : ""}${r.prev != null ? ` (a year earlier: €${r.prev.toLocaleString("en-US")}/m²)` : ""}${r.change == null ? " — the change is not shown: too few sales for a stable comparison" : ""}.` });
+  }
 
   if (!fixture) {
     return res.status(404).json({ success: false, error: "Country not covered by the regional fixture adapter" });
@@ -393,6 +437,10 @@ export default async function handler(req, res) {
       nationalTypeTrends: fixture.nationalTypeTrends ?? null,
       cityQuarterly: fixture.cityQuarterly ?? null,
       typeNote: fixture.typeNote ?? null,
+      flatsOnly: fixture.flatsOnly ?? false,
+      askingPrices: fixture.askingPrices ?? false,
+      changeIsMonthly: fixture.changeIsMonthly ?? false,
+      regionMatch: fixture.regionMatch ?? false,
       cityLevelStatus: "REGIONAL_DATA_LAYER_PENDING",
       sources: { official: fixture.source },
       sourceUrls: { official: fixture.officialSource },

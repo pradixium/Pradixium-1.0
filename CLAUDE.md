@@ -859,6 +859,43 @@ servers → not used. Check: Lieusaint 66/86 matched, C €3,222 (23), D €3,18
   transaction file (nekustama-ipasuma-tirgus-datu-bazes-atvertie-dati)
   has no market-sale flag → not used for our own statistics. Re-run each
   February.
+- Live audit fixes (Sept 30 2026, all 91 dropdown countries × flat/house
+  run against production; `/tmp` audit script, re-run after big changes):
+  - Regional fixtures now carry `flatsOnly` (Serbia, Montenegro, Peru,
+    Dominican Rep.) — a flat figure is never a house's benchmark;
+    `askingPrices` (Dominican Rep. ONE ROE = offer prices → context only);
+    `changeIsMonthly` (never shown as the YoY trend). recentTransactionPrices
+    entries may carry `appliesTo: "flats" | "unstated"` (Croatia flats;
+    Slovakia "unstated": NBS's JS-rendered regional table could not be
+    re-checked for flats vs all homes → context only). The flats regex also
+    knows "condominium / Stockwerkeigentum" (Zurich was applied to houses).
+  - Serbia: `scripts/build-rs-prices.py` → lib/data/serbiaPrices.json — RGZ
+    quarterly report (Register of Real Estate Prices) Tables 10–11: median
+    €/m² of flats per city (28) and per Belgrade inner cadastral
+    municipality (10), YoY, sales; existing/new split as context. Built into
+    a `regions` fixture (Palilula / Stari grad need "Beograd" — Niš has a
+    Palilula). Q2 2026: Belgrade 3,245 (2,717 sales), Vračar 3,558, Novi Sad
+    2,420. Re-run each quarter (file name on rgz.gov.rs "Квартални …").
+  - Montenegro: MONSTAT "Cijene stanova u novogradnji" Q2 2026 by MONSTAT
+    region (footnote 1 lists the municipalities): coastal 2,838 (+21.6% vs
+    Q2 2025 2,333), Podgorica 2,510 (+19.1%), central/northern no trend
+    (composition swings). NEW flats from signed contracts only.
+  - Uruguay: the Feb 2025 Montevideo figure (19 months old, MoM change shown
+    as YoY) removed; INE release page: national median −5.56% 12-month
+    (June 2026). INE's report host (www5.ine.gub.uy) has a broken TLS chain /
+    503 → the Montevideo level could not be refreshed.
+  - Belgium: a town not matched to a region no longer gets the NATIONAL
+    median as benchmark; Brussels detached (Statbel's own "too few sales")
+    → context. statbel.fgov.be pages sit behind an F5 bot challenge (not
+    bypassed); bestat API has no per-municipality price views.
+  - Estonia: `estonia` resolver ← lib/data/estoniaPrices.json (hand copy of
+    the Land Board's quarterly review): Tallinn resale flats 2,971 (+5.9%);
+    2-room (40–55 m²) resale figures for Tartu 2,400, Pärnu 1,988 and some
+    Tallinn districts → benchmark only for a 40–55 m² flat; no house prices.
+  - Munich: Halbjahresreport 2026 (semi/terraced resale 7,950/7,500/7,650;
+    new flats 9,800/10,550 context). Resale flats still chart-only.
+  - UAE: no fetch any more (Dubai Pulse resets connections, dataset last
+    updated Apr 2024) — each report had waited ~11 s; honest message now.
 - Checked Sept 30 2026, not usable: Dubai — DLD transaction search behind
   reCAPTCHA; its indexes GraphQL (gateway.dubailand.gov.ae/indexes-api) is
   open but publicly WRITABLE (full of test/pentest rows) → not a verifiable

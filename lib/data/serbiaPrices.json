@@ -1,0 +1,770 @@
+{
+ "source": "Republički geodetski zavod (RGZ) — Kvartalni izveštaj o stanju na tržištu nepokretnosti, II 2026 (Register of Real Estate Prices)",
+ "sourceUrl": "https://www.rgz.gov.rs/content/docs/000/000/007/%D0%9A%D0%B2%D0%B0%D1%80%D1%82%D0%B0%D0%BB%D0%BD%D0%B8%20%D0%B8%D0%B7%D0%B2%D0%B5%D1%88%D1%82%D0%B0%D1%98%20II%202026.pdf",
+ "quarter": "II 2026",
+ "belgradeNote": "Belgrade = the cadastral municipalities of the inner urban area (Stari grad, Vračar, Savski venac, Novi Beograd, Zvezdara, Palilula, Voždovac, Zemun, Čukarica, Stara Rakovica)",
+ "cities": {
+  "Beograd": {
+   "all": {
+    "median": 3245.0,
+    "mean": 3230.0,
+    "yoy": 14.33,
+    "sales": 2717
+   },
+   "existing": {
+    "median": 3231.0,
+    "mean": 3246.0,
+    "yoy": 15.69,
+    "sales": 1644
+   },
+   "new": {
+    "median": 3281.0,
+    "mean": 3207.0,
+    "yoy": 12.05,
+    "sales": 1073
+   }
+  },
+  "Novi Sad": {
+   "all": {
+    "median": 2420.0,
+    "mean": 2411.0,
+    "yoy": 9.54,
+    "sales": 1276
+   },
+   "existing": {
+    "median": 2473.0,
+    "mean": 2481.0,
+    "yoy": 13.44,
+    "sales": 677
+   },
+   "new": {
+    "median": 2350.0,
+    "mean": 2332.0,
+    "yoy": 4.81,
+    "sales": 599
+   }
+  },
+  "Niš": {
+   "all": {
+    "median": 1800.0,
+    "mean": 1779.0,
+    "yoy": 14.56,
+    "sales": 608
+   },
+   "existing": {
+    "median": 1846.0,
+    "mean": 1812.0,
+    "yoy": 27.34,
+    "sales": 268
+   },
+   "new": {
+    "median": 1760.0,
+    "mean": 1753.0,
+    "yoy": 5.25,
+    "sales": 340
+   }
+  },
+  "Užice": {
+   "all": {
+    "median": 1610.0,
+    "mean": 1713.0,
+    "yoy": 21.39,
+    "sales": 80
+   },
+   "existing": {
+    "median": 1308.0,
+    "mean": 1256.0,
+    "yoy": 10.98,
+    "sales": 30
+   },
+   "new": {
+    "median": 1924.0,
+    "mean": 1988.0,
+    "yoy": 15.56,
+    "sales": 50
+   }
+  },
+  "Kragujevac": {
+   "all": {
+    "median": 1576.0,
+    "mean": 1612.0,
+    "yoy": 12.87,
+    "sales": 298
+   },
+   "existing": {
+    "median": 1557.0,
+    "mean": 1584.0,
+    "yoy": 19.31,
+    "sales": 137
+   },
+   "new": {
+    "median": 1595.0,
+    "mean": 1636.0,
+    "yoy": 6.91,
+    "sales": 161
+   }
+  },
+  "Pančevo": {
+   "all": {
+    "median": 1600.0,
+    "mean": 1603.0,
+    "yoy": 16.9,
+    "sales": 298
+   },
+   "existing": {
+    "median": 1561.0,
+    "mean": 1534.0,
+    "yoy": 20.5,
+    "sales": 129
+   },
+   "new": {
+    "median": 1608.0,
+    "mean": 1656.0,
+    "yoy": 11.93,
+    "sales": 169
+   }
+  },
+  "Šabac": {
+   "all": {
+    "median": 1593.0,
+    "mean": 1563.0,
+    "yoy": 18.08,
+    "sales": 121
+   },
+   "existing": {
+    "median": 1549.0,
+    "mean": 1525.0,
+    "yoy": 18.82,
+    "sales": 70
+   },
+   "new": {
+    "median": 1601.0,
+    "mean": 1614.0,
+    "yoy": 15.18,
+    "sales": 51
+   }
+  },
+  "Sremska Mitrovica": {
+   "all": {
+    "median": 1538.0,
+    "mean": 1413.0,
+    "yoy": 7.41,
+    "sales": 72
+   },
+   "existing": {
+    "median": 1171.0,
+    "mean": 1181.0,
+    "yoy": -0.07,
+    "sales": 36
+   },
+   "new": {
+    "median": 1634.0,
+    "mean": 1645.0,
+    "yoy": 10.82,
+    "sales": 36
+   }
+  },
+  "Čačak": {
+   "all": {
+    "median": 1430.0,
+    "mean": 1404.0,
+    "yoy": 10.35,
+    "sales": 133
+   },
+   "existing": {
+    "median": 1360.0,
+    "mean": 1340.0,
+    "yoy": 15.16,
+    "sales": 70
+   },
+   "new": {
+    "median": 1430.0,
+    "mean": 1475.0,
+    "yoy": 6.22,
+    "sales": 63
+   }
+  },
+  "Subotica": {
+   "all": {
+    "median": 1421.0,
+    "mean": 1399.0,
+    "yoy": 13.92,
+    "sales": 307
+   },
+   "existing": {
+    "median": 1297.0,
+    "mean": 1298.0,
+    "yoy": 12.44,
+    "sales": 158
+   },
+   "new": {
+    "median": 1536.0,
+    "mean": 1506.0,
+    "yoy": 14.78,
+    "sales": 149
+   }
+  },
+  "Kraljevo": {
+   "all": {
+    "median": 1422.0,
+    "mean": 1382.0,
+    "yoy": 7.13,
+    "sales": 88
+   },
+   "existing": {
+    "median": 1324.0,
+    "mean": 1314.0,
+    "yoy": 14.8,
+    "sales": 53
+   },
+   "new": {
+    "median": 1430.0,
+    "mean": 1485.0,
+    "yoy": -2.68,
+    "sales": 35
+   }
+  },
+  "Zrenjanin": {
+   "all": {
+    "median": 1358.0,
+    "mean": 1350.0,
+    "yoy": 17.33,
+    "sales": 105
+   },
+   "existing": {
+    "median": 1258.0,
+    "mean": 1295.0,
+    "yoy": 25.29,
+    "sales": 70
+   },
+   "new": {
+    "median": 1450.0,
+    "mean": 1460.0,
+    "yoy": 12.54,
+    "sales": 35
+   }
+  },
+  "Valjevo": {
+   "all": {
+    "median": 1297.0,
+    "mean": 1332.0,
+    "yoy": 10.22,
+    "sales": 84
+   },
+   "existing": {
+    "median": 1350.0,
+    "mean": 1359.0,
+    "yoy": 26.95,
+    "sales": 43
+   },
+   "new": {
+    "median": 1257.0,
+    "mean": 1304.0,
+    "yoy": -5.22,
+    "sales": 41
+   }
+  },
+  "Kruševac": {
+   "all": {
+    "median": 1327.0,
+    "mean": 1324.0,
+    "yoy": 21.95,
+    "sales": 103
+   },
+   "existing": {
+    "median": 1361.0,
+    "mean": 1345.0,
+    "yoy": 18.98,
+    "sales": 69
+   },
+   "new": {
+    "median": 1316.0,
+    "mean": 1282.0,
+    "yoy": 30.26,
+    "sales": 34
+   }
+  },
+  "Smederevo": {
+   "all": {
+    "median": 1350.0,
+    "mean": 1299.0,
+    "yoy": 9.42,
+    "sales": 51
+   },
+   "existing": {
+    "median": 1308.0,
+    "mean": 1235.0,
+    "yoy": 15.51,
+    "sales": 35
+   },
+   "new": {
+    "median": 1485.0,
+    "mean": 1438.0,
+    "yoy": 2.87,
+    "sales": 16
+   }
+  },
+  "Vršac": {
+   "all": {
+    "median": 1348.0,
+    "mean": 1259.0,
+    "yoy": 30.65,
+    "sales": 34
+   },
+   "existing": {
+    "median": 1345.0,
+    "mean": 1243.0,
+    "yoy": 33.1,
+    "sales": 23
+   },
+   "new": {
+    "median": 1576.0,
+    "mean": 1292.0,
+    "yoy": 26.14,
+    "sales": 11
+   }
+  },
+  "Požarevac": {
+   "all": {
+    "median": 1273.0,
+    "mean": 1231.0,
+    "yoy": 11.38,
+    "sales": 91
+   },
+   "existing": {
+    "median": 1000.0,
+    "mean": 1006.0,
+    "yoy": 4.33,
+    "sales": 47
+   },
+   "new": {
+    "median": 1536.0,
+    "mean": 1470.0,
+    "yoy": 20.7,
+    "sales": 44
+   }
+  },
+  "Leskovac": {
+   "all": {
+    "median": 1277.0,
+    "mean": 1179.0,
+    "yoy": 20.42,
+    "sales": 67
+   },
+   "existing": {
+    "median": 1015.0,
+    "mean": 973.0,
+    "yoy": 15.42,
+    "sales": 34
+   },
+   "new": {
+    "median": 1388.0,
+    "mean": 1391.0,
+    "yoy": 20.79,
+    "sales": 33
+   }
+  },
+  "Loznica": {
+   "all": {
+    "median": 1176.0,
+    "mean": 1168.0,
+    "yoy": 5.68,
+    "sales": 184
+   },
+   "existing": {
+    "median": 1169.0,
+    "mean": 1135.0,
+    "yoy": 8.38,
+    "sales": 79
+   },
+   "new": {
+    "median": 1187.0,
+    "mean": 1192.0,
+    "yoy": 5.57,
+    "sales": 105
+   }
+  },
+  "Jagodina": {
+   "all": {
+    "median": 1169.0,
+    "mean": 1140.0,
+    "yoy": 9.41,
+    "sales": 107
+   },
+   "existing": {
+    "median": 1087.0,
+    "mean": 1093.0,
+    "yoy": 8.38,
+    "sales": 87
+   },
+   "new": {
+    "median": 1375.0,
+    "mean": 1348.0,
+    "yoy": 12.14,
+    "sales": 20
+   }
+  },
+  "Sombor": {
+   "all": {
+    "median": 1189.0,
+    "mean": 1113.0,
+    "yoy": 13.52,
+    "sales": 111
+   },
+   "existing": {
+    "median": 1020.0,
+    "mean": 1026.0,
+    "yoy": 16.8,
+    "sales": 64
+   },
+   "new": {
+    "median": 1239.0,
+    "mean": 1231.0,
+    "yoy": 7.2,
+    "sales": 47
+   }
+  },
+  "Zaječar": {
+   "all": {
+    "median": 1190.0,
+    "mean": 1111.0,
+    "yoy": 20.62,
+    "sales": 23
+   },
+   "existing": {
+    "median": 1175.0,
+    "mean": 1097.0,
+    "yoy": 19.13,
+    "sales": 22
+   },
+   "new": {
+    "median": null,
+    "mean": null,
+    "yoy": null,
+    "sales": 1
+   }
+  },
+  "Bor": {
+   "all": {
+    "median": 1098.0,
+    "mean": 1108.0,
+    "yoy": 5.05,
+    "sales": 48
+   },
+   "existing": {
+    "median": 1090.0,
+    "mean": 1099.0,
+    "yoy": 4.18,
+    "sales": 47
+   },
+   "new": {
+    "median": null,
+    "mean": null,
+    "yoy": null,
+    "sales": 1
+   }
+  },
+  "Pirot": {
+   "all": {
+    "median": 1086.0,
+    "mean": 1094.0,
+    "yoy": 0.67,
+    "sales": 31
+   },
+   "existing": {
+    "median": 1058.0,
+    "mean": 1047.0,
+    "yoy": 4.23,
+    "sales": 17
+   },
+   "new": {
+    "median": 1202.0,
+    "mean": 1151.0,
+    "yoy": -5.23,
+    "sales": 14
+   }
+  },
+  "Novi Pazar": {
+   "all": {
+    "median": 1073.0,
+    "mean": 1070.0,
+    "yoy": 5.53,
+    "sales": 147
+   },
+   "existing": {
+    "median": 968.0,
+    "mean": 989.0,
+    "yoy": 1.78,
+    "sales": 32
+   },
+   "new": {
+    "median": 1091.0,
+    "mean": 1092.0,
+    "yoy": 6.67,
+    "sales": 115
+   }
+  },
+  "Vranje": {
+   "all": {
+    "median": 970.0,
+    "mean": 999.0,
+    "yoy": 4.64,
+    "sales": 25
+   },
+   "existing": {
+    "median": 970.0,
+    "mean": 977.0,
+    "yoy": 8.1,
+    "sales": 15
+   },
+   "new": {
+    "median": 1025.0,
+    "mean": 1031.0,
+    "yoy": 0.32,
+    "sales": 10
+   }
+  },
+  "Prokuplje": {
+   "all": {
+    "median": 1147.0,
+    "mean": 989.0,
+    "yoy": 16.73,
+    "sales": 37
+   },
+   "existing": {
+    "median": 626.0,
+    "mean": 709.0,
+    "yoy": -14.27,
+    "sales": 12
+   },
+   "new": {
+    "median": 1155.0,
+    "mean": 1123.0,
+    "yoy": 29.29,
+    "sales": 25
+   }
+  },
+  "Kikinda": {
+   "all": {
+    "median": 1030.0,
+    "mean": 943.0,
+    "yoy": 14.89,
+    "sales": 30
+   },
+   "existing": {
+    "median": 1039.0,
+    "mean": 975.0,
+    "yoy": 18.81,
+    "sales": 24
+   },
+   "new": {
+    "median": 798.0,
+    "mean": 814.0,
+    "yoy": null,
+    "sales": 6
+   }
+  }
+ },
+ "belgrade": {
+  "Savski Venac": {
+   "all": {
+    "median": 4163.0,
+    "mean": 4290.0,
+    "yoy": 11.96,
+    "sales": 210
+   },
+   "existing": {
+    "median": 4000.0,
+    "mean": 3888.0,
+    "yoy": 11.09,
+    "sales": 147
+   },
+   "new": {
+    "median": 4860.0,
+    "mean": 5229.0,
+    "yoy": 12.73,
+    "sales": 63
+   }
+  },
+  "Stari Grad": {
+   "all": {
+    "median": 4025.0,
+    "mean": 4008.0,
+    "yoy": 10.75,
+    "sales": 126
+   },
+   "existing": {
+    "median": 4024.0,
+    "mean": 3958.0,
+    "yoy": 11.34,
+    "sales": 116
+   },
+   "new": {
+    "median": 4198.0,
+    "mean": 4590.0,
+    "yoy": 13.03,
+    "sales": 10
+   }
+  },
+  "Vračar": {
+   "all": {
+    "median": 3558.0,
+    "mean": 3645.0,
+    "yoy": 8.98,
+    "sales": 175
+   },
+   "existing": {
+    "median": 3606.0,
+    "mean": 3721.0,
+    "yoy": 10.83,
+    "sales": 138
+   },
+   "new": {
+    "median": 3393.0,
+    "mean": 3358.0,
+    "yoy": 1.31,
+    "sales": 37
+   }
+  },
+  "Novi Beograd": {
+   "all": {
+    "median": 3483.0,
+    "mean": 3423.0,
+    "yoy": 13.05,
+    "sales": 760
+   },
+   "existing": {
+    "median": 3423.0,
+    "mean": 3387.0,
+    "yoy": 14.82,
+    "sales": 362
+   },
+   "new": {
+    "median": 3557.0,
+    "mean": 3455.0,
+    "yoy": 6.24,
+    "sales": 398
+   }
+  },
+  "Palilula": {
+   "all": {
+    "median": 3000.0,
+    "mean": 3083.0,
+    "yoy": 16.11,
+    "sales": 137
+   },
+   "existing": {
+    "median": 3075.0,
+    "mean": 3092.0,
+    "yoy": 17.01,
+    "sales": 120
+   },
+   "new": {
+    "median": 2970.0,
+    "mean": 3019.0,
+    "yoy": 11.23,
+    "sales": 17
+   }
+  },
+  "Zvezdara": {
+   "all": {
+    "median": 3175.0,
+    "mean": 3077.0,
+    "yoy": 14.39,
+    "sales": 306
+   },
+   "existing": {
+    "median": 3232.0,
+    "mean": 3190.0,
+    "yoy": 19.24,
+    "sales": 184
+   },
+   "new": {
+    "median": 3015.0,
+    "mean": 2907.0,
+    "yoy": 7.12,
+    "sales": 122
+   }
+  },
+  "Voždovac": {
+   "all": {
+    "median": 2933.0,
+    "mean": 2948.0,
+    "yoy": 14.24,
+    "sales": 410
+   },
+   "existing": {
+    "median": 2862.0,
+    "mean": 2878.0,
+    "yoy": 14.39,
+    "sales": 214
+   },
+   "new": {
+    "median": 3080.0,
+    "mean": 3025.0,
+    "yoy": 14.58,
+    "sales": 196
+   }
+  },
+  "Čukarica": {
+   "all": {
+    "median": 2866.0,
+    "mean": 2891.0,
+    "yoy": 14.45,
+    "sales": 250
+   },
+   "existing": {
+    "median": 2833.0,
+    "mean": 2816.0,
+    "yoy": 18.95,
+    "sales": 147
+   },
+   "new": {
+    "median": 2918.0,
+    "mean": 2998.0,
+    "yoy": 8.1,
+    "sales": 103
+   }
+  },
+  "Zemun": {
+   "all": {
+    "median": 2814.0,
+    "mean": 2865.0,
+    "yoy": 6.26,
+    "sales": 240
+   },
+   "existing": {
+    "median": 2917.0,
+    "mean": 2951.0,
+    "yoy": 10.86,
+    "sales": 135
+   },
+   "new": {
+    "median": 2590.0,
+    "mean": 2755.0,
+    "yoy": 0.97,
+    "sales": 105
+   }
+  },
+  "Stara Rakovica": {
+   "all": {
+    "median": 2685.0,
+    "mean": 2628.0,
+    "yoy": 16.96,
+    "sales": 116
+   },
+   "existing": {
+    "median": 2565.0,
+    "mean": 2535.0,
+    "yoy": 17.33,
+    "sales": 83
+   },
+   "new": {
+    "median": 2875.0,
+    "mean": 2862.0,
+    "yoy": 9.02,
+    "sales": 33
+   }
+  }
+ }
+}

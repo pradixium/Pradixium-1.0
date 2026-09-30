@@ -64,48 +64,69 @@
   "09162000": {
    "city": "München",
    "board": "Gutachterausschuss für Grundstückswerte im Bereich der Landeshauptstadt München",
-   "period": "Q1–Q3 2025 (provisional)",
-   "source": "Gutachterausschuss München — Herbstanalyse 2025",
-   "sourceUrl": "https://stadt.muenchen.de/dam/jcr:e3601f58-c801-47ab-8bd3-1ac2cf5dc4c9/Herbstanalyse_2025.pdf",
+   "period": "H1 2026 (provisional)",
+   "source": "Gutachterausschuss München — Halbjahresreport 2026",
+   "sourceUrl": "https://stadt.muenchen.de/dam/jcr:1ab1829c-2c44-4fdc-b03b-6646c7849fab/Halbjahresreport_2026.pdf",
    "values": [
     {
      "type": "semi",
-     "segment": "semi-detached house, resale, average and good locations (about 140 m², plot 385 m²)",
+     "segment": "semi-detached house, resale, average and good locations (about 145 m², plot 370 m²; mean price about €1,125,000)",
      "stat": "price level",
-     "value": 8200,
+     "value": 7950,
      "use": "benchmark"
     },
     {
      "type": "terraced",
-     "segment": "end-terrace house, resale, average and good locations (about 125 m², plot 315 m²)",
+     "segment": "end-terrace house, resale, average and good locations (about 130 m², plot 285 m²; mean price about €955,000)",
      "stat": "price level",
-     "value": 8200,
+     "value": 7500,
      "use": "benchmark"
     },
     {
      "type": "terraced",
-     "segment": "mid-terrace house, resale, average and good locations (about 115 m², plot 205 m²)",
+     "segment": "mid-terrace house, resale, average and good locations (about 120 m², plot 225 m²; mean price about €895,000)",
      "stat": "price level",
-     "value": 7750,
+     "value": 7650,
      "use": "benchmark"
     },
     {
-     "type": "flats",
-     "segment": "new-build flats, average locations",
-     "stat": "mean",
-     "value": 10100,
+     "type": "semi",
+     "segment": "new semi-detached house, average and good locations (about 135 m²)",
+     "stat": "price level",
+     "value": 10750,
+     "use": "context"
+    },
+    {
+     "type": "terraced",
+     "segment": "new end-terrace house, average and good locations (about 115 m²)",
+     "stat": "price level",
+     "value": 10400,
+     "use": "context"
+    },
+    {
+     "type": "terraced",
+     "segment": "new mid-terrace house, average and good locations (about 115 m²)",
+     "stat": "price level",
+     "value": 9600,
      "use": "context"
     },
     {
      "type": "flats",
-     "segment": "new-build flats, good locations",
+     "segment": "new-build flats, average location",
      "stat": "mean",
-     "value": 10650,
+     "value": 9800,
+     "use": "context"
+    },
+    {
+     "type": "flats",
+     "segment": "new-build flats, good location",
+     "stat": "mean",
+     "value": 10550,
      "use": "context"
     }
    ],
    "notes": [
-    "Resale flats: the board publishes their price level only as a chart by building age — no figure to apply."
+    "Resale flats: the board publishes their price level only as a chart by building age — no figure to apply; new-build flat prices are shown as context (the flat's age is not known)."
    ]
   },
   "08111000": {

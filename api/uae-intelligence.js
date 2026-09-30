@@ -21,7 +21,7 @@
  */
 const DLD_INDEX_CSV_URL = "https://www.dubaipulse.gov.ae/dataset/342a48fc-6499-40b4-9323-b9c0a536f57f/resource/ec4bef3f-d995-4487-9ec3-f7bd2d3788eb/download/residential_sale_index.csv";
 
-async function fetchText(url, timeoutMs = 15000) {
+async function fetchText(url, timeoutMs = 5000) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
@@ -114,6 +114,25 @@ export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
 
   const city = String(req.query?.city || "").trim() || null;
+
+  // Checked Sept 30 2026: Dubai Pulse resets every connection (from Vercel
+  // too — each report waited ~11 s for nothing) and the index dataset was
+  // last updated in April 2024; DLD's transaction search is behind a
+  // reCAPTCHA and its indexes API is publicly writable (test rows) — no
+  // current, verifiable Dubai price source → answer at once, no fetch.
+  if (process.env.UAE_TRY_DUBAI_PULSE !== "1") {
+    return res.status(200).json({
+      success: true,
+      country: "United Arab Emirates",
+      city,
+      data: {
+        market: "Dubai Residential Property Market",
+        status: "NO_CURRENT_OFFICIAL_SOURCE",
+        message: "No current, verifiable official Dubai price figure is reachable: the Dubai Land Department's open index file was last updated in April 2024 and its portal no longer answers; the live transaction search requires a CAPTCHA.",
+        sourceUrls: { dld: "https://dubailand.gov.ae/en/open-data/real-estate-data/" }
+      }
+    });
+  }
 
   try {
     const csvText = await fetchText(DLD_INDEX_CSV_URL);
