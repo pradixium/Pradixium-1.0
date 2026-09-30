@@ -66,13 +66,22 @@
   // those calls needs a valid token or Supabase rejects it -- the two are
   // meant to be turned on together, not one before the other.
   const TURNSTILE_SITE_KEY = window.PRADIXIUM_TURNSTILE_SITE_KEY || '';
+  const TURNSTILE_TIMEOUT_MS = 8000;
   let mainTurnstileWidgetId = null;
   let mainTurnstileToken = '';
+  // If the widget script never loads, never renders, or renders but never
+  // produces a token within TURNSTILE_TIMEOUT_MS, this flips true and the
+  // client stops blocking submission on it -- Supabase's own server-side
+  // "Enable CAPTCHA protection" setting becomes the real authority instead
+  // of our own guess. Learned the hard way: a client-side block stricter
+  // than the server's actual config took sign-up down live for ~20 minutes
+  // when the widget failed to load in one visitor's browser.
+  let mainTurnstileUnavailable = false;
 
   function whenTurnstileReady(cb, triesLeft) {
     if (window.turnstile) return cb();
     if (triesLeft === undefined) triesLeft = 40; // ~6s of polling, then give up quietly
-    if (triesLeft <= 0) return;
+    if (triesLeft <= 0) { mainTurnstileUnavailable = true; return; }
     setTimeout(() => whenTurnstileReady(cb, triesLeft - 1), 150);
   }
 
@@ -82,12 +91,15 @@
     if (!container) return;
     whenTurnstileReady(() => {
       if (mainTurnstileWidgetId !== null) return;
-      mainTurnstileWidgetId = window.turnstile.render(container, {
-        sitekey: TURNSTILE_SITE_KEY,
-        callback: (token) => { mainTurnstileToken = token; },
-        'expired-callback': () => { mainTurnstileToken = ''; },
-        'error-callback': () => { mainTurnstileToken = ''; }
-      });
+      try {
+        mainTurnstileWidgetId = window.turnstile.render(container, {
+          sitekey: TURNSTILE_SITE_KEY,
+          callback: (token) => { mainTurnstileToken = token; },
+          'expired-callback': () => { mainTurnstileToken = ''; },
+          'error-callback': () => { mainTurnstileUnavailable = true; }
+        });
+      } catch (e) { mainTurnstileUnavailable = true; }
+      setTimeout(() => { if (!mainTurnstileToken) mainTurnstileUnavailable = true; }, TURNSTILE_TIMEOUT_MS);
     });
   }
 
@@ -167,7 +179,7 @@
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return setError('Please enter a valid email address.');
     if (password.length < 6) return setError('Password must be at least 6 characters.');
     if (mode === 'signup' && !name) return setError('Please enter your full name.');
-    if (TURNSTILE_SITE_KEY && !mainTurnstileToken) return setError('Please complete the CAPTCHA.');
+    if (TURNSTILE_SITE_KEY && !mainTurnstileToken && !mainTurnstileUnavailable) return setError('Please complete the CAPTCHA.');
 
     setBusy(true);
     try {
@@ -242,23 +254,27 @@
       // tears down the previous one entirely -- own widget id/token per open.
       let resetTurnstileWidgetId = null;
       let resetTurnstileToken = '';
+      let resetTurnstileUnavailable = false;
       if (TURNSTILE_SITE_KEY) {
         whenTurnstileReady(() => {
           const container = $('resetTurnstile');
           if (!container) return;
-          resetTurnstileWidgetId = window.turnstile.render(container, {
-            sitekey: TURNSTILE_SITE_KEY,
-            callback: (token) => { resetTurnstileToken = token; },
-            'expired-callback': () => { resetTurnstileToken = ''; },
-            'error-callback': () => { resetTurnstileToken = ''; }
-          });
+          try {
+            resetTurnstileWidgetId = window.turnstile.render(container, {
+              sitekey: TURNSTILE_SITE_KEY,
+              callback: (token) => { resetTurnstileToken = token; },
+              'expired-callback': () => { resetTurnstileToken = ''; },
+              'error-callback': () => { resetTurnstileUnavailable = true; }
+            });
+          } catch (e) { resetTurnstileUnavailable = true; }
+          setTimeout(() => { if (!resetTurnstileToken) resetTurnstileUnavailable = true; }, TURNSTILE_TIMEOUT_MS);
         });
       }
       $('resetSend').onclick = async function () {
         const email = ($('resetEmail').value || '').trim().toLowerCase();
         const msg = $('resetMsg');
         if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { msg.style.color = '#c64747'; msg.textContent = 'Enter a valid email address.'; return; }
-        if (TURNSTILE_SITE_KEY && !resetTurnstileToken) { msg.style.color = '#c64747'; msg.textContent = 'Please complete the CAPTCHA.'; return; }
+        if (TURNSTILE_SITE_KEY && !resetTurnstileToken && !resetTurnstileUnavailable && !mainTurnstileUnavailable) { msg.style.color = '#c64747'; msg.textContent = 'Please complete the CAPTCHA.'; return; }
         msg.style.color = '#5f6b7b'; msg.textContent = 'Sending…';
         const { error } = await client.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + window.location.pathname, captchaToken: resetTurnstileToken || undefined });
         if (window.turnstile && resetTurnstileWidgetId !== null) window.turnstile.reset(resetTurnstileWidgetId);
