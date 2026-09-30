@@ -219,6 +219,14 @@ largest metro first.
   ← `NODE_USE_ENV_PROXY=1 node scripts/build-md-sales.mjs` (monthly, after
   each SDAT refresh). Each account holds its latest transfer only. Check:
   ZIP 20814 SF 159 sales, $1,322,750 (direct query).
+  Fairfax VA (Sept 30 2026): ZIP × LUC_DESC median of DTA "Valid and
+  verified sale" sales (every other SALEVAL_DESC label excluded), 12
+  months, PREBUILT lib/data/fairfaxSales.js ← `NODE_USE_ENV_PROXY=1 node
+  scripts/build-fairfax-sales.mjs` (monthly): sales → Real Estate Parcels
+  Data (LUC_DESC) + Address Points (ZIP; a parcel in two ZIPs dropped).
+  The sales table repeats each sale per tax year → de-duplicated; server
+  pages are 1,000 rows. Homes → benchmark. Check: ZIP 22042 single-family
+  detached 221 sales, $849,900 (recomputed the other way: ZIP → pins).
   Rejected: none left from this pass.
 - St. Louis (#23): City (29510) = last valid sale (Assessor sale type 10) +
   appraised value + ZIP context; St. Louis County (29189) = facts +
