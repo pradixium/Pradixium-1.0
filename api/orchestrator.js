@@ -865,9 +865,17 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
   ];
   if (c === "germany" || c === "italy" || c === "israel" || c === "united arab emirates" || c === "turkey" || EUROSTAT_ONLY_COUNTRIES.includes(c)) {
     const hpi = raw.housingPriceIndex || {};
-    const change = hpi.annualChangePercent ?? hpi.annualVariation ?? null;
+    let change = hpi.annualChangePercent ?? hpi.annualVariation ?? null;
     const sourceName = c === "germany" ? "Destatis" : c === "italy" ? "Istat" : c === "israel" ? "CBS Israel" : c === "united arab emirates" ? "Dubai Land Department" : c === "turkey" ? "TCMB" : "Eurostat";
-    const trendSource = `${sourceName} — national index ${change != null ? (change >= 0 ? "+" : "") + change + "% YoY" : "unavailable"}`;
+    let trendSource = `${sourceName} — national index ${change != null ? (change >= 0 ? "+" : "") + change + "% YoY" : "unavailable"}`;
+    // Germany's TOP-7 metros: Destatis's own metro change for flats / houses
+    const deReg = c === "germany" ? hpi.regional : null;
+    const deFlat = /apart|flat|studio|penthouse/i.test(String(propertyType || ""));
+    const deChange = deReg ? (deFlat ? deReg.flatsAnnualChangePercent : deReg.housesAnnualChangePercent) : null;
+    if (deReg && deChange != null) {
+      trendSource = `${sourceName} house price index ${deReg.period}, ${deReg.area}: ${deFlat ? "flats" : "one- and two-family houses"} ${deChange >= 0 ? "+" : ""}${deChange}% on a year earlier (Germany overall ${change >= 0 ? "+" : ""}${change}%)`;
+      change = deChange;
+    }
     // FIX: this branch only ever had a % trend (no absolute price), leaving
     // "Market Benchmark" blank for every one of these countries — the exact
     // gap a user flagged ("find the average price of a property recently
@@ -1419,7 +1427,9 @@ export default async function handler(req, res) {
   // covers countries with a verified, citable rate (see
   // lib/data/closingCosts.js), silent everywhere else rather than
   // guessing a number.
-  const closingCosts = getClosingCosts(property.country);
+  // Germany: the property's federal state (from its municipality) sets the
+  // Grunderwerbsteuer rate
+  const closingCosts = getClosingCosts(property.country, { state: /^germany$/i.test(String(property.country || "").trim()) ? (marketData?.rent?.land || (marketData?.irw?.ags ? "Nordrhein-Westfalen" : null)) : null });
 
   // Recurring annual ownership tax (property tax / taxe foncière / IBI /
   // Council Tax / Arnona, etc.) — a separate, ongoing cost from the

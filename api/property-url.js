@@ -1,4 +1,4 @@
-import { countryFromHost, countryFromValue, currencyFromText, looksBlocked, countryNamedIn, addressFromText } from "../lib/listing/detect.js";
+import { countryFromHost, countryFromValue, currencyFromText, looksBlocked, countryNamedIn, addressFromText, germanListingCountry } from "../lib/listing/detect.js";
 
 export default async function handler(req, res) {
   if (req.method !== "GET" && req.method !== "POST") {
@@ -315,7 +315,12 @@ export default async function handler(req, res) {
         /(?:BEDROOMS?|Bedrooms?:|Beds?:)\s*([0-9]+)\b/,
         /([0-9]+)\s*(?:bedrooms?|beds?)/i,
         /([0-9]+)\s*(?:chambres?|chambre)\b/i,
-        /([0-9]+)\s*(?:dormitorios?|habitaciones?|quartos?|camere(?:\s+da\s+letto)?|Schlafzimmer|slaapkamers?|sypialnie|ložnice|hálószoba|υπνοδωμάτια|yatak odası)(?![a-z])/i,
+        // German listings put the label first ("Schlafzimmer 1"); "Zimmer"
+        // alone is the room count (living room included) — never bedrooms
+        // "3 Schlafzimmer" — but in "Zimmer 2 Schlafzimmer 1" the 2 is the room label's
+        /(?<!zimmer[: \t]*)\b([0-9]+)[ \t]*Schlafzimmer/i,
+        /\bSchlafzimmer[: \t]+([0-9]+)\b/i,
+        /([0-9]+)[ \t]*(?:dormitorios?|habitaciones?|quartos?|camere(?:\s+da\s+letto)?|slaapkamers?|sypialnie|ložnice|hálószoba|υπνοδωμάτια|yatak odası)(?![a-z])/i,
         // "pièces" is total room count (living room, kitchen, etc. included),
         // not bedrooms — only used as a last-resort fallback.
         /([0-9]+)\s*(?:pièces?|pieces?)/i
@@ -325,7 +330,9 @@ export default async function handler(req, res) {
     if (!bathrooms) {
       bathrooms = numberFromText(extract([
         /(?:BATHROOMS?|Bathrooms?:|Baths?:)\s*([0-9]+(?:\.[0-9]+)?)\b/,
-        /([0-9]+(?:\.[0-9]+)?)\s*(?:bathrooms?|baths?|salles?\s*de\s*bain|baños?|bagni|casas?\s*de\s*banho|Badezimmer|badkamers?|łazienki|koupelny|fürdőszoba|μπάνια)/i,
+        /(?<!zimmer[: \t]*)\b([0-9]+)[ \t]*Badezimmer/i,
+        /\bBadezimmer[: \t]+([0-9]+)\b/i,
+        /([0-9]+(?:\.[0-9]+)?)[ \t]*(?:bathrooms?|baths?|salles?\s*de\s*bain|baños?|bagni|casas?\s*de\s*banho|badkamers?|łazienki|koupelny|fürdőszoba|μπάνια)/i,
         /(?:Salles?\s*de\s*bain)\s*:?\s*([0-9]+)\b/i
       ], visibleText));
     }
@@ -362,7 +369,7 @@ export default async function handler(req, res) {
     if (pasted != null) {
       const a = addressFromText(pasted);
       if (a && !(addressObject && typeof addressObject === "object")) address = a;
-      if (!country) country = countryNamedIn(pasted);
+      if (!country) country = countryNamedIn(pasted) || germanListingCountry(pasted);
     }
 
     const typeValue = entity["@type"] || listing?.["@type"] || "Apartment";

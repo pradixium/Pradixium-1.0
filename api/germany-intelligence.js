@@ -3,18 +3,26 @@ import { germanRent } from '../lib/germany/rents.js';
 
 const esc = (value) => String(value || '').trim().slice(0, 160);
 
+// Destatis Häuserpreisindex, press release Nr. 336 of 24 Sep 2026 (Q2 2026,
+// provisional) + the index table (2025=100)
 const GERMANY_HPI = {
-  period: '2026-Q1',
+  period: '2026-Q2',
   indexBase: '2025=100',
-  totalIndex: 100.5,
-  newResidentialIndex: 101.9,
-  existingResidentialIndex: 100.2,
-  annualChangePercent: 1.4,
-  newResidentialAnnualChangePercent: 2.1,
-  existingResidentialAnnualChangePercent: 1.2,
-  publicationDate: '2026-06-25',
-  source: 'Statistisches Bundesamt (Destatis)'
+  totalIndex: 100.6,
+  newResidentialIndex: 101.2,
+  existingResidentialIndex: 100.5,
+  annualChangePercent: 0.6,
+  newResidentialAnnualChangePercent: 1.5,
+  existingResidentialAnnualChangePercent: 0.5,
+  publicationDate: '2026-09-24',
+  source: 'Statistisches Bundesamt (Destatis)',
+  sourceUrl: 'https://www.destatis.de/DE/Presse/Pressemitteilungen/2026/09/PD26_336_61262.html'
 };
+
+// the same release, TOP-7 metros (Berlin, Hamburg, München, Köln,
+// Frankfurt am Main, Stuttgart, Düsseldorf) — change on Q2 2025
+const TOP7 = new Set(['11000000', '02000000', '09162000', '05315000', '06412000', '08111000', '05111000']);
+const TOP7_HPI = { period: '2026-Q2', area: 'TOP-7 metros (Berlin, Hamburg, München, Köln, Frankfurt am Main, Stuttgart, Düsseldorf)', flatsAnnualChangePercent: -0.4, housesAnnualChangePercent: 0.7 };
 
 const CITY_ALIASES = {
   berlin: 'Berlin',
@@ -52,6 +60,8 @@ export default async function handler(req, res) {
   if (irw?.status === 'not_nrw') irw = null;
   let rent = null;
   try { rent = germanRent({ ags: irw?.ags, address, city }); } catch { rent = null; }
+  const ags = irw?.ags || rent?.ags || null;
+  const regional = ags && TOP7.has(ags) ? TOP7_HPI : null;
   const key = normalise(city);
   const resolvedCity = CITY_ALIASES[key] || city || 'Germany';
 
@@ -61,7 +71,7 @@ export default async function handler(req, res) {
     city: resolvedCity,
     data: {
       market: 'German Residential Property Market',
-      housingPriceIndex: GERMANY_HPI,
+      housingPriceIndex: { ...GERMANY_HPI, regional },
       irw,
       rent,
       cityLevelStatus: city ? 'REGIONAL_DATA_LAYER_PENDING' : 'NATIONAL_DATA_AVAILABLE',

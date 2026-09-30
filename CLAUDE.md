@@ -610,6 +610,35 @@ part. Notaires de France "valeur verte" 2024 study: its PDF answers 403 to
 servers → not used. Check: Lieusaint 66/86 matched, C €3,222 (23), D €3,189
 (40), recomputed in Python.
 
+## Germany, deep (Sept 2026, Claude B)
+
+- NRW (18 M people): `lib/germany/irw.js` — the Gutachterausschüsse's
+  Immobilienrichtwerte (BORIS-NRW open data, dl-de/zero, 1 Jan 2026): €/m²
+  of living area for a stated REFERENCE home per zone and submarket (flats
+  resale / new build, detached, semi/terraced, multi-family). Every one of
+  NRW's 4.5 M official house coordinates (Geobasis NRW Gebäudereferenzen)
+  is pre-assigned its zones → `lib/data/germany/nrw/<AGS>.json.gz` (11 MB)
+  ← `python3 scripts/build-de-nrw-irw.py` (re-run each spring). The board's
+  conversion factors (PDF) are NOT applied — the reference home is stated.
+  Several values for one address (Solingen/Ratingen/Hilden publish one per
+  house form) → all listed, none applied; another home type only → context.
+  Check: 20/20 random addresses = the live BORIS-NRW WMS GetFeatureInfo.
+- Other states: home IRW are not open data (Lower Saxony, Hamburg: land
+  values only) → Berlin keeps its Gutachterausschuss FLAT median (€5,511,
+  2025; flats only — its house figure is per m² of gross floor area).
+- Rent: `lib/germany/rents.js` — Zensus 2022 average net cold rent per m²
+  per municipality (10,683) ← `scripts/build-de-rents.py`; existing
+  tenancies, 15 May 2022 — said so; used for the yield only when no rent
+  is entered. Check: Munich €12.89, Berlin €7.67 = the Zensus release.
+- Grunderwerbsteuer per state in `closingCosts.js` `byState` (state from
+  the municipality); Bremen 5.5% since 1 Jul 2025 (Brem.GBl. 2025 Nr. 9).
+- Trend: Destatis HPI Q2 2026 (+0.6%); TOP-7 metros get Destatis's metro
+  change for flats (−0.4%) / houses (+0.7%). Update each quarter.
+- Listing text: German label-first rooms ("Schlafzimmer 1"; "Zimmer" =
+  rooms, never bedrooms); German terms + 5-digit postcode → Germany.
+- Not available: comparable sales (the Kaufpreissammlung is confidential
+  by law), per-property Grundsteuer (needs the owner's Grundsteuerwert).
+
 ## Spain Catastro zones + Portugal INE local prices (Sept 2026, Claude B)
 
 - Spain: `lib/spain/catastroZone.js` — address → CartoCiudad (IGN geocoder)
