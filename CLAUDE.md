@@ -173,6 +173,12 @@ largest metro first.
   context (FDOR effective area includes garages/porches). Recompute check
   from the raw Dade 2026P SDF+NAL in Python: ZIP 33139 condos 1,521
   sales, median $505,000 = the file.
+- Same whole-home median benchmark (Sept 30 2026): Cook County (Chicago)
+  — the Assessor neighborhood's median price of clean sales of the
+  parcel's own group, last 12 months of data (check: nbhd 72380 houses
+  327 sales, $342,000 = SoQL recompute); Connecticut — the town's median
+  of usable single-family sales, houses only (check: West Hartford GL
+  2024, 518 sales, $550,000). 10+ sales.
 - St. Louis (#23): City (29510) = last valid sale (Assessor sale type 10) +
   appraised value + ZIP context; St. Louis County (29189) = facts +
   appraised value only (Missouri: the county publishes no sale prices).
