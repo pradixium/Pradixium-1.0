@@ -917,6 +917,19 @@ servers → not used. Check: Lieusaint 66/86 matched, C €3,222 (23), D €3,18
   NOTE: realityCheck's parsePercent() averages the FIRST TWO "%" numbers of
   totalEstimatedRange — write totals so those two are the buyer's range
   (Barbados' total started with the seller's 3.5% and was reworded).
+- Armenia (Sept 30 2026): regional fixture — Cadastre Committee quarterly
+  market analysis (cadastre.am/storage/files/1-ii2026.pdf, table 3.6-2,
+  copied from the rendered page): market-averaged €… AMD/m² of flats per
+  Yerevan district (12 district averages, Q2 2026 vs Q2 2025). The
+  Committee builds them from contract prices AND offer prices →
+  `askingPrices` → context only; "Yerevan" alone → the district range.
+  The PDF's Armenian text layer is garbled (custom fonts) — read the table
+  from a rendered image (pymupdf) and check figures against the text
+  layer's numbers. Update each quarter. Also: a flats-only series' change is
+  no longer used as a HOUSE's trend (Serbia/Montenegro/Peru/Armenia).
+- Egypt closing costs skipped: the Shahr Aqari fee table (Law 9/2022) is
+  only reported by state media (Ahram), not on the Ministry of Justice's own
+  site.
 - Checked Sept 30 2026, not usable: Dubai — DLD transaction search behind
   reCAPTCHA; its indexes GraphQL (gateway.dubailand.gov.ae/indexes-api) is
   open but publicly WRITABLE (full of test/pentest rows) → not a verifiable

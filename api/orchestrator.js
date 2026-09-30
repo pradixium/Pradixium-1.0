@@ -158,7 +158,7 @@ const COUNTRY_ENDPOINTS = {
   // source has been found yet — see api/pending-intelligence.js for what
   // was checked. Returns an honest "not yet connected" status rather
   // than a fabricated number.
-  "armenia": "pending-intelligence",
+  "armenia": "regional-fixture-intelligence",
   "georgia": "regional-fixture-intelligence",
   "south africa": "regional-fixture-intelligence",
   "morocco": "regional-fixture-intelligence",
@@ -1155,7 +1155,7 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
     "serbia", "bosnia and herzegovina", "montenegro", "north macedonia", "ukraine", "albania", "andorra", "monaco",
     "russia", "kazakhstan", "canada", "mexico", "brazil", "australia", "new zealand", "argentina",
     "chile", "colombia", "peru", "uruguay", "dominican republic", "georgia", "south africa", "morocco", "kenya",
-    "thailand", "indonesia", "south korea", "india", "japan", "sri lanka", "cambodia"
+    "thailand", "indonesia", "south korea", "india", "japan", "sri lanka", "cambodia", "armenia"
   ];
   if (REGIONAL_FIXTURE_COUNTRIES.includes(c) && (raw.cityTrends || raw.nationalTypeTrends)) {
     // official price TRENDS only (Stats SA metros, Morocco IPAI, KNBS):
@@ -1220,9 +1220,10 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
     // prices are never a benchmark; a month-on-month change is never shown
     // as the yearly trend
     const kindRF = /apart|flat|studio|penthouse|condo/i.test(propertyType || "") ? "flats" : /house|villa|town|home/i.test(propertyType || "") ? "houses" : null;
-    const trendRF = raw.changeIsMonthly ? null : (raw.cityChangePercent ?? raw.nationalChangePercent ?? null);
+    // a flats-only series' change is not a house's trend either
+    const trendRF = raw.changeIsMonthly || (raw.flatsOnly && kindRF === "houses") ? null : (raw.cityChangePercent ?? raw.nationalChangePercent ?? null);
     if (raw.askingPrices || (raw.flatsOnly && kindRF === "houses")) {
-      const why = raw.askingPrices ? "built from OFFER (asking) prices, not closed sales — shown as context, never as the benchmark" : "for apartments only — not applied to a house";
+      const why = raw.askingPrices ? `${raw.askingNote || "built from OFFER (asking) prices, not closed sales"} — shown as context, never as the benchmark` : "for apartments only — not applied to a house";
       return {
         benchmarkValue: null,
         benchmarkUnit: raw.benchmarkUnit || "perSqm",
@@ -1230,8 +1231,8 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
         governmentValue: null,
         transactionValue: null,
         transactionPeriod: raw.period ?? null,
-        marketArea: `${raw.cityName || countryLabel(country)} — official figure ${raw.askingPrices ? "from asking prices" : "for apartments only"}, not applied`,
-        source: `${raw.sources?.official || countryLabel(country)}: ${raw.cityName || countryLabel(country)} ${Math.round(raw.cityBenchmarkValue).toLocaleString("en-US")}${raw.benchmarkUnit === "total" ? " per home" : " per m²"} (${raw.period}) — ${why}.${trendRF != null ? ` Change ${trendRF >= 0 ? "+" : ""}${trendRF}% on a year earlier.` : ""}${raw.coverageNote ? ` ${raw.coverageNote}` : ""}`,
+        marketArea: `${raw.cityName || countryLabel(country)} — official figure ${raw.askingPrices ? (raw.askingNote ? "partly from asking prices" : "from asking prices") : "for apartments only"}, not applied`,
+        source: `${raw.sources?.official || countryLabel(country)}: ${raw.cityName || countryLabel(country)}${raw.cityBenchmarkValue != null ? ` ${Math.round(raw.cityBenchmarkValue).toLocaleString("en-US")}${raw.benchmarkUnit === "total" ? " per home" : " per m²"}` : ""} (${raw.period}) — ${why}.${trendRF != null ? ` Change ${trendRF >= 0 ? "+" : ""}${trendRF}% on a year earlier.` : ""}${raw.coverageNote ? ` ${raw.coverageNote}` : ""}`,
         sourceUrl: raw.sourceUrls?.official || null,
         coverage: "city",
         priceTrendPercent: trendRF

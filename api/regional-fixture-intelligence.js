@@ -85,6 +85,39 @@ const FIXTURES = {
   // are not covered). Regions as MONSTAT defines them (release footnote 1).
   // Q2 2026 release 20.08.2026 vs the Q2 2025 release. The central region
   // doubled (1,068 → 2,131: a composition swing) → no trend shown for it.
+  // Cadastre Committee of Armenia — quarterly market analysis (Q2 2026,
+  // table 3.6-2): market-averaged price per m² of flats in multi-apartment
+  // buildings per Yerevan district, "formed from the analysis of contract
+  // prices of sold flats AND offer prices of flats for sale" → context only.
+  // District averages ("միջին" rows); change = Q2 2026 vs Q2 2025.
+  armenia: {
+    country: "Armenia",
+    period: "2026-Q2",
+    nationalChangePercent: null,
+    benchmarkUnit: "perSqm",
+    flatsOnly: true,
+    askingPrices: true,
+    askingNote: "built by the Cadastre Committee from contract prices of sold flats together with offer (asking) prices",
+    regions: [
+      { name: "Kentron, Yerevan", towns: ["kentron", "center yerevan", "centre yerevan"], value: 946000, prev: 882700, change: 7.2 },
+      { name: "Arabkir, Yerevan", towns: ["arabkir"], value: 684900, prev: 620000, change: 10.5 },
+      { name: "Nork-Marash, Yerevan", towns: ["nork marash"], value: 554500, prev: 445800, change: 24.4 },
+      { name: "Davtashen, Yerevan", towns: ["davtashen"], value: 547000, prev: 474700, change: 15.2 },
+      { name: "Kanaker-Zeytun, Yerevan", towns: ["kanaker zeytun", "qanaqer zeytun", "kanaker", "zeytun"], value: 517100, prev: 443500, change: 16.6 },
+      { name: "Ajapnyak, Yerevan", towns: ["ajapnyak"], value: 482600, prev: 414200, change: 16.5 },
+      { name: "Nor Nork, Yerevan", towns: ["nor nork"], value: 474000, prev: 410200, change: 15.6 },
+      { name: "Shengavit, Yerevan", towns: ["shengavit"], value: 473000, prev: 392800, change: 20.4 },
+      { name: "Erebuni, Yerevan", towns: ["erebuni"], value: 472700, prev: 405400, change: 16.6 },
+      { name: "Malatia-Sebastia, Yerevan", towns: ["malatia sebastia", "malatia"], value: 472600, prev: 388800, change: 21.6 },
+      { name: "Avan, Yerevan", towns: ["avan"], value: 463900, prev: 397400, change: 16.7 },
+      { name: "Nubarashen, Yerevan", towns: ["nubarashen"], value: 266000, prev: 236700, change: 12.4 },
+      { name: "Yerevan", towns: ["yerevan", "erevan"], value: null, prev: null, change: null,
+        note: "district averages range from AMD 266,000/m² (Nubarashen) to AMD 946,000/m² (Kentron) — enter the district for its own figure" }
+    ],
+    coverageNote: "Flats in multi-apartment buildings, Yerevan districts only.",
+    source: "Cadastre Committee of the Republic of Armenia — Real estate market analysis, Q2 2026 (table 3.6-2)",
+    officialSource: "https://cadastre.am/storage/files/1-ii2026.pdf"
+  },
   montenegro: {
     country: "Montenegro",
     period: "2026-Q2",
@@ -412,7 +445,7 @@ export default async function handler(req, res) {
     const w = ` ${[city, req.query?.address].filter(Boolean).join(" ").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, " ")} `;
     const r = fixture.regions.find((x) => x.towns.some((t) => w.includes(` ${t} `)) && (!x.requires || x.requires.some((t) => w.includes(` ${t} `))));
     if (r) Object.assign(fixture, { cityName: r.name, cityBenchmarkValue: r.value, cityChangePercent: r.change, regionMatch: true,
-      coverageNote: `${fixture.coverageNote} ${r.name}: €${r.value.toLocaleString("en-US")}/m²${r.note ? ` (${r.note})` : ""}${r.prev != null ? ` (a year earlier: €${r.prev.toLocaleString("en-US")}/m²)` : ""}${r.change == null ? " — the change is not shown: too few sales for a stable comparison" : ""}.` });
+      coverageNote: `${fixture.coverageNote} ${r.name}: ${r.value != null ? `${fixture.country === "Armenia" ? "AMD " : "€"}${r.value.toLocaleString("en-US")}/m²` : ""}${r.note ? ` (${r.note})` : ""}${r.prev != null ? ` (a year earlier: ${fixture.country === "Armenia" ? "AMD " : "€"}${r.prev.toLocaleString("en-US")}/m²)` : ""}${r.change == null && r.value != null ? " — the change is not shown: too few sales for a stable comparison" : ""}.` });
   }
 
   if (!fixture) {
@@ -439,6 +472,7 @@ export default async function handler(req, res) {
       typeNote: fixture.typeNote ?? null,
       flatsOnly: fixture.flatsOnly ?? false,
       askingPrices: fixture.askingPrices ?? false,
+      askingNote: fixture.askingNote ?? null,
       changeIsMonthly: fixture.changeIsMonthly ?? false,
       regionMatch: fixture.regionMatch ?? false,
       cityLevelStatus: "REGIONAL_DATA_LAYER_PENDING",
