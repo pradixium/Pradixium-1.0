@@ -1,0 +1,276 @@
+{
+ "_note": "Official figures of the cities' Gutachterausschüsse (statutory valuation boards, from their register of ALL notarised sales), copied by hand from each board's own publication, Sept 2026. value = EUR per m2 of LIVING area unless unit says otherwise. use: 'benchmark' may be applied to that property type; 'context' is shown only. Update when the boards publish their next report.",
+ "cities": {
+  "11000000": {
+   "city": "Berlin",
+   "board": "Gutachterausschuss für Grundstückswerte in Berlin",
+   "period": "2025",
+   "source": "Gutachterausschuss für Grundstückswerte in Berlin — Immobilienmarkt 2025 (press release of the Senate Department)",
+   "sourceUrl": "https://www.berlin.de/sen/stadt/presse/pressemeldungen/pressemitteilung.1699073.php",
+   "values": [
+    {
+     "type": "flats",
+     "segment": "flats (Eigentumswohnungen), all sales",
+     "stat": "middle price",
+     "value": 5511,
+     "use": "benchmark"
+    },
+    {
+     "type": "flats",
+     "segment": "flats, first sales in new developments",
+     "stat": "middle price",
+     "value": 8108,
+     "use": "context"
+    }
+   ],
+   "notes": [
+    "One- and two-family houses: about €3,830 per m² of value-relevant GROSS FLOOR area (not living area) — a different measure, not applied."
+   ]
+  },
+  "02000000": {
+   "city": "Hamburg",
+   "board": "Gutachterausschuss für Grundstückswerte in Hamburg",
+   "period": "2025",
+   "source": "Gutachterausschuss für Grundstückswerte in Hamburg — Immobilienmarktbericht Hamburg 2026",
+   "sourceUrl": "https://www.hamburg.de/resource/blob/1166868/d21cbc3d6d1c7767bfb82752a3c4cb3d/d-immobilienmarktbericht-2026-data.pdf",
+   "values": [
+    {
+     "type": "flats",
+     "segment": "all sold flats (average 76 m², 53 years old)",
+     "stat": "mean",
+     "value": 6345,
+     "sales": 3115,
+     "use": "benchmark"
+    },
+    {
+     "type": "flats",
+     "segment": "standard new-build flat, first sale, 80 m² for €674,000, average location (1 Jul 2025)",
+     "stat": "board's standard value",
+     "value": 8425,
+     "use": "context"
+    },
+    {
+     "type": "flats",
+     "segment": "standard old-building flat, built 1900, 80 m² for €441,000, average location (1 Jul 2025)",
+     "stat": "board's standard value",
+     "value": 5513,
+     "use": "context"
+    }
+   ],
+   "notes": [
+    "Houses: the board gives an average purchase price of €750,000 for a one- or two-family house (1 Jan 2026) — a total price, no per-m² figure, not applied."
+   ]
+  },
+  "09162000": {
+   "city": "München",
+   "board": "Gutachterausschuss für Grundstückswerte im Bereich der Landeshauptstadt München",
+   "period": "Q1–Q3 2025 (provisional)",
+   "source": "Gutachterausschuss München — Herbstanalyse 2025",
+   "sourceUrl": "https://stadt.muenchen.de/dam/jcr:e3601f58-c801-47ab-8bd3-1ac2cf5dc4c9/Herbstanalyse_2025.pdf",
+   "values": [
+    {
+     "type": "semi",
+     "segment": "semi-detached house, resale, average and good locations (about 140 m², plot 385 m²)",
+     "stat": "price level",
+     "value": 8200,
+     "use": "benchmark"
+    },
+    {
+     "type": "terraced",
+     "segment": "end-terrace house, resale, average and good locations (about 125 m², plot 315 m²)",
+     "stat": "price level",
+     "value": 8200,
+     "use": "benchmark"
+    },
+    {
+     "type": "terraced",
+     "segment": "mid-terrace house, resale, average and good locations (about 115 m², plot 205 m²)",
+     "stat": "price level",
+     "value": 7750,
+     "use": "benchmark"
+    },
+    {
+     "type": "flats",
+     "segment": "new-build flats, average locations",
+     "stat": "mean",
+     "value": 10100,
+     "use": "context"
+    },
+    {
+     "type": "flats",
+     "segment": "new-build flats, good locations",
+     "stat": "mean",
+     "value": 10650,
+     "use": "context"
+    }
+   ],
+   "notes": [
+    "Resale flats: the board publishes their price level only as a chart by building age — no figure to apply."
+   ]
+  },
+  "08111000": {
+   "city": "Stuttgart",
+   "board": "Gutachterausschuss für die Ermittlung von Grundstückswerten in Stuttgart",
+   "period": "2025",
+   "source": "Landeshauptstadt Stuttgart — Gutachterausschuss, quarterly report 'Informationen zum Stuttgarter Grundstücksmarkt' (10 Feb 2026)",
+   "sourceUrl": "https://www.stuttgart.de/service/aktuelle-meldungen/2026/februar/stuttgarter-immobilienmarkt-weiterhin-im-aufwind-gutachterausschuss-stellt-neue-auswertung-vor",
+   "values": [
+    {
+     "type": "flats",
+     "segment": "resale flats",
+     "stat": "mean",
+     "value": 4250,
+     "use": "benchmark"
+    },
+    {
+     "type": "flats",
+     "segment": "new-build flats",
+     "stat": "mean",
+     "value": 8055,
+     "use": "context"
+    }
+   ],
+   "notes": [
+    "Houses: no per-m² price published in this report."
+   ]
+  },
+  "14713000": {
+   "city": "Leipzig",
+   "board": "Gutachterausschuss für Grundstückswerte in der Stadt Leipzig",
+   "period": "2025",
+   "source": "Gutachterausschuss Leipzig — Grundstücksmarktbericht Stichtag 01.01.2026 (tables 90, 99)",
+   "sourceUrl": "https://static.leipzig.de/fileadmin/mediendatenbank/leipzig-de/Stadt/02.6_Dez6_Stadtentwicklung_Bau/62_Amt_fuer_Geoinformationen_und_Bodenordnung/Gutachterausschuss/Marktbericht_Leipzig_2026.pdf",
+   "values": [
+    {
+     "type": "flats",
+     "segment": "resale flats in renovated pre-war buildings (sanierter Altbau), no parking share — the largest segment",
+     "stat": "median",
+     "value": 2770,
+     "sales": 1902,
+     "use": "benchmark"
+    },
+    {
+     "type": "flats",
+     "segment": "resale flats built after 1990, no parking share",
+     "stat": "median",
+     "value": 2458,
+     "sales": 139,
+     "use": "context"
+    }
+   ],
+   "notes": [
+    "The board publishes these by city district, building age and parking — the report has the property's own district."
+   ]
+  },
+  "14612000": {
+   "city": "Dresden",
+   "board": "Gutachterausschuss für Grundstückswerte in der Landeshauptstadt Dresden",
+   "period": "H1 2026",
+   "source": "Landeshauptstadt Dresden — Gutachterausschuss, half-year report 1st half 2026 (press release Sept 2026)",
+   "sourceUrl": "https://www.dresden.de/de/rathaus/aktuelles/pressemitteilungen/2026/09/pm_003.php",
+   "values": [
+    {
+     "type": "flats",
+     "segment": "resale flats",
+     "stat": "average",
+     "value": 2660,
+     "use": "benchmark"
+    },
+    {
+     "type": "flats",
+     "segment": "first sale of new-build flats",
+     "stat": "average",
+     "value": 6255,
+     "use": "context"
+    },
+    {
+     "type": "detached",
+     "segment": "detached one-family houses",
+     "stat": "average",
+     "value": 3535,
+     "use": "benchmark"
+    },
+    {
+     "type": "semi",
+     "segment": "semi-detached houses (existing)",
+     "stat": "average",
+     "value": 3330,
+     "use": "benchmark"
+    },
+    {
+     "type": "terraced",
+     "segment": "end-terrace houses (existing)",
+     "stat": "average",
+     "value": 4340,
+     "use": "benchmark"
+    }
+   ],
+   "notes": [
+    "Houses: only 13 to 23 sales per house type in the half-year — the board warns single prices move these figures."
+   ]
+  },
+  "03241001": {
+   "city": "Hannover",
+   "board": "Gutachterausschuss für Grundstückswerte Hameln-Hannover / Oberer Gutachterausschuss Niedersachsen",
+   "period": "Nov 2024 – Oct 2025",
+   "source": "© Oberer Gutachterausschuss für Grundstückswerte Niedersachsen 2026, dl-de/by-2-0, https://immobilienmarkt.niedersachsen.de — Landesgrundstücksmarktdaten 2026 (2 Feb 2026)",
+   "sourceUrl": "https://www.gag.niedersachsen.de/startseite/gutachterausschusse/landesgrundstucksmarktdaten-2026-niedersachsen-verzeichnet-beim-geldumsatz-einen-rekordzuwachs-um-3-6-milliarden-euro-besonders-gefragt-sind-eigentumswohnungen-248347.html",
+   "values": [
+    {
+     "type": "flats",
+     "segment": "resale flats",
+     "stat": "average, rounded",
+     "value": 3000,
+     "use": "benchmark"
+    },
+    {
+     "type": "flats",
+     "segment": "new-build flats (first occupancy)",
+     "stat": "mean",
+     "value": 6710,
+     "use": "context"
+    }
+   ],
+   "notes": [
+    "Houses: on average about €505,000 for a one- or two-family house and €421,000 for a terraced or semi-detached house — totals, no per-m² figure, not applied."
+   ]
+  },
+  "04011000": {
+   "city": "Bremen",
+   "board": "Gutachterausschuss für Grundstückswerte in Bremen",
+   "period": "Nov 2024 – Oct 2025",
+   "source": "Gutachterausschuss für Grundstückswerte in Bremen — Grundstücksmarktbericht Bremen 2026 im Überblick",
+   "sourceUrl": "https://www.gutachterausschuss.bremen.de/marktbericht/der-grundstuecksmarktbericht-bremen-2026-im-ueberblick-12274",
+   "values": [
+    {
+     "type": "flats",
+     "segment": "resale flats",
+     "stat": "average, rounded",
+     "value": 2520,
+     "use": "benchmark"
+    },
+    {
+     "type": "flats",
+     "segment": "first sale of new-build flats (comparison-adjusted)",
+     "stat": "mean",
+     "value": 5370,
+     "use": "context"
+    }
+   ],
+   "notes": [
+    "Houses (existing stock): average total prices about €303,000 terraced, €295,000 semi-detached, €365,000 detached — totals, not applied."
+   ]
+  },
+  "09564000": {
+   "city": "Nürnberg",
+   "board": "Gutachterausschuss für Grundstückswerte im Bereich der kreisfreien Stadt Nürnberg",
+   "period": "2025",
+   "source": "Stadt Nürnberg — Grundstücksmarktbericht 2025 (press release Nr. 401, 13 Apr 2026)",
+   "sourceUrl": "https://www.nuernberg.de/presse/mitteilungen/pm_27287.html",
+   "values": [],
+   "notes": [
+    "Resale flats sold for €1,800–6,800 per m² and new-build flats for €4,600–9,500 per m², depending on location, condition and modernisation — a range, no central figure published free of charge (the full report costs €60), so none is applied."
+   ]
+  }
+ }
+}

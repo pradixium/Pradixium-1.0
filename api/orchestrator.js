@@ -994,6 +994,32 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
         priceTrendPercent: change ?? null
       };
     }
+    // Germany outside NRW: the city's valuation board (lib/germany/cityReports.js)
+    const cr = c === "germany" && !(irw && irwNote) ? raw.cityReport : null;
+    if (cr) {
+      const one = (v) => `${v.segment}: ${eurDe(v.value)}/m² (${v.stat}${v.sales ? `, ${v.sales.toLocaleString("en-US")} sales` : ""})`;
+      const head = `${cr.board}, ${cr.period}`;
+      const main = cr.status === "ok" ? cr.main : null;
+      const text = `${head}: ${main
+        ? `${one(main)} — from the board's register of all notarised sales, applied as the benchmark.`
+        : cr.status === "several"
+          ? `${cr.candidates.length} figures for this home type — ${cr.candidates.map(one).join("; ")}. No single one is applied: compare the property with each.`
+          : "no per-m² figure for this home type."}${cr.others.length ? ` Also published: ${cr.others.map(one).join("; ")}.` : ""}${cr.notes.length ? ` ${cr.notes.join(" ")}` : ""} City-wide figure — not the property's street or condition.`;
+      return {
+        benchmarkValue: main ? main.value : null,
+        benchmarkUnit: "perSqm",
+        benchmarkLabel: main ? `${cr.city} — ${main.segment} (${cr.period})` : `${cr.city} valuation board (see source)`,
+        governmentValue: null,
+        transactionValue: null,
+        transactionPeriod: cr.period,
+        marketArea: main ? `${cr.city} (city-wide)` : `${cr.city} — ${cr.status === "several" ? `${cr.candidates.length} official figures, see source` : "no official figure for this home type"}`,
+        source: `${text} ${trendSource}.`,
+        sourceParts: [{ title: "Valuation board (Gutachterausschuss)", text }, { title: "Price trend", text: `${trendSource}.` }],
+        sourceUrl: cr.sourceUrl,
+        coverage: "city",
+        priceTrendPercent: change ?? null
+      };
+    }
     // the national statistics office's own LOCAL figure for this place
     // (municipality / Eircode area / county) — lib/europe/localPrices.js
     const lp = raw.localPrice;
