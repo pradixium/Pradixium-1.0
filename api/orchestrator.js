@@ -1506,7 +1506,7 @@ export default async function handler(req, res) {
   // guessing a number.
   // Germany: the property's federal state (from its municipality) sets the
   // Grunderwerbsteuer rate
-  const closingCosts = getClosingCosts(property.country, { state: /^germany$/i.test(String(property.country || "").trim()) ? (marketData?.rent?.land || (marketData?.irw?.ags ? "Nordrhein-Westfalen" : null)) : null });
+  const closingCosts = getClosingCosts(property.country, { state: /^germany$/i.test(String(property.country || "").trim()) ? (marketData?.rent?.land || (marketData?.irw?.ags ? "Nordrhein-Westfalen" : null)) : /^(united kingdom|uk)$/i.test(String(property.country || "").trim()) ? (marketData?.nation || null) : null });
 
   // Recurring annual ownership tax (property tax / taxe foncière / IBI /
   // Council Tax / Arnona, etc.) — a separate, ongoing cost from the

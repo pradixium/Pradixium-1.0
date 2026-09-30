@@ -896,6 +896,27 @@ servers → not used. Check: Lieusaint 66/86 matched, C €3,222 (23), D €3,18
     new flats 9,800/10,550 context). Resale flats still chart-only.
   - UAE: no fetch any more (Dubai Pulse resets connections, dataset last
     updated Apr 2024) — each report had waited ~11 s; honest message now.
+- UK rents + taxes (Sept 30 2026): the hand fixture of 5 ONS region rents
+  (any unmatched town got the ENGLAND average in its yield/score) is
+  replaced by `lib/data/ukRents.json` ← `python3 scripts/build-uk-rents.py`
+  (ONS Price Index of Private Rents xlsx, latest month): the property's own
+  local authority (England/Wales LAs, London boroughs), by bedrooms or home
+  type; no match → no rent. Scotland is published per rental market area
+  (Lothian…), not council → Edinburgh gets none. Re-run monthly. Check:
+  Manchester 2-bed £1,233, Westminster £3,196 = the ONS file. uk-intelligence
+  returns `nation` (HPI AreaCode E/W/S/N) → closingCosts `byNation`:
+  Scotland LBTT (Revenue Scotland: 0/2/5/10/12%, ADS 8%) and Wales LTT
+  (Welsh Government: 0/6/7.5/10/12%, higher rates 5–17%) instead of SDLT.
+  HPI file months are probed in parallel with HEAD (the newest is ~2 months
+  back; the old code tried each missing month in turn).
+- Closing costs added (Sept 30 2026): South Africa (SARS transfer duty
+  brackets from 1 Apr 2026), Kenya (Ministry of Lands service charter:
+  stamp duty 2% or 4%, KSh 1,000 registration), Morocco (CGI 2026 art.
+  133-I-F 4% built / G 5% land / B-7° 3% social; ANCFCC 1.5% + 100 DH,
+  min 500). Only verified parts are listed (no notary/agency guesses).
+  NOTE: realityCheck's parsePercent() averages the FIRST TWO "%" numbers of
+  totalEstimatedRange — write totals so those two are the buyer's range
+  (Barbados' total started with the seller's 3.5% and was reworded).
 - Checked Sept 30 2026, not usable: Dubai — DLD transaction search behind
   reCAPTCHA; its indexes GraphQL (gateway.dubailand.gov.ae/indexes-api) is
   open but publicly WRITABLE (full of test/pentest rows) → not a verifiable

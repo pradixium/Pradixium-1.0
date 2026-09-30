@@ -33,6 +33,9 @@
     },
     "api/pending-intelligence.js": {
       "includeFiles": "lib/data/serbiaPrices.json"
+    },
+    "api/uk-intelligence.js": {
+      "includeFiles": "lib/data/ukRents.json"
     }
   }
 }

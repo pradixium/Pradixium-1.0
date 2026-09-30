@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
 const esc = (value) => String(value || '').trim().slice(0, 300);
 
 // FIX: these used to be hardcoded to one month's filename (e.g. "...-2026-06.csv").
@@ -13,17 +15,22 @@ function monthLabel(date, monthsAgo) {
 }
 
 async function resolveLatestUkHpiFiles(maxMonthsBack = 6) {
+  // the newest release is usually 2 months back: probe every candidate month
+  // at once with a HEAD request, then download only the newest that exists
   const now = new Date();
-  for (let i = 0; i <= maxMonthsBack; i += 1) {
-    const label = monthLabel(now, i);
-    const averageUrl = `https://publicdata.landregistry.gov.uk/market-trend-data/house-price-index-data/Average-prices-${label}.csv`;
+  const base = 'https://publicdata.landregistry.gov.uk/market-trend-data/house-price-index-data/';
+  const labels = Array.from({ length: maxMonthsBack + 1 }, (_, i) => monthLabel(now, i));
+  const exists = await Promise.all(labels.map(async (label) => {
+    const c = new AbortController(); const t = setTimeout(() => c.abort(), 6000);
+    try { const r = await fetch(`${base}Average-prices-${label}.csv`, { method: 'HEAD', signal: c.signal }); return r.ok; } catch { return false; } finally { clearTimeout(t); }
+  }));
+  for (let i = 0; i < labels.length; i += 1) {
+    if (!exists[i]) continue;
+    const label = labels[i];
     try {
-      const typeUrl = `https://publicdata.landregistry.gov.uk/market-trend-data/house-price-index-data/Average-prices-Property-Type-${label}.csv`;
-      const [averageText, typeText] = await Promise.all([fetchText(averageUrl), fetchText(typeUrl).catch(() => null)]);
+      const [averageText, typeText] = await Promise.all([fetchText(`${base}Average-prices-${label}.csv`), fetchText(`${base}Average-prices-Property-Type-${label}.csv`).catch(() => null)]);
       if (averageText) return { label, averageText, typeText };
-    } catch (_error) {
-      // This month's release isn't published under this filename (yet, or ever) — try the prior month.
-    }
+    } catch (_error) { /* listed but not readable — try the prior month */ }
   }
   return null;
 }
@@ -92,39 +99,34 @@ function normalise(value) {
   return String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
 }
 
-// ONS's "Price Index of Private Rents" publishes real average rent levels
-// (not just an index) by country/region \u2014 a flat average for the whole
-// area, same convention as this file's own house-price benchmark
-// (AveragePrice is a "total", not a per-m\u00b2 rate). Unlike the live-fetched
-// HPI CSV above, ONS doesn't publish this as a stable machine-readable
-// feed, so this is a dated fixture \u2014 same pattern already used for
-// Belgium/Greece/Portugal. Update by hand from ONS's monthly "Private
-// rent and house prices, UK" bulletin.
-const UK_RENT = {
-  england: { monthlyRentGbp: 1459, annualChangePercent: 4.0, period: '2026-08 (12 months to)' },
-  london: { monthlyRentGbp: 2317, annualChangePercent: 3.0, period: '2026-07 (12 months to)' },
-  'north east': { monthlyRentGbp: 783, annualChangePercent: 6.3, period: '2026-07 (12 months to)' },
-  wales: { monthlyRentGbp: 843, annualChangePercent: 4.5, period: '2026-07 (12 months to)' },
-  scotland: { monthlyRentGbp: 1016, annualChangePercent: 1.7, period: '2026-07 (12 months to)' }
-};
-
-const UK_RENT_AREA_ALIASES = {
-  // London boroughs/areas
-  london: 'london', westminster: 'london', kensington: 'london', chelsea: 'london', camden: 'london',
-  islington: 'london', hackney: 'london', greenwich: 'london', croydon: 'london', ealing: 'london',
-  // North East England
-  newcastle: 'north east', sunderland: 'north east', durham: 'north east', middlesbrough: 'north east',
-  gateshead: 'north east', northumberland: 'north east',
-  // Wales
-  cardiff: 'wales', swansea: 'wales', newport: 'wales', wrexham: 'wales', bangor: 'wales',
-  // Scotland
-  edinburgh: 'scotland', glasgow: 'scotland', aberdeen: 'scotland', dundee: 'scotland', stirling: 'scotland', inverness: 'scotland'
-};
-
-function ukRentFor(city) {
-  const key = UK_RENT_AREA_ALIASES[normalise(city)] || null;
-  const area = key || 'england';
-  return { area, ...UK_RENT[area] };
+// ONS Price Index of Private Rents (PIPR): average monthly private rent per
+// local authority (England, Wales, London boroughs; Scotland by rental area)
+// by bedrooms and home type — lib/data/ukRents.json ← scripts/build-uk-rents.py
+// (re-run monthly). Only the property's OWN local authority is used; no
+// match → no rent (a region's or England's average is never a town's rent).
+let ukRentDoc;
+function ukRentData() {
+  if (ukRentDoc === undefined) { try { ukRentDoc = JSON.parse(readFileSync(path.join(process.cwd(), 'lib', 'data', 'ukRents.json'), 'utf8')); } catch { ukRentDoc = null; } }
+  return ukRentDoc;
+}
+const laKey = (v) => normalise(v).replace(/^(city|county|royal borough) of /, '').replace(/, (city|county) of$/, '').replace(/[^a-z0-9]+/g, ' ').trim();
+function ukRentFor(names, bedrooms, propertyType) {
+  const d = ukRentData();
+  if (!d) return { available: false };
+  const byName = {};
+  for (const a of Object.values(d.areas)) if (/^(E0[6789]|W06|S33)/.test(a.code)) byName[laKey(a.name)] = a;
+  const hit = names.map(laKey).map((k) => byName[k]).find(Boolean);
+  if (!hit) return { available: false, reason: 'no_local_authority' };
+  const beds = Number(bedrooms);
+  const t = normalise(propertyType);
+  const [key, label] = beds >= 1 ? (beds >= 4 ? ['bed4', '4+ bedroom homes'] : [`bed${beds}`, `${beds}-bedroom homes`])
+    : /apart|flat|studio|penthouse|maison/.test(t) ? ['flat', 'flats and maisonettes']
+    : /terrace|town/.test(t) ? ['terraced', 'terraced houses']
+    : /semi/.test(t) ? ['semi', 'semi-detached houses']
+    : /detached|villa/.test(t) ? ['detached', 'detached houses'] : ['all', 'all homes'];
+  const v = hit[key]?.rent ? hit[key] : hit.all;
+  return { available: Boolean(v?.rent), matchedArea: hit.name, monthlyRentGbp: v?.rent ?? null, annualChangePercent: v?.yoy ?? null,
+    rentBasis: hit[key]?.rent ? label : 'all homes', period: d.period, sourceUrl: d.sourceUrl };
 }
 
 function postcodeFrom(value) {
@@ -322,7 +324,7 @@ export default async function handler(req, res) {
     const nationalAverage = latestRows(averages).find((r) => normalise(r.RegionName) === 'united kingdom') || null;
     const types = ukTypes(propertyType);
     const typed = regionalType && types?.hpi ? Number(regionalType[`${types.hpi.replace(/_/g, '')}AveragePrice`]) || null : null;
-    const rental = ukRentFor(city);
+    const rental = ukRentFor([la, regional?.RegionName, ...names].filter(Boolean), req.query?.bedrooms, propertyType);
 
     return res.status(200).json({
       success: true,
@@ -332,6 +334,9 @@ export default async function handler(req, res) {
         market: 'UK House Price Index',
         period: regional?.Date ? regional.Date.slice(0, 7) : hpiFiles.label,
         hpiArea: regional?.RegionName || null,
+        // the nation the matched area lies in (HPI area codes E/W/S/N…) —
+        // Scotland (LBTT) and Wales (LTT) have their own transfer taxes
+        nation: ({ E: 'England', W: 'Wales', S: 'Scotland', N: 'Northern Ireland' })[String(regional?.AreaCode || '')[0]] || null,
         hpiTypeLabel: typed ? types.label : regional ? 'all homes' : null,
         averagePrice: typed ?? (Number(regional?.AveragePrice) || null),
         allHomesAveragePrice: Number(regional?.AveragePrice) || null,
@@ -340,15 +345,9 @@ export default async function handler(req, res) {
         monthlyChangePercent: regional && regional.MonthlyChange !== '' ? Number(regional.MonthlyChange) : null,
         transactionEvidence,
         rental: {
-          available: true,
-          matchedArea: rental.area,
-          monthlyRentGbp: rental.monthlyRentGbp,
-          annualChangePercent: rental.annualChangePercent,
-          period: rental.period,
-          source: 'ONS — Price Index of Private Rents, UK',
-          coverageNote: rental.area === 'england'
-            ? 'City not matched to a covered region — showing the England average instead.'
-            : null
+          ...rental,
+          source: rental.available ? `ONS — Price Index of Private Rents, ${rental.matchedArea}, ${rental.period}: average monthly rent of ${rental.rentBasis}` : 'ONS — Price Index of Private Rents',
+          coverageNote: rental.available ? null : 'No local authority matched — no rent figure is applied (a regional or national average is not used for one town).'
         },
         sources: {
           hpi: 'HM Land Registry / UK House Price Index',
