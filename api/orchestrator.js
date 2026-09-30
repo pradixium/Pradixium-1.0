@@ -278,6 +278,53 @@ function usAreaMedian(n) {
   return null;
 }
 
+// Greece: the Ministry of Finance zone price (τιμή ζώνης) as record rows.
+// A tax base, not a market price → never the benchmark (lib/greece/zones.js)
+function greeceRecord(z, property) {
+  if (!z || !z.status) return { record: null, parts: [] };
+  const eur = (x) => "€" + Math.round(x).toLocaleString("en-US");
+  const official = "Ministry of Finance / ΑΑΔΕ — objective value zone prices (τιμές ζώνης)";
+  const why = {
+    not_found: "The address was not found — enter the street and number with the town (Greek or Latin letters) for the property's official zone price.",
+    outside_zones: "This location is outside the zone-price system (areas outside a town plan are valued by a different method) — no zone price.",
+    unavailable: "The Ministry of Finance zone map did not answer this time — run the analysis again for the zone price.",
+    timeout: "The Ministry of Finance zone map did not answer in time — run the analysis again for the zone price."
+  }[z.status];
+  const first = z.zone || z.zones?.[0] || z.area || {};
+  const since = first.validFrom ? `, in force since ${first.validFrom}${first.revision ? ` (${first.revision} revision)` : ""}` : "";
+  const rows = [{ label: "Official record", value: why || `${official}${since}`, url: why ? null : (first.tablesUrl || "https://maps.gsis.gr/valuemaps/") }];
+  if (z.matched) rows.push({ label: "Address matched", value: z.matched });
+  const parts = [];
+  const nature = "A zone price is the tax base the Ministry of Finance multiplies (by floor, age and frontage coefficients) to get a property's objective value for transfer tax and ENFIA — an official figure, but not a market price.";
+  const price = Number(property?.price), size = Number(property?.size);
+  const askRow = (v) => { if (price > 0 && size > 0 && v > 0) rows.push({ label: "Asking price per m²", value: `${eur(price / size)}/m² — ${(price / size / v).toFixed(2)}× the zone price (different bases: the zone price is a tax base)` }); };
+  const zoneLabel = (x) => `zone ${x.name}, code ${x.id}`;
+  if (z.status === "frontage") {
+    rows.push({ label: "Zone price (street frontage)", value: `${eur(z.zone.value)}/m² — ${zoneLabel(z.zone)}: buildings facing ${z.zone.description}` });
+    (z.areaZones || []).forEach((a) => rows.push({ label: "Area zone behind the street", value: `${eur(a.value)}/m² — ${zoneLabel(a)}` }));
+    askRow(z.zone.value);
+    parts.push({ title: "Official zone price (τιμή ζώνης)", text: `This address faces ${z.zone.description}, a street-frontage zone priced at ${eur(z.zone.value)}/m² (${zoneLabel(z.zone)}${since}). ${nature}` });
+  } else if (z.status === "area") {
+    rows.push({ label: "Zone price (area zone)", value: `${eur(z.zone.value)}/m² — ${zoneLabel(z.zone)}` });
+    (z.frontage || []).forEach((f) => rows.push({ label: "Street-frontage zone nearby", value: `${eur(f.value)}/m² — only if the building faces ${f.description}` }));
+    askRow(z.zone.value);
+    parts.push({ title: "Official zone price (τιμή ζώνης)", text: `This address is in area zone ${z.zone.name} (code ${z.zone.id}), zone price ${eur(z.zone.value)}/m²${since}. ${nature}` });
+  } else if (z.status === "several") {
+    z.zones.forEach((a) => rows.push({ label: `Zone ${a.name} (code ${a.id})`, value: `${eur(a.value)}/m²` }));
+    rows.push({ label: "For this property's own zone", value: "the address lies on a boundary between zones — the zone depends on which side the building stands; none is chosen" });
+    parts.push({ title: "Official zone prices (τιμές ζώνης)", text: `The address lies between ${z.zones.length} zones (${z.zones.map((a) => eur(a.value) + "/m²").join(", ")})${since}. ${nature}` });
+  } else if (z.status === "range") {
+    const a = z.area;
+    rows.push({ label: "Zone prices in the area", value: `${eur(a.min)}–${eur(a.max)}/m², median ${eur(a.median)} — ${a.zones} area zones of the municipal unit ${a.unit} (municipality ${a.dimos})` });
+    if (z.around) rows.push({ label: "Zones around this neighbourhood", value: `${z.around.zones} zone${z.around.zones > 1 ? "s" : ""} within 400 m of its centre: ${z.around.min === z.around.max ? eur(z.around.min) : `${eur(z.around.min)}–${eur(z.around.max)}`}/m²` });
+    rows.push({ label: "For this property's own zone", value: "enter the street and number" });
+    parts.push({ title: "Official zone prices (τιμές ζώνης)", text: `${a.zones} area zones in the municipal unit ${a.unit}: ${eur(a.min)}–${eur(a.max)}/m², median ${eur(a.median)}${since}. ${nature} Enter the street and number for the property's own zone.` });
+  } else if (why) {
+    parts.push({ title: "Official zone price (τιμή ζώνης)", text: why });
+  }
+  return { record: { found: ["frontage", "area", "several", "range"].includes(z.status), rows }, parts };
+}
+
 // Spain: the Catastro zone as uniform record rows (rendered by the same
 // "Official property record" table as the US)
 function spainRecord(cz, property) {
@@ -879,6 +926,7 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
   }
 
   if (c === "greece") {
+    const gz = greeceRecord(raw.zonePrice, property);
     const hpi = raw.housingPriceIndex || {};
     // the Bank of Greece index is of APARTMENT prices → never a house's trend
     const flatGR = /apart|flat|studio|penthouse/i.test(String(propertyType || ""));
@@ -890,14 +938,16 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
     return {
       benchmarkValue: null,
       benchmarkUnit: "perSqm",
-      benchmarkLabel: `Bank of Greece apartment price index — ${areaGR}`,
+      benchmarkLabel: "Market price level (Greece publishes none — see the zone price below)",
       governmentValue: null,
       transactionValue: null,
       transactionPeriod: hpi.period ?? null,
       marketArea: `${areaGR} — official price trend; no official price level is published`,
       source: `Bank of Greece — apartment price index ${hpi.period || ""}, ${areaGR}: ${changeAll != null ? pct(changeAll) + " on a year earlier" : "unavailable"}${hpi.regionalArea && hpi.nationalAnnualChangePercent != null ? ` (Greece overall ${pct(hpi.nationalAnnualChangePercent)})` : ""}${flatGR ? "" : ". The index covers apartments only, so it is not used as this property's trend"}${rentTrend?.available ? `. Rents (national): ${pct(rentTrend.annualChangePercent)} on a year earlier (${rentTrend.period})` : ""}.`,
       coverage: hpi.regionalArea ? "regional" : "national",
-      priceTrendPercent: change
+      priceTrendPercent: change,
+      propertyRecord: gz.record,
+      sourceParts: [...gz.parts, { title: "Bank of Greece", text: `Apartment price index ${hpi.period || ""}, ${areaGR}: ${changeAll != null ? pct(changeAll) + " on a year earlier" : "unavailable"}${hpi.regionalArea && hpi.nationalAnnualChangePercent != null ? ` (Greece overall ${pct(hpi.nationalAnnualChangePercent)})` : ""}${flatGR ? "" : " — apartments only, not used as this property's trend"}.${rentTrend?.available ? ` Rents (national): ${pct(rentTrend.annualChangePercent)} on a year earlier (${rentTrend.period}).` : ""}` }]
     };
   }
 

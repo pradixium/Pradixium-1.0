@@ -73,12 +73,19 @@ function regionalChangeFor(city) {
   return null;
 }
 
+import { greekZone } from "../lib/greece/zones.js";
+
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "s-maxage=21600, stale-while-revalidate=86400");
   res.setHeader("Access-Control-Allow-Origin", "*");
 
   const city = String(req.query?.city || "").trim() || null;
+  const address = String(req.query?.address || "").trim() || null;
   const regional = regionalChangeFor(city);
+  // official zone price (τιμή ζώνης) for the address / area — the site
+  // sends an address typed in the city field as both address and city
+  const place = address && city && address !== city && !address.toLowerCase().includes(city.toLowerCase()) ? `${address}, ${city}` : (address || city);
+  const zone = place ? await Promise.race([greekZone(place).catch(() => null), new Promise((r) => setTimeout(() => r({ status: "timeout" }), 9000))]) : null;
 
   return res.status(200).json({
     success: true,
@@ -104,6 +111,7 @@ export default async function handler(req, res) {
         source: GREECE_RENT_INDEX.source,
         note: "An index trend, not an absolute €/m² figure — cannot be used to estimate an actual monthly rent, only to show the direction and pace of rent growth."
       },
+      zonePrice: zone,
       sources: { bankOfGreece: GREECE_HPI.source },
       sourceUrls: { bankOfGreece: GREECE_HPI.officialSource },
       coverage: "National/regional trend only — static figures from a dated Bank of Greece release, not a live feed. Verify against the official source before relying on it for a current quarter."

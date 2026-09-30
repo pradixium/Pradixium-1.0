@@ -903,10 +903,23 @@ servers → not used. Check: Lieusaint 66/86 matched, C €3,222 (23), D €3,18
   official benchmark: local currency, except Serbia EUR (RGZ), Peru and
   Uruguay USD (BCRP/INE and the market quote them), Cambodia/Ecuador/Puerto
   Rico USD. Bulgaria = EUR since 1 Jan 2026.
-- Greece (checked Sept 30 2026): the tax zone values (APAA) service on
-  maps.gsis.gr answers only through the map app's proxy (404 direct) and
-  minfin.gov.gr (zone tables + the transfer-values register) sits behind a
-  captcha for servers and WebFetch → not used. BoG publishes indices only.
+- Greece zone prices (Sept 30 2026): `lib/greece/zones.js` — the Ministry
+  of Finance / ΑΑΔΕ objective-value zone prices (τιμές ζώνης, ZONES_LATEST:
+  layer 1 area zones, layer 0 street-frontage zones; in force since
+  1 Jan 2022, 2021 revision) read through the public map app's own proxy
+  (maps.gsis.gr/valuemaps2/PHP/proxy.php — the ArcGIS server itself 404s
+  direct; the same request the public map makes, no challenge bypassed).
+  Address → Esri World geocoder (the one the ministry's map uses). Exact
+  address → its own street's frontage zone within 30 m, else the single
+  area zone; boundary → both listed; town/neighbourhood → the municipal
+  unit's range + median (+ zones within 400 m for "Kolonaki, Athens").
+  Shown as the official record rows + text, NEVER the benchmark (a tax
+  base, not a market price). Check: Tsimiski 45 → frontage 724 €2,100,
+  area 726 €1,600 = the ministry PDF PINAKES_APAA_726; Thessaloniki unit
+  47 zones €950–2,450, median €1,350 (separate query). Islands like
+  Mykonos: outside the zone system (out-of-plan valuation) → said so.
+  minfin.gov.gr (transfer-values register) is behind a captcha; BoG
+  publishes indices only.
 - Slovenia (Sept 30 2026): `slovenia` in lib/europe/localPrices.js ←
   `python3 scripts/build-si-prices.py 2025` (GURS Annual Report on the
   Slovenian Real Estate Market, English PDF on e-prostor.gov.si, from the
