@@ -380,6 +380,7 @@ function spainRecord(cz, property) {
 // Does a property in `city` belong to the area an official figure covers?
 const RECENT_AREA_ALIASES = {
   "canton of zurich": ["zurich", "zuerich", "zürich", "winterthur"],
+  "canton of geneva": ["geneva", "geneve", "genève", "genf", "carouge", "cologny", "vernier", "lancy", "meyrin", "onex", "thonex", "thônex", "chene-bougeries", "chêne-bougeries", "plan-les-ouates", "veyrier", "collonge-bellerive", "vandoeuvres", "vandœuvres", "anieres", "anières", "hermance", "bernex", "versoix", "grand-saconnex", "le grand-saconnex", "pregny-chambesy", "pregny-chambésy", "bellevue", "genthod", "chene-bourg", "chêne-bourg", "confignon", "satigny", "troinex"],
   "capital region (höfuðborgarsvæðið)": ["reykjavik", "reykjavík", "kopavogur", "kópavogur", "hafnarfjordur", "hafnarfjörður", "gardabaer", "garðabær", "mosfellsbaer", "mosfellsbær", "seltjarnarnes"],
   "prague": ["prague", "praha"], "warsaw": ["warsaw", "warszawa"], "tel aviv": ["tel aviv", "tel aviv-yafo", "tel aviv yafo", "jaffa", "yafo"], "tel aviv-yafo": ["tel aviv", "tel aviv-yafo", "tel aviv yafo", "tel-aviv", "jaffa", "yafo", "תל אביב", "תל אביב-יפו", "תל-אביב"],
   "luxembourg city": ["luxembourg", "luxembourg city", "luxemburg"], "nicosia (new-build apartments)": ["nicosia", "lefkosia", "lefkoşa"],
@@ -983,7 +984,15 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
     // transactions preferred over asking-price indices) where research
     // found one; countries without a credible source stay blank rather
     // than guess, same discipline as every other data module here.
-    const recent = getRecentTransactionPrice(country);
+    // a country may carry several official regional figures (Switzerland:
+    // Zurich, Geneva) → the one for the property's place and type
+    let recent = getRecentTransactionPrice(country);
+    if (recent?.alternatives?.length) {
+      const isHouse = /house|villa|detached|chalet/i.test(String(propertyType || "")) && !/apart|flat/i.test(String(propertyType || ""));
+      const typeOk = (x) => !x.appliesTo || (x.appliesTo === "flats" ? !isHouse : x.appliesTo === "houses" ? isHouse : true);
+      const pick = recent.alternatives.find((x) => typeOk(x) && recentAreaFits(x.area, property?.city || raw.city));
+      if (pick) recent = { ...pick };
+    }
     // Real bug (Sept 2026): a figure published for ONE area (Milan, Berlin,
     // Tel Aviv, Nicosia, Zagreb…) was applied to every city of the country
     // — an Olbia villa was measured against Milan. Now it is the benchmark

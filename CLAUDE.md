@@ -1096,6 +1096,14 @@ Blockers found — do not retry the same route:
 - Croatia PPV needs street + number; a city-only input now says so
   (was "no official price figure for Split yet").
 
+- Switzerland (Sept 30 2026): recentTransactionPrices entries may carry
+  `alternatives` (other regions' official figures, each with appliesTo);
+  the orchestrator picks the one whose area fits the place + type.
+  Geneva: OCSTAT "Informations statistiques n° 11 – Nov 2025" (2024
+  transactions): non-new free-market PPE flats median CHF 10,853/m²
+  (controlled ZD PPE 7,041 and new free-market 10,284 separate); houses
+  median CHF 2.190 m. Next edition ~Nov 2026 (2025 data).
+
 ## Africa (Sept 2026, Claude B)
 
 Trend-only fixtures in `api/regional-fixture-intelligence.js` — none of these
