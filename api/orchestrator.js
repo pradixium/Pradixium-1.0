@@ -381,6 +381,8 @@ function spainRecord(cz, property) {
 // Does a property in `city` belong to the area an official figure covers?
 const RECENT_AREA_ALIASES = {
   "canton of zurich": ["zurich", "zuerich", "zürich", "winterthur"],
+  "herzliya": ["herzliya", "herzeliya", "herzlia", "הרצליה"], "ramat gan": ["ramat gan", "ramat-gan", "רמת גן"], "jerusalem": ["jerusalem", "yerushalayim", "ירושלים"],
+  "haifa": ["haifa", "חיפה"], "ashkelon": ["ashkelon", "אשקלון"], "be'er sheva": ["beer sheva", "be'er sheva", "beersheba", "beer-sheva", "באר שבע"],
   "canton of geneva": ["geneva", "geneve", "genève", "genf", "carouge", "cologny", "vernier", "lancy", "meyrin", "onex", "thonex", "thônex", "chene-bougeries", "chêne-bougeries", "plan-les-ouates", "veyrier", "collonge-bellerive", "vandoeuvres", "vandœuvres", "anieres", "anières", "hermance", "bernex", "versoix", "grand-saconnex", "le grand-saconnex", "pregny-chambesy", "pregny-chambésy", "bellevue", "genthod", "chene-bourg", "chêne-bourg", "confignon", "satigny", "troinex"],
   "capital region (höfuðborgarsvæðið)": ["reykjavik", "reykjavík", "kopavogur", "kópavogur", "hafnarfjordur", "hafnarfjörður", "gardabaer", "garðabær", "mosfellsbaer", "mosfellsbær", "seltjarnarnes"],
   "prague": ["prague", "praha"], "warsaw": ["warsaw", "warszawa"], "tel aviv": ["tel aviv", "tel aviv-yafo", "tel aviv yafo", "jaffa", "yafo"], "tel aviv-yafo": ["tel aviv", "tel aviv-yafo", "tel aviv yafo", "tel-aviv", "jaffa", "yafo", "תל אביב", "תל אביב-יפו", "תל-אביב"],

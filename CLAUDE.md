@@ -1110,6 +1110,15 @@ Blockers found — do not retry the same route:
   Kreis) → Kreis → whole city (2025: 720 sales, CHF 17,646). Shipped with
   the orchestrator via vercel.json includeFiles.
 
+- Israel (Sept 30 2026): CBS release 256/2026 p. 5 prints exact Q2 2026
+  averages (free market, 1–6 rooms, provisional) for Tel Aviv 4,553.5k,
+  Herzliya 3,578.1k, Ramat Gan 3,070.0k, Jerusalem 3,058.5k, Haifa
+  1,816.4k, Ashkelon 1,729.1k, Be'er Sheva 1,236.2k → `alternatives` of
+  the israel entry. The other 11 cities are only unlabelled chart bars →
+  not used (read CBS's full city table when reachable; cbs.gov.il does
+  not answer from the sandbox, the PDF came via WebFetch). Hebrew RTL text
+  layer is scrambled → read from the rendered page image.
+
 ## Africa (Sept 2026, Claude B)
 
 Trend-only fixtures in `api/regional-fixture-intelligence.js` — none of these
