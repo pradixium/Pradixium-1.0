@@ -1167,6 +1167,30 @@ limitation already accepted for `subscription`/`business` expiry). Once a
 report is spent from the quota it's unlocked for good, same model as a
 one-time `report` purchase.
 
+**Race condition fixed (Sept 30 2026).** The check-then-insert above used
+to be two separate round trips from `api/consume-monthly-slot.js` itself —
+two requests for two DIFFERENT properties arriving close together could
+each pass the count check before either INSERT committed, letting more
+than 3 reports through in one cycle. Moved into one Postgres function,
+`consume_monthly_slot` (migration `add_consume_monthly_slot_atomic_function`
++ `fix_consume_monthly_slot_stripe_session_id`), which takes a per-user
+`pg_advisory_xact_lock` before checking and inserting, so concurrent calls
+for the same user serialize instead of racing; the API route is now a thin
+wrapper that calls it via `rpc/consume_monthly_slot`. Verified live against
+a scratch `purchases` row (cleaned up after): 4 truly concurrent calls
+against a quota of 3 correctly let exactly 3 through and rejected the 4th,
+and re-consuming an already-spent signature stays idempotent. The same
+testing also caught a second, independent, already-live bug: `purchases.
+stripe_session_id` is `NOT NULL`, which the original INSERT (in both the
+old JS and my first draft of the new function) never set — every monthly
+plan slot consumption had been failing with a 502 in production before
+this fix, regardless of the race condition; the function now sets a
+synthetic `monthly_usage_<uuid>` placeholder for these rows, since a quota
+usage row isn't tied to any real Stripe session. Not yet exercised: a real
+end-to-end call through the deployed Vercel route with a live monthly-plan
+account (the Postgres function itself was tested directly; the thin HTTP
+wrapper around it was not).
+
 **Business-plan differentiation (raised by the user):** the concern was a
 company just using the cheap individual plan instead of paying for
 Business, since the underlying report data/grade must be identical for

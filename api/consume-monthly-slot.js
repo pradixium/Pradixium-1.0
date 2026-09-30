@@ -19,11 +19,29 @@
  * not a Stripe renewal webhook — this project has none yet, so this
  * follows the same fixed-expiry-at-checkout-time pattern already used for
  * the subscription/business plans in verify-checkout-session.js.
+ *
+ * FIX (Sept 2026): the quota check and the usage INSERT used to be two
+ * separate round trips from this function (a SELECT to count usedThisCycle,
+ * then a POST to insert) -- two requests for two DIFFERENT properties
+ * arriving close together could each pass the count check before either
+ * INSERT committed, letting more than MONTHLY_QUOTA reports through in one
+ * cycle. Both steps now happen inside one Postgres function
+ * (consume_monthly_slot, migration add_consume_monthly_slot_atomic_function)
+ * that takes a per-user advisory lock before checking+inserting, so two
+ * concurrent calls for the same user are serialized instead of racing.
+ * Verified live: 4 concurrent calls against a quota of 3 correctly let
+ * exactly 3 through and rejected the 4th, and re-consuming an
+ * already-spent signature stays idempotent (no duplicate row, still
+ * allowed:true) -- tested against a scratch purchases row, cleaned up
+ * after. That same testing also caught a second, unrelated real bug: this
+ * table's stripe_session_id column is NOT NULL, which the old INSERT never
+ * set -- every monthly-plan slot consumption was silently failing in
+ * production with a 502 before this fix, regardless of the race condition.
  */
 const SUPABASE_URL = "https://wjafpyfawtacauygzgqd.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_v1qAMQNVqT7WAsfaGyGK_g_8p_zFD8K";
 const MONTHLY_QUOTA = 3;
-const CYCLE_MS = 30 * 24 * 60 * 60 * 1000;
+const CYCLE_DAYS = 30;
 
 async function getAuthenticatedUserId(authHeader) {
   const token = String(authHeader || "").replace(/^Bearer\s+/i, "").trim();
@@ -63,49 +81,26 @@ export default async function handler(req, res) {
   }
 
   try {
-    const r = await fetch(
-      `${SUPABASE_URL}/rest/v1/purchases?user_id=eq.${encodeURIComponent(userId)}&select=kind,report_signature,expires_at,created_at`,
-      { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } }
-    );
-    if (!r.ok) return res.status(502).json({ allowed: false, error: "Could not read entitlements." });
-    const rows = await r.json();
-    const now = Date.now();
-
-    // Already has real access another way (one-time purchase, unlimited
-    // plan, or this exact report was already spent from a previous month's
-    // quota) — nothing to consume.
-    const alreadyHasAccess = rows.some((row) => {
-      if (row.kind === "subscription" || row.kind === "business") return row.expires_at && new Date(row.expires_at).getTime() > now;
-      return (row.kind === "report" || row.kind === "monthly_usage") && row.report_signature === signature;
-    });
-    if (alreadyHasAccess) return res.status(200).json({ allowed: true });
-
-    const monthlyRow = rows.find((row) => row.kind === "monthly" && row.expires_at && new Date(row.expires_at).getTime() > now);
-    if (!monthlyRow) return res.status(200).json({ allowed: false, error: "No active monthly plan." });
-
-    const anchor = new Date(monthlyRow.created_at).getTime();
-    const cyclesElapsed = Math.floor((now - anchor) / CYCLE_MS);
-    const cycleStart = anchor + cyclesElapsed * CYCLE_MS;
-    const usedThisCycle = rows.filter((row) => row.kind === "monthly_usage" && new Date(row.created_at).getTime() >= cycleStart).length;
-    if (usedThisCycle >= MONTHLY_QUOTA) {
-      return res.status(200).json({ allowed: false, error: "Monthly report limit reached for this cycle." });
-    }
-
-    const insertRes = await fetch(`${SUPABASE_URL}/rest/v1/purchases`, {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/consume_monthly_slot`, {
       method: "POST",
       headers: {
         apikey: serviceKey,
         Authorization: `Bearer ${serviceKey}`,
-        "Content-Type": "application/json",
-        Prefer: "return=minimal"
+        "Content-Type": "application/json"
       },
-      body: JSON.stringify({ user_id: userId, kind: "monthly_usage", report_signature: signature })
+      body: JSON.stringify({
+        p_user_id: userId,
+        p_signature: signature,
+        p_quota: MONTHLY_QUOTA,
+        p_cycle_days: CYCLE_DAYS
+      })
     });
-    if (!insertRes.ok) {
-      const text = await insertRes.text().catch(() => "");
-      return res.status(502).json({ allowed: false, error: `Could not record usage: ${text.slice(0, 200)}` });
+    if (!r.ok) {
+      const text = await r.text().catch(() => "");
+      return res.status(502).json({ allowed: false, error: `Could not check/consume monthly quota: ${text.slice(0, 200)}` });
     }
-    return res.status(200).json({ allowed: true });
+    const result = await r.json();
+    return res.status(200).json(result);
   } catch (error) {
     return res.status(500).json({ allowed: false, error: String(error?.message || error) });
   }
