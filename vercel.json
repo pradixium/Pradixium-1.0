@@ -36,6 +36,9 @@
     },
     "api/uk-intelligence.js": {
       "includeFiles": "lib/data/ukRents.json"
+    },
+    "api/model-compare.js": {
+      "maxDuration": 60
     }
   }
 }
