@@ -47,6 +47,7 @@ import { getForeignBuyerRule } from "../lib/data/foreignBuyerRules.js";
 import { getClosingCosts } from "../lib/data/closingCosts.js";
 import { getPropertyTax } from "../lib/data/propertyTax.js";
 import { getCurrencyControls } from "../lib/data/currencyControls.js";
+import { zurichCondo } from "../lib/europe/zurichCity.js";
 import { getRecentTransactionPrice } from "../lib/data/recentTransactionPrices.js";
 
 const AGENT_REGISTRY = {
@@ -993,6 +994,11 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
       const pick = recent.alternatives.find((x) => typeOk(x) && recentAreaFits(x.area, property?.city || raw.city));
       if (pick) recent = { ...pick };
     }
+    // City of Zurich flats: the city's own per-m² figure by quarter / Kreis
+    if (c === "switzerland" && !/house|villa|detached|chalet/i.test(String(propertyType || ""))) {
+      const zh = zurichCondo(`${property?.address || ""}, ${property?.city || raw.city || ""}`);
+      if (zh) recent = zh;
+    }
     // Real bug (Sept 2026): a figure published for ONE area (Milan, Berlin,
     // Tel Aviv, Nicosia, Zagreb…) was applied to every city of the country
     // — an Olbia villa was measured against Milan. Now it is the benchmark
@@ -1171,7 +1177,7 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
     const flatsOnly = Boolean(recent && wantsHouseType && (recent.appliesTo === "flats" || /apartment|flats?\b|housing compan|multi-d|ejerlejlighed|condominium|stockwerkeigentum/i.test(`${recent.basis || ""} ${recent.source || ""}`)));
     // a figure whose source does not say which homes it covers is context only
     const typeUnstated = recent?.appliesTo === "unstated";
-    const fit = recent && !national && !flatsOnly && !typeUnstated ? recentAreaFits(recent.area, property?.city || raw.city) : false;
+    const fit = recent && !national && !flatsOnly && !typeUnstated ? (recent.placeMatched || recentAreaFits(recent.area, property?.city || raw.city)) : false;
     if (recent && national) {
       // a whole country's average says nothing about one town (Amsterdam vs
       // the Dutch average) → named as context, never the verdict

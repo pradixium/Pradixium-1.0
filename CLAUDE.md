@@ -1103,6 +1103,12 @@ Blockers found — do not retry the same route:
   transactions): non-new free-market PPE flats median CHF 10,853/m²
   (controlled ZD PPE 7,041 and new free-market 10,284 separate); houses
   median CHF 2.190 m. Next edition ~Nov 2026 (2025 data).
+  City of Zurich flats: `lib/europe/zurichCity.js` ← `python3
+  scripts/build-zh-condo.py` (Statistik Stadt Zürich open data
+  BAU515OD5157, yearly): median CHF/m² of living area of Stockwerkeigentum
+  free sales by Quartier (10+ counted sales; ranges like "2-6" → its
+  Kreis) → Kreis → whole city (2025: 720 sales, CHF 17,646). Shipped with
+  the orchestrator via vercel.json includeFiles.
 
 ## Africa (Sept 2026, Claude B)
 
