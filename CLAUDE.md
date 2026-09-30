@@ -1022,6 +1022,17 @@ gross yield only: Reality Check PASS at ≥ 4% gross (the old 3%-net line ÷
 `netYieldPercent` is always null; the AI agent is told never to state a net
 yield.
 
+## Report AI model (Sept 30 2026, owner's decision)
+
+`lib/agents/propertyInvestmentAgent.js` DEFAULT_MODEL = `claude-haiku-4-5`
+(was `claude-sonnet-4-6`): full paid report ~21 s → 8–11 s on the live site
+(France, 6 runs). Prompts, rules and figures unchanged (score, fair value,
+benchmark are computed in code). The owner's priority: English wording
+quality — if it drops, switch back (one line) or try `claude-sonnet-5-5`
+(`modelOptions()` sends thinking `between_tools` for it). The site chat
+(`api/chat.js`) was left on its own model. A paid report whose AI step
+fails still opens with all official figures (engine.js, AI sections say so).
+
 ## Report feedback field (shipped Sept 2026)
 
 One short free-text prompt at the end of every report ("anything you expected to
