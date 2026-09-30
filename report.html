@@ -477,7 +477,8 @@ function renderWatermark(){
   }
 }
 
-setLang('en');
+// opens in the language the customer chose, when that version exists
+setLang(hasLocal && a.reportLanguagePreferred && a.reportLanguagePreferred===localCode ? localCode : 'en');
 renderWatermark();
 
 // Business-only differentiator (see CLAUDE.md's Business-plan

@@ -1535,7 +1535,13 @@ export default async function handler(req, res) {
   // So local clients (a seller, their agent, a notary) in the property's
   // own market can read the report too — the AI agent below is asked to
   // also translate its analysis into this language, in the same call.
-  const reportLanguage = resolveReportLanguage(property.country, property.city);
+  // The customer can choose the report's language (a French agency selling
+  // a Spanish flat to French clients); otherwise the property country's.
+  const REPORT_LANGUAGES = { en: "English", fr: "Français", es: "Español", de: "Deutsch", it: "Italiano", pt: "Português", nl: "Nederlands" };
+  const chosenLanguage = String(property.reportLanguage || "").toLowerCase();
+  const reportLanguage = REPORT_LANGUAGES[chosenLanguage]
+    ? { code: chosenLanguage, label: REPORT_LANGUAGES[chosenLanguage] }
+    : resolveReportLanguage(property.country, property.city);
 
   const requestedAgents = Array.isArray(agents) && agents.length ? agents : Object.keys(AGENT_REGISTRY);
   const results = {};
