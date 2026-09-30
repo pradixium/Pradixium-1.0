@@ -827,6 +827,32 @@ servers → not used. Check: Lieusaint 66/86 matched, C €3,222 (23), D €3,18
   maps.gsis.gr answers only through the map app's proxy (404 direct) and
   minfin.gov.gr (zone tables + the transfer-values register) sits behind a
   captcha for servers and WebFetch → not used. BoG publishes indices only.
+- Slovenia (Sept 30 2026): `slovenia` in lib/europe/localPrices.js ←
+  `python3 scripts/build-si-prices.py 2025` (GURS Annual Report on the
+  Slovenian Real Estate Market, English PDF on e-prostor.gov.si, from the
+  ETN register): per market analysis area (30 MAAs) and local area (123
+  LAAs): existing flats median €/m² of USEFUL floor area (no balconies/
+  basements) + p25/p75 → benchmark; houses with land = median WHOLE price →
+  context; MAA's 2024→2025 change → trend. MAA boundaries are published
+  only as map images → a place counts only when GURS names it (an LAA name
+  part, or a town the report lists "including …" in an MAA); names in two
+  areas dropped (Bežigrad, Šempeter, Šmartno); Ljubljana/Maribor
+  neighbourhoods only with the city named. Other places → "enter the town"
+  + national figures as context. Parser cross-checks every MAA against the
+  report's Table 9. Ljubljana fixture (SURS 4,900) removed. Recompute from
+  the raw ETN 2025 file (open-market, single flat, not new-build, price ÷
+  useful area): Maribor municipality €2,671 (805) vs GURS MAA €2,670 (785),
+  Celje €2,656 vs €2,660. The raw ETN open data (ipi.eprostor.gov.si JGP,
+  per-year CSV) marks a sale "Tržen posel" only ~18 months later (most 2025
+  sales still "V preverjanju") → not used directly. The mass-valuation file
+  (EV, generalised values as at 1 Jan 2025) also carries OWNER NAMES → not
+  used. Re-run each spring with the next report's year.
+- Checked Sept 30 2026, not usable: Dubai — DLD transaction search behind
+  reCAPTCHA; its indexes GraphQL (gateway.dubailand.gov.ae/indexes-api) is
+  open but publicly WRITABLE (full of test/pentest rows) → not a verifiable
+  source. Estonia — Maa- ja Ruumiamet price query (maaamet.ee/kinnisvara/
+  htraru) sits behind a Cloudflare challenge and calls itself "informative
+  and unofficial"; its quarterly PDF has national indices only.
 - Not possible yet (checked Sept 2026): Greece (see above), Bulgaria (NSI per-city prices ended
   2014), Cyprus/Romania (no open per-area price data found).
 
