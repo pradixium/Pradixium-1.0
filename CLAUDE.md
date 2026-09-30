@@ -793,6 +793,17 @@ servers → not used. Check: Lieusaint 66/86 matched, C €3,222 (23), D €3,18
   124 duplicate gmina names → not matched). Check: Kraków NBP Q2 2026
   14,792 zł/m², hedonic −1.5% (raw 98.548); GUS 2024 Kraków 14,378 (6,081
   sales). The old Warsaw fixture (wrongly "notarial deeds") was removed.
+- Czech Republic (Sept 30 2026): `czech` in lib/europe/localPrices.js ←
+  `scripts/build-cz-prices.py` (ČSÚ "Ceny nemovitostí 2023–2025" Tab. 1,
+  from ČÚZK cadastre sale prices): average Kč/m² per district (okres, 76 +
+  Praha), 2023/2024/2025. Flats = price ÷ total floor area → benchmark,
+  change = 2024→2025 average (not quality-adjusted). Family houses = the
+  house's SHARE of the sale ÷ HABITABLE area → context only (status
+  "context", marketArea says "another basis"). Towns that are not district
+  names (Mariánské Lázně) → not matched (the ČSÚ municipality→district
+  codelist relation could not be exported). The Prague fixture was removed:
+  its basis did not say "flats" and it was applied to Prague HOUSES.
+  Check: Praha flats 131,520 / 115,889 → +13.5%.
 - Currency (Sept 30 2026, site-wide bug): the form's currency fell back to
   EUR for every country off a short list, while the benchmarks are in local
   currency (Prague CZK 131,520/m², Budapest HUF, Japan JPY) → "asking vs
