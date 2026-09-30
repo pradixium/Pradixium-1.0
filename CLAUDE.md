@@ -227,6 +227,12 @@ largest metro first.
   The sales table repeats each sale per tax year → de-duplicated; server
   pages are 1,000 rows. Homes → benchmark. Check: ZIP 22042 single-family
   detached 221 sales, $849,900 (recomputed the other way: ZIP → pins).
+  Fixes (Sept 30 2026, live check): Connecticut — an address never sold
+  since 2001 used to return nothing (no town median); now the geocoder's
+  town is used and the record says "no sale recorded" (hasRecord false).
+  Cook — a condo building typed without its unit → the building's own
+  Assessor neighborhood condo median (never the unit's record). Check:
+  1234 N Dearborn nbhd 74022 condos 822 sales, $385,500 (SoQL).
   Rejected: none left from this pass.
 - St. Louis (#23): City (29510) = last valid sale (Assessor sale type 10) +
   appraised value + ZIP context; St. Louis County (29189) = facts +
