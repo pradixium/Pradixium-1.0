@@ -572,7 +572,7 @@
     // A fresh result is a different property — the "Added" state from a
     // previous analysis in this same session must not carry over.
     const discoveryBtn = $("dealDiscoveryBtn");
-    if (discoveryBtn) { discoveryBtn.dataset.added = ""; discoveryBtn.textContent = "+ Add to Deal Discovery™"; }
+    if (discoveryBtn) { discoveryBtn.dataset.added = ""; discoveryBtn.textContent = "+ Add to Pradixium Deal Discovery™"; }
     const list = $("realityCheckList");
     if (list) {
       list.innerHTML = rc.checks.map((c) => {
@@ -633,7 +633,7 @@
       };
       saveDealDiscoveryEntry(entry);
       btn.dataset.added = "1";
-      btn.textContent = "✓ Added to Deal Discovery™";
+      btn.textContent = "✓ Added to Pradixium Deal Discovery™";
     });
   }
 

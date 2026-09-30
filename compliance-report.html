@@ -126,7 +126,7 @@ th{color:#8994a3;font-weight:700;font-size:10.5px;letter-spacing:.3px}
       ["Transaction Period", data.transactionPeriod || "—"],
       ["Market Area", data.marketArea || "—"],
       ["Foreign Buyer Access Status", data.foreignAccessStatus || "—"],
-      ["Reality Check™ Verdict", data.realityCheck?.verdict || "—"]
+      ["Pradixium Reality Check™ Verdict", data.realityCheck?.verdict || "—"]
     ];
 
     content.innerHTML =
@@ -182,7 +182,7 @@ th{color:#8994a3;font-weight:700;font-size:10.5px;letter-spacing:.3px}
         ["Confidence", score.confidence || "—"],
         ["Market Benchmark", evidence.benchmarkValue != null ? money(evidence.benchmarkValue, currency) + (evidence.benchmarkUnit === "perSqm" ? "/m²" : "") : "—"],
         ["Foreign Buyer Access Status", fba.status || "—"],
-        ["Reality Check™ Verdict", rc.verdict || "—"]
+        ["Pradixium Reality Check™ Verdict", rc.verdict || "—"]
       ];
 
       return `<div class="property-block">
