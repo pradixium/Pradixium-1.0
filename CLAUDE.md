@@ -56,6 +56,10 @@ The user is non-technical, Hebrew-primary, and has been very explicit about this
   main tradeoff, not an essay.
 - The user pushes back hard (and rightly) if Claude acts before confirming — treat
   that feedback as a hard rule, not a one-off.
+- Never remind the user about Anthropic API billing/credit or auto-reload —
+  it is handled, he has his own reminders (user, Sept 30 2026, explicit).
+- He alone decides which session does what — don't bring up the session
+  split in replies.
 
 ## Brand separation from Sikul25/Degaja (important context, already done)
 
