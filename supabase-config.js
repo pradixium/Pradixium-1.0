@@ -22,4 +22,4 @@ window.PRADIXIUM_SUPABASE_ANON_KEY = 'sb_publishable_v1qAMQNVqT7WAsfaGyGK_g_8p_z
  * Turnstile site key, then enable "Enable CAPTCHA protection" in the
  * Supabase Dashboard.
  */
-window.PRADIXIUM_TURNSTILE_SITE_KEY = '';
+window.PRADIXIUM_TURNSTILE_SITE_KEY = '0x4AAAAAAFJdThPtpkEHD45';
