@@ -51,11 +51,12 @@ const GREECE_RENT_INDEX = {
 // looking. Naming them explicitly here means a Mykonos or Santorini search
 // gets labelled as what it is instead of silently falling into a generic
 // "other cities" bucket meant for small inland towns.
+// Only small islands / resorts that are clearly not "cities": Crete's and
+// the big islands' towns (Heraklion, Chania, Rhodes, Corfu…) may count as
+// "other cities" — the Bank of Greece publishes no town list → national.
 const GREEK_ISLANDS_AND_RESORT_AREAS = [
-  "mykonos", "santorini", "thira", "crete", "chania", "heraklion", "rethymno",
-  "corfu", "kerkyra", "rhodes", "rodos", "kos", "paros", "naxos", "zakynthos",
-  "zante", "kefalonia", "cephalonia", "halkidiki", "chalkidiki", "skiathos",
-  "spetses", "hydra", "milos", "syros", "ios"
+  "mykonos", "santorini", "thira", "paros", "naxos", "skiathos", "spetses",
+  "hydra", "milos", "ios", "halkidiki", "chalkidiki"
 ];
 
 function regionalChangeFor(city) {
@@ -66,7 +67,10 @@ function regionalChangeFor(city) {
   if (GREEK_ISLANDS_AND_RESORT_AREAS.some((name) => c.includes(name))) {
     return { area: "Other areas (incl. islands & resort regions)", annualChangePercent: GREECE_HPI.otherAreasAnnualChangePercent };
   }
-  return { area: "Other Greek cities", annualChangePercent: GREECE_HPI.otherCitiesAnnualChangePercent };
+  // any other place: the Bank of Greece splits the rest into "other
+  // (large) cities" and "other areas" without a published list of which
+  // town falls where → the national figure, named as national
+  return null;
 }
 
 export default async function handler(req, res) {

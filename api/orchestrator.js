@@ -858,23 +858,24 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
 
   if (c === "greece") {
     const hpi = raw.housingPriceIndex || {};
-    const change = hpi.annualChangePercent ?? null;
+    // the Bank of Greece index is of APARTMENT prices → never a house's trend
+    const flatGR = /apart|flat|studio|penthouse/i.test(String(propertyType || ""));
+    const areaGR = hpi.regionalArea || "Greece (national)";
+    const changeAll = hpi.annualChangePercent ?? null;
+    const change = flatGR ? changeAll : null;
     const rentTrend = raw.rentTrend || null;
+    const pct = (v) => `${v >= 0 ? "+" : ""}${v}%`;
     return {
       benchmarkValue: null,
       benchmarkUnit: "perSqm",
-      benchmarkLabel: "Bank of Greece HPI (National)",
+      benchmarkLabel: `Bank of Greece apartment price index — ${areaGR}`,
       governmentValue: null,
       transactionValue: null,
       transactionPeriod: hpi.period ?? null,
-      marketArea: `${countryLabel(country)} — city-level price data not yet connected`,
-      // Bank of Greece also publishes a residential rent price index
-      // (an index, not an absolute €/m² — can't feed a yield estimate the
-      // way France's/Portugal's per-m² rent data can, but the YoY trend
-      // is real and worth showing rather than omitting).
-      source: `Bank of Greece — national index ${change != null ? (change >= 0 ? "+" : "") + change + "% YoY" : "unavailable"}${rentTrend?.available ? `. Rents (national): ${rentTrend.annualChangePercent >= 0 ? "+" : ""}${rentTrend.annualChangePercent}% YoY (${rentTrend.period})` : ""}`,
-      coverage: "national",
-      priceTrendPercent: change ?? null
+      marketArea: `${areaGR} — official price trend; no official price level is published`,
+      source: `Bank of Greece — apartment price index ${hpi.period || ""}, ${areaGR}: ${changeAll != null ? pct(changeAll) + " on a year earlier" : "unavailable"}${hpi.regionalArea && hpi.nationalAnnualChangePercent != null ? ` (Greece overall ${pct(hpi.nationalAnnualChangePercent)})` : ""}${flatGR ? "" : ". The index covers apartments only, so it is not used as this property's trend"}${rentTrend?.available ? `. Rents (national): ${pct(rentTrend.annualChangePercent)} on a year earlier (${rentTrend.period})` : ""}.`,
+      coverage: hpi.regionalArea ? "regional" : "national",
+      priceTrendPercent: change
     };
   }
 
