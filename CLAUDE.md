@@ -1082,6 +1082,23 @@ gross yield only: Reality Check PASS at ≥ 4% gross (the old 3%-net line ÷
 `netYieldPercent` is always null; the AI agent is told never to state a net
 yield.
 
+## Unofficial figures removed (Sept 30 2026, from a live Thessaloniki report)
+
+- `getClosingCosts()` drops every fee line whose source is "Market
+  convention" / non-binding guidance / surveys (86 lines, mostly agency
+  commissions and lawyer fees) and then the total too (the totals were
+  written including them) → `omittedUnofficial`; the report says "Not
+  totalled — only the official taxes and fees are listed". Reality
+  Check's cost-of-entry check then simply does not run.
+- Fair value: the old last tier (asking price nudged ±10% by demand/
+  trend = an own valuation) is gone → tier "none", value null, so no Fair
+  Value Gap / Suggested Offer from it. Rent-implied tier kept (the
+  property's own economics, labelled).
+- Greece foreign-buyer entry: only what ELRA (Greece's land-registry
+  contribution) states — Law 1892/1990 art. 25, frontier areas, permit
+  from the Decentralised Administration committee for non-EU/EFTA buyers;
+  "parts of Crete", "routinely granted" and "3-6 months" removed.
+
 ## Report AI model (Sept 30 2026, owner's decision)
 
 `lib/agents/propertyInvestmentAgent.js` DEFAULT_MODEL = `claude-haiku-4-5`

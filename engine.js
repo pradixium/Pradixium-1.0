@@ -659,7 +659,8 @@
 
     const tax = costs.transferTax || {};
     set("closingCostsTax", tax.rate || tax.rateRange || "—");
-    set("closingCostsTotal", costs.totalEstimatedRange || "—");
+    const omitted = Array.isArray(costs.omittedUnofficial) ? costs.omittedUnofficial : [];
+    set("closingCostsTotal", costs.totalEstimatedRange || (omitted.length ? "Not totalled — only the official taxes and fees are listed; agent and lawyer fees have no official rate" : "—"));
 
     // Compose whichever fee fields this country actually has — the shape
     // varies (notaryFees, legalFees, stampDuty, registrationFees,
@@ -676,7 +677,7 @@
     const agency = costs.agencyCommission;
     set("closingCostsAgency", agency
       ? `Agency commission: ${agency.rate || agency.rateRange}${agency.typicalPayer ? ` (typically paid by: ${agency.typicalPayer})` : ""}`
-      : "—");
+      : omitted.includes("agencyCommission") ? "Not set by law or an official body — agree it with the agent" : "—");
 
     const sourceParts = [tax.source, costs.sourceUrl].filter(Boolean);
     set("closingCostsSource", sourceParts.length
