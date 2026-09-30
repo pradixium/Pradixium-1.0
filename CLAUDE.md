@@ -793,6 +793,11 @@ servers → not used. Check: Lieusaint 66/86 matched, C €3,222 (23), D €3,18
   124 duplicate gmina names → not matched). Check: Kraków NBP Q2 2026
   14,792 zł/m², hedonic −1.5% (raw 98.548); GUS 2024 Kraków 14,378 (6,081
   sales). The old Warsaw fixture (wrongly "notarial deeds") was removed.
+- Speed (Sept 30 2026): Denmark asks StatBank ONE fixed EJEN77 query (all
+  11 landsdele × flats/houses/summer houses, Tid=(-n+5)) while the address
+  is geocoded — StatBank answers an already-computed query in ~1 s, a new
+  one in ~6 s (city lookups 6–9 s → < 2 s). UK Price Paid (67 MB) is split
+  on '","' (every field is quoted; same rows as the full CSV parser).
 - Czech Republic (Sept 30 2026): `czech` in lib/europe/localPrices.js ←
   `scripts/build-cz-prices.py` (ČSÚ "Ceny nemovitostí 2023–2025" Tab. 1,
   from ČÚZK cadastre sale prices): average Kč/m² per district (okres, 76 +
@@ -919,7 +924,7 @@ servers → not used. Check: Lieusaint 66/86 matched, C €3,222 (23), D €3,18
   (Barbados' total started with the seller's 3.5% and was reworded).
 - Armenia (Sept 30 2026): regional fixture — Cadastre Committee quarterly
   market analysis (cadastre.am/storage/files/1-ii2026.pdf, table 3.6-2,
-  copied from the rendered page): market-averaged €… AMD/m² of flats per
+  copied from the rendered page): market-averaged AMD/m² of flats per
   Yerevan district (12 district averages, Q2 2026 vs Q2 2025). The
   Committee builds them from contract prices AND offer prices →
   `askingPrices` → context only; "Yerevan" alone → the district range.

@@ -91,8 +91,16 @@ function csvLine(line) {
 function parseCsv(text) {
   const lines = String(text || '').split(/\r?\n/).filter(Boolean);
   if (!lines.length) return [];
-  const rows = lines.map(csvLine);
-  return rows;
+  // Price Paid quotes every field ("a","b",…) → a plain split is ~4× faster
+  // than the character parser (same rows on the whole 2026 file); any line
+  // that does not split into the full 16 fields goes through csvLine
+  return lines.map((line) => {
+    if (line[0] === '"' && line.endsWith('"')) {
+      const f = line.slice(1, -1).split('","');
+      if (f.length === 16 && !f.some((x) => x.includes('"'))) return f;
+    }
+    return csvLine(line);
+  });
 }
 
 function normalise(value) {
