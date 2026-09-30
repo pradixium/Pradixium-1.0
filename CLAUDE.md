@@ -709,8 +709,11 @@ servers → not used. Check: Lieusaint 66/86 matched, C €3,222 (23), D €3,18
   No local match → no benchmark (never the national one). "London" is
   never the City of London.
 - `lib/europe/localPrices.js` (called by api/eurostat-hpi-intelligence.js):
-  NL CBS 83625NED per municipality (PDOK geocoder), NO SSB 06035 €/m² per
-  municipality + type, SE SCB BO0501 houses per municipality (apartments =
+  NL CBS 83625NED per municipality (PDOK geocoder), NO SSB 14545 NOK/m² per
+  municipality + type (06035 was discontinued after 2024; 14545 = the
+  existing-dwellings price index's 2025 table: owner-occupied + co-op, FINN.no-
+  registered agency sales ~70%, BRA-i, no new builds — whole table fetched
+  once and cached), SE SCB BO0501 houses per municipality (apartments =
   bostadsrätter, not covered — said so), IE CSO HPM08 per Eircode routing
   area / HPM07 per county, DK Statistics Denmark EJEN77 per landsdel
   (Dataforsyningen geocoder). National averages are context only.
