@@ -183,6 +183,12 @@ largest metro first.
   (row / semi / detached house, horizontal / vertical condo; the extract
   holds each property's latest sale), 12 months (check: Old City 1 row
   houses 310 sales, $950,000; Old City 2 vertical condos 231, $470,000).
+  Detroit (Sept 30 2026): ECF neighborhood + class 401 median of the
+  Assessor's "03-ARM'S LENGTH" single-parcel sales, PREBUILT in
+  lib/data/detroitSales.js ← `NODE_USE_ENV_PROXY=1 node
+  scripts/build-detroit-sales.mjs` (monthly; the live service takes 30 s+
+  on a neighborhood filter). Condos have "C…" ECF neighborhoods. Check:
+  4R406 → 81 sales, $70,000 (raw query recompute).
   Rejected: Oklahoma County (the layer keeps only ~10 days of sales),
   Shelby TN (no type, no situs ZIP).
 - St. Louis (#23): City (29510) = last valid sale (Assessor sale type 10) +
