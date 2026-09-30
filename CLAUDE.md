@@ -197,8 +197,15 @@ largest metro first.
   manufactured home = "MH" nbhd / house): nbhd with 10+, else the city;
   text says "short window". Generic hook `areaMedian` in _structured.js.
   Check: Oklahoma City houses 212 sales, $237,000 (Sept 14–23).
-  Rejected:
-  Shelby TN (no type, no situs ZIP).
+  Memphis (Sept 30 2026): Shelby QualifiedSales has no type/ZIP, so
+  `node scripts/build-shelby-sales.mjs` (monthly) joins each sale's PARID
+  to CERTParcel NBHD + LUC + LANDUSE + CLASS (R only, not LUC 000 vacant),
+  drops price+date shared by several parcels (multi-parcel deeds) →
+  lib/data/shelbySales.js: "N|NBHD|LUC" then "Z|ZIP|LUC", 10+ sales.
+  SINGLE-FAMILY → benchmark; MULTI-FAMILY → context. Sales query needs
+  ESRI_OID in outFields (else 400). Check: NBHD 00709G04 LUC 062 → 33
+  sales, $342,800 (raw recompute incl. multi-parcel rule).
+  Rejected: none left from this pass.
 - St. Louis (#23): City (29510) = last valid sale (Assessor sale type 10) +
   appraised value + ZIP context; St. Louis County (29189) = facts +
   appraised value only (Missouri: the county publishes no sale prices).
