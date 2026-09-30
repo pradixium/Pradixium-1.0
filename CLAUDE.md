@@ -165,6 +165,14 @@ largest metro first.
   `node scripts/build-stl-sales.mjs` (City of St. Louis Assessor sales +
   parcel Access files; needs mdbtools — the city's file currently ends Nov
   2024, so its ZIP figures are context only).
+- Florida benchmark (Sept 30 2026): the ZIP's MEDIAN PRICE of county-
+  qualified (01/02) single-parcel sales of the same type (flSales.js) is
+  now the whole-home benchmark (benchmarkUnit "total", like Ireland's CSO
+  median) when no per-sq-ft benchmark exists — `areaMedianPrice` from
+  florida.js → us-intelligence macro.local → orchestrator. Per-sq-ft stays
+  context (FDOR effective area includes garages/porches). Recompute check
+  from the raw Dade 2026P SDF+NAL in Python: ZIP 33139 condos 1,521
+  sales, median $505,000 = the file.
 - St. Louis (#23): City (29510) = last valid sale (Assessor sale type 10) +
   appraised value + ZIP context; St. Louis County (29189) = facts +
   appraised value only (Missouri: the county publishes no sale prices).

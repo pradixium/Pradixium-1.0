@@ -762,7 +762,7 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
       governmentValue: gv?.value ?? val.fairValue ?? null,
       governmentValueLabel: gv ? [gv.label, gv.asOf && !String(gv.label || "").includes(gv.asOf) ? gv.asOf : null].filter(Boolean).join(" · ") : (val.fairValue != null ? (val.method || null) : null),
       nonMarketValue: macro.local?.nonMarketValue || null,
-      areaMedian: usAreaMedian(macro.nycSales),
+      areaMedian: usAreaMedian(macro.nycSales) || (macro.local?.areaMedianPrice ? `$${Math.round(macro.local.areaMedianPrice.value).toLocaleString("en-US")} median price · ${macro.local.areaMedianPrice.sales.toLocaleString("en-US")} qualified sales of ${macro.local.areaMedianPrice.typeLabel}, ${macro.local.areaMedianPrice.area} (${macro.local.areaMedianPrice.periodFrom} to ${macro.local.areaMedianPrice.periodTo})` : null),
       askingSameBasis: macro.nycSales?.askingPerUnitGrossSqFt ? `$${macro.nycSales.askingPerUnitGrossSqFt.toLocaleString("en-US")} per sq ft ($${Number(macro.nycSales.askingPrice).toLocaleString("en-US")} ÷ ${macro.nycSales.unitGrossSqFt.toLocaleString("en-US")} sq ft unit share)` : null,
       lastSalePrice: tx.salePrice ?? null,
       lastSaleDate: tx.saleDate ?? null,
@@ -771,6 +771,28 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
       bedrooms: prop.bedrooms ?? null,
       bathrooms: prop.bathrooms ?? null
     };
+    // Florida: the ZIP's median price of county-qualified (arm's-length)
+    // sales of the same type → a whole-home benchmark when no per-sq-ft
+    // one exists (same kind as Ireland's CSO median)
+    const amp = val.valuePerSqFt == null && !raw.localBenchmark ? macro.local?.areaMedianPrice || null : null;
+    if (amp?.value) {
+      return {
+        benchmarkValue: amp.value,
+        benchmarkUnit: "total",
+        benchmarkLabel: `Median sale price — ${amp.typeLabel}, ${amp.area}`,
+        governmentValue: macro.local?.governmentValue?.value ?? null,
+        transactionValue: tx.salePrice ?? null,
+        transactionPeriod: tx.saleDate ?? null,
+        marketArea: `${amp.area}${raw.property?.county ? `, ${raw.property.county}` : ""} — ${amp.sales} qualified sales of ${amp.typeLabel}, ${amp.periodFrom} to ${amp.periodTo}`,
+        source: usParts.map((x) => x.text).join(" "),
+        sourceUrl: amp.sourceUrl,
+        sourceParts: usParts,
+        propertyRecord: usRecord,
+        coverage: "city",
+        priceTrendPercent: stateHpi.oneYear ?? null,
+        officialChecks: Array.isArray(raw.officialChecks) && raw.officialChecks.length ? raw.officialChecks : null
+      };
+    }
     return {
       // NJ: municipal median $/sq ft of LIVING area from usable Treasury
       // sales, same type — comparable to the user's own size, so it is a
