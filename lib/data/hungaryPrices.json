@@ -1,0 +1,88 @@
+{
+ "source": "KSH (Hungarian Central Statistical Office) — used-home prices from NAV duty data on registered sales",
+ "sourceUrl": "https://www.ksh.hu/s/kiadvanyok/lakaspiaci-arak-lakasarindex-2026-i-negyedev/index.html",
+ "stadatUrl": "https://www.ksh.hu/stadat_files/lak/hu/lak0028.html",
+ "year": "2025",
+ "quarter": "2026. I. negyedév",
+ "comparedWith": "2025 I. negyedévi",
+ "budapest": {
+  "flats": 1258000,
+  "houses": 924000,
+  "panel": 1119000,
+  "yoy": 7.4
+ },
+ "countySeats": {
+  "Debrecen": {
+   "value": 941000,
+   "yoy": 5.9
+  },
+  "Győr": {
+   "value": 928000,
+   "yoy": 16.7
+  },
+  "Veszprém": {
+   "value": 891000,
+   "yoy": 13.6
+  },
+  "Székesfehérvár": {
+   "value": 877000,
+   "yoy": 15.4
+  },
+  "Szeged": {
+   "value": 863000,
+   "yoy": 12.5
+  },
+  "Pécs": {
+   "value": 775000,
+   "yoy": 13.8
+  },
+  "Kecskemét": {
+   "value": 733000,
+   "yoy": 14.6
+  },
+  "Eger": {
+   "value": 713000,
+   "yoy": 14.4
+  },
+  "Szombathely": {
+   "value": 706000,
+   "yoy": 12.5
+  },
+  "Nyíregyháza": {
+   "value": 695000,
+   "yoy": 22.9
+  },
+  "Tatabánya": {
+   "value": 683000,
+   "yoy": 11.4
+  },
+  "Zalaegerszeg": {
+   "value": 615000,
+   "yoy": 16.7
+  },
+  "Szekszárd": {
+   "value": 569000,
+   "yoy": 9.3
+  },
+  "Kaposvár": {
+   "value": 538000,
+   "yoy": 14.8
+  },
+  "Szolnok": {
+   "value": 537000,
+   "yoy": 20.4
+  },
+  "Miskolc": {
+   "value": 536000,
+   "yoy": 17.1
+  },
+  "Békéscsaba": {
+   "value": 455000,
+   "yoy": 14.6
+  },
+  "Salgótarján": {
+   "value": 304000,
+   "yoy": 16.4
+  }
+ }
+}

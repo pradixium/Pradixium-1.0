@@ -804,6 +804,17 @@ servers → not used. Check: Lieusaint 66/86 matched, C €3,222 (23), D €3,18
   codelist relation could not be exported). The Prague fixture was removed:
   its basis did not say "flats" and it was applied to Prague HOUSES.
   Check: Praha flats 131,520 / 115,889 → +13.5%.
+- Hungary (Sept 30 2026): `hungary` in lib/europe/localPrices.js ←
+  `scripts/build-hu-prices.py <release slug>` (KSH, NAV duty data):
+  Budapest from STADAT lak0028 latest year — USED-home section only (the
+  table also has new homes further down: Budapest new flats 1,616k were
+  once picked by mistake): houses/terraced 924k → benchmark; flats split
+  into non-panel multi-unit 1,258k and panel estates 1,119k → two figures,
+  none applied (context). County seats: the quarterly release's table
+  (houses + flats together) → context + the town's own y-o-y as the trend
+  (lp status "context" with yoyPercent/trendText/label/marketArea — generic
+  hooks in the orchestrator). Budapest fixture removed. Next release: new
+  slug (lakaspiaci-arak-lakasarindex-2026-ii-negyedev…).
 - Currency (Sept 30 2026, site-wide bug): the form's currency fell back to
   EUR for every country off a short list, while the benchmarks are in local
   currency (Prague CZK 131,520/m², Budapest HUF, Japan JPY) → "asking vs

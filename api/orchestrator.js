@@ -1059,6 +1059,8 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
       lu_few_sales: " Luxembourg's Observatoire de l'Habitat publishes no price for a commune with fewer than 10 apartment sales in the last 12 months."
     };
     const localNote = irwNote + (LOCAL_NOTES[lp?.status] || (lp?.status === "needs_district" || lp?.status === "context" ? ` ${lp.note}` : lp?.status === "apartments_not_covered" ? " Sweden's apartments are tenant-owner shares (bostadsrätter), not real property — the official price statistics cover houses only." : ""));
+    // a context-only local figure that still carries the place's own official change
+    if (lp?.status === "context" && Number.isFinite(lp.yoyPercent) && lp.trendText) { trendSource = lp.trendText; change = lp.yoyPercent; }
     const national = recent && /national|malta & gozo/i.test(recent.area);
     // a figure for flats only (Iceland's 60–90 m² flats, Finland's housing
     // companies) is not a house's benchmark
@@ -1115,13 +1117,13 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
     return {
       benchmarkValue: null,
       benchmarkUnit: "perSqm",
-      benchmarkLabel: deReg && deChange != null ? `${deReg.sourceName || sourceName} price index — ${deReg.area}` : `${sourceName} HPI (National)`,
+      benchmarkLabel: lp?.status === "context" && lp.label ? lp.label : deReg && deChange != null ? `${deReg.sourceName || sourceName} price index — ${deReg.area}` : `${sourceName} HPI (National)`,
       governmentValue: null,
       transactionValue: null,
-      transactionPeriod: deReg && deChange != null ? deReg.period : (hpi.period ?? hpi.quarter ?? null),
+      transactionPeriod: lp?.status === "context" && lp.period ? lp.period : deReg && deChange != null ? deReg.period : (hpi.period ?? hpi.quarter ?? null),
       // Dubai's index isn't a UAE-wide figure — say so rather than implying
       // national coverage the source doesn't have.
-      marketArea: c === "united arab emirates" ? "Dubai only — other emirates not covered" : deReg && deChange != null && !deReg.national && c !== "germany" ? `${deReg.area} — official price trend; no official price level is published` : lp?.status === "context" && lp.area ? `${lp.area} — official figure on another basis, not applied (see source)` : `${countryLabel(country)} — city-level data not yet connected`,
+      marketArea: c === "united arab emirates" ? "Dubai only — other emirates not covered" : deReg && deChange != null && !deReg.national && c !== "germany" ? `${deReg.area} — official price trend; no official price level is published` : lp?.status === "context" && lp.area ? (lp.marketArea || `${lp.area} — official figure on another basis, not applied (see source)`) : `${countryLabel(country)} — city-level data not yet connected`,
       source: `${trendSource}${localNote ? "." + localNote : ""}`,
       coverage: "national",
       priceTrendPercent: change ?? null
