@@ -869,11 +869,15 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
     const sourceName = c === "germany" ? "Destatis" : c === "italy" ? "Istat" : c === "israel" ? "CBS Israel" : c === "united arab emirates" ? "Dubai Land Department" : c === "turkey" ? "TCMB" : "Eurostat";
     let trendSource = `${sourceName} — national index ${change != null ? (change >= 0 ? "+" : "") + change + "% YoY" : "unavailable"}`;
     // Germany's TOP-7 metros: Destatis's own metro change for flats / houses
-    const deReg = c === "germany" ? hpi.regional : null;
+    // a newer / finer official index for the property's area and type
+    // (Destatis TOP-7 metros, Central Bank of Cyprus districts)
+    const deReg = hpi.regional || null;
     const deFlat = /apart|flat|studio|penthouse/i.test(String(propertyType || ""));
     const deChange = deReg ? (deFlat ? deReg.flatsAnnualChangePercent : deReg.housesAnnualChangePercent) : null;
     if (deReg && deChange != null) {
-      trendSource = `${sourceName} house price index ${deReg.period}, ${deReg.area}: ${deFlat ? "flats" : "one- and two-family houses"} ${deChange >= 0 ? "+" : ""}${deChange}% on a year earlier (Germany overall ${change >= 0 ? "+" : ""}${change}%)`;
+      const houseWord = c === "germany" ? "one- and two-family houses" : "houses";
+      const overall = c === "germany" ? ` (Germany overall ${change >= 0 ? "+" : ""}${change}%)` : deReg.national || deReg.nationalAll == null ? "" : ` (${countryLabel(country)} overall ${deReg.nationalAll >= 0 ? "+" : ""}${deReg.nationalAll}%, ${deReg.period} vs ${deReg.comparedWith})`;
+      trendSource = `${deReg.sourceName || sourceName} house price index ${deReg.period}, ${deReg.area}: ${deFlat ? "flats" : houseWord} ${deChange >= 0 ? "+" : ""}${deChange}% on a year earlier${overall}`;
       change = deChange;
     }
     // FIX: this branch only ever had a % trend (no absolute price), leaving
@@ -1109,13 +1113,13 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
     return {
       benchmarkValue: null,
       benchmarkUnit: "perSqm",
-      benchmarkLabel: `${sourceName} HPI (National)`,
+      benchmarkLabel: deReg && deChange != null ? `${deReg.sourceName || sourceName} price index — ${deReg.area}` : `${sourceName} HPI (National)`,
       governmentValue: null,
       transactionValue: null,
-      transactionPeriod: hpi.period ?? hpi.quarter ?? null,
+      transactionPeriod: deReg && deChange != null ? deReg.period : (hpi.period ?? hpi.quarter ?? null),
       // Dubai's index isn't a UAE-wide figure — say so rather than implying
       // national coverage the source doesn't have.
-      marketArea: c === "united arab emirates" ? "Dubai only — other emirates not covered" : `${countryLabel(country)} — city-level data not yet connected`,
+      marketArea: c === "united arab emirates" ? "Dubai only — other emirates not covered" : deReg && deChange != null && !deReg.national && c !== "germany" ? `${deReg.area} — official price trend; no official price level is published` : `${countryLabel(country)} — city-level data not yet connected`,
       source: `${trendSource}${localNote ? "." + localNote : ""}`,
       coverage: "national",
       priceTrendPercent: change ?? null

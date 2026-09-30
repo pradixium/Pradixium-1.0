@@ -768,8 +768,22 @@ servers → not used. Check: Lieusaint 66/86 matched, C €3,222 (23), D €3,18
 - Turkey: TCMB EVDS has official TL/m² by province but needs a free API
   key (user must register). **Assigned by the user to the OTHER session
   (Claude A / "Pradixium 1.0"), Sept 2026 — Claude B does not build Turkey.**
-- Not possible yet (checked Sept 2026): Greece (zone values only as
-  Gazette PDFs; BoG publishes indices only), Bulgaria (NSI per-city prices ended
+- Cyprus (Sept 30 2026): `lib/europe/cyprus.js` ← `scripts/build-cy-rppi.py
+  2026Q2` → lib/data/cyprusIndexPrices.json — Central Bank of Cyprus RPPI
+  (valuation-based, quarterly): change on a year earlier by DISTRICT
+  (Nicosia, Limassol, Larnaca, Paphos, Famagusta) × flats/houses; towns and
+  resorts mapped to districts (Germasogeia → Limassol, Peyia → Paphos, Ayia
+  Napa/Protaras → Famagusta); unknown town → national, named as national.
+  Passed as housingPriceIndex.regional (the orchestrator's generic regional
+  hook, shared with Germany's TOP-7). No official price LEVEL: the DLS
+  comparable-sales service is for registered valuers only. Re-run each
+  quarter. Check: Limassol flats 154.14/142.96 → +7.8%; national +8.5% =
+  the CBC release.
+- Greece (checked Sept 30 2026): the tax zone values (APAA) service on
+  maps.gsis.gr answers only through the map app's proxy (404 direct) and
+  minfin.gov.gr (zone tables + the transfer-values register) sits behind a
+  captcha for servers and WebFetch → not used. BoG publishes indices only.
+- Not possible yet (checked Sept 2026): Greece (see above), Bulgaria (NSI per-city prices ended
   2014), Cyprus/Romania (no open per-area price data found).
 
 ## Africa (Sept 2026, Claude B)

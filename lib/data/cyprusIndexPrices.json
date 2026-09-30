@@ -1,0 +1,39 @@
+{
+ "source": "Central Bank of Cyprus \u2014 Residential Property Price Index (RPPI)",
+ "sourceUrl": "https://www.centralbank.cy/en/publications/residential-property-price-indices",
+ "file": "https://www.centralbank.cy/images/media/redirectfile/RPPI/2026Q2/Data_RPPI_2026Q2_EN.xls",
+ "period": "2026 Q2",
+ "comparedWith": "2025 Q2",
+ "national": {
+  "all": 8.5,
+  "flats": 8.9,
+  "houses": 5.8
+ },
+ "districts": {
+  "Nicosia": {
+   "all": 5.7,
+   "flats": 4.6,
+   "houses": 4.4
+  },
+  "Limassol": {
+   "all": 7.8,
+   "flats": 7.8,
+   "houses": 4.3
+  },
+  "Larnaca": {
+   "all": 9.8,
+   "flats": 7.9,
+   "houses": 8.9
+  },
+  "Paphos": {
+   "all": 9.6,
+   "flats": 18.5,
+   "houses": 3.1
+  },
+  "Famagusta": {
+   "all": 10.0,
+   "flats": 7.4,
+   "houses": 10.5
+  }
+ }
+}
