@@ -40,7 +40,15 @@ The user is non-technical, Hebrew-primary, and has been very explicit about this
 - **One step at a time.** Don't give multi-step instructions for manual UI tasks
   (Vercel, GitHub, environment settings). Ask for a screenshot, give one instruction,
   wait for the next screenshot.
-- **Never deploy to `main`/production without explicit approval.** Build the change,
+- **Standing approval for country data work (user, Sept 30 2026):** "continue
+  in depth to more countries — don't wait for my approval, upload, execute,
+  don't delay." Claude B deploys each finished, VERIFIED country (official
+  sources, hand recompute, screenshots, smoke test of other countries,
+  merge origin/main first) straight to `main` and reports afterwards. This
+  covers country/local data coverage only — anything else (pricing,
+  payments, UI redesigns, legal text) still needs an explicit yes.
+- **Never deploy to `main`/production without explicit approval** (except
+  the standing approval above). Build the change,
   validate it (syntax check + a local screenshot via headless Chromium), show the
   screenshot, and wait for an explicit "yes/כן/מאשר" before pushing to `main`. Pending
   work goes to the feature branch only.
