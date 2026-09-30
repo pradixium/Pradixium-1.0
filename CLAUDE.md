@@ -1069,6 +1069,28 @@ servers → not used. Check: Lieusaint 66/86 matched, C €3,222 (23), D €3,18
 - Not possible yet (checked Sept 2026): Greece (see above), Bulgaria (NSI per-city prices ended
   2014), Cyprus/Romania (no open per-area price data found).
 
+## Full audit, Sept 30 2026 (all 91 dropdown countries on production)
+
+Blockers found — do not retry the same route:
+- Gulf: Saudi MoJ / REGA sales data is published on open.data.gov.sa
+  (503 / no answer to foreign servers and WebFetch) → needs a browser
+  download by the user (NJ/FL pattern). MoJ sale records carry the home
+  type only for 2023 Q1–Q3 → REGA's per-type indicators preferred.
+  Qatar MoJ bulletin: moj.gov.qa unreachable, figures only via press →
+  not used. UAE: DLD transactions only via the site's captcha search →
+  user browser download (in progress with the user). Saudi Arabia,
+  Qatar, Kuwait, Bahrain, Oman are NOT in the dropdown yet.
+- Seattle (King County) EXTR_RPSale.csv and Phoenix (Maricopa) R102 sales
+  affidavits carry buyer/seller NAMES → not used (same rule as Slovenia's
+  EV file); the copy downloaded for inspection was deleted.
+- Monaco IMSEE 2025: price per m² is now a regression model (IMSEE's own
+  method note) → modelled, not used (like Luxembourg "prix affinés");
+  imsee.mc answers 403 to servers.
+- Slovakia NBS regional prices: only via press; basis (sales vs offers)
+  not confirmable from NBS itself → still context only.
+- Croatia PPV needs street + number; a city-only input now says so
+  (was "no official price figure for Split yet").
+
 ## Africa (Sept 2026, Claude B)
 
 Trend-only fixtures in `api/regional-fixture-intelligence.js` — none of these

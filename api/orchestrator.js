@@ -1188,7 +1188,7 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
         governmentValue: null,
         transactionValue: null,
         transactionPeriod: hpi.period ?? hpi.quarter ?? null,
-        marketArea: `${countryLabel(country)} — no official price figure for ${property?.city || "this city"} yet`,
+        marketArea: lp?.status === "needs_address" ? `${countryLabel(country)} — enter the street and number for this property's official price block` : `${countryLabel(country)} — no official price figure for ${property?.city || "this city"} yet`,
         source: typeUnstated
           ? `${trendSource}. Official figure on file (${recent.source}, ${recent.area}, ${recent.period}): ${Math.round(recent.value).toLocaleString("en-US")}${recent.unit === "perSqm" ? " per m²" : " per home"} — the published table does not state which home types it covers, so it is context only.${localNote}`
           : flatsOnly
