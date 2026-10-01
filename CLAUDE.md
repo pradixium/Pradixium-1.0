@@ -1780,6 +1780,76 @@ already accepts "address, city or postal code" as free text, so a user or
 agent naming the quartier (the normal way Monaco listings are described)
 now gets matched automatically — no UI change needed.
 
+## Foreign Buyer Access: full world coverage (Oct 1 2026, 67 -> 190)
+
+After the Monaco episode and the 67->96 sweep of already-supported
+countries, the user escalated twice more, explicitly: first "go find
+every not-yet-supported country's rule too, not just the gaps in
+countries we already serve," then — after correctly refusing to bulk-
+import a general reference list of statistics-body names as if it were
+verified data — an explicit instruction to cover literally every country
+and territory in the world, including unstable/post-conflict/pariah
+states, accepting a thin or imperfect entry now (to complete later) over
+having none at all, but never a guessed one.
+
+Worked through essentially the entire world in bounded, verified batches
+of 5-7 countries at a time, each with the same per-country sourcing
+discipline as every earlier entry in this file (a real statute,
+constitutional article, or named official body — never invented).
+67 -> 190 total entries, in ~25 separate commits on the
+`foreign-buyer-monaco` branch so each batch's reasoning stays
+attributable. Final status breakdown: 71 OPEN, 81 WORKAROUND REQUIRED, 37
+RESTRICTED, 1 TAX SURCHARGE (Singapore).
+
+Regions covered, roughly in the order worked: the original 67->96 gap-fill
+(ex-Soviet states, Balkans, Monaco's own neighbors) -> Gulf states, China,
+Hong Kong, Taiwan -> Middle East (Jordan, Lebanon, Iraq, Syria, Yemen) and
+South Asia (Pakistan, Bangladesh, Nepal) -> Central America and the
+Caribbean's early entries -> most of Sub-Saharan Africa, country by
+country (West, East, Central, Southern) -> the hardest conflict/pariah
+cases (Libya, Sudan, Afghanistan, Somalia, North Korea, Cuba) -> the
+Pacific island states (Fiji, Vanuatu, Samoa, Tonga, Solomon Islands,
+Palau, Micronesia, Marshall Islands, Nauru) -> the remaining Eastern
+Caribbean (Antigua, St Lucia, St Kitts, St Vincent, Grenada, Dominica,
+Guyana, Suriname).
+
+**Notable findings from the hardest cases**, worth remembering as a
+validated methodology, not just a one-off result: even North Korea had a
+real, citable answer (sourced to a Library of Congress Law Library report
+on foreigners' property rights, since no NK government legal portal
+exists) — "private property is outlawed" is itself a verifiable fact, not
+a guess. Same for Somalia, Sudan, South Sudan, and Yemen: the formal legal
+position is findable and real, even where (stated explicitly in each of
+those entries) the practical, on-the-ground enforceability is a separate
+and serious risk given active conflict or collapsed registry
+administration. The user's framing — "in the internet age, every country
+holds a record" — held up in every single case tried. No sandbox network
+block was ever actually hit during this entire sweep (WebSearch alone was
+sufficient throughout); the earlier Monaco-era `.mc`-domain WebFetch
+blocks turned out not to generalize to this exercise at all.
+
+**What's still open, flagged rather than forced:** Kiribati and Tuvalu
+were researched but not added — only generic constitutional-framework and
+customary-land-tenure background was found for either, nothing specific
+enough to state the actual current foreign-ownership rule without
+guessing. A handful of very small dependent territories (e.g. Greenland,
+Bermuda, French/UK/US overseas territories with their own distinct legal
+regimes separate from their parent state) were not attempted in this
+sweep and remain a reasonable next target if the user wants the list
+pushed even further. Luxembourg remains deliberately excluded for the
+specific, already-documented Code Civil Art. 11 reciprocity-clause reason
+(see the earlier batch note above) — not an oversight.
+
+**Reachability note, unchanged from the original Singapore/Philippines
+pattern:** any country added here that isn't yet in `api/orchestrator.js`'s
+`COUNTRY_ENDPOINTS` (roughly half of what was added in this sweep) shows
+immediately on the free public checker (`foreign-buyer-check.html`, which
+reads this file directly and was never gated by `COUNTRY_ENDPOINTS`), but
+won't yet appear inside an actual paid property report for that country
+until a full price/tax/closing-cost data adapter exists — a separate,
+much larger undertaking per country (the US alone took ~2 weeks) that
+this sweep did not attempt.
+
 ## For the other session (Claude B): Georgia data gap flagged (Sept 2026)
 
 The user is specifically interested in Georgia (the country) as a hot,
