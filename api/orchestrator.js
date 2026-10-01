@@ -50,6 +50,7 @@ import { getCurrencyControls } from "../lib/data/currencyControls.js";
 import { zurichCondo } from "../lib/europe/zurichCity.js";
 import { dubaiBenchmark } from "../lib/uae/dubaiSales.js";
 import { australiaBenchmark } from "../lib/australia/absPrices.js";
+import { saoPauloBenchmark } from "../lib/brazil/saoPaulo.js";
 import { getRecentTransactionPrice } from "../lib/data/recentTransactionPrices.js";
 
 const AGENT_REGISTRY = {
@@ -962,6 +963,26 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
     "croatia", "cyprus", "denmark", "estonia", "finland", "ireland", "latvia", "lithuania",
     "luxembourg", "malta", "romania", "slovakia", "slovenia", "sweden", "norway", "iceland"
   ];
+  // City of São Paulo: the city's own ITBI (transfer-tax) sale records
+  if (c === "brazil") {
+    const sp = saoPauloBenchmark({ text: `${property?.address || ""}, ${property?.city || raw.city || ""}`, propertyType });
+    if (sp) {
+      return {
+        benchmarkValue: sp.found ? sp.value : null,
+        benchmarkUnit: "total",
+        benchmarkLabel: sp.found ? sp.label : "São Paulo ITBI registered sales",
+        governmentValue: null,
+        transactionValue: null,
+        transactionPeriod: sp.period || null,
+        marketArea: sp.found ? sp.area : sp.area ? `${sp.area} — too few sales of this kind` : "São Paulo — enter the street and number or CEP",
+        source: sp.text,
+        sourceUrl: sp.sourceUrl || "https://prefeitura.sp.gov.br/fazenda/w/acesso_a_informacao/31501",
+        coverage: sp.found ? "city" : "national",
+        priceTrendPercent: null,
+        sourceParts: [{ title: "Prefeitura de São Paulo — ITBI", text: sp.text }]
+      };
+    }
+  }
   // Australia: ABS median transfer prices per capital-city area / rest of state
   if (c === "australia") {
     const au = australiaBenchmark({ text: `${property?.address || ""}, ${property?.city || raw.city || ""}`, propertyType });

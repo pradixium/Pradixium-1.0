@@ -1177,6 +1177,28 @@ capital (Perth). Check: Greater Sydney houses 2026 Q2 8,932 transfers,
 AUD 1,487,600 = a direct API query. The NSW Valuer General bulk sales
 files (per-suburb) still need a browser download by the user.
 
+## Brazil — City of São Paulo (Oct 1 2026, Claude B)
+
+`lib/brazil/saoPaulo.js` ← `python3 scripts/build-br-sp-itbi.py <2025.xlsx>
+<2026.xlsx>` (monthly; files listed on prefeitura.sp.gov.br/fazenda/w/
+acesso_a_informacao/31501 — the page answers 403 to curl, read it via
+WebFetch; the xlsx files download fine with a browser User-Agent) →
+lib/data/saoPauloSales.json. Source: Secretaria Municipal da Fazenda
+"Guias de ITBI pagas" (every paid transfer-tax declaration; NO buyer/seller
+names). Rules: Natureza "1.Compra e venda", Proporção 100, "Ativo Predial",
+declared value > R$10k; a date+value+cartório shared by several SQLs =
+multi-unit deed → dropped (only ~1% of those are flat + its garage);
+12 months to the last full month; per IPTU fiscal sector (SQL[:3]), 10+.
+Benchmark = median WHOLE declared price (flats "APARTAMENTO EM
+CONDOMÍNIO", houses "RESIDÊNCIA"); per m² of IPTU built area = context
+(a flat's IPTU area includes common-area share). Place → sector: CEP,
+else street (file abbreviations R/AV/AL/DR/BRIG/STA… — the ABBR table)
++ nearest same-side number within 300, else a bairro the file puts 60%+
+in one sector (Moema yes; Pinheiros/Vila Mariana span sectors → asks for
+the street). First build: 2025-09-01..2026-08-31, 87,725 sales, 228
+sectors. Check: sector 014 (Jardins) flats 612 sales, R$1,700,223.
+FipeZap (listings) stays context for the rest of Brazil.
+
 ## Africa (Sept 2026, Claude B)
 
 Trend-only fixtures in `api/regional-fixture-intelligence.js` — none of these
