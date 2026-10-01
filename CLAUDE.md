@@ -1230,6 +1230,22 @@ exchange for honest testimonials (never incentivized/bought reviews — Trustpil
 etc. only once there are real reviews to show, not an empty profile). "This is to
 test the water," not a scaled campaign yet.
 
+**Facebook dropped as a channel (Oct 1 2026):** the user can't get a Facebook
+business account approved, so Facebook groups are off the table — not a
+strategy choice, a real access blocker. Gave a researched list of
+international real-estate forums/communities as the replacement beachhead
+candidates instead: most relevant to Pradixium's actual niche (cross-border
+buyers, not domestic landlords) are SkyscraperCity (city/country-segmented,
+heavy foreign-buyer discussion), The Property Forum (organized by region),
+and expat-specific communities (InterNations property groups, ExpatForum.com)
+— these match the "Israeli buying abroad" profile directly. Largest general
+communities: BiggerPockets (2.5-3M members, US-heavy) and r/realestateinvesting
+(2M members, Reddit). Recommended starting point: r/realestateinvesting and
+SkyscraperCity, both of which tolerate genuine value-add answers with a link
+when relevant (not direct self-promotion) — matches where people already ask
+exactly the "is this price fair" question Pradixium answers. Not yet acted
+on; no account created or outreach done anywhere.
+
 ## Business/legal decisions (Sept 2026, user's own calls — not to be revisited without him raising it)
 
 - **Staying an Irish company for now.** Explicitly considered and declined a
