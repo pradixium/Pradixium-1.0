@@ -1581,6 +1581,41 @@ gap is a separate, lower-priority piece of work than closing the gap in
 countries this product actually already serves, which is what today's
 sweep targeted and finished.
 
+**Then: explicitly told to go further — countries not in our database at
+all (Oct 1 2026).** After the 67->96 sweep, the user asked for a reference
+list of official real-estate-statistics bodies for every country/territory
+in the world. Gave one explicitly labeled as unverified general knowledge,
+not shippable data — when the user then said "add all of them," refused:
+that list was names of bodies, never checked one-by-one for an actual
+current, citable rule, and shipping it wholesale would be exactly the kind
+of fabrication this file's entire discipline exists to prevent. Instead,
+kept going country-by-country at the same verified pace. The user then
+clarified the real ask: the countries NOT YET in this product's database
+at all (not in `COUNTRY_ENDPOINTS`) — a different, legitimate piece of
+work from the 67->96 sweep (which only closed gaps in ALREADY-supported
+countries). Researched and added 6 major not-yet-supported markets,
+101 total now: Saudi Arabia (WORKAROUND REQUIRED — a brand-new law in
+force 21 Jan 2026, REGA-designated zones only, replacing the old 2000
+capital-threshold regime), Qatar (WORKAROUND REQUIRED — Law 16/2018, 9
+freehold + 16 usufruct designated zones), Kuwait (RESTRICTED — Law No. 74
+of 1979, a non-GCC buyer needs 10 years' residence + Council of Ministers
+approval, capped at 1 property/1,000 sqm), China (RESTRICTED — 2006
+"Circular 171": self-use only, 1+ year residence/study prerequisite, one
+property nationwide, investment purchases banned outright), Hong Kong
+(OPEN — the 15% non-resident Buyer's Stamp Duty surcharge was eliminated
+28 Feb 2024; every buyer now pays the same scale), Taiwan (WORKAROUND
+REQUIRED — Land Act Art. 18-19 reciprocity, Ministry of Interior's list of
+~77 countries, with some countries facing extra conditions and four
+nationalities barred outright). Same "ready but unreachable until a full
+data adapter exists" status as Singapore/Philippines/Malaysia already in
+this file — the public free checker (`foreign-buyer-check.html`) shows all
+of them regardless, since it reads this file directly and was never gated
+by `COUNTRY_ENDPOINTS`; only the PAID per-property report needs the full
+adapter to actually apply one. "96/101 countries" copy bumped in the same
+3 pages. Building a full adapter (price/tax/closing-cost data, not just
+this one rule) for any of these 6 is separate, much larger work — not
+started here.
+
 **Fourth batch (Sept 30 2026): 3 more, 62 → 65.** Added Kenya (`WORKAROUND
 REQUIRED` — Constitution of Kenya 2010, Sixth Schedule Article 8(1), a
 non-citizen's freehold reverts to a 99-year peppercorn leasehold; sourced
