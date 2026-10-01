@@ -1850,6 +1850,46 @@ until a full price/tax/closing-cost data adapter exists — a separate,
 much larger undertaking per country (the US alone took ~2 weeks) that
 this sweep did not attempt.
 
+**First pass at closing it for already-reachable countries (Oct 1 2026):**
+asked to "go back over the countries you added and add data." Diffed
+tonight's 190 Foreign Buyer Access additions against `closingCosts.js`/
+`propertyTax.js` coverage, restricted to the ~90 of them already in
+`COUNTRY_ENDPOINTS` (so the data lands in an actual report immediately,
+not just the free checker). UAE/Dubai explicitly excluded per the user's
+own instruction — Claude B is working there concurrently. Found and
+closed 8 gaps, each sourced the same way as everything else in this file:
+Nigeria (closing: Lagos's Governor's Consent + stamp duty + registration
+stack, ~3%–3.5%; tax: Lagos Land Use Charge, 0.0394%–0.394% by occupancy
+type — both explicitly flagged as state-set, not national, since Nigeria
+has no uniform national rate), Paraguay (closing: municipal ITM 0.3%–0.5%
++ registry inscription 0.8%; tax: Impuesto Inmobiliario, a flat 1% of
+fiscal value, annually CPI-adjusted), San Marino (closing: imposta di
+registro 5% on an ordinary resale, 17% single-phase tax on a new build
+from a developer; tax: confirmed as a genuine "none" — no ordinary annual
+property tax exists, only one-off extraordinary measures when
+specifically legislated), Maldives (closing: 15% land-transfer tax + flat
+MVR 500 stamp duty, explicitly caveated that a foreign buyer's real
+transaction is a leasehold/unit assignment under project terms, not an
+ordinary land transfer; tax: confirmed as a genuine "none" for ordinary
+owners), Kosovo (tax only: a brand-new 2026 progressive model, 0.10%–1.50%
+by property-use category — no closing-cost entry added, since no specific
+transfer-tax rate could be confirmed with confidence).
+
+**Deliberately left out — researched, not forced:** Liechtenstein (its
+only real-estate-specific tax is a seller-side capital GAINS tax on
+resale profit, not a buyer-side transfer tax at all — doesn't fit this
+file's buyer-closing-cost schema without a genuine number to cite),
+Tajikistan and Turkmenistan (multiple searches came back with only vague
+qualitative statements — "rates vary," "not detailed in available
+sources" — with no actual percentage or official body confirming one;
+same honesty bar as every other gap in this file). An `officialOnly()`
+filter already in `closingCosts.js` strips any field whose source reads
+as non-government (e.g. "Market convention") and nulls the computed
+total if it does — caught and fixed for Paraguay during this batch (a
+first draft cited the notary-fee split as "Market convention" inside the
+total, which silently zeroed the whole total; moved to a plain mention
+outside the computed range instead).
+
 ## For the other session (Claude B): Georgia data gap flagged (Sept 2026)
 
 The user is specifically interested in Georgia (the country) as a hot,
