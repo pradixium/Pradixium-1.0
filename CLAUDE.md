@@ -1217,6 +1217,22 @@ $850,000 → $31,275; NSW $1 m → $39,187; VIC $1.4 m → $77,000 (5.5% flat
 band). NSW thresholds are CPI-indexed each 1 July and the ACT issues a new
 DI each July → update both every July.
 
+RENTS + NSW BENCHMARK (Oct 1 2026): `python3 scripts/build-au-rents.py`
+(quarterly) → lib/data/australiaRents.json. NSW: Department of Communities
+and Justice "Rent and Sales Report" (dcj.nsw.gov.au, xlsx linked on the
+report page): Table 4 sale prices per POSTCODE, strata (units/townhouses)
+vs non-strata (houses), from Notices of Sale lodged with NSW Land Registry,
+5% trimmed per LGA, 10 or fewer sales unpublished, "s" = 11–30 → the
+postcode median is now the NSW BENCHMARK (before the SA/VIC suburb
+records). Table 2 weekly rents of new bonds per postcode × type ×
+bedrooms. SA: Private Rental Report (data.sa.gov.au) per suburb × flats /
+houses × bedrooms. Suburb → postcode from ABS MB × POA_2021 (80%+ of
+the suburb's area), a typed postcode wins. Rent → rentalBenchmark
+monthlyRentFlat (weekly × 52 ÷ 12) → yield when no rent entered. Check:
+postcode 2150 strata 221 sales, AUD 620,000; 2-bed flats 429 bonds, $700/wk
+= the raw rows. VIC (Homes Victoria rental report) and QLD (RTA) rent
+sites do not answer from here → need a browser download.
+
 ## Brazil — City of São Paulo (Oct 1 2026, Claude B)
 
 `lib/brazil/saoPaulo.js` ← `python3 scripts/build-br-sp-itbi.py <2025.xlsx>
