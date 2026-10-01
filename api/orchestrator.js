@@ -1413,10 +1413,29 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
     // a city's figure applies only to that city; a national figure is
     // context, never a town's benchmark (same rule as recentAreaFits above)
     const where = property?.city || raw.city || "";
-    const fits = raw.regionMatch ? true : raw.cityName ? recentAreaFits(raw.cityName, where) : false;
+    // Monaco (Oct 2026): IMSEE's Real Estate Observatory breaks the
+    // principality down by quartier, and the spread is real -- Larvotto
+    // 71,167 EUR/m² vs Moneghetti 43,797 EUR/m², nearly double. A single
+    // national average misrepresents any specific address, so a named
+    // district match (via its own aliases, same alias-matching idea as
+    // recentAreaFits) is tried first; every other REGIONAL_FIXTURE_COUNTRIES
+    // entry leaves raw.districts unset, so districtMatch is always null for
+    // them and this block is a no-op there (behavior unchanged).
+    let districtMatch = null;
+    if (Array.isArray(raw.districts)) {
+      const w = ` ${String(where).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9']+/g, " ")} `;
+      districtMatch = raw.districts.find((d) => (d.aliases || []).some((a) => w.includes(` ${a} `)));
+    }
+    const resolvedCityName = districtMatch?.name ?? raw.cityName;
+    const resolvedCityBenchmarkValue = districtMatch?.benchmarkValue ?? raw.cityBenchmarkValue;
+    const resolvedCityChangePercent = districtMatch?.changePercent ?? raw.cityChangePercent;
+    const fits = raw.regionMatch ? true : districtMatch ? true : raw.cityName ? recentAreaFits(raw.cityName, where) : false;
     if (!fits) {
       const cityTxt = raw.cityName && raw.cityBenchmarkValue != null ? ` The official figure on file covers ${raw.cityName} only (${Math.round(raw.cityBenchmarkValue).toLocaleString("en-US")} per m²) — not applied to ${where || "this place"}.` : "";
       const natTxt = raw.nationalBenchmarkValue != null ? ` National average ${raw.currencyLabel || ""}${Math.round(raw.nationalBenchmarkValue).toLocaleString("en-US")}${raw.benchmarkUnit === "total" ? " per home" : " per m²"} — whole-country context only.${raw.coverageNote ? ` ${raw.coverageNote}` : ""}` : "";
+      const districtsTxt = Array.isArray(raw.districts) && raw.districts.length
+        ? ` Districts on file: ${raw.districts.map((d) => `${d.name} ${Math.round(d.benchmarkValue).toLocaleString("en-US")}`).join(", ")} per m² — include the district name in the address/city field (e.g. "Larvotto, Monaco") to match one.`
+        : "";
       const nat = raw.changeIsMonthly ? null : (raw.nationalChangePercent ?? null);
       return {
         benchmarkValue: null,
@@ -1426,7 +1445,7 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
         transactionValue: null,
         transactionPeriod: raw.period ?? null,
         marketArea: raw.nationalBenchmarkValue != null ? `${countryLabel(country)} — official national figure only (context); none published for ${where || "this place"}` : `${countryLabel(country)} — no official local price figure for ${where || "this place"} yet`,
-        source: `${raw.sources?.official || countryLabel(country)}${nat != null ? ` — national ${nat >= 0 ? "+" : ""}${nat}% YoY` : ""}.${cityTxt}${natTxt}`,
+        source: `${raw.sources?.official || countryLabel(country)}${nat != null ? ` — national ${nat >= 0 ? "+" : ""}${nat}% YoY` : ""}.${cityTxt}${natTxt}${districtsTxt}`,
         coverage: "national",
         priceTrendPercent: nat
       };
@@ -1436,7 +1455,8 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
     // as the yearly trend
     const kindRF = /apart|flat|studio|penthouse|condo/i.test(propertyType || "") ? "flats" : /house|villa|town|home/i.test(propertyType || "") ? "houses" : null;
     // a flats-only series' change is not a house's trend either
-    const trendRF = raw.changeIsMonthly || (raw.flatsOnly && kindRF === "houses") ? null : (raw.cityChangePercent ?? raw.nationalChangePercent ?? null);
+    const trendRF = raw.changeIsMonthly || (raw.flatsOnly && kindRF === "houses") ? null : (resolvedCityChangePercent ?? raw.nationalChangePercent ?? null);
+    const changeIsLocal = resolvedCityChangePercent != null;
     if (raw.askingPrices || (raw.flatsOnly && kindRF === "houses")) {
       const why = raw.askingPrices ? `${raw.askingNote || "built from OFFER (asking) prices, not closed sales"} — shown as context, never as the benchmark` : "for apartments only — not applied to a house";
       return {
@@ -1446,25 +1466,25 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
         governmentValue: null,
         transactionValue: null,
         transactionPeriod: raw.period ?? null,
-        marketArea: `${raw.cityName || countryLabel(country)} — official figure ${raw.askingPrices ? (raw.askingPartly ? "partly from asking prices" : "from asking prices") : "for apartments only"}, not applied`,
-        source: `${raw.sources?.official || countryLabel(country)}: ${raw.cityName || countryLabel(country)}${raw.cityBenchmarkValue != null ? ` ${raw.currencyLabel || ""}${Math.round(raw.cityBenchmarkValue).toLocaleString("en-US")}${raw.benchmarkUnit === "total" ? " per home" : " per m²"}` : ""} (${raw.period}) — ${why}.${trendRF != null ? ` Change ${trendRF >= 0 ? "+" : ""}${trendRF}% on a year earlier.` : ""}${raw.coverageNote ? ` ${raw.coverageNote}` : ""}`,
+        marketArea: `${resolvedCityName || countryLabel(country)} — official figure ${raw.askingPrices ? (raw.askingPartly ? "partly from asking prices" : "from asking prices") : "for apartments only"}, not applied`,
+        source: `${raw.sources?.official || countryLabel(country)}: ${resolvedCityName || countryLabel(country)}${resolvedCityBenchmarkValue != null ? ` ${raw.currencyLabel || ""}${Math.round(resolvedCityBenchmarkValue).toLocaleString("en-US")}${raw.benchmarkUnit === "total" ? " per home" : " per m²"}` : ""} (${raw.period}) — ${why}.${trendRF != null ? ` Change ${trendRF >= 0 ? "+" : ""}${trendRF}% on a year earlier.` : ""}${raw.coverageNote ? ` ${raw.coverageNote}` : ""}`,
         sourceUrl: raw.sourceUrls?.official || null,
         coverage: "city",
         priceTrendPercent: trendRF
       };
     }
-    const benchmarkValue = raw.cityBenchmarkValue ?? null;
+    const benchmarkValue = resolvedCityBenchmarkValue ?? null;
     const changePercent = trendRF;
-    const area = raw.cityName || countryLabel(country);
+    const area = resolvedCityName || countryLabel(country);
     return {
       benchmarkValue,
       benchmarkUnit: raw.benchmarkUnit || "perSqm",
-      benchmarkLabel: `${countryLabel(country)} Official Estimate${raw.cityName ? ` (${raw.cityName})` : ""}`,
+      benchmarkLabel: `${countryLabel(country)} Official Estimate${resolvedCityName ? ` (${resolvedCityName})` : ""}`,
       governmentValue: null,
       transactionValue: null,
       transactionPeriod: raw.period ?? null,
       marketArea: area,
-      source: `${raw.sources?.official || countryLabel(country)}${changePercent != null ? ` — ${raw.cityChangePercent == null && raw.cityName ? "national " : ""}${changePercent >= 0 ? "+" : ""}${changePercent}% YoY` : ""}${raw.coverageNote ? ` (${raw.coverageNote})` : ""}`,
+      source: `${raw.sources?.official || countryLabel(country)}${changePercent != null ? ` — ${!changeIsLocal && resolvedCityName ? "national " : ""}${changePercent >= 0 ? "+" : ""}${changePercent}% YoY` : ""}${raw.coverageNote ? ` (${raw.coverageNote})` : ""}`,
       sourceUrl: raw.sourceUrls?.official || null,
       coverage: benchmarkValue != null ? "city" : "national",
       priceTrendPercent: changePercent ?? null
