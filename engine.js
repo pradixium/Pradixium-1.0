@@ -1454,7 +1454,29 @@
   // confirms payment, and Row Level Security means a user can only ever
   // read their own rows — there's no client-writable "I paid" flag to
   // bypass, unlike a localStorage-based gate.
+  // FIX (Oct 2026): this used to be just [country, city, askingPrice,
+  // size] -- two genuinely DIFFERENT properties that happen to share a
+  // city and a round listing price/size (common: new-build units,
+  // coincidental matches) collided onto the same signature. Once either
+  // one was purchased, isReportPaid() would treat the OTHER property as
+  // already paid for -- a real, silent monthly-cap bypass / revenue leak.
+  // Now also folds in the best-known address, bedrooms, bathrooms,
+  // propertyType and monthlyRent, so two unrelated properties essentially
+  // can't collide. The address expression (window.pradixiumPropertyAddress
+  // || inputs.city) must match api/orchestrator.js's `property.address`
+  // byte-for-byte -- NOT data.title, which falls back to "city, country"
+  // instead of just city and would silently break checkEntitlement's match
+  // for every manually-typed (non-URL-imported) property, i.e. the common
+  // case, the moment this signature was introduced.
   function reportSignature(data) {
+    const inputs = getInputs();
+    const address = window.pradixiumPropertyAddress || inputs.city;
+    return [data.country, data.city, address, data.askingPrice, data.size, inputs.bedrooms, inputs.bathrooms, inputs.propertyType, data.rent].join("|");
+  }
+  // The format used before the Oct 2026 fix above -- kept only so a
+  // report already purchased under it (13 live rows as of this fix) is
+  // still recognized. Never used for a new purchase.
+  function legacyReportSignature(data) {
     return [data.country, data.city, data.askingPrice, data.size].join("|");
   }
 
@@ -1472,13 +1494,14 @@
         .select("kind, report_signature, expires_at");
       if (error || !rows) return false;
       const signature = reportSignature(data);
+      const legacySignature = legacyReportSignature(data);
       const now = Date.now();
       return rows.some((row) => {
         if (row.kind === "subscription" || row.kind === "business") return new Date(row.expires_at).getTime() > now;
         // "monthly_usage" = this report was already spent from the
         // individual monthly plan's per-cycle cap — permanent access to
         // it from then on, same as a one-time "report" purchase.
-        return (row.kind === "report" || row.kind === "monthly_usage") && row.report_signature === signature;
+        return (row.kind === "report" || row.kind === "monthly_usage") && (row.report_signature === signature || row.report_signature === legacySignature);
       });
     } catch (e) {
       console.warn("Pradixium: could not check report entitlement", e);
