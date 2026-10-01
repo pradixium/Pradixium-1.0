@@ -49,6 +49,7 @@ import { getPropertyTax } from "../lib/data/propertyTax.js";
 import { getCurrencyControls } from "../lib/data/currencyControls.js";
 import { zurichCondo } from "../lib/europe/zurichCity.js";
 import { dubaiBenchmark } from "../lib/uae/dubaiSales.js";
+import { australiaBenchmark } from "../lib/australia/absPrices.js";
 import { getRecentTransactionPrice } from "../lib/data/recentTransactionPrices.js";
 
 const AGENT_REGISTRY = {
@@ -961,6 +962,26 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
     "croatia", "cyprus", "denmark", "estonia", "finland", "ireland", "latvia", "lithuania",
     "luxembourg", "malta", "romania", "slovakia", "slovenia", "sweden", "norway", "iceland"
   ];
+  // Australia: ABS median transfer prices per capital-city area / rest of state
+  if (c === "australia") {
+    const au = australiaBenchmark({ text: `${property?.address || ""}, ${property?.city || raw.city || ""}`, propertyType });
+    if (au) {
+      return {
+        benchmarkValue: au.found ? au.value : null,
+        benchmarkUnit: "total",
+        benchmarkLabel: au.found ? au.label : "ABS median transfer price",
+        governmentValue: null,
+        transactionValue: null,
+        transactionPeriod: au.period || null,
+        marketArea: au.found ? au.area : au.area ? `${au.area} — too few transfers of this kind` : "Australia — enter the suburb and state",
+        source: au.text,
+        sourceUrl: au.sourceUrl || "https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/total-value-dwellings",
+        coverage: au.found ? "city" : "national",
+        priceTrendPercent: null,
+        sourceParts: [{ title: "Australian Bureau of Statistics", text: au.text }]
+      };
+    }
+  }
   // Dubai: DLD's own registered sales (prebuilt from its transaction export)
   if (c === "united arab emirates") {
     const db = dubaiBenchmark({ text: `${property?.address || ""}, ${property?.city || raw.city || ""}`, propertyType, bedrooms: property?.bedrooms });

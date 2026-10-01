@@ -1159,6 +1159,24 @@ wins). Check: Downtown 2-bed ready flats 228 sales, AED 25,989/m². First build:
 Business Bay ready flats 861 sales, median AED 18,603/m² (separate
 Python recompute from the raw xlsx). Refresh monthly with a new export.
 
+## Australia (Oct 1 2026, Claude B)
+
+`lib/australia/absPrices.js` ← `python3 scripts/build-au-prices.py`
+(quarterly) → lib/data/australiaPrices.json: ABS data API dataflow
+RES_DWELL (data.api.abs.gov.au, keyless) — UNSTRATIFIED median price of
+residential property transfers, established houses vs attached dwellings
+(flats/units/townhouses), per Greater Capital City area and rest of each
+state (15 areas), latest quarter (preliminary — counts get revised up).
+Whole-property benchmark (unit "total"); the year-earlier median is
+context, never the trend (not mix-adjusted). Place → area from ABS's own
+ASGS Ed. 3 allocation files (MB_2021_AUST + SAL_2021_AUST joined on mesh
+block; a suburb needs 95%+ of its area in one GCCSA) + SA4/SA3 region
+names (Gold Coast, Sunshine Coast) + capital names. A name in several
+states (Richmond, Manly) needs the state; a capital name alone = the
+capital (Perth). Check: Greater Sydney houses 2026 Q2 8,932 transfers,
+AUD 1,487,600 = a direct API query. The NSW Valuer General bulk sales
+files (per-suburb) still need a browser download by the user.
+
 ## Africa (Sept 2026, Claude B)
 
 Trend-only fixtures in `api/regional-fixture-intelligence.js` — none of these
