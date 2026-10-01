@@ -1175,7 +1175,15 @@ block; a suburb needs 95%+ of its area in one GCCSA) + SA4/SA3 region
 names (Gold Coast, Sunshine Coast) + capital names. A name in several
 states (Richmond, Manly) needs the state; a capital name alone = the
 capital (Perth). Check: Greater Sydney houses 2026 Q2 8,932 transfers,
-AUD 1,487,600 = a direct API query. The NSW Valuer General bulk sales
+AUD 1,487,600 = a direct API query.
+SUBURB BENCHMARK (Oct 1 2026): `scripts/build-au-suburbs.py` →
+lib/data/australiaSuburbs.json — Valuer-General of South Australia
+"Metropolitan Median House Sales" (data.sa.gov.au, quarterly XLSX): a
+house in an SA suburb with 10+ sales gets its suburb median as the
+benchmark (171 suburbs, 2026 Q2; check Magill 35 sales AUD 1,325,000 =
+the raw file). Victoria (land.vic.gov.au median house/unit by suburb,
+DataVic-listed) and NSW (Valuer General bulk sales) answer 403 to
+servers → files needed from the user's browser; then add them here. The NSW Valuer General bulk sales
 files (per-suburb) still need a browser download by the user.
 
 ## Brazil — City of São Paulo (Oct 1 2026, Claude B)

@@ -1035,6 +1035,13 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
   // a suburb's market: a Bondi house would read "far above market"
   if (c === "australia") {
     const au = australiaBenchmark({ text: `${property?.address || ""}, ${property?.city || raw.city || ""}`, propertyType });
+    if (au?.suburb) {
+      return {
+        benchmarkValue: au.value, benchmarkUnit: "total", benchmarkLabel: au.label, governmentValue: null, transactionValue: null,
+        transactionPeriod: au.period, marketArea: au.area, source: au.text, sourceUrl: au.sourceUrl, coverage: "city", priceTrendPercent: null,
+        sourceParts: [{ title: "Valuer-General of South Australia", text: au.text }]
+      };
+    }
     if (au) {
       const ctx = au.found ? `${au.text} The median covers the whole ${au.area} area, so it is shown as context and not compared with this property's price.` : au.text;
       return {
