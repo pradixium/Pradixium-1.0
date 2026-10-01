@@ -1875,14 +1875,29 @@ owners), Kosovo (tax only: a brand-new 2026 progressive model, 0.10%–1.50%
 by property-use category — no closing-cost entry added, since no specific
 transfer-tax rate could be confirmed with confidence).
 
-**Deliberately left out — researched, not forced:** Liechtenstein (its
-only real-estate-specific tax is a seller-side capital GAINS tax on
-resale profit, not a buyer-side transfer tax at all — doesn't fit this
-file's buyer-closing-cost schema without a genuine number to cite),
-Tajikistan and Turkmenistan (multiple searches came back with only vague
-qualitative statements — "rates vary," "not detailed in available
-sources" — with no actual percentage or official body confirming one;
-same honesty bar as every other gap in this file). An `officialOnly()`
+**Liechtenstein closed out right after, once the user supplied the exact
+official page** (llv.li's Land Register page) — llv.li is blocked by this
+sandbox's egress proxy exactly like every other domain hit tonight
+(confirmed via direct curl: 403 at the CONNECT tunnel), so WebSearch was
+used instead, the same technique that worked for Monaco's Constitution
+text. Found the actual rate: no German-style Grunderwerbsteuer exists at
+all (the only real-estate-specific tax, Grundstücksgewinnsteuer, is a
+seller-side capital GAINS tax on resale profit, not a buyer cost) — but a
+real, citable Land Register fee does apply: 0.6% (6‰) of the purchase
+price, minimum CHF 200, per the actual ordinance (Verordnung vom 11.
+Februar 2003 über die Grundbuch- und Handelsregistergebühren, LGBl. 2003
+Nr. 67, Annex 1 Section B). No propertyTax.js entry was added for
+Liechtenstein, deliberately: its real annual mechanism is a wealth tax on
+a person's TOTAL net assets (a notional 4% yield added to income, taxed
+at the progressive Erwerbssteuer scale) — not a standalone, property-
+specific rate this file's schema can honestly reduce to one number
+without being more confusing than helpful.
+
+**Still deliberately left out — researched, not forced:** Tajikistan and
+Turkmenistan (multiple searches came back with only vague qualitative
+statements — "rates vary," "not detailed in available sources" — with no
+actual percentage or official body confirming one; same honesty bar as
+every other gap in this file). An `officialOnly()`
 filter already in `closingCosts.js` strips any field whose source reads
 as non-government (e.g. "Market convention") and nulls the computed
 total if it does — caught and fixed for Paraguay during this batch (a
