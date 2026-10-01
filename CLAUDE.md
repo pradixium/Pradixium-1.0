@@ -52,6 +52,16 @@ The user is non-technical, Hebrew-primary, and has been very explicit about this
   validate it (syntax check + a local screenshot via headless Chromium), show the
   screenshot, and wait for an explicit "yes/כן/מאשר" before pushing to `main`. Pending
   work goes to the feature branch only.
+- **Work method for country data (user, Oct 1 2026): ONE country at a time,
+  squeezed dry, then the next.** Do not hop between countries when a source
+  is blocked. For the current country go through the full checklist before
+  moving on: (1) local official price benchmark per area AND per home type
+  (flat / house), (2) official trend, (3) rent (for the yield), (4) closing
+  costs + transfer taxes, (5) annual property tax, (6) foreign-buyer rules,
+  (7) property-level official record where one exists. Each item ends as
+  "done" or "officially impossible — reason" in this file. A blocked
+  source that needs the user's browser download → ask for it once and keep
+  squeezing the same country's other items meanwhile.
 - Don't over-explain or narrate options at length — give a recommendation and the
   main tradeoff, not an essay.
 - The user pushes back hard (and rightly) if Claude acts before confirming — treat
