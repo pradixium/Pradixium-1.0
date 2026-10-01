@@ -1196,8 +1196,9 @@ Victoria's "median-house-march-quarter-2026.xls" (land.vic.gov.au answers
 403 to servers) → `python3 scripts/build-au-suburbs.py --vic-house <xls>
 [--vic-unit <xls>]`: 515 suburbs with 10+ sales (the file's "^" = fewer
 than 10, "*" = carried forward → skipped). Check: Richmond 65 sales AUD
-1,373,000; Abbotsford 14, 1,510,000 = the raw rows. Units file still to
-come (median-unit-march-quarter-2026.xls). Place matching: the suburb
+1,373,000; Abbotsford 14, 1,510,000 = the raw rows. Units file (Oct 1
+2026): 274 suburbs with 10+ sales, 2026 Q1. Check: South Yarra 219 sales
+AUD 533,000; Richmond 180, 557,500 = the raw rows. Place matching: the suburb
 wins over a capital typed after it, and a typed capital gives the state
 ("12 Smith St, Richmond, Melbourne" → Richmond VIC). NSW (Valuer General
 bulk sales) still needs the user's browser download. The NSW Valuer General bulk sales
