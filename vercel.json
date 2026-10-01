@@ -5,13 +5,13 @@
     },
     "api/orchestrator.js": {
       "maxDuration": 60,
-      "includeFiles": "lib/data/{serbiaPrices,zurichCondoPrices,dubaiSales,australiaPrices,saoPauloSales,mexicoShf,canadaPrices,australiaSuburbs,australiaRents}.json"
+      "includeFiles": "lib/data/{serbiaPrices,zurichCondoPrices,dubaiSales,australiaPrices,saoPauloSales,mexicoShf,canadaPrices,australiaSuburbs,australiaRents,portugalImi}.json"
     },
     "api/market-data.js": {
       "includeFiles": "lib/data/spainZones/**"
     },
     "api/portugal-intelligence.js": {
-      "includeFiles": "lib/data/portugalPrices.json"
+      "includeFiles": "lib/data/{portugalPrices,portugalRents}.json"
     },
     "api/italy-intelligence.js": {
       "includeFiles": "lib/data/italyComuni.json"

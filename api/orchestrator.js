@@ -886,6 +886,7 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
     const change = hpi.annualChangePercent ?? hpi.annualVariation ?? null;
     const rental = raw.rental || {};
     const lp = raw.localPrice || null;
+    const rentTxt = rental.available ? ` INE median rent of new lease contracts, 12 months to ${rental.period}: €${rental.rentEurPerM2.toFixed(2)}/m² a month in ${rental.matchedArea} (${rental.level}${rental.changePercent != null ? `, ${rental.changePercent >= 0 ? "+" : ""}${rental.changePercent}% vs ${rental.comparedWith}` : ""})${rental.coverageNote ? ` — ${rental.coverageNote}` : ""}${property?.monthlyRent ? "" : "; with no rent entered the yield uses it × the size (estimated)"}.` : "";
     if (lp?.status === "ok" && (lp.typeMatch?.value ?? lp.medianEurPerM2) != null) {
       // INE's own local figure: median €/m² of the actual sales in the 12
       // months to the quarter, for this parish/municipality (by typology
@@ -902,7 +903,7 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
         transactionValue: null,
         transactionPeriod: lp.period,
         marketArea: where,
-        source: `INE Portugal — median price of homes sold in ${where}, 12 months to ${lp.period}: €${value.toLocaleString("en-US")}/m²${typ ? ` (${typ} homes; all homes €${lp.medianEurPerM2?.toLocaleString("en-US") ?? "—"}/m²)` : ""}${lp.yoyPercent != null ? `, ${lp.yoyPercent >= 0 ? "+" : ""}${lp.yoyPercent}% vs ${lp.comparedWith}` : ""}. National index ${change != null ? (change >= 0 ? "+" : "") + change + "% YoY" : "unavailable"}.`,
+        source: `INE Portugal — median price of homes sold in ${where}, 12 months to ${lp.period}: €${value.toLocaleString("en-US")}/m²${typ ? ` (${typ} homes; all homes €${lp.medianEurPerM2?.toLocaleString("en-US") ?? "—"}/m²)` : ""}${lp.yoyPercent != null ? `, ${lp.yoyPercent >= 0 ? "+" : ""}${lp.yoyPercent}% vs ${lp.comparedWith}` : ""}. National index ${change != null ? (change >= 0 ? "+" : "") + change + "% YoY" : "unavailable"}.${rentTxt}`,
         sourceUrl: lp.sourceUrl,
         coverage: "city",
         priceTrendPercent: lp.yoyPercent ?? change ?? null,
@@ -919,9 +920,9 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
       transactionValue: null,
       transactionPeriod: hpi.period ?? hpi.quarter ?? null,
       marketArea: lp?.status === "not_covered"
-        ? `${countryLabel(country)} — INE publishes no local price figure for this place`
+        ? `${countryLabel(country)} — place not recognised; enter the municipality`
         : `${countryLabel(country)} — city-level price data not yet connected`,
-      source: `${lp?.status === "not_covered" ? "INE publishes local sale prices only for the Lisbon and Porto metro areas, the Algarve and municipalities over 100,000 inhabitants — none for this place, so no local benchmark is applied. " : ""}INE Portugal — national index ${change != null ? (change >= 0 ? "+" : "") + change + "% YoY" : "unavailable"}`,
+      source: `${lp?.status === "not_covered" ? "The place was not recognised as a Portuguese parish or municipality (INE publishes a median sale price for every municipality) — enter the municipality name to get its local figure. " : ""}INE Portugal — national index ${change != null ? (change >= 0 ? "+" : "") + change + "% YoY" : "unavailable"}`,
       coverage: "national",
       priceTrendPercent: change ?? null,
       // INE's median-rent-per-m² for new rental contracts is a real,
@@ -1752,7 +1753,7 @@ export default async function handler(req, res) {
   // one-time closing costs above. Same rule: only covers countries with a
   // verified, citable rate (see lib/data/propertyTax.js), silent
   // everywhere else.
-  const propertyTax = getPropertyTax(property.country, { state: /^australia$/i.test(String(property.country || "").trim()) ? (australiaBenchmark({ text: `${property?.address || ""}, ${property?.city || ""}`, propertyType: property.propertyType })?.state || null) : null });
+  const propertyTax = getPropertyTax(property.country, { state: /^australia$/i.test(String(property.country || "").trim()) ? (australiaBenchmark({ text: `${property?.address || ""}, ${property?.city || ""}`, propertyType: property.propertyType })?.state || null) : null, municipality: marketData?.localPrice?.status === "ok" ? (marketData.localPrice.municipality || marketData.localPrice.area) : null, nuts3: marketData?.localPrice?.nuts3 || null });
 
   // Real, legally-binding currency/capital-transfer controls on moving
   // money into the country to fund the purchase, or repatriating proceeds

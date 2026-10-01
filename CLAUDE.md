@@ -1267,6 +1267,41 @@ DONE 6 states, SA/NT blocked. (6) foreign buyers — DONE. (7) property
 record — officially impossible for free commercial use: NSW PSI is
 non-commercial; VIC/WA/TAS valuation portals are paid or 403.
 
+## Portugal, squeezed (Oct 1 2026, Claude B)
+
+- (1) price — DONE earlier (INE 0012241 / 0012236 per parish & municipality).
+  Comporta → Grândola municipality (it is in Carvalhal parish, which INE
+  does not publish); "not_covered" now means "place not recognised" (every
+  municipality has an INE median).
+- (2) trend — DONE: INE HPI Q2 2026 +16.5% (q/q +3.6%, index 301.43,
+  2015=100) via Eurostat prc_hpi_q (the INE figure); update MARKET in
+  api/portugal-intelligence.js each quarter. Local YoY = the INE median's.
+- (3) rent — DONE: `python3 scripts/build-pt-rents.py` (quarterly) →
+  lib/data/portugalRents.json — INE 0014696 (median rent €/m² of NEW lease
+  contracts, 12 months, Metodologia 2026; code found via smi.ine.pt
+  indicator 19464) for 308 municipalities + the parishes INE publishes;
+  matched parish, else its municipality (code[:7]); no national fallback.
+  Replaced a hand table (8 places, mixed vintages, Lagos/Faro → "Algarve",
+  every other town → national rent). Check: Lisboa €17.43, Porto €14.48,
+  Loulé €12.33 (Q2 2026) = the raw INE JSON.
+- (4) closing — DONE: closingCosts.js `ptImt` — IMT on the asking price,
+  CIMT art. 17 n.º 1 c) (not own permanent home) table from Lei 73-A/2025
+  with the n.º 3 split rule; single 6% / 7.5% above €633,931 / €1,150,853;
+  10% for tax-haven buyers (n.º 4) in the text; + Imposto do Selo 0.8%
+  (TGIS verba 1.1). The old "flat 7.5% for non-residents from 2026" claim
+  is NOT in the law → removed. Checks: €250,000 → €8,105; €500,000 →
+  €27,300 (= 8% − €12,700 parcel).
+- (5) IMI — DONE: `python3 scripts/build-pt-imi.py` (each January) →
+  lib/data/portugalImi.json — AT Portal das Finanças "Taxas IMI por
+  Município" public form, all districts, latest year with rates (2025,
+  paid in 2026): urban + rural rate per municipality; 8 municipalities set
+  rates per parish ("-") → text says so. Check: 199 of 308 at 0.3% (= the
+  press report of the AT list), Oeiras 0.45%, Cascais 0.35% (raw page).
+  Rate × VPT (tax value, not the price) → rate shown, no amount.
+- (6) foreign buyers — DONE earlier (OPEN).
+- (7) property record — officially impossible: the caderneta predial
+  (VPT, owner) is only available to the owner via the AT portal.
+
 ## Brazil — City of São Paulo (Oct 1 2026, Claude B)
 
 `lib/brazil/saoPaulo.js` ← `python3 scripts/build-br-sp-itbi.py <2025.xlsx>
