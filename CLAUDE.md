@@ -1652,6 +1652,67 @@ entries elsewhere — so Luxembourg stays unlisted rather than papering over
 a real distinction found by looking harder, not proof the first pass was
 lazy. "66/67 countries" copy updated in the same 3 pages.
 
+## Monaco: real district-level benchmark wired in, a dead-data bug fixed (Oct 1 2026)
+
+Same conversation, same "don't be lazy" push: the user supplied the exact
+official source directly — `imsee.mc`'s Real Estate Observatory (IMSEE =
+Institut Monégasque de la Statistique et des Études Économiques, Monaco's
+national statistics institute). `imsee.mc` is blocked by this sandbox's
+network egress policy exactly like every other `.mc` domain (confirmed via
+direct curl: 403 at the proxy's CONNECT tunnel — and, surprisingly, this
+same session also saw every other domain, including `example.com`, fail
+the same way for a stretch, i.e. a general sandbox-wide outage, not a
+Monaco-specific block — re-verify this isn't still the case next session
+before assuming `.mc` is uniquely blocked). Pulled the actual 2025 figures
+via WebSearch instead, cross-confirmed across multiple independent
+secondary reports (monaco-tribune.com, hellomonaco.com, miells.com, two
+separate searches) that all cited identical IMSEE numbers: national
+average €57,569/m² (−1.4% vs 2024's €58,402), and by quartier — Larvotto
+€71,167 (+2.2%, the first district ever to cross €70k), Monte-Carlo
+€54,009 (+4.8%), Fontvieille €52,518 (+4.5%), La Condamine €52,104 (−0.7%),
+La Rousse €51,265 (+3.2%), Les Moneghetti €43,797 (+3.3%). 2025 was also
+IMSEE's first year using a revised methodology (linear regression
+combining sales, resales, and construction period).
+
+**Found and fixed a real, consequential bug while wiring this in:** Monaco
+already had an IMSEE entry in `api/regional-fixture-intelligence.js`
+(built by Claude B, pre-dating this session) with the national average and
+a `coverageNote` *mentioning* the district spread in prose — but
+`api/orchestrator.js`'s `REGIONAL_FIXTURE_COUNTRIES` branch only ever
+applies a benchmark when `raw.cityName` is set and matches the property's
+address; Monaco's fixture never set it. The practical effect: **every
+single Monaco report, regardless of district, rendered "no official local
+price figure for this place yet"** — the €57,569 average was mentioned
+only as unused text, never shown as an actual Market Benchmark number.
+Given the ~2x spread between Larvotto and Moneghetti, using the blended
+national figure as a real benchmark for every address would have been
+wrong anyway — so leaving it text-only wasn't itself the bug, but having
+real per-district data and not surfacing it for an address that names its
+district was.
+
+Fixed properly rather than patched: added a `districts` array (name +
+aliases + benchmarkValue + changePercent per quartier) to Monaco's fixture,
+threaded it through the API response, and extended
+`orchestrator.js`'s shared `REGIONAL_FIXTURE_COUNTRIES` block with a
+`districtMatch` step (alias-matching against the property's address/city
+field, same idea as `recentAreaFits`) that resolves to the named district's
+own figure when the address mentions one (e.g. "Larvotto, Monaco"),
+falling back to the pre-existing national-average-as-context behavior
+otherwise. This block is shared by ~30 countries (Mexico, Kenya, Canada,
+etc.) — the new logic is strictly additive (`raw.districts` is undefined
+for every one of them, so `districtMatch` stays null and nothing changes);
+verified directly by calling the real handler for Mexico/Kenya/Canada and
+confirming `districts: null` and unchanged `cityBenchmarkValue`/
+`nationalBenchmarkValue` in each response. Verified for Monaco itself by
+calling the real handler with test addresses: "Larvotto, Monaco" →
+Larvotto's own 71,167/+2.2%; "10 Avenue Princesse Grace, Monte-Carlo,
+Monaco" → Monte-Carlo's 54,009/+4.8%; plain "Monaco" (no district named) →
+correctly falls through to the national-average/context-only path,
+unchanged from before. The single property-search field on `index.html`
+already accepts "address, city or postal code" as free text, so a user or
+agent naming the quartier (the normal way Monaco listings are described)
+now gets matched automatically — no UI change needed.
+
 ## For the other session (Claude B): Georgia data gap flagged (Sept 2026)
 
 The user is specifically interested in Georgia (the country) as a hot,

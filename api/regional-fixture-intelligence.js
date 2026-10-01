@@ -194,12 +194,29 @@ const FIXTURES = {
   monaco: {
     country: "Monaco",
     period: "2025",
-    nationalChangePercent: null,
+    nationalChangePercent: -1.4,
     nationalBenchmarkValue: 57569,
     benchmarkUnit: "perSqm",
-    coverageNote: "Monaco's own IMSEE Real Estate Observatory breaks this down by district — Larvotto (€71,167/m²) is the highest, Jardin Exotique/Moneghetti (€43,000-45,000/m²) the lowest. This is the principality-wide average across all districts and building ages.",
-    source: "IMSEE (Monégasque Institute of Statistics and Economic Studies) — Real Estate Observatory, 2025",
-    officialSource: "https://imsee.mc/"
+    // FIX (Oct 2026): the national average alone was never actually applied
+    // as a benchmark (orchestrator.js's REGIONAL_FIXTURE_COUNTRIES branch
+    // requires a cityName/district match to set benchmarkValue; Monaco had
+    // neither, so every report fell through to "no official local price
+    // figure" text, the district spread mentioned only as a coverage note
+    // nobody could act on). IMSEE's 2025 edition (new linear-regression
+    // methodology combining sales+resales+construction period) publishes
+    // each quartier by name, so a property whose address/city names one is
+    // now matched to it directly instead of the blended national figure.
+    districts: [
+      { name: "Larvotto", aliases: ["larvotto"], benchmarkValue: 71167, changePercent: 2.2 },
+      { name: "Monte-Carlo", aliases: ["monte-carlo", "monte carlo", "montecarlo"], benchmarkValue: 54009, changePercent: 4.8 },
+      { name: "Fontvieille", aliases: ["fontvieille"], benchmarkValue: 52518, changePercent: 4.5 },
+      { name: "La Condamine", aliases: ["la condamine", "condamine"], benchmarkValue: 52104, changePercent: -0.7 },
+      { name: "La Rousse", aliases: ["la rousse"], benchmarkValue: 51265, changePercent: 3.2 },
+      { name: "Les Moneghetti", aliases: ["moneghetti", "les moneghetti"], benchmarkValue: 43797, changePercent: 3.3 }
+    ],
+    coverageNote: "Monaco's own IMSEE Real Estate Observatory 2025 breaks this down by district — Larvotto (€71,167/m²) is the highest, Les Moneghetti (€43,797/m²) the lowest. The figure above is the principality-wide average across all districts and building ages, down 1.4% from 2024's €58,402/m²; a property whose district is named is matched to that district's own figure instead.",
+    source: "IMSEE (Monégasque Institute of Statistics and Economic Studies) — Observatoire de l'immobilier / Real Estate Observatory 2025 (published Feb 2026)",
+    officialSource: "https://imsee.mc/en/content/download/293646/file/Real%20estate%20Observatory%202025.pdf?inLanguage=eng-GB&version=11"
   },
   russia: {
     country: "Russia",
@@ -491,6 +508,7 @@ export default async function handler(req, res) {
       cityName: fixture.cityName ?? null,
       cityChangePercent: fixture.cityChangePercent ?? null,
       cityBenchmarkValue: fixture.cityBenchmarkValue ?? null,
+      districts: fixture.districts ?? null,
       benchmarkUnit: fixture.benchmarkUnit,
       coverageNote: fixture.coverageNote ?? null,
       cityTrends: fixture.cityTrends ?? null,
