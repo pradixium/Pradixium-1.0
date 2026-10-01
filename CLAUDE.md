@@ -793,8 +793,16 @@ servers → not used. Check: Lieusaint 66/86 matched, C €3,222 (23), D €3,18
   registered agency sales ~70%, BRA-i, no new builds — whole table fetched
   once and cached), SE SCB BO0501 houses per municipality (apartments =
   bostadsrätter, not covered — said so), IE CSO HPM08 per Eircode routing
-  area / HPM07 per county, DK Statistics Denmark EJEN77 per landsdel
-  (Dataforsyningen geocoder). National averages are context only.
+  area / HPM07 per county, DK Statistics Denmark EJEN77 per landsdel.
+  National averages are context only. Denmark fix (Oct 1 2026): the
+  government address service DAWA (api.dataforsyningen.dk) was shut down
+  (HTTP 410) → every Danish report had no figure; now place → landsdel
+  from Statistics Denmark's own NUTS classification + town table BY1
+  (lib/data/denmarkPlaces.json ← `python3 scripts/build-dk-places.py`;
+  municipality names win, town names in two landsdele dropped; districts
+  that are not BY1 towns, e.g. Hellerup, are not matched). Check:
+  Byen København flats 2026 Q2 1,384 sales, DKK 6,168k (+16.7%) = direct
+  StatBank query.
 - Italy (`lib/italy/omi.js`): Agenzia delle Entrate OMI quotations via its
   public GEOPOI OMI service (zoneomi.php richiesta=3/5/8, stampaomi.php):
   a locality typed by the customer is matched to the OMI zone NAMES of the
