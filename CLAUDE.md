@@ -1543,11 +1543,43 @@ recording:
     rather than assumed from Poland/Finland's apartment-exemption pattern.
 Also updated the "39/47 countries" copy again, in the same 3 pages.
 
-**Still not done, still not exhaustive:** ~38 of the 85 dropdown countries
-remain silent (correctly — unverified). Continuing this kind of expansion
-in bounded, verified batches rather than one unverifiable sweep is the
-right pace to keep the honesty bar real; say so plainly if the user wants
-the rest pushed further in a future session.
+**Full gap sweep (Oct 1 2026): 67 -> 96, closing essentially the entire
+remaining gap in this product's own country list.** After the Monaco
+episode, the user gave a direct, blunt instruction: stop waiting to be
+handed a source, find the official body for every covered-but-missing
+country myself, immediately ("תשאל את עצמך על כולם ומייד"). Computed the
+actual gap precisely — diffed `api/orchestrator.js`'s `COUNTRY_ENDPOINTS`
+(every country this product serves data for) against
+`foreignBuyerRules.js`'s coverage — rather than guessing at what was
+missing. That gap was 30 countries; 29 of them now have a real entry,
+each with its own primary law/constitution article or official ministry/
+registry, researched and verified with the same per-country discipline as
+every earlier batch (not a rushed sweep): Russia, Kazakhstan, Armenia,
+Bosnia and Herzegovina, Andorra, North Macedonia, Ukraine, Nigeria, Puerto
+Rico, Moldova, Liechtenstein, San Marino, Bolivia, Ecuador, Paraguay,
+Cayman Islands, Azerbaijan, Kosovo, Trinidad and Tobago, Maldives,
+Belarus, Uruguay, Montenegro, Albania, Jamaica, Uzbekistan, Kyrgyzstan,
+Tajikistan, Turkmenistan. Four of these (Uruguay, Montenegro, Albania,
+Jamaica) were the exact four this file had earlier "researched but
+deliberately not shipped" for lacking a clear-enough source — closed out
+properly this time by searching harder for the actual statute/body rather
+than re-accepting the same inconclusive blog-level sourcing. The only
+country from the computed gap NOT added is Luxembourg, for the specific,
+documented reason above (Code Civil Art. 11's still-unamended 1804
+reciprocity clause) — a real, found distinction, not a skipped step.
+"67/71/77/83/88/96 countries" copy bumped across all 3 pages as each
+batch landed. Shipped in 5 separate commits on the same branch so each
+batch's reasoning stays attributable and the diff stays reviewable, not
+one giant unreviewable commit.
+
+**What's left, honestly:** every country this product's own
+`COUNTRY_ENDPOINTS` list serves now has a Foreign Buyer Access entry
+except Luxembourg. The dropdown's full universe is wider than
+`COUNTRY_ENDPOINTS` (the 85-dropdown-country figure from earlier batches
+includes countries with no data adapter at all yet) — closing that larger
+gap is a separate, lower-priority piece of work than closing the gap in
+countries this product actually already serves, which is what today's
+sweep targeted and finished.
 
 **Fourth batch (Sept 30 2026): 3 more, 62 → 65.** Added Kenya (`WORKAROUND
 REQUIRED` — Constitution of Kenya 2010, Sixth Schedule Article 8(1), a
