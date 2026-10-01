@@ -2051,3 +2051,69 @@ section) — the language-toggle button itself couldn't be exercised in
 this sandbox test (it only renders once the AI agent's localized content
 is present, not something easy to mock), but the 7 dictionary values were
 verified directly in the source, not assumed.
+
+## Luxembourg closed out, world coverage 190 → 191 (Oct 1 2026)
+
+Luxembourg was the one country this project's own `COUNTRY_ENDPOINTS` list
+still lacked a Foreign Buyer Access entry for (flagged in the Sixth batch
+note above), specifically because Code civil Article 11's literal text is
+still the unamended 1804 reciprocity clause — conditioned on a treaty with
+the buyer's home country, not an unconditional guarantee. The user pushed
+back on leaving a real, described market out just because the law itself
+reads one way on paper ("אנחנו לא מחליטים לגבי החוק רק מציינים עובדה
+קיימת" — we're not ruling on the law, just stating an existing fact) and
+asked for it to go in, given Luxembourg's real weight as Europe's
+wealthiest country per capita and a major financial/commercial real-estate
+hub. Took that as a mandate to look harder for the actual current-practice
+basis, not to paper over the gap — and found one: Code civil Article 3
+(lex rei sitae) subjects an immovable to Luxembourg law regardless of the
+owner's nationality, so Article 11's reciprocity clause (which addresses
+civil rights generally) was never the operative rule for property-holding
+capacity in the first place — the same doctrinal distinction already
+confirmed for France (also still carrying an unamended Article 11) via its
+own Article 3, which is why France was already listed as OPEN.
+
+The real, institutional confirmation: the Chamber of Deputies' own
+scientific research unit (Cellule scientifique) was tasked with studying
+whether Luxembourg COULD adopt a Swiss-style "Lex Koller" prior-
+authorization regime for non-resident foreign buyers — study CS-2022-DR-029
+(March 2024), "Peut-on restreindre l'accès à la propriété immobilière aux
+étrangers non-résidents au Luxembourg?". Its own conclusion: such a regime
+would likely be incompatible with Luxembourg's legal order (no admissible
+justification found) and foreign buyers aren't even a driver of the
+housing-price/supply crisis that motivated the question — the clearest
+possible confirmation that today's baseline is unrestricted, since the
+entire study's premise is "can we add a restriction," not "here is the
+restriction that exists." `chd.lu` (the Chamber of Deputies' own domain) is
+blocked by this sandbox's network egress proxy like every other `.lu`
+government domain tried this session — confirmed via curl, worked around
+via WebSearch, same pattern as Monaco/Liechtenstein. Added as `OPEN`, with
+the one real carve-out noted in the summary (agricultural/protected land,
+not ordinary residential property — same treatment already used for
+Norway/Sweden/Brazil/Argentina's agricultural-only restrictions). Luxembourg
+already has `closingCosts.js`/`propertyTax.js` coverage, so this is live in
+the paid report immediately, not held for a missing data adapter.
+"190/191 countries" copy bumped in the same 3 pages (`index.html`,
+`foreign-buyer-check.html`, `guides/index.html`). Verified: `node --check`,
+`getForeignBuyerRule("luxembourg")`/`listForeignBuyerRules()` tested
+directly in Node (191 total, Luxembourg present), and a local server
+serving the real `/api/foreign-buyer-rules-list` handler + the actual
+`foreign-buyer-check.html` screenshotted in headless Chromium — the
+Luxembourg card renders correctly with the OPEN badge, full summary, and a
+working source link.
+
+Separately, confirmed (same conversation) that Luxembourg's apartment-price
+benchmark the user asked about is NOT a gap — it's been live since a
+previous session (`lib/data/luxembourgPrices.json` → `lib/europe/
+localPrices.js` → `api/eurostat-hpi-intelligence.js`). Re-verified end to
+end in Node: Luxembourg-Ville (€10,269/m², 613 sales) and Esch-sur-Alzette
+(€6,427/m², 239 sales) both resolve correctly with real sourced data. The
+one real, intentional limitation: only 51 of the 100 communes have 10+
+sales in the trailing 12 months; the other 49 correctly return "not enough
+sales" rather than a number, per the project's data-honesty rule — not a
+bug. Also checked `https://geoportail.lu/en/documentation/eshop/` (sent by
+the user): confirmed via WebSearch (the domain itself is proxy-blocked,
+same as other `.lu` sites) that it's ACT's (Administration du Cadastre et
+de la Topographie) manual commercial order system for maps/cadastral
+extracts/GIS layers — not a source of transaction prices, and not an API,
+so it doesn't close any open Luxembourg gap; no action taken on it.
