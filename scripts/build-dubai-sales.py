@@ -3,7 +3,13 @@
 "Transactions" export (dubailand.gov.ae/en/open-data/real-estate-data/,
 downloaded in a normal browser — the portal does not answer servers).
 
-  python3 scripts/build-dubai-sales.py transactions-*.csv [more files…]
+  python3 scripts/build-dubai-sales.py transactions-*.csv|.xlsx [more files…]
+
+Accepts the CSV as downloaded, or the same CSV opened and saved in Excel
+(.xlsx with each CSV line in column A — a cell split at a comma is joined
+back). Each line is parsed on its own; a line that does not give exactly
+the 22 DLD columns (Excel breaks the few fields that contain line breaks)
+is skipped and counted. Window: the 6 months up to the latest sale.
 
 Rules (all from the file itself, nothing estimated):
  - GROUP_EN "Sales" and PROCEDURE_EN exactly "Sale" (a registered sale of a
@@ -24,16 +30,34 @@ Rules (all from the file itself, nothing estimated):
    flats within an area when 10+.
  - The file carries no names (TOTAL_BUYER / TOTAL_SELLER are counts).
 """
-import csv, json, sys, statistics, collections, datetime, pathlib
+import csv, json, re, sys, statistics, collections, datetime, pathlib
 
 MIN = 10
 SALE_PROCS = {"Sale": "ready", "Sell - Pre registration": "offplan"}
 
-rows = []
+HEADER = None
+rows, skipped = [], 0
+def lines_of(f):
+    if f.endswith(".xlsx"):
+        import openpyxl
+        for r in openpyxl.load_workbook(f, read_only=True).worksheets[0].iter_rows(values_only=True):
+            cells = [str(x) for x in r if x is not None]
+            if cells: yield ",".join(cells)
+    else:
+        with open(f, encoding="utf-8-sig") as fh:
+            yield from (l.rstrip("\r\n") for l in fh)
 for f in sys.argv[1:]:
-    with open(f, encoding="utf-8-sig", newline="") as fh:
-        rows.extend(csv.DictReader(fh))
-seen_ids = collections.Counter(r["TRANSACTION_NUMBER"] for r in rows)
+    for line in lines_of(f):
+        if "\n" in line or "\r" in line: skipped += 1; continue
+        try: vals = next(csv.reader([line.lstrip("\ufeff")]), [])
+        except csv.Error: skipped += 1; continue
+        if vals and vals[0] == "TRANSACTION_NUMBER": HEADER = vals; continue
+        if len(vals) != 22 or not re.fullmatch(r"\d+-\d+-\d{4}", vals[0]) or not re.fullmatch(r"\d{4}-\d\d-\d\d.*", vals[1]):
+            skipped += 1; continue
+        rows.append(dict(zip(HEADER, vals)))
+latest_all = max(r["INSTANCE_DATE"][:10] for r in rows)
+window_from = (datetime.date.fromisoformat(latest_all) - datetime.timedelta(days=183)).isoformat()
+rows = [r for r in rows if r["INSTANCE_DATE"][:10] > window_from]
 # the same export downloaded twice / overlapping files → one row per (number, area, value, size)
 uniq = {}
 for r in rows:
@@ -80,7 +104,7 @@ for key, g in groups.items():
                 "from": min(g["d"]), "to": max(g["d"])}
 dates.sort()
 meta = {"built": datetime.date.today().isoformat(), "from": dates[0] if dates else None, "to": dates[-1] if dates else None,
-        "sales": kept, "multiPropertyDropped": multi, "groups": len(out),
+        "sales": kept, "multiPropertyDropped": multi, "malformedLinesSkipped": skipped, "groups": len(out),
         "areas": sorted({k.split("|")[1] for k in out if k.startswith("A|")})}
 path = pathlib.Path(__file__).resolve().parent.parent / "lib/data/dubaiSales.json"
 path.write_text(json.dumps({"meta": meta, "groups": out}, separators=(",", ":")))

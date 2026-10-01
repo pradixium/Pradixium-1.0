@@ -1121,6 +1121,31 @@ Blockers found — do not retry the same route:
   nadlan.gov.il (Tax Authority deals, every sale) → its API
   (api.nadlan.gov.il) sits behind reCAPTCHA Enterprise → not used.
 
+## Dubai (Oct 1 2026, Claude B)
+
+`lib/uae/dubaiSales.js` ← `python3 scripts/build-dubai-sales.py <export.csv|.xlsx …>`
+→ lib/data/dubaiSales.json. Source: the Dubai Land Department's own
+"Transactions" export (dubailand.gov.ae → Open Data → Real Estate Data),
+downloaded by the user in a browser (the portal does not answer servers;
+no names in it — TOTAL_BUYER/SELLER are counts). The user opened the CSV
+in Excel → .xlsx with each CSV line in column A; the script reads both
+(cells split at a comma re-joined; the ~50 lines Excel broke at embedded
+line breaks are skipped and counted). Rules: GROUP "Sales" + PROCEDURE
+"Sale" (ready) or "Sell - Pre registration" (off-plan) only; residential
+Unit/Flat and Building/Villa; a TRANSACTION_NUMBER on several rows =
+multi-property deed → dropped; 6 months up to the latest sale; 10+ sales.
+Flats → median AED/m² of the registered unit area (project → area +
+bedrooms → area); villas → median WHOLE price (DLD's villa area may be
+the plot). Ready vs off-plan never mixed (the other stage = context).
+Area names come in two spellings in the export (upper/mixed case → merged;
+"DUBAI MARINA" vs "Marsa Dubai" both exist → NOT merged, each matched only
+when typed). Abbreviations only for the DLD names themselves (JVC, JLT,
+JBR, JVT, DSO); "Downtown Dubai" is NOT aliased (no DLD area of that
+name) → the report asks for the DLD area. First build: export Jan–Oct 1
+2026, window 2026-04-02..2026-10-01, 60,748 sales, 122 areas. Check:
+Business Bay ready flats 861 sales, median AED 18,603/m² (separate
+Python recompute from the raw xlsx). Refresh monthly with a new export.
+
 ## Africa (Sept 2026, Claude B)
 
 Trend-only fixtures in `api/regional-fixture-intelligence.js` — none of these

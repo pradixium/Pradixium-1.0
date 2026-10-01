@@ -48,6 +48,7 @@ import { getClosingCosts } from "../lib/data/closingCosts.js";
 import { getPropertyTax } from "../lib/data/propertyTax.js";
 import { getCurrencyControls } from "../lib/data/currencyControls.js";
 import { zurichCondo } from "../lib/europe/zurichCity.js";
+import { dubaiBenchmark } from "../lib/uae/dubaiSales.js";
 import { getRecentTransactionPrice } from "../lib/data/recentTransactionPrices.js";
 
 const AGENT_REGISTRY = {
@@ -960,6 +961,26 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
     "croatia", "cyprus", "denmark", "estonia", "finland", "ireland", "latvia", "lithuania",
     "luxembourg", "malta", "romania", "slovakia", "slovenia", "sweden", "norway", "iceland"
   ];
+  // Dubai: DLD's own registered sales (prebuilt from its transaction export)
+  if (c === "united arab emirates") {
+    const db = dubaiBenchmark({ text: `${property?.address || ""}, ${property?.city || raw.city || ""}`, propertyType, bedrooms: property?.bedrooms });
+    if (db) {
+      return {
+        benchmarkValue: db.found ? db.value : null,
+        benchmarkUnit: db.found ? db.unit : "perSqm",
+        benchmarkLabel: db.found ? db.label : "Dubai Land Department registered sales",
+        governmentValue: null,
+        transactionValue: null,
+        transactionPeriod: db.period || null,
+        marketArea: db.found ? `${db.area}, Dubai` : db.area ? `${db.area}, Dubai — too few registered sales of this kind` : "Dubai — enter the DLD area or project",
+        source: db.text,
+        sourceUrl: db.sourceUrl || "https://dubailand.gov.ae/en/open-data/real-estate-data/",
+        coverage: db.found ? "city" : "national",
+        priceTrendPercent: null,
+        sourceParts: [{ title: "Dubai Land Department", text: db.text }]
+      };
+    }
+  }
   if (c === "germany" || c === "italy" || c === "israel" || c === "united arab emirates" || c === "turkey" || EUROSTAT_ONLY_COUNTRIES.includes(c)) {
     const hpi = raw.housingPriceIndex || {};
     let change = hpi.annualChangePercent ?? hpi.annualVariation ?? null;
