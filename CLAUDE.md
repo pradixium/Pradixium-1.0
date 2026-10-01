@@ -1203,6 +1203,36 @@ wins over a capital typed after it, and a typed capital gives the state
 bulk sales) still needs the user's browser download. The NSW Valuer General bulk sales
 files (per-suburb) still need a browser download by the user.
 
+TRANSFER DUTY (Oct 1 2026): closingCosts.js australia `byAuState` — the
+suburb match's state → duty computed on the asking price from the state's
+own schedule (investor / general rates, no concessions) + the foreign
+surcharge: NSW (Revenue NSW 2026–27 thresholds, premium > $3.87 m, SPD 9%),
+VIC (SRO non-PPR table, FPAD 8%), QLD (QRO general rates, AFAD 8%), WA
+(general rate since 1 Jul 2022, FTD 7%), TAS (rates since 21 Oct 2013,
+FIDS 8%), ACT (DI2026-155 Table 2, from 1 Jul 2026; no foreign rate in
+it), NT (Stamp Duty Act Sch 1 formula, as in force 1 Jul 2025; no
+surcharge). SA: Revenue SA + legislation.sa.gov.au + AustLII all 403 →
+officially blocked from here, the text says so. Checks: QRO's own example
+$850,000 → $31,275; NSW $1 m → $39,187; VIC $1.4 m → $77,000 (5.5% flat
+band). NSW thresholds are CPI-indexed each 1 July and the ACT issues a new
+DI each July → update both every July.
+
+RENTS + NSW BENCHMARK (Oct 1 2026): `python3 scripts/build-au-rents.py`
+(quarterly) → lib/data/australiaRents.json. NSW: Department of Communities
+and Justice "Rent and Sales Report" (dcj.nsw.gov.au, xlsx linked on the
+report page): Table 4 sale prices per POSTCODE, strata (units/townhouses)
+vs non-strata (houses), from Notices of Sale lodged with NSW Land Registry,
+5% trimmed per LGA, 10 or fewer sales unpublished, "s" = 11–30 → the
+postcode median is now the NSW BENCHMARK (before the SA/VIC suburb
+records). Table 2 weekly rents of new bonds per postcode × type ×
+bedrooms. SA: Private Rental Report (data.sa.gov.au) per suburb × flats /
+houses × bedrooms. Suburb → postcode from ABS MB × POA_2021 (80%+ of
+the suburb's area), a typed postcode wins. Rent → rentalBenchmark
+monthlyRentFlat (weekly × 52 ÷ 12) → yield when no rent entered. Check:
+postcode 2150 strata 221 sales, AUD 620,000; 2-bed flats 429 bonds, $700/wk
+= the raw rows. VIC (Homes Victoria rental report) and QLD (RTA) rent
+sites do not answer from here → need a browser download.
+
 ## Brazil — City of São Paulo (Oct 1 2026, Claude B)
 
 `lib/brazil/saoPaulo.js` ← `python3 scripts/build-br-sp-itbi.py <2025.xlsx>

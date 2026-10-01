@@ -1034,17 +1034,20 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
   // state = context only — a whole metro (Greater Sydney, 5 M people) is not
   // a suburb's market: a Bondi house would read "far above market"
   if (c === "australia") {
-    const au = australiaBenchmark({ text: `${property?.address || ""}, ${property?.city || raw.city || ""}`, propertyType });
+    const au = australiaBenchmark({ text: `${property?.address || ""}, ${property?.city || raw.city || ""}`, propertyType, bedrooms: property?.bedrooms });
+    // official rent of new bonds (NSW postcode / SA suburb) → the yield when no rent is entered
+    const auRent = au?.rent ? { rentalBenchmark: { monthlyRentFlat: au.rent.monthly, grossYieldPercent: null, source: au.rent.source }, part: { title: `Rent — ${au.rent.who}`, text: `${au.rent.text}${property?.monthlyRent ? "" : " No rent was entered, so the yield uses this rent (estimated)."}` } } : null;
+    const withAuRent = (r) => auRent ? { ...r, rentalBenchmark: auRent.rentalBenchmark, source: `${r.source} ${auRent.part.text}`, sourceParts: [...r.sourceParts, auRent.part] } : r;
     if (au?.suburb) {
-      return {
+      return withAuRent({
         benchmarkValue: au.value, benchmarkUnit: "total", benchmarkLabel: au.label, governmentValue: null, transactionValue: null,
         transactionPeriod: au.period, marketArea: au.area, source: au.text, sourceUrl: au.sourceUrl, coverage: "city", priceTrendPercent: null,
         sourceParts: [{ title: au.who || "State Valuer-General", text: au.text }]
-      };
+      });
     }
     if (au) {
       const ctx = au.found ? `${au.text} The median covers the whole ${au.area} area, so it is shown as context and not compared with this property's price.` : au.text;
-      return {
+      return withAuRent({
         benchmarkValue: null,
         benchmarkUnit: "total",
         benchmarkLabel: au.found ? `${au.label} (context only)` : "ABS median transfer price",
@@ -1057,7 +1060,7 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
         coverage: au.found ? "city" : "national",
         priceTrendPercent: null,
         sourceParts: [{ title: "Australian Bureau of Statistics", text: ctx }]
-      };
+      });
     }
   }
 
@@ -1742,7 +1745,7 @@ export default async function handler(req, res) {
   // guessing a number.
   // Germany: the property's federal state (from its municipality) sets the
   // Grunderwerbsteuer rate
-  const closingCosts = getClosingCosts(property.country, { state: /^germany$/i.test(String(property.country || "").trim()) ? (marketData?.rent?.land || (marketData?.irw?.ags ? "Nordrhein-Westfalen" : null)) : /^(united kingdom|uk)$/i.test(String(property.country || "").trim()) ? (marketData?.nation || null) : null });
+  const closingCosts = getClosingCosts(property.country, { state: /^germany$/i.test(String(property.country || "").trim()) ? (marketData?.rent?.land || (marketData?.irw?.ags ? "Nordrhein-Westfalen" : null)) : /^(united kingdom|uk)$/i.test(String(property.country || "").trim()) ? (marketData?.nation || null) : /^australia$/i.test(String(property.country || "").trim()) ? (australiaBenchmark({ text: `${property?.address || ""}, ${property?.city || ""}`, propertyType: property.propertyType })?.state || null) : null, price: Number(property.price) || null });
 
   // Recurring annual ownership tax (property tax / taxe foncière / IBI /
   // Council Tax / Arnona, etc.) — a separate, ongoing cost from the
