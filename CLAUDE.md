@@ -1612,6 +1612,46 @@ IMPO, the Montenegro gazette PDF, or Albania's ASHK/QBZ) is the concrete
 next step for any future batch touching these four. "65/66 countries"
 copy updated again, in the same 3 pages.
 
+**Sixth batch (Oct 1 2026): 1 more, 66 → 67 — Monaco, the daily scan's own
+unresolved case, closed properly.** The daily data-freshness routine had
+twice correctly declined to add Monaco (and Luxembourg) for lack of an
+official source, finding only law-firm/property-agency claims of "no
+restriction." The user explicitly pushed back ("תחפש בעוד מקורות לגביהם אל
+תהיה עצלן" — look harder, don't be lazy) rather than accept that as final.
+Monaco: dug past the law-firm layer and found the actual primary basis —
+Constitution of Monaco (1962, rev. 2002) Article 32, "L'étranger jouit
+dans la Principauté de tous les droits publics et privés qui ne sont pas
+formellement réservés aux nationaux" (a foreigner enjoys every public/
+private right not formally reserved to nationals), consistently quoted
+across independent legal-text mirrors (constituteproject.org, icnl.org,
+rightofassembly.info) since legimonaco.mc itself is blocked by this
+sandbox's network egress policy (confirmed via direct curl: 403 at the
+proxy, not the site's own WAF). Cross-checked against Monaco's
+registration-duty schedule (Projet de loi n°884, via conseil-national.mc
+search results): an individual buyer pays the standard ~4.5% rate
+regardless of nationality; the higher 7.5-10% rate targets opaque
+corporate/offshore acquisition structures specifically (the subject of
+April 2026's Proposition de loi n°276 on foreign-entity transparency) —
+confirming the "no restriction" claim is a real, deliberate policy choice
+for individuals, not just an absence of a rule anyone's checked. Added as
+`OPEN`. Monaco already has `closingCosts.js`/`propertyTax.js` coverage, so
+this goes live immediately (unlike Singapore/Philippines, which are held
+for a country not yet in the dropdown). Luxembourg was researched with
+the same intensity but came back genuinely murkier, not just under-time:
+its Code Civil Article 11 ("L'étranger jouira dans le Luxembourg des
+mêmes droits civils que ceux qui sont ou seront accordés aux Luxembourgeois
+par les traités de la nation à laquelle cet étranger appartiendra") is
+still the literal, unamended 1804 reciprocity clause as of the current
+(2023) consolidated Code Civil text — i.e., formally conditioned on a
+treaty with the buyer's home country, not an unconditional guarantee like
+Monaco's Article 32. Every secondary source still says "no restrictions in
+practice," which is very likely true (EU law + Luxembourg's wide treaty
+network cover virtually every real buyer), but that's a materially
+different, weaker claim than what this file asserts for its `OPEN`
+entries elsewhere — so Luxembourg stays unlisted rather than papering over
+a real distinction found by looking harder, not proof the first pass was
+lazy. "66/67 countries" copy updated in the same 3 pages.
+
 ## For the other session (Claude B): Georgia data gap flagged (Sept 2026)
 
 The user is specifically interested in Georgia (the country) as a hot,
