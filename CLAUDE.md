@@ -1237,6 +1237,23 @@ price … market sale" cells are all empty (".."); CMHC absorbed-unit prices
 not checked yet. Suburbs not in a CMA name (Mississauga) → the province if
 typed. Check: Toronto 2026-08 −4.3% (index 106.0) = the WDS series.
 
+## Checked Oct 1 2026, not usable (do not retry the same route)
+
+- Brazil, Porto Alegre ITBI (dadosabertos.poa.br/dataset/itbi): publishes
+  the TAX BASE (city's own valuation), area, % transferred — no declared
+  price, no property type, years to 2025 → not a market price.
+- Mexico: SHF open-data xlsx (gob.mx/cms/uploads/…/Indice_SHF_datos_
+  abiertos_2_trim_2026.xlsx) sits behind a bot challenge for servers and
+  per SHF holds index changes only; no per-city price level exists
+  officially (only state prices of MORTGAGED homes → context).
+- Kazakhstan: BNS news releases now give deal COUNTS only; city prices are
+  in taldau (JS-loaded results) — resale prices there come from listing
+  ads (BNS method) → context at best. Not built.
+- North Macedonia: the statistics office's per-m² prices stopped in 2017;
+  the cadastre agency's price register is an interactive search — no file.
+- Canada CHSP 46-10-0030 market-sale medians: every cell "..".
+- Puerto Rico: no FHFA series (no PR metro rows, not in the state file).
+
 ## Africa (Sept 2026, Claude B)
 
 Trend-only fixtures in `api/regional-fixture-intelligence.js` — none of these
