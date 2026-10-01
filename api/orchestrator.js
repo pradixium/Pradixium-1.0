@@ -51,6 +51,7 @@ import { zurichCondo } from "../lib/europe/zurichCity.js";
 import { dubaiBenchmark } from "../lib/uae/dubaiSales.js";
 import { australiaBenchmark } from "../lib/australia/absPrices.js";
 import { saoPauloBenchmark } from "../lib/brazil/saoPaulo.js";
+import { mexicoBenchmark } from "../lib/mexico/shf.js";
 import { getRecentTransactionPrice } from "../lib/data/recentTransactionPrices.js";
 
 const AGENT_REGISTRY = {
@@ -963,6 +964,30 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
     "croatia", "cyprus", "denmark", "estonia", "finland", "ireland", "latvia", "lithuania",
     "luxembourg", "malta", "romania", "slovakia", "slovenia", "sweden", "norway", "iceland"
   ];
+  // Mexico: SHF prices of MORTGAGED homes per state = context only (they
+  // skew to economy / social housing; cash and resort purchases are largely
+  // missing — a Playa del Carmen flat read "167% above market"); the
+  // municipality's / state's official index change = the trend
+  if (c === "mexico") {
+    const mx = mexicoBenchmark({ text: `${property?.address || ""}, ${property?.city || raw.city || ""}` });
+    if (mx) {
+      const ctx = mx.found ? `${mx.text} This median covers mortgage-financed homes of every kind in the whole state, so it is shown as context and not compared with this property's price.` : mx.text;
+      return {
+        benchmarkValue: null,
+        benchmarkUnit: "total",
+        benchmarkLabel: mx.found ? `${mx.label} (context only)` : "SHF median home price",
+        governmentValue: null,
+        transactionValue: null,
+        transactionPeriod: mx.period || null,
+        marketArea: mx.found ? `${mx.area} — official state median of mortgaged homes, context only` : "Mexico — enter the city or state",
+        source: ctx,
+        sourceUrl: mx.sourceUrl || "https://www.gob.mx/shf",
+        coverage: mx.found ? "city" : "national",
+        priceTrendPercent: mx.found ? mx.trend : null,
+        sourceParts: [{ title: "Sociedad Hipotecaria Federal", text: ctx }]
+      };
+    }
+  }
   // City of São Paulo: the city's own ITBI (transfer-tax) sale records
   if (c === "brazil") {
     const sp = saoPauloBenchmark({ text: `${property?.address || ""}, ${property?.city || raw.city || ""}`, propertyType });
@@ -983,26 +1008,30 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
       };
     }
   }
-  // Australia: ABS median transfer prices per capital-city area / rest of state
+  // Australia: ABS median transfer prices per capital-city area / rest of
+  // state = context only — a whole metro (Greater Sydney, 5 M people) is not
+  // a suburb's market: a Bondi house would read "far above market"
   if (c === "australia") {
     const au = australiaBenchmark({ text: `${property?.address || ""}, ${property?.city || raw.city || ""}`, propertyType });
     if (au) {
+      const ctx = au.found ? `${au.text} The median covers the whole ${au.area} area, so it is shown as context and not compared with this property's price.` : au.text;
       return {
-        benchmarkValue: au.found ? au.value : null,
+        benchmarkValue: null,
         benchmarkUnit: "total",
-        benchmarkLabel: au.found ? au.label : "ABS median transfer price",
+        benchmarkLabel: au.found ? `${au.label} (context only)` : "ABS median transfer price",
         governmentValue: null,
         transactionValue: null,
         transactionPeriod: au.period || null,
-        marketArea: au.found ? au.area : au.area ? `${au.area} — too few transfers of this kind` : "Australia — enter the suburb and state",
-        source: au.text,
+        marketArea: au.found ? `${au.area} — official area-wide median, context only` : au.area ? `${au.area} — too few transfers of this kind` : "Australia — enter the suburb and state",
+        source: ctx,
         sourceUrl: au.sourceUrl || "https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/total-value-dwellings",
         coverage: au.found ? "city" : "national",
         priceTrendPercent: null,
-        sourceParts: [{ title: "Australian Bureau of Statistics", text: au.text }]
+        sourceParts: [{ title: "Australian Bureau of Statistics", text: ctx }]
       };
     }
   }
+
   // Dubai: DLD's own registered sales (prebuilt from its transaction export)
   if (c === "united arab emirates") {
     const db = dubaiBenchmark({ text: `${property?.address || ""}, ${property?.city || raw.city || ""}`, propertyType, bedrooms: property?.bedrooms });

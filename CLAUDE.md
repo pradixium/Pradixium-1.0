@@ -1167,8 +1167,9 @@ RES_DWELL (data.api.abs.gov.au, keyless) — UNSTRATIFIED median price of
 residential property transfers, established houses vs attached dwellings
 (flats/units/townhouses), per Greater Capital City area and rest of each
 state (15 areas), latest quarter (preliminary — counts get revised up).
-Whole-property benchmark (unit "total"); the year-earlier median is
-context, never the trend (not mix-adjusted). Place → area from ABS's own
+CONTEXT ONLY (decided the same day): a whole metro median is not a
+suburb's market — a Bondi house read "far above market" against Greater
+Sydney. The year-earlier median is context, never the trend. Place → area from ABS's own
 ASGS Ed. 3 allocation files (MB_2021_AUST + SAL_2021_AUST joined on mesh
 block; a suburb needs 95%+ of its area in one GCCSA) + SA4/SA3 region
 names (Gold Coast, Sunshine Coast) + capital names. A name in several
@@ -1198,6 +1199,24 @@ in one sector (Moema yes; Pinheiros/Vila Mariana span sectors → asks for
 the street). First build: 2025-09-01..2026-08-31, 87,725 sales, 228
 sectors. Check: sector 014 (Jardins) flats 612 sales, R$1,700,223.
 FipeZap (listings) stays context for the rest of Brazil.
+
+## Mexico (Oct 1 2026, Claude B)
+
+`lib/mexico/shf.js` ← `python3 scripts/build-mx-shf.py <INEGI AGEEML csv>`
+→ lib/data/mexicoShf.json: SHF Índice de Precios de la Vivienda 2026 Q2 —
+per state average + quartile prices (median = 50%) of homes bought with a
+MORTGAGE (built from appraisals; new + used, houses + condos together) and
+the state's annual index change; annual change of the 56 municipalities in
+the release (Benito Juárez/Cancún +9.69, Solidaridad/Playa del Carmen
++9.96, Los Cabos +8.48 …). SHF's page prints only the national figures
+(avg 1,960,032 / median 1,299,580); the state and municipal tables are
+images there → copied by hand from IIEG Jalisco's reproduction (its
+national row = SHF's). Re-copy each quarter. Place → state/municipality:
+INEGI AGEEML localities (seat or ≥ 2,500 people; a name in several states
+only if 10× the next) + state names/aliases (CDMX, Riviera Maya…).
+CONTEXT ONLY: mortgaged homes skew to economy/social housing (a Playa del
+Carmen flat read "167% above market") → never the benchmark; the
+municipal (else state) index change IS the trend.
 
 ## Africa (Sept 2026, Claude B)
 
