@@ -1606,7 +1606,7 @@ async function checkApiKeyEntitlement(rawKey) {
   }
 }
 
-async function checkEntitlement(authHeader, signature) {
+async function checkEntitlement(authHeader, signature, legacySignature) {
   const token = String(authHeader || "").replace(/^Bearer\s+/i, "").trim();
   if (!token) return false;
   if (token.startsWith("px_live_")) return checkApiKeyEntitlement(token);
@@ -1623,7 +1623,9 @@ async function checkEntitlement(authHeader, signature) {
       // "monthly_usage" marks a report already spent from the individual
       // monthly plan's per-cycle cap (see api/consume-monthly-slot.js) —
       // permanent access to that specific report, same as "report".
-      return (row.kind === "report" || row.kind === "monthly_usage") && row.report_signature === signature;
+      // legacySignature only matches a report purchased before the Oct
+      // 2026 signature fix — never written for a new purchase.
+      return (row.kind === "report" || row.kind === "monthly_usage") && (row.report_signature === signature || (legacySignature && row.report_signature === legacySignature));
     });
   } catch {
     return false;
@@ -1698,8 +1700,23 @@ export default async function handler(req, res) {
   // Same signature format as engine.js's reportSignature() and the
   // report_signature column written by verify-checkout-session.js when a
   // one-time report purchase completes.
-  const signature = [property.country, property.city, property.price, property.size].join("|");
-  const entitlementPromise = checkEntitlement(req.headers.authorization, signature);
+  //
+  // FIX (Oct 2026): the old signature was only country+city+price+size --
+  // two genuinely DIFFERENT properties that happen to share a city and a
+  // round listing price/size (common: new-build units, coincidental
+  // matches) collided onto the same signature. Once either one was
+  // purchased, isReportPaid()/checkEntitlement() would treat the OTHER
+  // property as already paid for -- a real, silent monthly-cap bypass /
+  // revenue leak, not just a theoretical edge case. Now folds in the
+  // address, bedrooms, bathrooms, propertyType and monthlyRent (all
+  // already collected and already on `property`) so two unrelated
+  // properties essentially can't collide. legacySignature keeps
+  // recognizing the reports already purchased under the old, narrower
+  // format (13 live rows as of this fix) -- it is only ever compared
+  // against, never written for a new purchase.
+  const signature = [property.country, property.city, property.address, property.price, property.size, property.bedrooms, property.bathrooms, property.propertyType, property.monthlyRent].join("|");
+  const legacySignature = [property.country, property.city, property.price, property.size].join("|");
+  const entitlementPromise = checkEntitlement(req.headers.authorization, signature, legacySignature);
 
   let marketData = body?.marketData || null;
   let marketDataError = null;
