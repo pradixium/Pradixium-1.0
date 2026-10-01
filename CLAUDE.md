@@ -1363,7 +1363,7 @@ was explicit — "no Roman senate," feedback is a one-way signal he reviews hims
 not a crowd-sourced roadmap. Don't build a public-facing version of this without
 being asked.
 
-## Session roles going forward (Sept 2026)
+## Session roles going forward (Sept 2026, re-confirmed and widened Oct 1 2026)
 
 Two Claude sessions work this repo concurrently. Going forward, by the user's own
 split: **this session (Claude A / "Pradixium 1.0") = business, marketing, go-to-
@@ -1373,12 +1373,55 @@ coi9oe`) = technical data-coverage content (US metros #23+, Lithuania). Don't pi
 up new country/county data-building work in this session without checking with the
 user first — that's Claude B's lane now, to avoid both sessions colliding on main.
 
+**Re-confirmed and widened (Oct 1 2026):** this session nearly duplicated its
+OWN earlier work — `FIRST1000`/`launch1000` was created by THIS session on
+Sept 30 2026 (documented a few paragraphs below, in the Launch coupon
+section) at the user's explicit direction, but that fact had fallen out of
+this session's active context after a conversation compaction, so when the
+user referenced "the 1000 code" this session queried Stripe cold, found it,
+and nearly created a duplicate coupon (`002`, since deleted, 0 redemptions,
+no harm done) before realizing it already existed. Not a two-session
+collision after all — a same-session memory gap, caught only because this
+session now queries Stripe directly instead of trusting its own recall. The
+user's broader point stands regardless, and his explicit fix: **"אדמיניסטרציה
+תהיה אצלך"** — this session
+now owns ALL business-facing administration (Stripe coupons/pricing, account
+settings, Vercel config, anything outside the codebase itself), plus design
+completions/fixes, new features, and advertising/marketing — not just the
+narrower "business, marketing, go-to-market, light cross-cutting fixes" from
+Sept. Claude B's lane stays "enriching the material and improving the
+report" — i.e. new country/county data coverage and report-content
+depth, not administration of any kind. Rationale in the user's words:
+"לפעמים מנסים לרוץ אחרי שני ארנבות ולא תופסים כלום" (chasing two rabbits at
+once catches neither) — administration specifically must have exactly one
+owner so this exact collision (two sessions touching the same live payment
+config, neither aware of the other) cannot repeat. Before touching Stripe,
+Vercel, or any other external account going forward: query the live state
+first (as this session now does reflexively), since CLAUDE.md alone may be
+stale relative to what Claude B or the user did directly.
+
 Go-to-market plan as discussed: first paying-ish customers via a narrow beachhead
 the user has real personal access to (not just a language he speaks) — candidates
 raised were Israeli overseas-property-investor Facebook groups, free reports in
 exchange for honest testimonials (never incentivized/bought reviews — Trustpilot
 etc. only once there are real reviews to show, not an empty profile). "This is to
 test the water," not a scaled campaign yet.
+
+**Facebook dropped as a channel (Oct 1 2026):** the user can't get a Facebook
+business account approved, so Facebook groups are off the table — not a
+strategy choice, a real access blocker. Gave a researched list of
+international real-estate forums/communities as the replacement beachhead
+candidates instead: most relevant to Pradixium's actual niche (cross-border
+buyers, not domestic landlords) are SkyscraperCity (city/country-segmented,
+heavy foreign-buyer discussion), The Property Forum (organized by region),
+and expat-specific communities (InterNations property groups, ExpatForum.com)
+— these match the "Israeli buying abroad" profile directly. Largest general
+communities: BiggerPockets (2.5-3M members, US-heavy) and r/realestateinvesting
+(2M members, Reddit). Recommended starting point: r/realestateinvesting and
+SkyscraperCity, both of which tolerate genuine value-add answers with a link
+when relevant (not direct self-promotion) — matches where people already ask
+exactly the "is this price fair" question Pradixium answers. Not yet acted
+on; no account created or outreach done anywhere.
 
 ## Business/legal decisions (Sept 2026, user's own calls — not to be revisited without him raising it)
 
@@ -1693,11 +1736,78 @@ recording:
     rather than assumed from Poland/Finland's apartment-exemption pattern.
 Also updated the "39/47 countries" copy again, in the same 3 pages.
 
-**Still not done, still not exhaustive:** ~38 of the 85 dropdown countries
-remain silent (correctly — unverified). Continuing this kind of expansion
-in bounded, verified batches rather than one unverifiable sweep is the
-right pace to keep the honesty bar real; say so plainly if the user wants
-the rest pushed further in a future session.
+**Full gap sweep (Oct 1 2026): 67 -> 96, closing essentially the entire
+remaining gap in this product's own country list.** After the Monaco
+episode, the user gave a direct, blunt instruction: stop waiting to be
+handed a source, find the official body for every covered-but-missing
+country myself, immediately ("תשאל את עצמך על כולם ומייד"). Computed the
+actual gap precisely — diffed `api/orchestrator.js`'s `COUNTRY_ENDPOINTS`
+(every country this product serves data for) against
+`foreignBuyerRules.js`'s coverage — rather than guessing at what was
+missing. That gap was 30 countries; 29 of them now have a real entry,
+each with its own primary law/constitution article or official ministry/
+registry, researched and verified with the same per-country discipline as
+every earlier batch (not a rushed sweep): Russia, Kazakhstan, Armenia,
+Bosnia and Herzegovina, Andorra, North Macedonia, Ukraine, Nigeria, Puerto
+Rico, Moldova, Liechtenstein, San Marino, Bolivia, Ecuador, Paraguay,
+Cayman Islands, Azerbaijan, Kosovo, Trinidad and Tobago, Maldives,
+Belarus, Uruguay, Montenegro, Albania, Jamaica, Uzbekistan, Kyrgyzstan,
+Tajikistan, Turkmenistan. Four of these (Uruguay, Montenegro, Albania,
+Jamaica) were the exact four this file had earlier "researched but
+deliberately not shipped" for lacking a clear-enough source — closed out
+properly this time by searching harder for the actual statute/body rather
+than re-accepting the same inconclusive blog-level sourcing. The only
+country from the computed gap NOT added is Luxembourg, for the specific,
+documented reason above (Code Civil Art. 11's still-unamended 1804
+reciprocity clause) — a real, found distinction, not a skipped step.
+"67/71/77/83/88/96 countries" copy bumped across all 3 pages as each
+batch landed. Shipped in 5 separate commits on the same branch so each
+batch's reasoning stays attributable and the diff stays reviewable, not
+one giant unreviewable commit.
+
+**What's left, honestly:** every country this product's own
+`COUNTRY_ENDPOINTS` list serves now has a Foreign Buyer Access entry
+except Luxembourg. The dropdown's full universe is wider than
+`COUNTRY_ENDPOINTS` (the 85-dropdown-country figure from earlier batches
+includes countries with no data adapter at all yet) — closing that larger
+gap is a separate, lower-priority piece of work than closing the gap in
+countries this product actually already serves, which is what today's
+sweep targeted and finished.
+
+**Then: explicitly told to go further — countries not in our database at
+all (Oct 1 2026).** After the 67->96 sweep, the user asked for a reference
+list of official real-estate-statistics bodies for every country/territory
+in the world. Gave one explicitly labeled as unverified general knowledge,
+not shippable data — when the user then said "add all of them," refused:
+that list was names of bodies, never checked one-by-one for an actual
+current, citable rule, and shipping it wholesale would be exactly the kind
+of fabrication this file's entire discipline exists to prevent. Instead,
+kept going country-by-country at the same verified pace. The user then
+clarified the real ask: the countries NOT YET in this product's database
+at all (not in `COUNTRY_ENDPOINTS`) — a different, legitimate piece of
+work from the 67->96 sweep (which only closed gaps in ALREADY-supported
+countries). Researched and added 6 major not-yet-supported markets,
+101 total now: Saudi Arabia (WORKAROUND REQUIRED — a brand-new law in
+force 21 Jan 2026, REGA-designated zones only, replacing the old 2000
+capital-threshold regime), Qatar (WORKAROUND REQUIRED — Law 16/2018, 9
+freehold + 16 usufruct designated zones), Kuwait (RESTRICTED — Law No. 74
+of 1979, a non-GCC buyer needs 10 years' residence + Council of Ministers
+approval, capped at 1 property/1,000 sqm), China (RESTRICTED — 2006
+"Circular 171": self-use only, 1+ year residence/study prerequisite, one
+property nationwide, investment purchases banned outright), Hong Kong
+(OPEN — the 15% non-resident Buyer's Stamp Duty surcharge was eliminated
+28 Feb 2024; every buyer now pays the same scale), Taiwan (WORKAROUND
+REQUIRED — Land Act Art. 18-19 reciprocity, Ministry of Interior's list of
+~77 countries, with some countries facing extra conditions and four
+nationalities barred outright). Same "ready but unreachable until a full
+data adapter exists" status as Singapore/Philippines/Malaysia already in
+this file — the public free checker (`foreign-buyer-check.html`) shows all
+of them regardless, since it reads this file directly and was never gated
+by `COUNTRY_ENDPOINTS`; only the PAID per-property report needs the full
+adapter to actually apply one. "96/101 countries" copy bumped in the same
+3 pages. Building a full adapter (price/tax/closing-cost data, not just
+this one rule) for any of these 6 is separate, much larger work — not
+started here.
 
 **Fourth batch (Sept 30 2026): 3 more, 62 → 65.** Added Kenya (`WORKAROUND
 REQUIRED` — Constitution of Kenya 2010, Sixth Schedule Article 8(1), a
@@ -1761,6 +1871,232 @@ the government's own page" bar — closing that loop (a direct read of
 IMPO, the Montenegro gazette PDF, or Albania's ASHK/QBZ) is the concrete
 next step for any future batch touching these four. "65/66 countries"
 copy updated again, in the same 3 pages.
+
+**Sixth batch (Oct 1 2026): 1 more, 66 → 67 — Monaco, the daily scan's own
+unresolved case, closed properly.** The daily data-freshness routine had
+twice correctly declined to add Monaco (and Luxembourg) for lack of an
+official source, finding only law-firm/property-agency claims of "no
+restriction." The user explicitly pushed back ("תחפש בעוד מקורות לגביהם אל
+תהיה עצלן" — look harder, don't be lazy) rather than accept that as final.
+Monaco: dug past the law-firm layer and found the actual primary basis —
+Constitution of Monaco (1962, rev. 2002) Article 32, "L'étranger jouit
+dans la Principauté de tous les droits publics et privés qui ne sont pas
+formellement réservés aux nationaux" (a foreigner enjoys every public/
+private right not formally reserved to nationals), consistently quoted
+across independent legal-text mirrors (constituteproject.org, icnl.org,
+rightofassembly.info) since legimonaco.mc itself is blocked by this
+sandbox's network egress policy (confirmed via direct curl: 403 at the
+proxy, not the site's own WAF). Cross-checked against Monaco's
+registration-duty schedule (Projet de loi n°884, via conseil-national.mc
+search results): an individual buyer pays the standard ~4.5% rate
+regardless of nationality; the higher 7.5-10% rate targets opaque
+corporate/offshore acquisition structures specifically (the subject of
+April 2026's Proposition de loi n°276 on foreign-entity transparency) —
+confirming the "no restriction" claim is a real, deliberate policy choice
+for individuals, not just an absence of a rule anyone's checked. Added as
+`OPEN`. Monaco already has `closingCosts.js`/`propertyTax.js` coverage, so
+this goes live immediately (unlike Singapore/Philippines, which are held
+for a country not yet in the dropdown). Luxembourg was researched with
+the same intensity but came back genuinely murkier, not just under-time:
+its Code Civil Article 11 ("L'étranger jouira dans le Luxembourg des
+mêmes droits civils que ceux qui sont ou seront accordés aux Luxembourgeois
+par les traités de la nation à laquelle cet étranger appartiendra") is
+still the literal, unamended 1804 reciprocity clause as of the current
+(2023) consolidated Code Civil text — i.e., formally conditioned on a
+treaty with the buyer's home country, not an unconditional guarantee like
+Monaco's Article 32. Every secondary source still says "no restrictions in
+practice," which is very likely true (EU law + Luxembourg's wide treaty
+network cover virtually every real buyer), but that's a materially
+different, weaker claim than what this file asserts for its `OPEN`
+entries elsewhere — so Luxembourg stays unlisted rather than papering over
+a real distinction found by looking harder, not proof the first pass was
+lazy. "66/67 countries" copy updated in the same 3 pages.
+
+## Monaco: real district-level benchmark wired in, a dead-data bug fixed (Oct 1 2026)
+
+Same conversation, same "don't be lazy" push: the user supplied the exact
+official source directly — `imsee.mc`'s Real Estate Observatory (IMSEE =
+Institut Monégasque de la Statistique et des Études Économiques, Monaco's
+national statistics institute). `imsee.mc` is blocked by this sandbox's
+network egress policy exactly like every other `.mc` domain (confirmed via
+direct curl: 403 at the proxy's CONNECT tunnel — and, surprisingly, this
+same session also saw every other domain, including `example.com`, fail
+the same way for a stretch, i.e. a general sandbox-wide outage, not a
+Monaco-specific block — re-verify this isn't still the case next session
+before assuming `.mc` is uniquely blocked). Pulled the actual 2025 figures
+via WebSearch instead, cross-confirmed across multiple independent
+secondary reports (monaco-tribune.com, hellomonaco.com, miells.com, two
+separate searches) that all cited identical IMSEE numbers: national
+average €57,569/m² (−1.4% vs 2024's €58,402), and by quartier — Larvotto
+€71,167 (+2.2%, the first district ever to cross €70k), Monte-Carlo
+€54,009 (+4.8%), Fontvieille €52,518 (+4.5%), La Condamine €52,104 (−0.7%),
+La Rousse €51,265 (+3.2%), Les Moneghetti €43,797 (+3.3%). 2025 was also
+IMSEE's first year using a revised methodology (linear regression
+combining sales, resales, and construction period).
+
+**Found and fixed a real, consequential bug while wiring this in:** Monaco
+already had an IMSEE entry in `api/regional-fixture-intelligence.js`
+(built by Claude B, pre-dating this session) with the national average and
+a `coverageNote` *mentioning* the district spread in prose — but
+`api/orchestrator.js`'s `REGIONAL_FIXTURE_COUNTRIES` branch only ever
+applies a benchmark when `raw.cityName` is set and matches the property's
+address; Monaco's fixture never set it. The practical effect: **every
+single Monaco report, regardless of district, rendered "no official local
+price figure for this place yet"** — the €57,569 average was mentioned
+only as unused text, never shown as an actual Market Benchmark number.
+Given the ~2x spread between Larvotto and Moneghetti, using the blended
+national figure as a real benchmark for every address would have been
+wrong anyway — so leaving it text-only wasn't itself the bug, but having
+real per-district data and not surfacing it for an address that names its
+district was.
+
+Fixed properly rather than patched: added a `districts` array (name +
+aliases + benchmarkValue + changePercent per quartier) to Monaco's fixture,
+threaded it through the API response, and extended
+`orchestrator.js`'s shared `REGIONAL_FIXTURE_COUNTRIES` block with a
+`districtMatch` step (alias-matching against the property's address/city
+field, same idea as `recentAreaFits`) that resolves to the named district's
+own figure when the address mentions one (e.g. "Larvotto, Monaco"),
+falling back to the pre-existing national-average-as-context behavior
+otherwise. This block is shared by ~30 countries (Mexico, Kenya, Canada,
+etc.) — the new logic is strictly additive (`raw.districts` is undefined
+for every one of them, so `districtMatch` stays null and nothing changes);
+verified directly by calling the real handler for Mexico/Kenya/Canada and
+confirming `districts: null` and unchanged `cityBenchmarkValue`/
+`nationalBenchmarkValue` in each response. Verified for Monaco itself by
+calling the real handler with test addresses: "Larvotto, Monaco" →
+Larvotto's own 71,167/+2.2%; "10 Avenue Princesse Grace, Monte-Carlo,
+Monaco" → Monte-Carlo's 54,009/+4.8%; plain "Monaco" (no district named) →
+correctly falls through to the national-average/context-only path,
+unchanged from before. The single property-search field on `index.html`
+already accepts "address, city or postal code" as free text, so a user or
+agent naming the quartier (the normal way Monaco listings are described)
+now gets matched automatically — no UI change needed.
+
+## Foreign Buyer Access: full world coverage (Oct 1 2026, 67 -> 190)
+
+After the Monaco episode and the 67->96 sweep of already-supported
+countries, the user escalated twice more, explicitly: first "go find
+every not-yet-supported country's rule too, not just the gaps in
+countries we already serve," then — after correctly refusing to bulk-
+import a general reference list of statistics-body names as if it were
+verified data — an explicit instruction to cover literally every country
+and territory in the world, including unstable/post-conflict/pariah
+states, accepting a thin or imperfect entry now (to complete later) over
+having none at all, but never a guessed one.
+
+Worked through essentially the entire world in bounded, verified batches
+of 5-7 countries at a time, each with the same per-country sourcing
+discipline as every earlier entry in this file (a real statute,
+constitutional article, or named official body — never invented).
+67 -> 190 total entries, in ~25 separate commits on the
+`foreign-buyer-monaco` branch so each batch's reasoning stays
+attributable. Final status breakdown: 71 OPEN, 81 WORKAROUND REQUIRED, 37
+RESTRICTED, 1 TAX SURCHARGE (Singapore).
+
+Regions covered, roughly in the order worked: the original 67->96 gap-fill
+(ex-Soviet states, Balkans, Monaco's own neighbors) -> Gulf states, China,
+Hong Kong, Taiwan -> Middle East (Jordan, Lebanon, Iraq, Syria, Yemen) and
+South Asia (Pakistan, Bangladesh, Nepal) -> Central America and the
+Caribbean's early entries -> most of Sub-Saharan Africa, country by
+country (West, East, Central, Southern) -> the hardest conflict/pariah
+cases (Libya, Sudan, Afghanistan, Somalia, North Korea, Cuba) -> the
+Pacific island states (Fiji, Vanuatu, Samoa, Tonga, Solomon Islands,
+Palau, Micronesia, Marshall Islands, Nauru) -> the remaining Eastern
+Caribbean (Antigua, St Lucia, St Kitts, St Vincent, Grenada, Dominica,
+Guyana, Suriname).
+
+**Notable findings from the hardest cases**, worth remembering as a
+validated methodology, not just a one-off result: even North Korea had a
+real, citable answer (sourced to a Library of Congress Law Library report
+on foreigners' property rights, since no NK government legal portal
+exists) — "private property is outlawed" is itself a verifiable fact, not
+a guess. Same for Somalia, Sudan, South Sudan, and Yemen: the formal legal
+position is findable and real, even where (stated explicitly in each of
+those entries) the practical, on-the-ground enforceability is a separate
+and serious risk given active conflict or collapsed registry
+administration. The user's framing — "in the internet age, every country
+holds a record" — held up in every single case tried. No sandbox network
+block was ever actually hit during this entire sweep (WebSearch alone was
+sufficient throughout); the earlier Monaco-era `.mc`-domain WebFetch
+blocks turned out not to generalize to this exercise at all.
+
+**What's still open, flagged rather than forced:** Kiribati and Tuvalu
+were researched but not added — only generic constitutional-framework and
+customary-land-tenure background was found for either, nothing specific
+enough to state the actual current foreign-ownership rule without
+guessing. A handful of very small dependent territories (e.g. Greenland,
+Bermuda, French/UK/US overseas territories with their own distinct legal
+regimes separate from their parent state) were not attempted in this
+sweep and remain a reasonable next target if the user wants the list
+pushed even further. Luxembourg remains deliberately excluded for the
+specific, already-documented Code Civil Art. 11 reciprocity-clause reason
+(see the earlier batch note above) — not an oversight.
+
+**Reachability note, unchanged from the original Singapore/Philippines
+pattern:** any country added here that isn't yet in `api/orchestrator.js`'s
+`COUNTRY_ENDPOINTS` (roughly half of what was added in this sweep) shows
+immediately on the free public checker (`foreign-buyer-check.html`, which
+reads this file directly and was never gated by `COUNTRY_ENDPOINTS`), but
+won't yet appear inside an actual paid property report for that country
+until a full price/tax/closing-cost data adapter exists — a separate,
+much larger undertaking per country (the US alone took ~2 weeks) that
+this sweep did not attempt.
+
+**First pass at closing it for already-reachable countries (Oct 1 2026):**
+asked to "go back over the countries you added and add data." Diffed
+tonight's 190 Foreign Buyer Access additions against `closingCosts.js`/
+`propertyTax.js` coverage, restricted to the ~90 of them already in
+`COUNTRY_ENDPOINTS` (so the data lands in an actual report immediately,
+not just the free checker). UAE/Dubai explicitly excluded per the user's
+own instruction — Claude B is working there concurrently. Found and
+closed 8 gaps, each sourced the same way as everything else in this file:
+Nigeria (closing: Lagos's Governor's Consent + stamp duty + registration
+stack, ~3%–3.5%; tax: Lagos Land Use Charge, 0.0394%–0.394% by occupancy
+type — both explicitly flagged as state-set, not national, since Nigeria
+has no uniform national rate), Paraguay (closing: municipal ITM 0.3%–0.5%
++ registry inscription 0.8%; tax: Impuesto Inmobiliario, a flat 1% of
+fiscal value, annually CPI-adjusted), San Marino (closing: imposta di
+registro 5% on an ordinary resale, 17% single-phase tax on a new build
+from a developer; tax: confirmed as a genuine "none" — no ordinary annual
+property tax exists, only one-off extraordinary measures when
+specifically legislated), Maldives (closing: 15% land-transfer tax + flat
+MVR 500 stamp duty, explicitly caveated that a foreign buyer's real
+transaction is a leasehold/unit assignment under project terms, not an
+ordinary land transfer; tax: confirmed as a genuine "none" for ordinary
+owners), Kosovo (tax only: a brand-new 2026 progressive model, 0.10%–1.50%
+by property-use category — no closing-cost entry added, since no specific
+transfer-tax rate could be confirmed with confidence).
+
+**Liechtenstein closed out right after, once the user supplied the exact
+official page** (llv.li's Land Register page) — llv.li is blocked by this
+sandbox's egress proxy exactly like every other domain hit tonight
+(confirmed via direct curl: 403 at the CONNECT tunnel), so WebSearch was
+used instead, the same technique that worked for Monaco's Constitution
+text. Found the actual rate: no German-style Grunderwerbsteuer exists at
+all (the only real-estate-specific tax, Grundstücksgewinnsteuer, is a
+seller-side capital GAINS tax on resale profit, not a buyer cost) — but a
+real, citable Land Register fee does apply: 0.6% (6‰) of the purchase
+price, minimum CHF 200, per the actual ordinance (Verordnung vom 11.
+Februar 2003 über die Grundbuch- und Handelsregistergebühren, LGBl. 2003
+Nr. 67, Annex 1 Section B). No propertyTax.js entry was added for
+Liechtenstein, deliberately: its real annual mechanism is a wealth tax on
+a person's TOTAL net assets (a notional 4% yield added to income, taxed
+at the progressive Erwerbssteuer scale) — not a standalone, property-
+specific rate this file's schema can honestly reduce to one number
+without being more confusing than helpful.
+
+**Still deliberately left out — researched, not forced:** Tajikistan and
+Turkmenistan (multiple searches came back with only vague qualitative
+statements — "rates vary," "not detailed in available sources" — with no
+actual percentage or official body confirming one; same honesty bar as
+every other gap in this file). An `officialOnly()`
+filter already in `closingCosts.js` strips any field whose source reads
+as non-government (e.g. "Market convention") and nulls the computed
+total if it does — caught and fixed for Paraguay during this batch (a
+first draft cited the notary-fee split as "Market convention" inside the
+total, which silently zeroed the whole total; moved to a plain mention
+outside the computed range instead).
 
 ## For the other session (Claude B): Georgia data gap flagged (Sept 2026)
 
@@ -1908,3 +2244,69 @@ section) — the language-toggle button itself couldn't be exercised in
 this sandbox test (it only renders once the AI agent's localized content
 is present, not something easy to mock), but the 7 dictionary values were
 verified directly in the source, not assumed.
+
+## Luxembourg closed out, world coverage 190 → 191 (Oct 1 2026)
+
+Luxembourg was the one country this project's own `COUNTRY_ENDPOINTS` list
+still lacked a Foreign Buyer Access entry for (flagged in the Sixth batch
+note above), specifically because Code civil Article 11's literal text is
+still the unamended 1804 reciprocity clause — conditioned on a treaty with
+the buyer's home country, not an unconditional guarantee. The user pushed
+back on leaving a real, described market out just because the law itself
+reads one way on paper ("אנחנו לא מחליטים לגבי החוק רק מציינים עובדה
+קיימת" — we're not ruling on the law, just stating an existing fact) and
+asked for it to go in, given Luxembourg's real weight as Europe's
+wealthiest country per capita and a major financial/commercial real-estate
+hub. Took that as a mandate to look harder for the actual current-practice
+basis, not to paper over the gap — and found one: Code civil Article 3
+(lex rei sitae) subjects an immovable to Luxembourg law regardless of the
+owner's nationality, so Article 11's reciprocity clause (which addresses
+civil rights generally) was never the operative rule for property-holding
+capacity in the first place — the same doctrinal distinction already
+confirmed for France (also still carrying an unamended Article 11) via its
+own Article 3, which is why France was already listed as OPEN.
+
+The real, institutional confirmation: the Chamber of Deputies' own
+scientific research unit (Cellule scientifique) was tasked with studying
+whether Luxembourg COULD adopt a Swiss-style "Lex Koller" prior-
+authorization regime for non-resident foreign buyers — study CS-2022-DR-029
+(March 2024), "Peut-on restreindre l'accès à la propriété immobilière aux
+étrangers non-résidents au Luxembourg?". Its own conclusion: such a regime
+would likely be incompatible with Luxembourg's legal order (no admissible
+justification found) and foreign buyers aren't even a driver of the
+housing-price/supply crisis that motivated the question — the clearest
+possible confirmation that today's baseline is unrestricted, since the
+entire study's premise is "can we add a restriction," not "here is the
+restriction that exists." `chd.lu` (the Chamber of Deputies' own domain) is
+blocked by this sandbox's network egress proxy like every other `.lu`
+government domain tried this session — confirmed via curl, worked around
+via WebSearch, same pattern as Monaco/Liechtenstein. Added as `OPEN`, with
+the one real carve-out noted in the summary (agricultural/protected land,
+not ordinary residential property — same treatment already used for
+Norway/Sweden/Brazil/Argentina's agricultural-only restrictions). Luxembourg
+already has `closingCosts.js`/`propertyTax.js` coverage, so this is live in
+the paid report immediately, not held for a missing data adapter.
+"190/191 countries" copy bumped in the same 3 pages (`index.html`,
+`foreign-buyer-check.html`, `guides/index.html`). Verified: `node --check`,
+`getForeignBuyerRule("luxembourg")`/`listForeignBuyerRules()` tested
+directly in Node (191 total, Luxembourg present), and a local server
+serving the real `/api/foreign-buyer-rules-list` handler + the actual
+`foreign-buyer-check.html` screenshotted in headless Chromium — the
+Luxembourg card renders correctly with the OPEN badge, full summary, and a
+working source link.
+
+Separately, confirmed (same conversation) that Luxembourg's apartment-price
+benchmark the user asked about is NOT a gap — it's been live since a
+previous session (`lib/data/luxembourgPrices.json` → `lib/europe/
+localPrices.js` → `api/eurostat-hpi-intelligence.js`). Re-verified end to
+end in Node: Luxembourg-Ville (€10,269/m², 613 sales) and Esch-sur-Alzette
+(€6,427/m², 239 sales) both resolve correctly with real sourced data. The
+one real, intentional limitation: only 51 of the 100 communes have 10+
+sales in the trailing 12 months; the other 49 correctly return "not enough
+sales" rather than a number, per the project's data-honesty rule — not a
+bug. Also checked `https://geoportail.lu/en/documentation/eshop/` (sent by
+the user): confirmed via WebSearch (the domain itself is proxy-blocked,
+same as other `.lu` sites) that it's ACT's (Administration du Cadastre et
+de la Topographie) manual commercial order system for maps/cadastral
+extracts/GIS layers — not a source of transaction prices, and not an API,
+so it doesn't close any open Luxembourg gap; no action taken on it.

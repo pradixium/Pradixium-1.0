@@ -57,6 +57,12 @@
 
     .workspace{padding:10px 14px 42px;max-width:1500px;margin:0 auto}
     .status-line{height:39px;background:#fff;border:1px solid #e5e9ef;border-radius:5px;display:flex;align-items:center;padding:0 14px;font-size:9px;color:#647080;margin-bottom:10px}
+    .launch-seal-wrap{display:flex;align-items:center;gap:22px;margin:4px 0 20px}
+    .launch-seal{width:148px;height:148px;flex-shrink:0;transform:rotate(-11deg);filter:drop-shadow(0 8px 14px rgba(140,100,10,.5))}
+    .launch-seal-copy .headline{font-size:24px;font-weight:900;color:#172131;letter-spacing:.1px;margin-bottom:5px;line-height:1.15}
+    .launch-seal-copy .sub{font-size:13px;color:#4b5563;line-height:1.5}
+    .launch-seal-copy code{background:#172131;color:#ffd874;padding:4px 11px;border-radius:5px;font-weight:800;letter-spacing:.5px;font-size:13px}
+    @media(max-width:600px){.launch-seal-wrap{padding-left:16px;flex-direction:column;align-items:flex-start;gap:10px}.launch-seal{position:static;transform:rotate(-8deg);width:150px;height:150px;margin:0 auto}}
     .status-line .ok{color:#18a55f;font-weight:700;margin-right:9px}
     .status-line .ref{margin-left:auto}
     .report-btn{margin-left:17px;height:27px;border:1px solid #b9c9e7;background:#fff;border-radius:4px;color:#315a9f;padding:0 12px;font-size:9px}
@@ -265,6 +271,43 @@
       </header>
 
       <main class="workspace">
+        <div class="launch-seal-wrap">
+          <svg class="launch-seal" id="launchSealSvg" viewBox="0 0 300 300">
+            <defs>
+              <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#fce6a8"/>
+                <stop offset="45%" stop-color="#dcae3e"/>
+                <stop offset="100%" stop-color="#8f650f"/>
+              </linearGradient>
+              <radialGradient id="goldInner" cx="50%" cy="38%" r="75%">
+                <stop offset="0%" stop-color="#f3d888"/>
+                <stop offset="100%" stop-color="#d7a536"/>
+              </radialGradient>
+              <path id="sealTopArc" d="M 34,150 A 116,116 0 1,1 266,150" fill="none"/>
+              <path id="sealBottomArc" d="M 266,158 A 116,116 0 1,1 34,158" fill="none"/>
+            </defs>
+            <polygon points="150.0,2.0 163.1,16.6 178.9,4.8 188.9,21.8 206.6,13.3 213.2,31.8 232.2,26.9 235.0,46.4 254.7,45.3 253.6,65.0 273.1,67.8 268.2,86.8 286.7,93.4 278.2,111.1 295.2,121.1 283.4,136.9 298.0,150.0 283.4,163.1 295.2,178.9 278.2,188.9 286.7,206.6 268.2,213.2 273.1,232.2 253.6,235.0 254.7,254.7 235.0,253.6 232.2,273.1 213.2,268.2 206.6,286.7 188.9,278.2 178.9,295.2 163.1,283.4 150.0,298.0 136.9,283.4 121.1,295.2 111.1,278.2 93.4,286.7 86.8,268.2 67.8,273.1 65.0,253.6 45.3,254.7 46.4,235.0 26.9,232.2 31.8,213.2 13.3,206.6 21.8,188.9 4.8,178.9 16.6,163.1 2.0,150.0 16.6,136.9 4.8,121.1 21.8,111.1 13.3,93.4 31.8,86.8 26.9,67.8 46.4,65.0 45.3,45.3 65.0,46.4 67.8,26.9 86.8,31.8 93.4,13.3 111.1,21.8 121.1,4.8 136.9,16.6" fill="url(#goldGrad)" stroke="#7a560c" stroke-width="1.5"/>
+            <circle cx="150" cy="150" r="120" fill="url(#goldInner)" stroke="#7a560c" stroke-width="1.5"/>
+            <circle cx="150" cy="150" r="107" fill="none" stroke="#7a560c" stroke-width="1"/>
+            <text font-family="Georgia, 'Times New Roman', serif" font-size="15" font-weight="700" letter-spacing="3.5" fill="#4a3208"><textPath href="#sealTopArc" startOffset="50%" text-anchor="middle">✦ LAUNCH OFFER ✦</textPath></text>
+            <text font-family="Georgia, 'Times New Roman', serif" font-size="12.5" font-weight="700" letter-spacing="2.5" fill="#4a3208"><textPath href="#sealBottomArc" startOffset="50%" text-anchor="middle">USE CODE · FIRST1000</textPath></text>
+            <image id="launchSealLogo" x="130" y="72" width="40" height="55" href="" style="display:none"/>
+            <text x="150" y="184" font-family="Georgia, 'Times New Roman', serif" font-size="50" font-weight="700" fill="#4a3208" text-anchor="middle">1,000</text>
+            <text x="150" y="208" font-family="Georgia, 'Times New Roman', serif" font-size="14" font-weight="700" letter-spacing="2" fill="#6b4c12" text-anchor="middle">REPORTS FREE</text>
+          </svg>
+          <div class="launch-seal-copy">
+            <div class="headline">Your first Pradixium report, on us.</div>
+            <div class="sub">A free report for the first 1,000 people — use code <code>FIRST1000</code> at checkout.</div>
+            <div class="sub" style="margin-top:6px">How: analyze your property below, then on the payment page look for "Add promotion code" and enter <code>FIRST1000</code> — it brings your total to $0.</div>
+          </div>
+        </div>
+        <script>
+          (function(){
+            var logoSrc=(document.querySelector('.brand-mark img')||{}).src;
+            var img=document.getElementById('launchSealLogo');
+            if(logoSrc&&img){ img.setAttribute('href',logoSrc); img.style.display='block'; }
+          })();
+        </script>
         <div class="status-line">
           <span class="ok">✓ Analysis Complete</span>
           <span>• Ref: <span id="analysisReference">PX-ES-2025-000123</span></span>
@@ -684,7 +727,7 @@
 
                 <p id="foreignAccessText" class="data-note">—</p>
                 <p id="foreignAccessSource" class="data-note">—</p>
-                <p class="data-note"><a id="foreignAccessSeeAll" href="/foreign-buyer-check.html" style="color:#2463f5">See all 66 countries →</a></p>
+                <p class="data-note"><a id="foreignAccessSeeAll" href="/foreign-buyer-check.html" style="color:#2463f5">See all 191 countries →</a></p>
               </section>
 
               <section class="card data-card" id="closingCostsSection" style="display:none">
