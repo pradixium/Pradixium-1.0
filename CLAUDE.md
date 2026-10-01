@@ -1203,6 +1203,20 @@ wins over a capital typed after it, and a typed capital gives the state
 bulk sales) still needs the user's browser download. The NSW Valuer General bulk sales
 files (per-suburb) still need a browser download by the user.
 
+TRANSFER DUTY (Oct 1 2026): closingCosts.js australia `byAuState` — the
+suburb match's state → duty computed on the asking price from the state's
+own schedule (investor / general rates, no concessions) + the foreign
+surcharge: NSW (Revenue NSW 2026–27 thresholds, premium > $3.87 m, SPD 9%),
+VIC (SRO non-PPR table, FPAD 8%), QLD (QRO general rates, AFAD 8%), WA
+(general rate since 1 Jul 2022, FTD 7%), TAS (rates since 21 Oct 2013,
+FIDS 8%), ACT (DI2026-155 Table 2, from 1 Jul 2026; no foreign rate in
+it), NT (Stamp Duty Act Sch 1 formula, as in force 1 Jul 2025; no
+surcharge). SA: Revenue SA + legislation.sa.gov.au + AustLII all 403 →
+officially blocked from here, the text says so. Checks: QRO's own example
+$850,000 → $31,275; NSW $1 m → $39,187; VIC $1.4 m → $77,000 (5.5% flat
+band). NSW thresholds are CPI-indexed each 1 July and the ACT issues a new
+DI each July → update both every July.
+
 ## Brazil — City of São Paulo (Oct 1 2026, Claude B)
 
 `lib/brazil/saoPaulo.js` ← `python3 scripts/build-br-sp-itbi.py <2025.xlsx>
