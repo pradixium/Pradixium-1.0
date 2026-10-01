@@ -90,14 +90,22 @@ const FIXTURES = {
     officialSource: "https://www.geostat.ge/media/81560/Residential-Property-Price-Index---II-quarter-of-2026.pdf"
   },
   "bosnia and herzegovina": {
+    // BHAS "Prices of new dwellings sold" Q2 2026 (20.8.2026): total value
+    // of all NEW dwellings sold in the quarter ÷ their useful floor area,
+    // reported by the selling builders (form K KPS GRAĐ-41); existing
+    // ("old") flats are not covered. National only (no city table).
     country: "Bosnia and Herzegovina",
-    period: "2024",
-    nationalChangePercent: 16.6,
-    nationalBenchmarkValue: 1643,
+    period: "2026-Q2",
+    nationalChangePercent: 5.2,
+    nationalBenchmarkValue: 3311,
+    currencyLabel: "KM ",
     benchmarkUnit: "perSqm",
-    source: "Agency for Statistics of Bosnia and Herzegovina — average price of new-build dwellings, 2024",
-    officialSource: "https://bhas.gov.ba/"
+    flatsOnly: true,
+    coverageNote: "Average price per m² of useful floor area of the 1,160 NEW dwellings sold in Q2 2026 (existing flats not covered); +5.2% on Q2 2025. Bosnia and Herzegovina as a whole — no city figures are published.",
+    source: "Agency for Statistics of Bosnia and Herzegovina (BHAS) — Prices of new dwellings sold, Q2 2026",
+    officialSource: "https://bhas.gov.ba/data/Publikacije/Saopstenja/2026/CON_05_2026_Q2_1_SR.pdf"
   },
+
   // MONSTAT "Cijene stanova u novogradnji" (quarterly, from signed purchase
   // contracts of NEW flats sold for the first time — resale flats and houses
   // are not covered). Regions as MONSTAT defines them (release footnote 1).

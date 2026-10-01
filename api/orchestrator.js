@@ -1409,7 +1409,7 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
     const fits = raw.regionMatch ? true : raw.cityName ? recentAreaFits(raw.cityName, where) : false;
     if (!fits) {
       const cityTxt = raw.cityName && raw.cityBenchmarkValue != null ? ` The official figure on file covers ${raw.cityName} only (${Math.round(raw.cityBenchmarkValue).toLocaleString("en-US")} per m²) — not applied to ${where || "this place"}.` : "";
-      const natTxt = raw.nationalBenchmarkValue != null ? ` National average ${Math.round(raw.nationalBenchmarkValue).toLocaleString("en-US")}${raw.benchmarkUnit === "total" ? " per home" : " per m²"} — whole-country context only.` : "";
+      const natTxt = raw.nationalBenchmarkValue != null ? ` National average ${raw.currencyLabel || ""}${Math.round(raw.nationalBenchmarkValue).toLocaleString("en-US")}${raw.benchmarkUnit === "total" ? " per home" : " per m²"} — whole-country context only.${raw.coverageNote ? ` ${raw.coverageNote}` : ""}` : "";
       const nat = raw.changeIsMonthly ? null : (raw.nationalChangePercent ?? null);
       return {
         benchmarkValue: null,
@@ -1418,7 +1418,7 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
         governmentValue: null,
         transactionValue: null,
         transactionPeriod: raw.period ?? null,
-        marketArea: `${countryLabel(country)} — no official local price figure for ${where || "this place"} yet`,
+        marketArea: raw.nationalBenchmarkValue != null ? `${countryLabel(country)} — official national figure only (context); none published for ${where || "this place"}` : `${countryLabel(country)} — no official local price figure for ${where || "this place"} yet`,
         source: `${raw.sources?.official || countryLabel(country)}${nat != null ? ` — national ${nat >= 0 ? "+" : ""}${nat}% YoY` : ""}.${cityTxt}${natTxt}`,
         coverage: "national",
         priceTrendPercent: nat
