@@ -1200,9 +1200,12 @@ than 10, "*" = carried forward → skipped). Check: Richmond 65 sales AUD
 2026): 274 suburbs with 10+ sales, 2026 Q1. Check: South Yarra 219 sales
 AUD 533,000; Richmond 180, 557,500 = the raw rows. Place matching: the suburb
 wins over a capital typed after it, and a typed capital gives the state
-("12 Smith St, Richmond, Melbourne" → Richmond VIC). NSW (Valuer General
-bulk sales) still needs the user's browser download. The NSW Valuer General bulk sales
-files (per-suburb) still need a browser download by the user.
+("12 Smith St, Richmond, Melbourne" → Richmond VIC). NSW Valuer General
+bulk Property Sales Information (valuation.property.nsw.gov.au) is licensed
+CC BY-NC-ND 4.0 — NON-COMMERCIAL → not usable by Pradixium (and the files
+sit on valuergeneral.nsw.gov.au, 403). NSW is covered by the DCJ postcode
+medians instead (CC BY 4.0, dcj.nsw.gov.au copyright page). SA data.sa.gov.au
+and the VIC Valuer-General files: CC BY 4.0.
 
 TRANSFER DUTY (Oct 1 2026): closingCosts.js australia `byAuState` — the
 suburb match's state → duty computed on the asking price from the state's
@@ -1245,6 +1248,24 @@ surcharge listed), TAS (rates from 1 Jul 2025; FILTS 2% since 1 Jul 2022),
 ACT (DI2026-152: $1,778 + 0.54–1.26%, foreign surcharge 0.75%; rented
 homes). SA + NT: revenue offices 403 → not listed, said so. The old
 "AUD 1,300–2,500 council rates" line had no source → removed.
+
+FOREIGN BUYERS (Oct 1 2026): foreignBuyerRules.js australia re-checked on
+foreigninvestment.gov.au (residential land guidance): established-dwelling
+ban 1 Apr 2025 → 30 Jun 2029, new/near-new + vacant land with approval,
+annual vacancy fee (183 days); extraCost now lists the verified state
+surcharges (duty and land tax).
+AUSTRALIA CHECKLIST STATUS (Oct 1 2026): (1) price — DONE NSW (postcode),
+SA houses, VIC houses + units; QLD/WA/TAS/ACT/NT: no open official
+suburb file found (WA Landgate 403; QLD/TAS/ACT none published) → ABS
+area context only. (2) trend — officially impossible: ABS RPPI
+discontinued; area medians a year apart are context, not an index.
+(3) rent — DONE NSW, SA; VIC Homes Victoria "Moving annual rents by
+suburb" (CC BY 4.0, discover.data.vic.gov.au lists it, files on
+dffh.vic.gov.au which does not answer here) → user download requested;
+QLD RTA unreachable. (4) duty — DONE 7 states, SA blocked. (5) land tax —
+DONE 6 states, SA/NT blocked. (6) foreign buyers — DONE. (7) property
+record — officially impossible for free commercial use: NSW PSI is
+non-commercial; VIC/WA/TAS valuation portals are paid or 403.
 
 ## Brazil — City of São Paulo (Oct 1 2026, Claude B)
 
