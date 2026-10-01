@@ -1752,7 +1752,7 @@ export default async function handler(req, res) {
   // one-time closing costs above. Same rule: only covers countries with a
   // verified, citable rate (see lib/data/propertyTax.js), silent
   // everywhere else.
-  const propertyTax = getPropertyTax(property.country);
+  const propertyTax = getPropertyTax(property.country, { state: /^australia$/i.test(String(property.country || "").trim()) ? (australiaBenchmark({ text: `${property?.address || ""}, ${property?.city || ""}`, propertyType: property.propertyType })?.state || null) : null });
 
   // Real, legally-binding currency/capital-transfer controls on moving
   // money into the country to fund the purchase, or repatriating proceeds

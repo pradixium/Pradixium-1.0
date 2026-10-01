@@ -1234,6 +1234,18 @@ postcode 2150 strata 221 sales, AUD 620,000; 2-bed flats 429 bonds, $700/wk
 = the raw rows. VIC (Homes Victoria rental report) and QLD (RTA) rent
 sites do not answer from here → need a browser download.
 
+LAND TAX (Oct 1 2026): propertyTax.js australia `byAuState` (state from
+the suburb match): each state's official land tax schedule + foreign-owner
+surcharge as TEXT — the tax is on the Valuer-General LAND value, not the
+price, so no amount is computed. NSW (threshold $1,075,000 frozen, $100 +
+1.6%, premium $6,571,000; surcharge 5% from 2025), VIC (2024 general rates
++ 4% absentee surcharge), QLD (individuals from $600,000; absentees from
+$350,000 + 3% surcharge), WA (from $300,000; Perth MRIT 0.14%; no foreign
+surcharge listed), TAS (rates from 1 Jul 2025; FILTS 2% since 1 Jul 2022),
+ACT (DI2026-152: $1,778 + 0.54–1.26%, foreign surcharge 0.75%; rented
+homes). SA + NT: revenue offices 403 → not listed, said so. The old
+"AUD 1,300–2,500 council rates" line had no source → removed.
+
 ## Brazil — City of São Paulo (Oct 1 2026, Claude B)
 
 `lib/brazil/saoPaulo.js` ← `python3 scripts/build-br-sp-itbi.py <2025.xlsx>
