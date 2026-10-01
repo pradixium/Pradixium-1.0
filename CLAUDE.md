@@ -1140,8 +1140,13 @@ the plot). Ready vs off-plan never mixed (the other stage = context).
 Area names come in two spellings in the export (upper/mixed case → merged;
 "DUBAI MARINA" vs "Marsa Dubai" both exist → NOT merged, each matched only
 when typed). Abbreviations only for the DLD names themselves (JVC, JLT,
-JBR, JVT, DSO); "Downtown Dubai" is NOT aliased (no DLD area of that
-name) → the report asks for the DLD area. First build: export Jan–Oct 1
+JBR, JVT, DSO). "Downtown Dubai"/"Downtown" → DLD area "Burj Khalifa"
+(evidence in the export itself: its projects are Downtown's — St. Regis /
+Vida "Downtown Dubai", The Address Dubai Opera, Boulevard Point — and DLD's
+nearest-landmark field reads "Downtown Dubai" for 1,040 of its sales);
+labelled "Downtown Dubai (DLD area Burj Khalifa)" with a note that some
+towers marketed as Downtown are registered in Business Bay (project name
+wins). Check: Downtown 2-bed ready flats 228 sales, AED 25,989/m². First build: export Jan–Oct 1
 2026, window 2026-04-02..2026-10-01, 60,748 sales, 122 areas. Check:
 Business Bay ready flats 861 sales, median AED 18,603/m² (separate
 Python recompute from the raw xlsx). Refresh monthly with a new export.
