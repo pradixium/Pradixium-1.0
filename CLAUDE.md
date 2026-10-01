@@ -2341,3 +2341,27 @@ same as other `.lu` sites) that it's ACT's (Administration du Cadastre et
 de la Topographie) manual commercial order system for maps/cadastral
 extracts/GIS layers — not a source of transaction prices, and not an API,
 so it doesn't close any open Luxembourg gap; no action taken on it.
+
+## For the other session (Claude B): official API access becomes possible once the company is registered (Oct 1 2026)
+
+The user flagged this for your data-coverage work specifically: several
+government/statistics-office data sources we've hit across this project
+require a formal API application (not just an open endpoint) — a named,
+verifiable requesting organization, sometimes with a registered business
+email domain. Right now none of that exists, so every official data
+source integrated so far has had to be one reachable without an approval
+step. Once the Irish company's registration is finalized (user's own
+timeline: launch planned for after Sukkot, company ready "a day or two"
+before that), there will be a real registered-company email address to
+apply with. His own reasoning, worth remembering when picking which
+countries to prioritize for a formal API application: **an Irish
+registration is taken seriously** by foreign government data offices —
+Ireland's regulatory environment reads as strict/credible internationally
+(this is also the stated reason, elsewhere in this file, for not flipping
+to a Delaware C-Corp), so an application from a registered Irish entity
+should carry more weight than an unregistered individual's request. If
+you hit a data source during this work that's gated behind a formal API
+application rather than a public endpoint, this is the path forward — not
+something to work around with scraping, consistent with the project's
+no-third-party/no-scraping rule. No action needed from this session until
+the registration is actually confirmed done.
