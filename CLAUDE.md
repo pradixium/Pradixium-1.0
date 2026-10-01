@@ -1262,7 +1262,12 @@ discontinued; area medians a year apart are context, not an index.
 (3) rent — DONE NSW, SA; VIC Homes Victoria "Moving annual rents by
 suburb" (CC BY 4.0, discover.data.vic.gov.au lists it, files on
 dffh.vic.gov.au which does not answer here) → user download requested;
-QLD RTA unreachable. (4) duty — DONE 7 states, SA blocked. (5) land tax —
+QLD RTA unreachable. VIC DONE Oct 1 2026 with the user's download
+(`build-au-rents.py --vic-rent <xlsx>`; Sep 2025 quarter = the latest on
+data.vic): per suburb GROUP ("Richmond-Burnley"), a suburb name maps to
+its group when it is in exactly one; flats 1–3 bed, houses 2–4 bed,
+10+ lettings. Check: South Yarra 2-bed flats 1,288 lettings, $700/wk.
+(4) duty — DONE 7 states, SA blocked. (5) land tax —
 DONE 6 states, SA/NT blocked. (6) foreign buyers — DONE. (7) property
 record — officially impossible for free commercial use: NSW PSI is
 non-commercial; VIC/WA/TAS valuation portals are paid or 403.

@@ -14,8 +14,12 @@ sale prices) from the states' own bond / transfer records:
    blocks: SAL × POA), only when 80%+ of the suburb's area is in one
    postcode.
 A figure is used only with 10+ bonds / sales.
+ - VIC (when the file is supplied — dffh.vic.gov.au does not answer servers):
+   Homes Victoria Rental Report "Moving annual median rent by suburb and
+   town" (CC BY 4.0): new lettings in the 12 months to the quarter, per
+   suburb GROUP ("Richmond-Burnley") × 1–3 bed flats / 2–4 bed houses.
 
-  python3 scripts/build-au-rents.py      (quarterly)
+  python3 scripts/build-au-rents.py [--vic-rent <xlsx>]     (quarterly)
 """
 import collections, io, json, pathlib, re, urllib.request
 import openpyxl
@@ -103,6 +107,32 @@ for name, c in area.items():
     if tot and a / tot >= 0.8 and re.match(r"^\d{4}$", str(pc)):
         sub_pc[re.sub(r"\s*\([^)]*\)$", "", name).strip().upper()] = pc
 out["nsw"]["suburbPostcode"] = sub_pc
+
+# ---- VIC Homes Victoria moving annual rents (optional file)
+import sys
+if "--vic-rent" in sys.argv:
+    wb = openpyxl.load_workbook(sys.argv[sys.argv.index("--vic-rent") + 1], read_only=True)
+    SHEETS = {"1 bedroom flat": "Flat|1", "2 bedroom flat": "Flat|2", "3 bedroom flat": "Flat|3",
+              "2 bedroom house": "House|2", "3 bedroom house": "House|3", "4 bedroom house": "House|4"}
+    groups, vperiod = {}, None
+    for name, key in SHEETS.items():
+        rows = list(wb[name].iter_rows(values_only=True))
+        h = rows[1]; last = max(i for i, v in enumerate(h) if v)   # the latest quarter's Median column
+        vperiod = h[last]
+        for r in rows[3:]:
+            g, n, med = r[1], r[last - 1], r[last]
+            if not g or g == "Group Total" or not isinstance(n, (int, float)) or not isinstance(med, (int, float)) or n < 10: continue
+            groups.setdefault(g, {})[key] = [med, int(n)]
+    fix = {"WANAGARATTA": "WANGARATTA"}   # the file's own spelling of Wangaratta
+    sub = {}
+    for g in groups:
+        for part in g.split("-"):
+            nm = re.sub(r"^MT ", "MOUNT ", part.strip().upper()); nm = fix.get(nm, nm)
+            if nm and nm != "CBD": sub.setdefault(nm, []).append(g)
+    out["vic"] = {"rent": {"period": f"12 months to {vperiod}", "source": "Homes Victoria — Rental Report, moving annual median rent by suburb and town (new lettings)",
+                           "sourceUrl": "https://discover.data.vic.gov.au/dataset/rental-report-quarterly-moving-annual-rents-by-suburb",
+                           "groups": groups, "sub": {k: v[0] for k, v in sub.items() if len(set(v)) == 1}}}
+    print("VIC rent", vperiod, len(groups), "groups,", len(out["vic"]["rent"]["sub"]), "suburb names")
 
 p = pathlib.Path(__file__).resolve().parent.parent / "lib/data/australiaRents.json"
 p.write_text(json.dumps(out, ensure_ascii=False, separators=(",", ":")))
