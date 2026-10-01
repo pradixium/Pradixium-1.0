@@ -1213,7 +1213,7 @@ was explicit — "no Roman senate," feedback is a one-way signal he reviews hims
 not a crowd-sourced roadmap. Don't build a public-facing version of this without
 being asked.
 
-## Session roles going forward (Sept 2026)
+## Session roles going forward (Sept 2026, re-confirmed and widened Oct 1 2026)
 
 Two Claude sessions work this repo concurrently. Going forward, by the user's own
 split: **this session (Claude A / "Pradixium 1.0") = business, marketing, go-to-
@@ -1222,6 +1222,33 @@ other session (Claude B / "Pradixium 2.0 Beta", branch `claude/ecstatic-hypatia-
 coi9oe`) = technical data-coverage content (US metros #23+, Lithuania). Don't pick
 up new country/county data-building work in this session without checking with the
 user first — that's Claude B's lane now, to avoid both sessions colliding on main.
+
+**Re-confirmed and widened (Oct 1 2026):** this session nearly duplicated its
+OWN earlier work — `FIRST1000`/`launch1000` was created by THIS session on
+Sept 30 2026 (documented a few paragraphs below, in the Launch coupon
+section) at the user's explicit direction, but that fact had fallen out of
+this session's active context after a conversation compaction, so when the
+user referenced "the 1000 code" this session queried Stripe cold, found it,
+and nearly created a duplicate coupon (`002`, since deleted, 0 redemptions,
+no harm done) before realizing it already existed. Not a two-session
+collision after all — a same-session memory gap, caught only because this
+session now queries Stripe directly instead of trusting its own recall. The
+user's broader point stands regardless, and his explicit fix: **"אדמיניסטרציה
+תהיה אצלך"** — this session
+now owns ALL business-facing administration (Stripe coupons/pricing, account
+settings, Vercel config, anything outside the codebase itself), plus design
+completions/fixes, new features, and advertising/marketing — not just the
+narrower "business, marketing, go-to-market, light cross-cutting fixes" from
+Sept. Claude B's lane stays "enriching the material and improving the
+report" — i.e. new country/county data coverage and report-content
+depth, not administration of any kind. Rationale in the user's words:
+"לפעמים מנסים לרוץ אחרי שני ארנבות ולא תופסים כלום" (chasing two rabbits at
+once catches neither) — administration specifically must have exactly one
+owner so this exact collision (two sessions touching the same live payment
+config, neither aware of the other) cannot repeat. Before touching Stripe,
+Vercel, or any other external account going forward: query the live state
+first (as this session now does reflexively), since CLAUDE.md alone may be
+stale relative to what Claude B or the user did directly.
 
 Go-to-market plan as discussed: first paying-ish customers via a narrow beachhead
 the user has real personal access to (not just a language he speaks) — candidates
