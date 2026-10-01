@@ -1,0 +1,206 @@
+{
+"nhpi": {
+"Canada": {
+"period": "2026-08",
+"yoy": -2.0,
+"index": 120.4
+},
+"Saint John, Fredericton, and Moncton, New Brunswick": {
+"period": "2026-08",
+"yoy": 0.0,
+"index": 120.7
+},
+"Quebec": {
+"period": "2026-08",
+"yoy": 2.4,
+"index": 150.0
+},
+"Québec, Quebec": {
+"period": "2026-08",
+"yoy": 1.8,
+"index": 144.2
+},
+"Sherbrooke, Quebec": {
+"period": "2026-08",
+"yoy": 1.2,
+"index": 112.1
+},
+"Trois-Rivières, Quebec": {
+"period": "2026-08",
+"yoy": 3.3,
+"index": 119.7
+},
+"Montréal, Quebec": {
+"period": "2026-08",
+"yoy": 2.9,
+"index": 159.5
+},
+"Ottawa-Gatineau, Quebec part, Ontario/Quebec": {
+"period": "2026-08",
+"yoy": 0.4,
+"index": 116.6
+},
+"Ontario": {
+"period": "2026-08",
+"yoy": -3.4,
+"index": 117.5
+},
+"Ottawa-Gatineau, Ontario part, Ontario/Quebec": {
+"period": "2026-08",
+"yoy": -0.4,
+"index": 161.1
+},
+"Oshawa, Ontario": {
+"period": "2026-08",
+"yoy": -5.6,
+"index": 112.2
+},
+"Atlantic Region": {
+"period": "2026-08",
+"yoy": 0.3,
+"index": 121.5
+},
+"Toronto, Ontario": {
+"period": "2026-08",
+"yoy": -4.3,
+"index": 106.0
+},
+"Hamilton, Ontario": {
+"period": "2026-08",
+"yoy": -3.5,
+"index": 107.7
+},
+"St. Catharines-Niagara, Ontario": {
+"period": "2026-08",
+"yoy": -2.8,
+"index": 121.8
+},
+"Kitchener-Cambridge-Waterloo, Ontario": {
+"period": "2026-08",
+"yoy": -3.0,
+"index": 150.4
+},
+"Guelph, Ontario": {
+"period": "2026-08",
+"yoy": -1.5,
+"index": 118.9
+},
+"London, Ontario": {
+"period": "2026-08",
+"yoy": -1.7,
+"index": 136.9
+},
+"Windsor, Ontario": {
+"period": "2026-08",
+"yoy": -0.3,
+"index": 144.5
+},
+"Greater Sudbury, Ontario": {
+"period": "2026-08",
+"yoy": 1.6,
+"index": 118.4
+},
+"Prairie Region": {
+"period": "2026-08",
+"yoy": -0.2,
+"index": 120.7
+},
+"Manitoba": {
+"period": "2026-08",
+"yoy": 2.5,
+"index": 148.6
+},
+"Newfoundland and Labrador": {
+"period": "2026-08",
+"yoy": 0.0,
+"index": 109.8
+},
+"Winnipeg, Manitoba": {
+"period": "2026-08",
+"yoy": 2.5,
+"index": 148.6
+},
+"Saskatchewan": {
+"period": "2026-08",
+"yoy": 1.7,
+"index": 111.6
+},
+"Regina, Saskatchewan": {
+"period": "2026-08",
+"yoy": 2.1,
+"index": 108.0
+},
+"Saskatoon, Saskatchewan": {
+"period": "2026-08",
+"yoy": 1.5,
+"index": 113.7
+},
+"Alberta": {
+"period": "2026-08",
+"yoy": -0.5,
+"index": 118.5
+},
+"Calgary, Alberta": {
+"period": "2026-08",
+"yoy": 0.1,
+"index": 130.0
+},
+"Edmonton, Alberta": {
+"period": "2026-08",
+"yoy": -1.3,
+"index": 105.5
+},
+"British Columbia": {
+"period": "2026-08",
+"yoy": -2.6,
+"index": 121.9
+},
+"Kelowna, British Columbia": {
+"period": "2026-08",
+"yoy": -3.1,
+"index": 117.1
+},
+"Vancouver, British Columbia": {
+"period": "2026-08",
+"yoy": -2.5,
+"index": 122.6
+},
+"St. John's, Newfoundland and Labrador": {
+"period": "2026-08",
+"yoy": 0.0,
+"index": 109.8
+},
+"Victoria, British Columbia": {
+"period": "2026-08",
+"yoy": -2.0,
+"index": 119.9
+},
+"Prince Edward Island": {
+"period": "2026-08",
+"yoy": 0.0,
+"index": 123.7
+},
+"Charlottetown, Prince Edward Island": {
+"period": "2026-08",
+"yoy": 0.0,
+"index": 123.7
+},
+"Nova Scotia": {
+"period": "2026-08",
+"yoy": 0.8,
+"index": 128.3
+},
+"Halifax, Nova Scotia": {
+"period": "2026-08",
+"yoy": 0.8,
+"index": 128.3
+},
+"New Brunswick": {
+"period": "2026-08",
+"yoy": 0.0,
+"index": 120.7
+}
+},
+"nhpiSource": "Statistics Canada — New Housing Price Index, table 18-10-0205-01",
+"nhpiUrl": "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1810020501"
+}

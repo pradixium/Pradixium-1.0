@@ -1218,6 +1218,17 @@ CONTEXT ONLY: mortgaged homes skew to economy/social housing (a Playa del
 Carmen flat read "167% above market") → never the benchmark; the
 municipal (else state) index change IS the trend.
 
+## Canada (Oct 1 2026, Claude B)
+
+`lib/canada/nhpi.js` ← `python3 scripts/build-ca-prices.py` (monthly) →
+lib/data/canadaPrices.json: Statistics Canada New Housing Price Index
+(18-10-0205, WDS API keyless), house+land index change on a year earlier
+per CMA (27) / province — NEW houses only → a house's trend, context for a
+flat. No official price level per city: CHSP 46-10-0030's "median sale
+price … market sale" cells are all empty (".."); CMHC absorbed-unit prices
+not checked yet. Suburbs not in a CMA name (Mississauga) → the province if
+typed. Check: Toronto 2026-08 −4.3% (index 106.0) = the WDS series.
+
 ## Africa (Sept 2026, Claude B)
 
 Trend-only fixtures in `api/regional-fixture-intelligence.js` — none of these

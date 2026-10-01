@@ -52,6 +52,7 @@ import { dubaiBenchmark } from "../lib/uae/dubaiSales.js";
 import { australiaBenchmark } from "../lib/australia/absPrices.js";
 import { saoPauloBenchmark } from "../lib/brazil/saoPaulo.js";
 import { mexicoBenchmark } from "../lib/mexico/shf.js";
+import { canadaTrend } from "../lib/canada/nhpi.js";
 import { getRecentTransactionPrice } from "../lib/data/recentTransactionPrices.js";
 
 const AGENT_REGISTRY = {
@@ -964,6 +965,27 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
     "croatia", "cyprus", "denmark", "estonia", "finland", "ireland", "latvia", "lithuania",
     "luxembourg", "malta", "romania", "slovakia", "slovenia", "sweden", "norway", "iceland"
   ];
+  // Canada: Statistics Canada New Housing Price Index per metro / province
+  // (trend only — no official price level per city exists)
+  if (c === "canada") {
+    const ca = canadaTrend({ text: `${property?.address || ""}, ${property?.city || raw.city || ""}`, propertyType });
+    if (ca) {
+      return {
+        benchmarkValue: null,
+        benchmarkUnit: "total",
+        benchmarkLabel: "Statistics Canada — no official price level per city",
+        governmentValue: null,
+        transactionValue: null,
+        transactionPeriod: ca.period || null,
+        marketArea: ca.found ? `${ca.area} — official new-home price trend; no official price level is published` : "Canada — enter the city and province",
+        source: ca.text,
+        sourceUrl: ca.sourceUrl || "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1810020501",
+        coverage: ca.found ? "city" : "national",
+        priceTrendPercent: ca.found ? ca.trend : null,
+        sourceParts: [{ title: "Statistics Canada", text: ca.text }]
+      };
+    }
+  }
   // Mexico: SHF prices of MORTGAGED homes per state = context only (they
   // skew to economy / social housing; cash and resort purchases are largely
   // missing — a Playa del Carmen flat read "167% above market"); the
