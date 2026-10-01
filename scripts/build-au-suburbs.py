@@ -38,6 +38,36 @@ for r in rows[1:]:
                                           "prev": round(prev) if isinstance(prev, (int, float)) else None}
 out = {"sa": {"period": period, "houses": sa, "source": "Valuer-General of South Australia — Metropolitan Median House Sales (" + res["name"] + ")",
               "sourceUrl": "https://data.sa.gov.au/data/dataset/metro-median-house-sales"}}
+
+# Victoria: --vic-house FILE / --vic-unit FILE (the XLS as downloaded). Latest
+# quarter = the last median column; "^" (fewer than 10 sales) and "*"
+# (no sales, carried forward) are skipped — the file's own flags.
+import xlrd
+def vic(path):
+    sh = xlrd.open_workbook(path).sheets()[0]
+    r0, r1 = sh.row_values(0), sh.row_values(1)
+    qcols = [i for i, v in enumerate(r0) if v in ("Jan-Mar", "Apr-Jun", "Jul-Sep", "Oct-Dec") and isinstance(r1[i], float)]
+    c = qcols[-1]
+    q = {"Jan-Mar": "Q1", "Apr-Jun": "Q2", "Jul-Sep": "Q3", "Oct-Dec": "Q4"}[r0[c]]
+    ncol = next(i for i, v in enumerate(r0) if str(v).startswith("No. of Sales"))
+    prevc = qcols[-5] if len(qcols) >= 5 else None
+    out_, per = {}, f"{int(r1[c])} {q}"
+    for i in range(sh.nrows):
+        row = sh.row_values(i)
+        name = str(row[0]).strip()
+        if not name or not name.isupper(): continue
+        med, flag, n = row[c], str(row[c + 1]).strip(), row[ncol]
+        if flag in ("^", "*") or not str(med).replace(".", "").isdigit() or not isinstance(n, float) or n < 10: continue
+        prev = row[prevc] if prevc is not None else None
+        out_[name] = {"n": int(n), "median": round(float(med)), "prev": round(float(prev)) if str(prev).replace(".", "").isdigit() else None}
+    return per, out_
+args = sys.argv[1:]
+for flag, kind in (("--vic-house", "houses"), ("--vic-unit", "units")):
+    if flag in args:
+        per, d = vic(args[args.index(flag) + 1])
+        v = out.setdefault("vic", {"source": "Valuer-General Victoria — Victorian Property Sales Report, median price by suburb", "sourceUrl": "https://discover.data.vic.gov.au/dataset/victorian-property-sales-report-median-house-by-suburb"})
+        v["period"] = per; v[kind] = d
+        print("VIC", kind, per, len(d), "suburbs with 10+ sales")
 p = pathlib.Path(__file__).resolve().parent.parent / "lib/data/australiaSuburbs.json"
 p.write_text(json.dumps(out, ensure_ascii=False, separators=(",", ":")))
 print(period, len(sa), "SA suburbs with 10+ house sales")

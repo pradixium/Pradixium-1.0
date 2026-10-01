@@ -1191,9 +1191,16 @@ lib/data/australiaSuburbs.json — Valuer-General of South Australia
 "Metropolitan Median House Sales" (data.sa.gov.au, quarterly XLSX): a
 house in an SA suburb with 10+ sales gets its suburb median as the
 benchmark (171 suburbs, 2026 Q2; check Magill 35 sales AUD 1,325,000 =
-the raw file). Victoria (land.vic.gov.au median house/unit by suburb,
-DataVic-listed) and NSW (Valuer General bulk sales) answer 403 to
-servers → files needed from the user's browser; then add them here. The NSW Valuer General bulk sales
+the raw file). Victoria (Oct 1 2026): the user downloaded Valuer-General
+Victoria's "median-house-march-quarter-2026.xls" (land.vic.gov.au answers
+403 to servers) → `python3 scripts/build-au-suburbs.py --vic-house <xls>
+[--vic-unit <xls>]`: 515 suburbs with 10+ sales (the file's "^" = fewer
+than 10, "*" = carried forward → skipped). Check: Richmond 65 sales AUD
+1,373,000; Abbotsford 14, 1,510,000 = the raw rows. Units file still to
+come (median-unit-march-quarter-2026.xls). Place matching: the suburb
+wins over a capital typed after it, and a typed capital gives the state
+("12 Smith St, Richmond, Melbourne" → Richmond VIC). NSW (Valuer General
+bulk sales) still needs the user's browser download. The NSW Valuer General bulk sales
 files (per-suburb) still need a browser download by the user.
 
 ## Brazil — City of São Paulo (Oct 1 2026, Claude B)

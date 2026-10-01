@@ -1039,7 +1039,7 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
       return {
         benchmarkValue: au.value, benchmarkUnit: "total", benchmarkLabel: au.label, governmentValue: null, transactionValue: null,
         transactionPeriod: au.period, marketArea: au.area, source: au.text, sourceUrl: au.sourceUrl, coverage: "city", priceTrendPercent: null,
-        sourceParts: [{ title: "Valuer-General of South Australia", text: au.text }]
+        sourceParts: [{ title: au.who || "State Valuer-General", text: au.text }]
       };
     }
     if (au) {
