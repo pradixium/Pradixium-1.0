@@ -153,6 +153,26 @@ export default async function handler(req, res) {
       return res.status(200).json({ received: true, ignored: "no subscription on this invoice" });
     }
 
+    // FIX (recurring oversight check, Oct 1 2026): invoice.payment_succeeded
+    // also fires for the FIRST invoice of a brand-new subscription, at
+    // essentially the same moment as the client's own post-checkout call to
+    // verify-checkout-session.js -- which does a plain INSERT with no check
+    // for an existing user_id+kind row (idempotent only against itself, via
+    // stripe_session_id's unique constraint, a different ID than this
+    // webhook's synthetic one). If this handler's PATCH-or-INSERT ran first
+    // in that race, it inserts its own row; verify-checkout-session.js's
+    // INSERT right after then creates a SECOND row for the same user+plan
+    // (confirmed via SQL: no unique constraint exists on (user_id, kind),
+    // only on stripe_session_id) -- no duplicates found yet, but the same
+    // "hasn't fired yet, but will" shape as the original bug this webhook
+    // was written to fix. Stripe's own billing_reason field distinguishes
+    // this exactly: "subscription_create" is the initial invoice, already
+    // fully handled by verify-checkout-session.js, so this webhook's job
+    // starts at the first renewal ("subscription_cycle") onward.
+    if (invoice.billing_reason === "subscription_create") {
+      return res.status(200).json({ received: true, ignored: "initial invoice, handled by verify-checkout-session.js" });
+    }
+
     const subRes = await fetch(`https://api.stripe.com/v1/subscriptions/${encodeURIComponent(subscriptionId)}`, {
       headers: { Authorization: `Bearer ${apiKey}` }
     });
