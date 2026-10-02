@@ -62,6 +62,9 @@ The user is non-technical, Hebrew-primary, and has been very explicit about this
   "done" or "officially impossible — reason" in this file. A blocked
   source that needs the user's browser download → ask for it once and keep
   squeezing the same country's other items meanwhile.
+- **Audience is GLOBAL (user, Oct 2 2026): "זה גלובלי לא רק ישראלים".**
+  Prioritise countries by their weight for international property buyers
+  worldwide, not by Israeli demand.
 - Don't over-explain or narrate options at length — give a recommendation and the
   main tradeoff, not an essay.
 - The user pushes back hard (and rightly) if Claude acts before confirming — treat
