@@ -882,7 +882,7 @@ servers → not used. Check: Lieusaint 66/86 matched, C €3,222 (23), D €3,18
   labelled by its real area (Athens, Thessaloniki, small islands/resorts
   → "other areas"; any other town → national, never guessed as "other
   cities"); not used as a house's trend. bankofgreece.gr answers 403 to
-  servers and WebFetch → Q2 2026 not verifiable yet, Q1 2026 kept.
+  servers and WebFetch → see "Greece, squeezed" (Q2 2026 via BIS).
 - Regional fixtures (Serbia, Montenegro, LatAm, Asia…): city figure only
   for that city, national figures as context.
 - Turkey: TCMB EVDS has official TL/m² by province but needs a free API
@@ -1342,6 +1342,39 @@ non-commercial; VIC/WA/TAS valuation portals are paid or 403.
 - (6) foreign buyers — DONE earlier (OPEN; agricultural land only).
 - (7) property record — not used: the NAPR public-registry extract
   carries owner names.
+
+## Greece, squeezed (Oct 2 2026, Claude B)
+
+- (1) price — officially impossible: no official transaction price LEVEL
+  (Bank of Greece publishes indices only; the zone prices are a tax base;
+  the minfin transfer-values register is behind a captcha).
+- (2) trend — DONE: BoG Q2 2026 apartments +5.5% (Athens 5.0, Thessaloniki
+  4.7, other cities 5.4, other areas 7.1; new 6.2 / older 5.0) — the
+  official page 403s, figures from its search snippet + the national rate
+  recomputed from the BIS series for Greece (stats.bis.org WS_SPP
+  Q.GR.N.628, from the BoG): 122.3916 / 116.0215 → +5.5%. Update
+  GREECE_HPI each quarter (BIS API answers here).
+- (3) rent — the old "BoG residential rent index 116.1, +8.7%" had NO
+  source: BoG's open data (data.gov.gr) has office + retail rent indices
+  only → removed. Now ELSTAT CPI release (statistics.gr, reachable),
+  Table 5 "Rentals for dwellings": Aug 2026 +6.2% on a year earlier,
+  national, its own source block. No official rent LEVEL → no yield
+  without an entered rent. Update monthly.
+- (4) closing — DONE: transfer tax 3% + 3% municipal = 3.09% on the
+  HIGHER of price and objective value (AADE page); new-build VAT 24%
+  suspended to 31.12.2026 (Law 5246/2025 art. 12, read on taxheaven);
+  notary 0.80/0.70/0.65/0.55% + VAT (ΥΑ 111376/2012 as amended 2015);
+  Cadastre 5‰ (decision 2/12-1-2026). Lawyer/agency lines (market
+  convention) dropped. Total 4.4–4.6% (check: €300k → 4.51%, €2m → 4.42%).
+- (5) ENFIA — DONE: Property Tax Code Law 5219/2025 art. 11 table
+  (€2.00–16.20/m² basic tax over 9 zone-price bands; the old text said
+  "€2–13+"); supplementary tax = legal entities only (art. 12; the old
+  text applied it to individuals); 2026 −50% / 2027 exempt for tax
+  residents' MAIN homes in settlements ≤ 1,500 people (Law 5246/2025
+  art. 10).
+- (6) foreign buyers — DONE earlier (ELRA, Law 1892/1990 border areas).
+- (7) property record — DONE as zone prices (lib/greece/zones.js); the
+  cadastre extract carries owner names and is paid → not used.
 
 ## Brazil — City of São Paulo (Oct 1 2026, Claude B)
 

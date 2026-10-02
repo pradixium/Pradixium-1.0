@@ -953,11 +953,12 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
       transactionValue: null,
       transactionPeriod: hpi.period ?? null,
       marketArea: `${areaGR} — official price trend; no official price level is published`,
-      source: `Bank of Greece — apartment price index ${hpi.period || ""}, ${areaGR}: ${changeAll != null ? pct(changeAll) + " on a year earlier" : "unavailable"}${hpi.regionalArea && hpi.nationalAnnualChangePercent != null ? ` (Greece overall ${pct(hpi.nationalAnnualChangePercent)})` : ""}${flatGR ? "" : ". The index covers apartments only, so it is not used as this property's trend"}${rentTrend?.available ? `. Rents (national): ${pct(rentTrend.annualChangePercent)} on a year earlier (${rentTrend.period})` : ""}.`,
+      source: `Bank of Greece — apartment price index ${hpi.period || ""}, ${areaGR}: ${changeAll != null ? pct(changeAll) + " on a year earlier" : "unavailable"}${hpi.regionalArea && hpi.nationalAnnualChangePercent != null ? ` (Greece overall ${pct(hpi.nationalAnnualChangePercent)})` : ""}${flatGR ? "" : ". The index covers apartments only, so it is not used as this property's trend"}${rentTrend?.available ? `. ${rentTrend.source}: rents (national) ${pct(rentTrend.annualChangePercent)} on a year earlier (${rentTrend.period})` : ""}.`,
       coverage: hpi.regionalArea ? "regional" : "national",
       priceTrendPercent: change,
       propertyRecord: gz.record,
-      sourceParts: [...gz.parts, { title: "Bank of Greece", text: `Apartment price index ${hpi.period || ""}, ${areaGR}: ${changeAll != null ? pct(changeAll) + " on a year earlier" : "unavailable"}${hpi.regionalArea && hpi.nationalAnnualChangePercent != null ? ` (Greece overall ${pct(hpi.nationalAnnualChangePercent)})` : ""}${flatGR ? "" : " — apartments only, not used as this property's trend"}.${rentTrend?.available ? ` Rents (national): ${pct(rentTrend.annualChangePercent)} on a year earlier (${rentTrend.period}).` : ""}` }]
+      sourceParts: [...gz.parts, { title: "Bank of Greece", text: `Apartment price index ${hpi.period || ""}, ${areaGR}: ${changeAll != null ? pct(changeAll) + " on a year earlier" : "unavailable"}${hpi.regionalArea && hpi.nationalAnnualChangePercent != null ? ` (Greece overall ${pct(hpi.nationalAnnualChangePercent)})` : ""}${flatGR ? "" : " — apartments only, not used as this property's trend"}.${hpi.newAnnualChangePercent != null ? ` New apartments ${pct(hpi.newAnnualChangePercent)}, older apartments ${pct(hpi.oldAnnualChangePercent)} (Greece overall).` : ""}` },
+        ...(rentTrend?.available ? [{ title: rentTrend.source, text: `Rents (national): ${pct(rentTrend.annualChangePercent)} on a year earlier (${rentTrend.period}). ${rentTrend.note || ""}`.trim() }] : [])]
     };
   }
 

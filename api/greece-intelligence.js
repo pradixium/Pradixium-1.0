@@ -13,34 +13,34 @@
  * until a stable machine-readable feed can be wired in instead.
  */
 const GREECE_HPI = {
-  period: "2026-Q1",
-  nationalAnnualChangePercent: 5.7,
-  athensAnnualChangePercent: 5.2,
-  thessalonikiAnnualChangePercent: 6.4,
+  period: "2026-Q2",
+  nationalAnnualChangePercent: 5.5,
+  athensAnnualChangePercent: 5.0,
+  thessalonikiAnnualChangePercent: 4.7,
   otherCitiesAnnualChangePercent: 5.4,
-  otherAreasAnnualChangePercent: 6.9,
+  otherAreasAnnualChangePercent: 7.1,
+  newAnnualChangePercent: 6.2,
+  oldAnnualChangePercent: 5.0,
   publicationDate: "2026",
-  source: "Bank of Greece — Indices of residential property prices, Q1 2026",
-  officialSource: "https://www.bankofgreece.gr/en/statistics/real-estate-market/residential-and-commercial-property-price-indices-and-other-short-term-indices"
+  // national figure cross-checked with the BIS residential property price
+  // series for Greece (supplied by the Bank of Greece): 122.3916 / 116.0215
+  source: "Bank of Greece — Indices of residential property prices, Q2 2026",
+  officialSource: "https://www.bankofgreece.gr/en/news-and-media/press-office/news-list/news?announcement=ac5ae869-3e94-4550-b486-ef00c4292e07"
 };
 
-// FIX: this project previously claimed Greece had no official rent data —
-// wrong. Bank of Greece does publish a residential rent price index
-// (Δείκτης Ενοικίων Κατοικιών) alongside the sale-price index above. It's
-// still an index (base-year=100), not an absolute €/m² figure, so it
-// can't feed a yield estimate the way France's or Portugal's per-m² rent
-// datasets can — but the YoY change itself is real, sourced, and worth
-// showing rather than omitting. Only a national figure is published at
-// this granularity (no Athens/Thessaloniki rent-index breakdown found,
-// unlike the sale-price index above); update by hand each quarter from
-// the same Bank of Greece real-estate-market statistics page.
+// The Bank of Greece publishes NO residential rent index (its open data
+// has office and retail rent indices only — data.gov.gr, Oct 2026); the
+// earlier "BoG residential rent index 116.1 / +8.7%" had no source and was
+// removed. The official rent figure is ELSTAT's CPI item "Rentals for
+// dwellings" (Table 5 of the monthly CPI release: change on the same
+// month a year earlier). National only; a change, not a rent level →
+// never used for the yield. Update each month from
+// https://www.statistics.gr/en/statistics/-/publication/DKT87/-
 const GREECE_RENT_INDEX = {
-  period: "2025-Q4",
-  indexValue: 116.1,
-  indexValueYearAgo: 106.8,
-  annualChangePercent: 8.7,
-  source: "Bank of Greece — Residential rent price index, Q4 2025",
-  officialSource: "https://www.bankofgreece.gr/en/statistics/real-estate-market"
+  period: "August 2026",
+  annualChangePercent: 6.2,
+  source: "ELSTAT — Consumer Price Index, August 2026 (Table 5, “Rentals for dwellings”)",
+  officialSource: "https://www.statistics.gr/en/statistics/-/publication/DKT87/2026-M08"
 };
 
 // Bank of Greece's press release splits the country into four buckets:
@@ -97,6 +97,8 @@ export default async function handler(req, res) {
         period: GREECE_HPI.period,
         annualChangePercent: regional?.annualChangePercent ?? GREECE_HPI.nationalAnnualChangePercent,
         nationalAnnualChangePercent: GREECE_HPI.nationalAnnualChangePercent,
+        newAnnualChangePercent: GREECE_HPI.newAnnualChangePercent,
+        oldAnnualChangePercent: GREECE_HPI.oldAnnualChangePercent,
         regionalArea: regional?.area || null,
         unit: "Annual rate of change, apartment prices",
         source: GREECE_HPI.source
@@ -107,13 +109,13 @@ export default async function handler(req, res) {
         available: true,
         annualChangePercent: GREECE_RENT_INDEX.annualChangePercent,
         period: GREECE_RENT_INDEX.period,
-        unit: "Annual rate of change, residential rent index (national — no regional breakdown published at this granularity)",
+        unit: "Annual rate of change, CPI rentals for dwellings (national)",
         source: GREECE_RENT_INDEX.source,
-        note: "An index trend, not an absolute €/m² figure — cannot be used to estimate an actual monthly rent, only to show the direction and pace of rent growth."
+        note: "A price change, not a rent level — it cannot estimate this property's rent."
       },
       zonePrice: zone,
-      sources: { bankOfGreece: GREECE_HPI.source },
-      sourceUrls: { bankOfGreece: GREECE_HPI.officialSource },
+      sources: { bankOfGreece: GREECE_HPI.source, elstat: GREECE_RENT_INDEX.source },
+      sourceUrls: { bankOfGreece: GREECE_HPI.officialSource, elstat: GREECE_RENT_INDEX.officialSource },
       coverage: "National/regional trend only — static figures from a dated Bank of Greece release, not a live feed. Verify against the official source before relying on it for a current quarter."
     }
   });
