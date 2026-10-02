@@ -1596,6 +1596,16 @@ when relevant (not direct self-promotion) — matches where people already ask
 exactly the "is this price fair" question Pradixium answers. Not yet acted
 on; no account created or outreach done anywhere.
 
+**Update (Oct 2 2026):** SkyscraperCity sells a Business Premium
+subscription ($199) that grants permission to post promotional content
+directly — the platform's own sanctioned advertising tier, not a
+borderline self-promotion workaround. Decision: worth trying given the
+low cost and directly-relevant audience, but timed to after Sagacitas
+Ltd's CRO registration completes (more credible to present as a
+registered business when opening a paid business account), and run
+alongside — not instead of — the free organic channels (Telegram real-
+estate groups, personal outreach) already in motion. Not yet purchased.
+
 ## Business/legal decisions (Sept 2026, user's own calls — not to be revisited without him raising it)
 
 - **Staying an Irish company for now.** Explicitly considered and declined a
