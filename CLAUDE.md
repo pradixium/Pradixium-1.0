@@ -1307,6 +1307,26 @@ non-commercial; VIC/WA/TAS valuation portals are paid or 403.
 - (7) property record — officially impossible: the caderneta predial
   (VPT, owner) is only available to the owner via the AT portal.
 
+## Georgia, squeezed (Oct 2 2026, Claude B)
+
+- (1) price — officially impossible: Geostat's RPPI (the only official
+  series) is built from web-scraped OFFER prices of new Tbilisi homes
+  (Geostat's own method note) → district medians stay context. The Geostat
+  "Real estate activities" page (categories/405, sent by the user) holds
+  only sector accounts (turnover, value added, employment) — no prices.
+  NAPR publishes transaction COUNTS only (press), napr.gov.ge does not
+  answer here.
+- (2) trend — DONE (Geostat RPPI Q2 2026 flats +4.8%, houses +5.5%), now
+  labelled as the change in ASKING prices.
+- (3) rent — officially impossible: no official rent statistic found.
+- (4) closing — DONE earlier (no transfer tax; NAPR flat registration fee).
+- (5) property tax — DONE, re-verified on matsne (Tax Code art. 202(5):
+  0.05–0.2% below GEL 100,000 family income, 0.8–1% at or above; art.
+  206(1)(a): exempt up to GEL 40,000 preceding-year income).
+- (6) foreign buyers — DONE earlier (OPEN; agricultural land only).
+- (7) property record — not used: the NAPR public-registry extract
+  carries owner names.
+
 ## Brazil — City of São Paulo (Oct 1 2026, Claude B)
 
 `lib/brazil/saoPaulo.js` ← `python3 scripts/build-br-sp-itbi.py <2025.xlsx>
