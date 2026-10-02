@@ -1382,6 +1382,30 @@ non-commercial; VIC/WA/TAS valuation portals are paid or 403.
 - (7) property record — DONE as zone prices (lib/greece/zones.js); the
   cadastre extract carries owner names and is paid → not used.
 
+## Turkey, squeezed (Oct 2 2026, Claude B — the user handed Turkey over)
+
+- (1) price level — open: TCMB's KFE is an index; TCMB also lists TL/m²
+  unit prices in EVDS — series codes not yet verified (EVDS needs the
+  key, which only the Vercel function has) → next step.
+- (2) trend — DONE: `lib/turkey/kfe.js` ← `python3 scripts/build-tr-kfe.py`
+  (monthly, tcmb.gov.tr KFE.pdf answers servers): Table 1/2 (Türkiye,
+  İstanbul, Ankara, İzmir) + Grafik 4/8 (19 İBBS region groups, provinces
+  as TCMB lists them; values printed in bar order, pairing checked against
+  the tables, the script stops on a mismatch). Aug 2026: Türkiye +23.0%
+  (real −6.5%), İstanbul +26.3, Muğla region +17.9. Districts buyers type
+  (Bodrum, Alanya, Kadıköy, Çeşme…) → province (DISTRICTS table). Passed as
+  housingPriceIndex.regional. Fallback when EVDS fails: the same release.
+  Base is 2023=100 (old label said 2010).
+- (3) rent — new-tenant rent index (YKKE) change, same release, per region
+  (İstanbul +34.5%) → text; no official rent level → no yield.
+- (4) closing — DONE: tapu harcı 2% buyer + 2% seller on the declared price
+  (≥ tax value), Law 492 Tariff 4 item 20(a), Decision 2012/3735, Law 7566.
+- (5) emlak vergisi — DONE: Law 1319 art. 8 homes 0.1%, ×2 in metropolitan
+  municipalities; 2026 tax value capped at 2× 2025 (temp. art. 23).
+- (6) foreign buyers — DONE earlier.
+- (7) property record — officially impossible: TKGM e-Tapu needs the
+  owner's e-Devlet login.
+
 ## Brazil — City of São Paulo (Oct 1 2026, Claude B)
 
 `lib/brazil/saoPaulo.js` ← `python3 scripts/build-br-sp-itbi.py <2025.xlsx>

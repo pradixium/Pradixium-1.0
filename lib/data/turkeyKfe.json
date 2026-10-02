@@ -1,0 +1,273 @@
+{
+ "period": "2026-08",
+ "source": "TCMB — Konut Fiyat Endeksi ve Yeni Kiracı Kira Endeksi (2023=100)",
+ "sourceUrl": "https://www.tcmb.gov.tr/wps/wcm/connect/8bbac42a-c854-4c58-8b0c-e7e55c35ec2d/KFE.pdf?MOD=AJPERES",
+ "national": {
+  "price": {
+   "index": 236.8,
+   "yoyPercent": 23.0,
+   "momPercent": 0.9,
+   "realYoyPercent": -6.5
+  },
+  "rent": {
+   "index": 336.2,
+   "yoyPercent": 26.4,
+   "momPercent": 2.3,
+   "realYoyPercent": -3.9
+  }
+ },
+ "cities": {
+  "İstanbul": {
+   "price": {
+    "index": 226.6,
+    "yoyPercent": 26.3,
+    "momPercent": 1.9
+   },
+   "rent": {
+    "index": 324.9,
+    "yoyPercent": 34.5,
+    "momPercent": 4.9
+   }
+  },
+  "Ankara": {
+   "price": {
+    "index": 265.0,
+    "yoyPercent": 24.8,
+    "momPercent": 1.5
+   },
+   "rent": {
+    "index": 368.9,
+    "yoyPercent": 28.3,
+    "momPercent": 2.6
+   }
+  },
+  "İzmir": {
+   "price": {
+    "index": 229.6,
+    "yoyPercent": 23.3,
+    "momPercent": 2.7
+   },
+   "rent": {
+    "index": 334.2,
+    "yoyPercent": 25.5,
+    "momPercent": 5.4
+   }
+  }
+ },
+ "regions": [
+  {
+   "label": "Bingöl, Elazığ, Malatya, Tunceli, Van, Bitlis, Hakkâri, Muş",
+   "provinces": [
+    "Bingöl",
+    "Elazığ",
+    "Malatya",
+    "Tunceli",
+    "Van",
+    "Bitlis",
+    "Hakkâri",
+    "Muş"
+   ],
+   "priceYoyPercent": 27.0,
+   "rentYoyPercent": 22.4
+  },
+  {
+   "label": "İstanbul",
+   "provinces": [
+    "İstanbul"
+   ],
+   "priceYoyPercent": 26.3,
+   "rentYoyPercent": 34.5
+  },
+  {
+   "label": "Artvin, Giresun, Gümüşhane, Ordu, Rize, Trabzon",
+   "provinces": [
+    "Artvin",
+    "Giresun",
+    "Gümüşhane",
+    "Ordu",
+    "Rize",
+    "Trabzon"
+   ],
+   "priceYoyPercent": 25.7,
+   "rentYoyPercent": 27.2
+  },
+  {
+   "label": "Kilis, Adıyaman, Gaziantep, Diyarbakır, Şanlıurfa, Batman, Mardin, Siirt, Şırnak",
+   "provinces": [
+    "Kilis",
+    "Adıyaman",
+    "Gaziantep",
+    "Diyarbakır",
+    "Şanlıurfa",
+    "Batman",
+    "Mardin",
+    "Siirt",
+    "Şırnak"
+   ],
+   "priceYoyPercent": 24.8,
+   "rentYoyPercent": 27.1
+  },
+  {
+   "label": "Ankara",
+   "provinces": [
+    "Ankara"
+   ],
+   "priceYoyPercent": 24.8,
+   "rentYoyPercent": 28.3
+  },
+  {
+   "label": "Nevşehir, Niğde, Aksaray, Kırıkkale, Kırşehir, Kayseri, Sivas, Yozgat",
+   "provinces": [
+    "Nevşehir",
+    "Niğde",
+    "Aksaray",
+    "Kırıkkale",
+    "Kırşehir",
+    "Kayseri",
+    "Sivas",
+    "Yozgat"
+   ],
+   "priceYoyPercent": 24.3,
+   "rentYoyPercent": 25.1
+  },
+  {
+   "label": "İzmir",
+   "provinces": [
+    "İzmir"
+   ],
+   "priceYoyPercent": 23.3,
+   "rentYoyPercent": 25.5
+  },
+  {
+   "label": "Zonguldak, Bartın, Karabük, Çankırı, Kastamonu, Sinop, Samsun, Çorum, Amasya, Tokat",
+   "provinces": [
+    "Zonguldak",
+    "Bartın",
+    "Karabük",
+    "Çankırı",
+    "Kastamonu",
+    "Sinop",
+    "Samsun",
+    "Çorum",
+    "Amasya",
+    "Tokat"
+   ],
+   "priceYoyPercent": 22.7,
+   "rentYoyPercent": 21.4
+  },
+  {
+   "label": "Bursa, Eskişehir, Bilecik",
+   "provinces": [
+    "Bursa",
+    "Eskişehir",
+    "Bilecik"
+   ],
+   "priceYoyPercent": 22.5,
+   "rentYoyPercent": 23.4
+  },
+  {
+   "label": "Hatay, Kahramanmaraş, Osmaniye",
+   "provinces": [
+    "Hatay",
+    "Kahramanmaraş",
+    "Osmaniye"
+   ],
+   "priceYoyPercent": 22.1,
+   "rentYoyPercent": 26.4
+  },
+  {
+   "label": "Bolu, Kocaeli, Sakarya, Yalova, Düzce",
+   "provinces": [
+    "Bolu",
+    "Kocaeli",
+    "Sakarya",
+    "Yalova",
+    "Düzce"
+   ],
+   "priceYoyPercent": 21.2,
+   "rentYoyPercent": 23.7
+  },
+  {
+   "label": "Afyonkarahisar, Kütahya, Manisa, Uşak",
+   "provinces": [
+    "Afyonkarahisar",
+    "Kütahya",
+    "Manisa",
+    "Uşak"
+   ],
+   "priceYoyPercent": 20.2,
+   "rentYoyPercent": 25.0
+  },
+  {
+   "label": "Adana, Mersin",
+   "provinces": [
+    "Adana",
+    "Mersin"
+   ],
+   "priceYoyPercent": 19.7,
+   "rentYoyPercent": 21.0
+  },
+  {
+   "label": "Antalya, Burdur, Isparta",
+   "provinces": [
+    "Antalya",
+    "Burdur",
+    "Isparta"
+   ],
+   "priceYoyPercent": 19.5,
+   "rentYoyPercent": 22.8
+  },
+  {
+   "label": "Konya, Karaman",
+   "provinces": [
+    "Konya",
+    "Karaman"
+   ],
+   "priceYoyPercent": 19.5,
+   "rentYoyPercent": 23.2
+  },
+  {
+   "label": "Erzurum, Erzincan, Bayburt, Ağrı, Ardahan, Kars, Iğdır",
+   "provinces": [
+    "Erzurum",
+    "Erzincan",
+    "Bayburt",
+    "Ağrı",
+    "Ardahan",
+    "Kars",
+    "Iğdır"
+   ],
+   "priceYoyPercent": 19.3,
+   "rentYoyPercent": 20.0
+  },
+  {
+   "label": "Aydın, Denizli, Muğla",
+   "provinces": [
+    "Aydın",
+    "Denizli",
+    "Muğla"
+   ],
+   "priceYoyPercent": 17.9,
+   "rentYoyPercent": 20.0
+  },
+  {
+   "label": "Balıkesir, Çanakkale",
+   "provinces": [
+    "Balıkesir",
+    "Çanakkale"
+   ],
+   "priceYoyPercent": 16.3,
+   "rentYoyPercent": 19.0
+  },
+  {
+   "label": "Edirne, Kırklareli, Tekirdağ",
+   "provinces": [
+    "Edirne",
+    "Kırklareli",
+    "Tekirdağ"
+   ],
+   "priceYoyPercent": 13.0,
+   "rentYoyPercent": 17.3
+  }
+ ]
+}
