@@ -1726,11 +1726,31 @@ role) is the one place a slot actually gets spent: called only when the
 user clicks to actually open a report they haven't unlocked yet (never
 just from rendering the button label, or every page view would burn the
 cap). It checks the active `monthly` row's own `created_at` as the cycle
-anchor — floor((now − anchor) / 30 days) picks the current cycle — since
-there is still no Stripe renewal webhook in this project (same known
-limitation already accepted for `subscription`/`business` expiry). Once a
+anchor — floor((now − anchor) / 30 days) picks the current cycle. Once a
 report is spent from the quota it's unlocked for good, same model as a
 one-time `report` purchase.
+
+**Stripe renewal webhook (shipped Sept 30 2026, found by the recurring
+oversight routine before it ever fired for a real customer).** Until this
+fix, the only place any `subscription`/`business`/`monthly` purchase row's
+`expires_at` was ever set was `verify-checkout-session.js`, run once right
+after the initial checkout — Stripe renews a subscription in place with no
+new Checkout Session, so a real subscriber's `expires_at` (35 days for
+business/monthly, 372 for the annual plan) would lapse on schedule even
+though Stripe kept charging them successfully every cycle, locking out a
+paying customer. `api/stripe-webhook.js` now listens for Stripe's
+`invoice.payment_succeeded` event (HMAC-SHA256 signature check via Node's
+own `crypto`, no `stripe` npm dependency, same zero-dependency convention
+as the rest of `api/*.js`) and rolls `expires_at` forward using the same
+duration rule, skipping the invoice that fires for a brand-new
+subscription itself (`billing_reason === "subscription_create"`, already
+handled by `verify-checkout-session.js`) to avoid creating a duplicate
+purchases row in a race between the two. Registered as Stripe webhook
+`we_1ULNmrHtvGmNh6t8pAjBEBgV` → `https://pradixium.com/api/stripe-webhook`,
+signing secret in Vercel's `STRIPE_WEBHOOK_SECRET` — confirmed live via
+the Stripe and Vercel MCP connectors (endpoint `enabled`, env var present
+in production). Hadn't fired for a real customer yet when found (zero
+`subscription`/`business`/`monthly` purchase rows existed at the time).
 
 **Race condition fixed (Sept 30 2026).** The check-then-insert above used
 to be two separate round trips from `api/consume-monthly-slot.js` itself —
