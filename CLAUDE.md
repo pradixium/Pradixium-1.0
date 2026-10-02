@@ -1384,9 +1384,17 @@ non-commercial; VIC/WA/TAS valuation portals are paid or 403.
 
 ## Turkey, squeezed (Oct 2 2026, Claude B — the user handed Turkey over)
 
-- (1) price level — open: TCMB's KFE is an index; TCMB also lists TL/m²
-  unit prices in EVDS — series codes not yet verified (EVDS needs the
-  key, which only the Vercel function has) → next step.
+- (1) price level — DONE as CONTEXT: TCMB "Konut Birim Fiyatları" +
+  "Değerlemesi Yapılan Konutların Birim Kiraları" (quarterly, all 81
+  provinces): median TL per m² of GROSS area (outliers removed) from the
+  valuation reports banks order for mortgage applications (KFE-Metaveri.pdf
+  definitions) — appraisals, not sale prices → text, never the benchmark.
+  Series codes from TCMB's PUBLIC EVDS tables (igmevdsms-dis/public/charts/
+  portlet/<id>, linked from KFE-Tablo.pdf; no key) saved by the build
+  script; values fetched live with the key (TP.BIRIMFIYAT.<P>, TP.BK.<P>).
+  Live check Oct 2 2026: Muğla 2026-Q2 TL 82,290/m², rent TL 352/m²/month;
+  Türkiye TL 51,850 / TL 258. The public /fe data endpoint needs a session
+  → not used.
 - (2) trend — DONE: `lib/turkey/kfe.js` ← `python3 scripts/build-tr-kfe.py`
   (monthly, tcmb.gov.tr KFE.pdf answers servers): Table 1/2 (Türkiye,
   İstanbul, Ankara, İzmir) + Grafik 4/8 (19 İBBS region groups, provinces
