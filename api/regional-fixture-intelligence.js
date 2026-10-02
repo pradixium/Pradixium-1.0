@@ -85,9 +85,9 @@ const FIXTURES = {
       { name: "Tbilisi", towns: ["tbilisi", "tiflis"], value: null,
         note: "district medians run from GEL 3,680/m² (Samgori) to GEL 6,730/m² (Mtatsminda) for flats and GEL 2,778–4,656/m² for houses — enter the district for its own figure" }
     ],
-    coverageNote: "Tbilisi new-build homes only, from web-scraped OFFER prices (Geostat RPPI, Q2 2026: flats +4.8%, detached houses +5.5% on a year earlier — the change in asking prices, not in sale prices); Batumi and other cities have no official price series.",
+    coverageNote: "Tbilisi new-build homes only, from web-scraped OFFER prices (Geostat RPPI, Q2 2026: flats +4.8%, detached houses +5.5% on a year earlier — the change in asking prices, not in sale prices; Geostat CPI “Apartment rent”: +10.9% on a year earlier in September 2026, national); Batumi and other cities have no official price series.",
     source: "National Statistics Office of Georgia (Geostat) — Residential Property Price Index, Q2 2026",
-    officialSource: "https://www.geostat.ge/media/81560/Residential-Property-Price-Index---II-quarter-of-2026.pdf"
+    officialSource: "https://www.geostat.ge/en/modules/categories/698/residential-property-price-index"
   },
   "bosnia and herzegovina": {
     // BHAS "Prices of new dwellings sold" Q2 2026 (20.8.2026): total value
