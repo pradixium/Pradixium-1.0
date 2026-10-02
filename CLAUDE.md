@@ -1325,7 +1325,12 @@ non-commercial; VIC/WA/TAS valuation portals are paid or 403.
   capitalisation rate (annual rent ÷ price) for typical 1- and 3-room
   flats in Saburtalo and Varketili (Tbilisi) from OFFER prices, monthly,
   only in the interactive analytics.nbg.gov.ge dashboard (does not answer
-  here) → asked the user for an export.
+  here). DONE Oct 2 2026 without it: NBG's monthly "Financial Sector
+  Review — Analytical Tables and Charts" PDF (nbg.gov.ge/fm/…/
+  financial-sector-review-eng.pdf, reachable) prints the same series in
+  Table 4.3 "Real Estate Indices" (GEL, Jan 2010 = 100): Aug 2026 price
+  219.4 vs 220.6 → −0.5%, rent 237.5 vs 242.5 → −2.1% → context text in
+  the Georgia fixture. The cap rate is not in the PDF. Update monthly.
   RPPI files (categories/698): YoY flats 104.81 / houses 105.48 for Q2
   2026; district file Q2 2026 = the fixture's values (Mtatsminda 6,730,
   Vake 5,914). NOTE: those xlsx rows hold 22–26 quarters — read the LAST
