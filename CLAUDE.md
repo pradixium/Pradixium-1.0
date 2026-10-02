@@ -891,6 +891,9 @@ servers → not used. Check: Lieusaint 66/86 matched, C €3,222 (23), D €3,18
 - Turkey: TCMB EVDS has official TL/m² by province but needs a free API
   key (user must register). **Assigned by the user to the OTHER session
   (Claude A / "Pradixium 1.0"), Sept 2026 — Claude B does not build Turkey.**
+  Oct 2 2026: the user handed Turkey to Claude B. Live Turkey was broken —
+  EVDS moved to evds3.tcmb.gov.tr/igmevdsms-dis/ (header `key`); the old
+  evds2 /service/evds/ URL 302s to an HTML page → fixed.
 - Cyprus (Sept 30 2026): `lib/europe/cyprus.js` ← `scripts/build-cy-rppi.py
   2026Q2` → lib/data/cyprusIndexPrices.json — Central Bank of Cyprus RPPI
   (valuation-based, quarterly): change on a year earlier by DISTRICT

@@ -28,7 +28,12 @@
  * this national series was: from a live EVDS export, not a guess.
  */
 const EVDS_SERIES = "TP.KFE.TR";
-const EVDS_BASE_URL = "https://evds2.tcmb.gov.tr/service/evds/";
+// EVDS moved (checked Oct 2 2026): evds2.tcmb.gov.tr/service/evds/ now
+// 302-redirects to the evds3 home page (HTML → every Turkish report showed
+// "source unavailable"); the API lives at evds3 …/igmevdsms-dis/ and
+// answers {"message":"Required request header 'key' is not present"}
+// without a key, "Invalid API Key" with a wrong one.
+const EVDS_BASE_URL = "https://evds3.tcmb.gov.tr/igmevdsms-dis/";
 
 function formatEvdsDate(date) {
   const dd = String(date.getUTCDate()).padStart(2, "0");
