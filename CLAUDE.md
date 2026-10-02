@@ -2438,3 +2438,38 @@ application rather than a public endpoint, this is the path forward — not
 something to work around with scraping, consistent with the project's
 no-third-party/no-scraping rule. No action needed from this session until
 the registration is actually confirmed done.
+
+## Daily data-freshness scan (Oct 2 2026) — Qatar duplicate fixed, Poland added to recentTransactionPrices
+
+Routine scheduled scan. Two findings, both verified before touching anything:
+
+- **`lib/data/foreignBuyerRules.js` had two different `qatar:` entries**
+  (a real duplicate object key, not a typo) — one citing almeezan.qa
+  (10+16 zones), one citing Qatar Tourism's own official non-Qatari-
+  ownership instruction manual PDF (9+16 = 25 zones). JS silently keeps
+  the *second* one at runtime, so the first was already dead/unreachable
+  — but a future edit to "the" Qatar entry could easily hit the wrong,
+  invisible one. Deleted the dead first entry; kept the second (the more
+  specific primary source). Confirmed via `getForeignBuyerRule("Qatar")`
+  that exactly one entry now exists and it's the 25-zone version.
+- **Poland added to `lib/data/recentTransactionPrices.js`** (was
+  completely uncovered): GUS's (Statistics Poland) own Q1 2026 quarterly
+  release, notarial-deed-based — PLN 14,245/m² primary (new-build)
+  market nationally, with secondary-market (PLN 13,477/m², 7 largest
+  cities) and Warsaw (PLN 16,475/m², primary) as `alternatives`, same
+  pattern as Switzerland's cantons. Verified via `getRecentTransactionPrice("Poland")`.
+  Couldn't fetch stat.gov.pl directly (network egress block, same known
+  sandbox limitation as geostat.ge/registrucentras.lt elsewhere in this
+  file) — the exact figures and the real source URL were both confirmed
+  independently via WebSearch across multiple outlets citing the same
+  GUS release before writing them in, not guessed.
+- **Georgia's `recentTransactionPrices.js` gap stays open, deliberately.**
+  Geostat (Georgia's National Statistics Office) only publishes Tbilisi
+  prices broken out by district (e.g. Saburtalo 4,333 GEL/m², Q1 2026) —
+  no blended national or city-wide figure exists to cite, and I couldn't
+  pin down a confirmed, directly-fetchable PDF URL for the specific Q1
+  2026 release (geostat.ge is also blocked here) to cite with confidence.
+  Rather than guess a URL or compute my own blended average from district
+  numbers (which would be a derived figure, not a sourced one — against
+  this file's own discipline), left it out. A future session with
+  working geostat.ge access should pick this back up.
