@@ -27,7 +27,7 @@
  * not verified. A future pass can add it once confirmed the same way
  * this national series was: from a live EVDS export, not a guess.
  */
-import { turkeyRegion, kfePeriodLabel } from "../lib/turkey/kfe.js";
+import { turkeyRegion, kfePeriodLabel, turkeyUnitCodes } from "../lib/turkey/kfe.js";
 
 const EVDS_SERIES = "TP.KFE.TR";
 // EVDS moved (checked Oct 2 2026): evds2.tcmb.gov.tr/service/evds/ now
@@ -116,6 +116,39 @@ function kfeFallback(city) {
   };
 }
 
+// TCMB's quarterly median unit price and unit rent (TL per m² of GROSS
+// area) from the valuation reports made for mortgage applications —
+// appraisals, not sale prices → context only, said so
+async function unitValues(city, apiKey) {
+  const m = turkeyRegion(city);
+  const codes = turkeyUnitCodes(m?.province);
+  if (!codes || !apiKey) return null;
+  const list = [codes.price, codes.rent, codes.priceTR, codes.rentTR].filter(Boolean);
+  const end = new Date(); const start = new Date(end); start.setUTCMonth(start.getUTCMonth() - 30);
+  const url = `${EVDS_BASE_URL}series=${list.join("-")}&startDate=${formatEvdsDate(start)}&endDate=${formatEvdsDate(end)}&type=json`;
+  const json = await fetchJson(url, apiKey, 6000);
+  const items = Array.isArray(json?.items) ? json.items : [];
+  const series = (code) => items.map((r) => ({ period: r?.Tarih, value: parseEvdsNumber(r?.[code.replace(/\./g, "_")]) })).filter((r) => r.period && r.value != null);
+  const pick = (code) => {
+    if (!code) return null;
+    const rows = series(code);
+    const last = rows[rows.length - 1];
+    if (!last) return null;
+    const prev = rows.length >= 5 ? rows[rows.length - 5] : null;   // the same quarter a year earlier
+    return { period: last.period, value: last.value, yearAgo: prev?.value ?? null, yearAgoPeriod: prev?.period ?? null };
+  };
+  const out = { province: codes.province, price: pick(codes.price), rent: pick(codes.rent), priceTR: pick(codes.priceTR), rentTR: pick(codes.rentTR) };
+  return out.price || out.rent ? out : null;
+}
+function unitText(u) {
+  if (!u) return "";
+  const tl = (v) => `TL ${Math.round(v).toLocaleString("en-US")}`;
+  const parts = [];
+  if (u.price) parts.push(`median value ${tl(u.price.value)}/m² of gross area (${u.price.period}${u.priceTR ? `; Türkiye ${tl(u.priceTR.value)}` : ""})`);
+  if (u.rent) parts.push(`median rent ${tl(u.rent.value)}/m² a month (${u.rent.period}${u.rentTR ? `; Türkiye ${tl(u.rentTR.value)}` : ""})`);
+  return parts.length ? `. TCMB, ${u.province}: ${parts.join(", ")} — from the valuation reports for mortgage applications (appraisals, not sale prices), so context only` : "";
+}
+
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "s-maxage=21600, stale-while-revalidate=86400");
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -176,6 +209,9 @@ export default async function handler(req, res) {
       ? Math.round(((latest.value - yearAgo.value) / yearAgo.value) * 1000) / 10
       : null;
 
+    const regional = kfeRegional(city);
+    const units = await unitValues(city, apiKey).catch(() => null);
+    if (regional && units) regional.note += unitText(units);
     return res.status(200).json({
       success: true,
       country: "Turkey",
@@ -187,9 +223,10 @@ export default async function handler(req, res) {
           indexValue: latest.value,
           annualChangePercent,
           unit: "Housing Price Index (hedonic regression), base 2023=100 — nominal Turkish Lira terms, not inflation-adjusted",
-          regional: kfeRegional(city),
+          regional,
           source: "TCMB (Central Bank of the Republic of Turkey) — Konut Fiyat Endeksi (KFE), via EVDS"
         },
+        unitValues: units,
         cityLevelStatus: "REGIONAL",
         cityLevelNote: "Region figures: TCMB's monthly KFE / YKKE release (İBBS region groups, provinces as TCMB lists them).",
         sources: { tcmb: "TCMB — Konut Fiyat Endeksi (KFE), via EVDS" },

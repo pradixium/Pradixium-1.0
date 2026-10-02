@@ -87,6 +87,17 @@ out = {"period": period, "source": "TCMB — Konut Fiyat Endeksi ve Yeni Kiracı
        "sourceUrl": URL, "national": {"price": price_t["Türkiye"], "rent": rent_t["Türkiye"]},
        "cities": {k: {"price": price_t[k], "rent": rent_t[k]} for k in ("İstanbul", "Ankara", "İzmir")},
        "regions": regions}
+# province series codes of TCMB's public tables "Konut Birim Fiyatları" and
+# "Değerlemesi Yapılan Konutların Birim Kiraları" (EVDS charts, no key)
+def portlet(pid):
+    u = f"https://evds3.tcmb.gov.tr/igmevdsms-dis/public/charts/portlet/{pid}"
+    d = json.loads(urllib.request.urlopen(urllib.request.Request(u, headers=UA), timeout=60).read())
+    st = json.loads(d["chartSettings"])[0]
+    return dict(zip([n.replace(" Konut Birim Fiyatları", "").replace(" Konut Birim Kiraları", "") for n in st["serieNames"].split("#")],
+                    [c.replace("_", ".") for c in st["codes"].split("#")]))
+out["unitPriceCodes"] = portlet("Njk3OWZjOTJjYmJhMzQwMGNjZmMzNGRh")
+out["unitRentCodes"] = portlet("Njk5NDEzNTFjNjAxMWY0MDU2MDdmZjJm")
+assert len(out["unitPriceCodes"]) == 82 and len(out["unitRentCodes"]) == 82, "TCMB table layout changed"
 p = os.path.join(os.path.dirname(__file__), "..", "lib", "data", "turkeyKfe.json")
 json.dump(out, open(p, "w"), ensure_ascii=False, indent=1)
 print(period, len(regions), "regions; İstanbul", price_t["İstanbul"], rent_t["İstanbul"])
