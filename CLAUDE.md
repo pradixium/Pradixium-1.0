@@ -2418,6 +2418,27 @@ this sandbox test (it only renders once the AI agent's localized content
 is present, not something easy to mock), but the 7 dictionary values were
 verified directly in the source, not assumed.
 
+## "Pradixium Business Super Intelligent™" — new trademark naming the existing Business suite (Oct 2026)
+
+Not a new feature — the user's own naming for the whole already-shipped
+Business tier suite (white-label branding, API access, bulk/portfolio
+analysis, compliance report, business dashboard preview), consistent with
+this project's rule of naming a thing only once it's actually built.
+`mockups/index.html` ("Business Solutions" landing page):
+- The page's `eyebrow` label (small category tag above the H1) changed
+  from "Business Solutions" to "Pradixium Business Super Intelligent™" —
+  the H1 and body copy are unchanged.
+- Added to the page's trademark footer sentence, alongside the existing
+  five marks: "...Pradixium Deal Rating™ and Pradixium Business Super
+  Intelligent™ are trademarks of Pradixium."
+Verified visually in headless Chromium (both the top-of-page eyebrow and
+the footer trademark line render correctly) before pushing.
+
+Also reconfirmed while documenting this: the slogan "Don't buy the dream.
+Check the reality." was already shipped (Reality Check™ tagline in
+`report.html`'s dictionary, and `index.html`'s homepage) — nothing new
+needed there.
+
 ## Luxembourg closed out, world coverage 190 → 191 (Oct 1 2026)
 
 Luxembourg was the one country this project's own `COUNTRY_ENDPOINTS` list
