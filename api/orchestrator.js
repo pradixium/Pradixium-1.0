@@ -944,6 +944,7 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
     const changeAll = hpi.annualChangePercent ?? null;
     const change = flatGR ? changeAll : null;
     const rentTrend = raw.rentTrend || null;
+    const estRent = raw.estimatedRent || null;
     const pct = (v) => `${v >= 0 ? "+" : ""}${v}%`;
     return {
       benchmarkValue: null,
@@ -958,7 +959,15 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
       priceTrendPercent: change,
       propertyRecord: gz.record,
       sourceParts: [...gz.parts, { title: "Bank of Greece", text: `Apartment price index ${hpi.period || ""}, ${areaGR}: ${changeAll != null ? pct(changeAll) + " on a year earlier" : "unavailable"}${hpi.regionalArea && hpi.nationalAnnualChangePercent != null ? ` (Greece overall ${pct(hpi.nationalAnnualChangePercent)})` : ""}${flatGR ? "" : " — apartments only, not used as this property's trend"}.${hpi.newAnnualChangePercent != null ? ` New apartments ${pct(hpi.newAnnualChangePercent)}, older apartments ${pct(hpi.oldAnnualChangePercent)} (Greece overall).` : ""}` },
-        ...(rentTrend?.available ? [{ title: rentTrend.source, text: `Rents (national): ${pct(rentTrend.annualChangePercent)} on a year earlier (${rentTrend.period}). ${rentTrend.note || ""}`.trim() }] : [])]
+        ...(rentTrend?.available ? [{ title: rentTrend.source, text: `Rents (national): ${pct(rentTrend.annualChangePercent)} on a year earlier (${rentTrend.period}). ${rentTrend.note || ""}`.trim() }] : []),
+        ...(estRent?.available ? [{ title: estRent.source, text: `Estimated asking rent, ${estRent.area}: €${estRent.eurPerM2PerMonth}/m²/month (${estRent.period}). ${estRent.note || ""}`.trim() }] : [])],
+      // Spitogatos SPI is a private, asking-price listings index — real
+      // market evidence, but not a government statistic like France/
+      // Portugal's rentalBenchmark sources. Labelled as such in `source`
+      // so the report never implies it carries the same weight.
+      rentalBenchmark: estRent?.available
+        ? { monthlyRentPerSqm: estRent.eurPerM2PerMonth, grossYieldPercent: null, source: `${estRent.source} (asking-price index, not a government statistic) — ${estRent.area}, ${estRent.period}` }
+        : null
     };
   }
 

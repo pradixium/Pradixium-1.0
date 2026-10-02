@@ -43,6 +43,37 @@ const GREECE_RENT_INDEX = {
   officialSource: "https://www.statistics.gr/en/statistics/-/publication/DKT87/2026-M08"
 };
 
+// Spitogatos Price Index (SPI) — Greece's largest listings platform's own
+// asking-rent-per-m² figures, as reported by To Vima (major Greek daily),
+// Q2 2026: "Athens' Southern Suburbs, Central Athens, and Northern Suburbs
+// all average €11.8/sq.m." (all three areas converge on the same figure
+// in that report — not a transcription error, just how the index landed
+// that quarter), plus named named higher/lower exceptions the article
+// calls out explicitly. This is an ASKING-rent index built from millions
+// of live listings, outlier-adjusted — real market evidence, but not a
+// government statistic and not a closed transaction: labelled as such,
+// never upgraded to look like ELSTAT/Bank of Greece data.
+const GREECE_SPITOGATOS_RENT = {
+  period: "2026-Q2",
+  athensAreaEurPerM2: 11.8, // Southern/Central/Northern Suburbs of Athens
+  vouliagmeniEurPerM2: 22, // named as the city's most expensive area
+  source: "Spitogatos Price Index (SPI), as reported by To Vima",
+  officialSource: "https://www.tovima.com/society/greeces-hottest-rental-markets-push-housing-further-out-of-reach/",
+  note: "Asking-rent index from live listings (millions of ads, outlier-adjusted across ~20,000 areas) — not a government statistic, not closed transactions. Context for an estimated rent only; never overrides a figure the user enters themselves."
+};
+
+function spitogatosRentFor(city) {
+  const c = String(city || "").trim().toLowerCase();
+  if (!c) return null;
+  if (c.includes("vouliagmeni")) {
+    return { area: "Vouliagmeni", eurPerM2: GREECE_SPITOGATOS_RENT.vouliagmeniEurPerM2 };
+  }
+  if (c.includes("athens") || c.includes("athina") || c.includes("petralona") || c.includes("piraeus") || c.includes("pireas")) {
+    return { area: "Greater Athens (Southern/Central/Northern Suburbs)", eurPerM2: GREECE_SPITOGATOS_RENT.athensAreaEurPerM2 };
+  }
+  return null;
+}
+
 // Bank of Greece's press release splits the country into four buckets:
 // Athens, Thessaloniki, "other cities" and "other areas" — the last one is
 // where its own methodology note places island and resort municipalities
@@ -86,6 +117,7 @@ export default async function handler(req, res) {
   // sends an address typed in the city field as both address and city
   const place = address && city && address !== city && !address.toLowerCase().includes(city.toLowerCase()) ? `${address}, ${city}` : (address || city);
   const zone = place ? await Promise.race([greekZone(place).catch(() => null), new Promise((r) => setTimeout(() => r({ status: "timeout" }), 9000))]) : null;
+  const rentLevel = spitogatosRentFor(place || city);
 
   return res.status(200).json({
     success: true,
@@ -113,9 +145,21 @@ export default async function handler(req, res) {
         source: GREECE_RENT_INDEX.source,
         note: "A price change, not a rent level — it cannot estimate this property's rent."
       },
+      estimatedRent: rentLevel
+        ? {
+            available: true,
+            area: rentLevel.area,
+            eurPerM2PerMonth: rentLevel.eurPerM2,
+            period: GREECE_SPITOGATOS_RENT.period,
+            source: GREECE_SPITOGATOS_RENT.source,
+            sourceUrl: GREECE_SPITOGATOS_RENT.officialSource,
+            basis: "asking-price index (live listings), not closed transactions or a government statistic",
+            note: GREECE_SPITOGATOS_RENT.note
+          }
+        : { available: false, note: "No matched area in the Spitogatos Price Index coverage used here (Greater Athens / Vouliagmeni only so far)." },
       zonePrice: zone,
-      sources: { bankOfGreece: GREECE_HPI.source, elstat: GREECE_RENT_INDEX.source },
-      sourceUrls: { bankOfGreece: GREECE_HPI.officialSource, elstat: GREECE_RENT_INDEX.officialSource },
+      sources: { bankOfGreece: GREECE_HPI.source, elstat: GREECE_RENT_INDEX.source, spitogatos: GREECE_SPITOGATOS_RENT.source },
+      sourceUrls: { bankOfGreece: GREECE_HPI.officialSource, elstat: GREECE_RENT_INDEX.officialSource, spitogatos: GREECE_SPITOGATOS_RENT.officialSource },
       coverage: "National/regional trend only — static figures from a dated Bank of Greece release, not a live feed. Verify against the official source before relying on it for a current quarter."
     }
   });
