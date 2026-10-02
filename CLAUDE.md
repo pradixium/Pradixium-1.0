@@ -2286,6 +2286,21 @@ adding) and a `recentTransactionPrices.js` / `globalIndexTrends.js` entry
 (price trend). Same honesty bar as everything else — only add what clears
 it against Georgia's own official sources.
 
+**Update (Oct 2026): competitor spotted, worth using as a lead — not a
+source.** The user found `mendo.ge` advertising in an Israeli real-estate
+Telegram group — a free tool specific to Georgia covering: a $150K
+real-estate investment-residency threshold, a 5% rental-income tax, a
+183-day tax-residency day-counter, and bank-readiness/capital-transfer
+pre-checks for Tbilisi/Batumi. This is NOT a source to cite — it's a
+competitor's own marketing claims — but it's a strong hint of exactly
+which Georgian rules/thresholds are real and worth verifying directly
+against Georgia's own official sources (presumably Public Registry/NAPR,
+Georgia Revenue Service rs.ge, and whatever law sets the investment-
+residency threshold) before adding to `foreignBuyerRules.js` or anywhere
+else. If any of these four numbers check out against an official source,
+they're fair game to add with that official citation — same as always,
+never cite mendo.ge itself as the source.
+
 ## For the other session (Claude B): NYC condo/co-op benchmark gap — user calls this launch-blocking (Sept 2026)
 
 **Done by Claude B (Sept 2026)** — see the NYC CONDO / CO-OP note in the US coverage list (option 2 was possible: the DOF roll has a per-unit area).
