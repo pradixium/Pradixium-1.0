@@ -1414,6 +1414,33 @@ non-commercial; VIC/WA/TAS valuation portals are paid or 403.
 - (7) property record — officially impossible: TKGM e-Tapu needs the
   owner's e-Devlet login.
 
+## Singapore (Oct 3 2026, Claude B — added to the dropdown)
+
+`api/singapore-intelligence.js` + `lib/singapore/sg.js` ← `python3
+scripts/build-sg.py` (quarterly) → lib/data/singapore.json.
+- (1) price level — needs the user: URA's per-project transaction prices
+  are only in the URA Data Service (free access key: account at
+  eservice.ura.gov.sg/maps/api/ → key by e-mail → daily token;
+  PMI_Resi_Transaction holds 5 years of caveats, no names). URA's public
+  PMI search page answers 403 to servers → not used. HDB resale prices are
+  public but foreigners cannot buy HDB flats → not used.
+- (2) trend — DONE: URA PPI via SingStat tables M212261 (all / landed /
+  non-landed) and M212271 (CCR / RCR / OCR, only when typed). 2026-Q2:
+  all +2.9%, landed +7.0%, non-landed +1.8% (219.4/213.2 etc.). SingStat
+  answers 403 without an Accept header.
+- (3) rent — DONE: URA "Rentals of Non-Landed Residential Buildings"
+  (data.gov.sg d_149ac00…): median S$ per sq ft per MONTH (unit stated in
+  URA's API docs) of major projects with 10+ contracts, 621 projects
+  2026-Q2. Only when the customer types the project's URA name → × m² ×
+  10.7639 → the yield. Check: 18 Woodsville 5.63 × 80 m² → S$4,848/month.
+- (4) closing — DONE: IRAS BSD marginal bands computed (`tiers` hook in
+  closingCosts.js; IRAS's own example S$4,500,100 → S$209,606) + ABSD
+  60% for foreigners (FTA nationals e.g. US as citizens).
+- (5) property tax — DONE: IRAS rates (non-owner-occupied 12–36% of the
+  Annual Value from 2024; owner-occupied 0–32% from 2025) as text.
+- (6) foreign buyers — DONE earlier (TAX SURCHARGE).
+- (7) property record — officially impossible: no open per-unit record.
+
 ## Brazil — City of São Paulo (Oct 1 2026, Claude B)
 
 `lib/brazil/saoPaulo.js` ← `python3 scripts/build-br-sp-itbi.py <2025.xlsx>

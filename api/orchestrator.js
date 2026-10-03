@@ -204,7 +204,8 @@ const COUNTRY_ENDPOINTS = {
   // series TP.KFE.TR, via its EVDS API. Needs a free registered API key
   // (TCMB_EVDS_API_KEY env var) — degrades honestly if unset, same
   // pattern as ANTHROPIC_API_KEY.
-  "turkey": "turkey-intelligence"
+  "turkey": "turkey-intelligence",
+  "singapore": "singapore-intelligence"
 };
 
 // Every country adapter returns data shaped around whatever its own
@@ -935,6 +936,35 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
     };
   }
 
+  // Singapore: URA's price index by type (no official price level without
+  // URA's data service key) + URA's median rent of the customer's condo project
+  if (c === "singapore") {
+    const sg = raw.sg || {};
+    const pct = (v) => `${v >= 0 ? "+" : ""}${v}%`;
+    const p = sg.ppi;
+    const kind = sg.landed ? "landed homes" : "non-landed homes (condominiums and apartments)";
+    let trendTxt = p ? `URA private residential price index ${p.period}, ${kind}: ${pct(p.yoyPercent)} on a year earlier (all private homes ${pct(sg.ppiAll.yoyPercent)})` : "URA price index unavailable";
+    let change = p?.yoyPercent ?? null;
+    if (!sg.landed && sg.region?.yoyPercent != null) { trendTxt += `; ${sg.region.name} non-landed ${pct(sg.region.yoyPercent)}`; change = sg.region.yoyPercent; }
+    const parts = [{ title: "URA — price index", text: `${trendTxt}.` }];
+    let rentalBenchmark = null;
+    if (sg.rent) {
+      const r = sg.rent;
+      const t = `URA median rent ${r.period}, ${r.project} (postal district ${r.district}): S$${r.psfMonth} per sq ft a month (middle half S$${r.p25}–${r.p75}), ${r.contracts} rental contracts${r.monthly ? ` → S$${r.monthly.toLocaleString("en-US")} a month for ${property?.size} m²` : ""}.${r.monthly && !property?.monthlyRent ? " No rent was entered, so the yield uses this rent (estimated)." : ""}`;
+      parts.push({ title: "URA — rent of this project", text: t });
+      if (r.monthly) rentalBenchmark = { monthlyRentFlat: r.monthly, grossYieldPercent: null, source: r.source };
+    }
+    const note = "URA publishes each project's transaction prices only through its data service, which needs an access key (not yet held) — so there is no official price level here.";
+    return {
+      benchmarkValue: null, benchmarkUnit: "perSqm", benchmarkLabel: "Market price level (URA transaction data needs an access key — not yet connected)",
+      governmentValue: null, transactionValue: null, transactionPeriod: p?.period ?? null,
+      marketArea: sg.rent ? `${sg.rent.project}, Singapore — official price trend and project rent` : "Singapore — official price trend (type the condo project's name for its official rent)",
+      source: [trendTxt + ".", ...parts.slice(1).map((x) => x.text), note].join(" "),
+      sourceUrl: sg.ppiUrl || "https://tablebuilder.singstat.gov.sg/table/TS/M212261",
+      coverage: sg.rent ? "city" : "national", priceTrendPercent: change, rentalBenchmark,
+      sourceParts: [...parts, { title: "Not available", text: note }]
+    };
+  }
   if (c === "greece") {
     const gz = greeceRecord(raw.zonePrice, property);
     const hpi = raw.housingPriceIndex || {};

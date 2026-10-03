@@ -69,7 +69,7 @@
     japan: "JPY", "south korea": "KRW", australia: "AUD", "new zealand": "NZD",
     canada: "CAD", mexico: "MXN", brazil: "BRL", argentina: "ARS", chile: "CLP", colombia: "COP", peru: "USD",
     uruguay: "USD", paraguay: "PYG", bolivia: "BOB", "dominican republic": "DOP", jamaica: "JMD",
-    "trinidad and tobago": "TTD", bahamas: "BSD", barbados: "BBD", "cayman islands": "KYD"
+    singapore: "SGD", "hong kong": "HKD", "trinidad and tobago": "TTD", bahamas: "BSD", barbados: "BBD", "cayman islands": "KYD"
   };
   function currencyForCountry(country) {
     return COUNTRY_CURRENCY[String(country || "").trim().toLowerCase()] || "EUR";
