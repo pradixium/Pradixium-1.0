@@ -1395,8 +1395,8 @@ non-commercial; VIC/WA/TAS valuation portals are paid or 403.
   Live check Oct 2 2026: Muğla 2026-Q2 TL 82,290/m², rent TL 352/m²/month;
   Türkiye TL 51,850 / TL 258. The public /fe data endpoint needs a session
   → not used.
-- (2) trend — DONE: `lib/turkey/kfe.js` ← `python3 scripts/build-tr-kfe.py`
-  (monthly, tcmb.gov.tr KFE.pdf answers servers): Table 1/2 (Türkiye,
+- (2) trend — DONE (moved to EVDS Oct 3 2026, see Licence compliance):
+  `lib/turkey/kfe.js` ← `python3 scripts/build-tr-kfe.py` (was: KFE.pdf): Table 1/2 (Türkiye,
   İstanbul, Ankara, İzmir) + Grafik 4/8 (19 İBBS region groups, provinces
   as TCMB lists them; values printed in bar order, pairing checked against
   the tables, the script stops on a mismatch). Aug 2026: Türkiye +23.0%
@@ -1413,6 +1413,39 @@ non-commercial; VIC/WA/TAS valuation portals are paid or 403.
 - (6) foreign buyers — DONE earlier.
 - (7) property record — officially impossible: TKGM e-Tapu needs the
   owner's e-Devlet login.
+
+## Licence compliance (Oct 3 2026, Claude B — user: "תכבד את כל ההוראות והחוקים פה")
+
+Every source's own reuse terms were read on the body's page; the required
+attribution is added as a "Licence" source block by `lib/data/licences.js`
+(only for sources the report's evidence used; the orchestrator calls
+`licenceNotices()` after the evidence is built). Found and fixed:
+- Turkey: TCMB's WEBSITE content (the KFE.pdf release) needs TCMB's written
+  permission for commercial use (tcmb.gov.tr Kullanım Şartları) — the
+  regional figures came from it. EVDS's own terms (docId=18) allow use with
+  the source named, also commercially if no extra fee is charged for the
+  data, and a translation must say it is not TCMB's → everything now comes
+  live from EVDS: TP.KFE.<region> / TP.YKKE.<region> for the 19 İBBS groups
+  (codes from TCMB's public EVDS tables, `build-tr-kfe.py`, no PDF). No key
+  / EVDS down → "unavailable", no fallback figures. The "real change" line
+  (from the PDF text) is gone.
+- France rents: the file used was a PRIVATE company's aggregation
+  (Terralyse "rendement locatif") with its own price method, and it gave
+  houses the FLAT rent → replaced by the ministry's own Carte des loyers
+  2025 files (pred-app / pred-mai, DHUP/ANIL, Licence Ouverte), flats and
+  houses separately, with the prediction interval and "estimated on a wider
+  area" flag. Check: Ambérieu-en-Bugey flats €12.32 = both files.
+- Licence Ouverte needs the date of last update → DVF's date is read from
+  the data.gouv.fr API (cached 6 h).
+- Stats SA: older releases forbade selling the data; the CURRENT P0160
+  imprint only asks to name Stats SA as the source of the basic data and to
+  say the analysis is the user's own → allowed, notice added.
+- Not commercial-use-safe, still not used: NSW Valuer General (CC BY-NC-ND),
+  KSH tailored extracts (CC BY-NC; STADAT tables are CC BY 4.0 — those are
+  what we use), INE Portugal's OLD terms (now CC BY 4.0).
+- Not yet checked: Dubai DLD export terms, US county open-data portals,
+  NBP/GUS, Spain INE/MIVAU, Serbia RGZ, Mexico SHF, Brazil SP (source named
+  in the text meanwhile).
 
 ## Singapore (Oct 3 2026, Claude B — added to the dropdown)
 
