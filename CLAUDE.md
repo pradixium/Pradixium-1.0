@@ -1858,8 +1858,20 @@ Flagged directly to the user, unresolved as of this writing:
     `max_redemptions` edited after creation (confirmed via the API's own
     parameter docs — only `name`/`metadata`/`currency_options` are
     editable), which is why this is a third coupon rather than a bump to
-    an existing one. All three codes stay valid simultaneously; each just
-    stops working once its own cap is hit.
+    an existing one.
+
+  **Oct 3 2026: narrowed to one live code.** The user, understandably
+  frustrated that this session didn't already know about `FIRST1000` from
+  the note above (it wasn't re-read carefully enough before answering —
+  a real lesson, not his error), asked to leave only the 1000 code live.
+  Coupons `001` and `launch100` were **deleted** (not just deactivated —
+  this MCP's Stripe tool only exposes create/list/retrieve/delete for
+  promotion codes, no update/deactivate endpoint) via `DeleteCouponsCoupon`.
+  Deleting the coupon a promotion code points to makes that code stop
+  working for new redemptions without touching anyone who already
+  redeemed it. **As of now, `FIRST1000` (code `FIRST1000`) is the only
+  live promo code** — always verify in Stripe before assuming otherwise,
+  per the standing note above.
 
 ## Pricing tiers (Sept 2026)
 
@@ -2736,3 +2748,116 @@ application rather than a public endpoint, this is the path forward — not
 something to work around with scraping, consistent with the project's
 no-third-party/no-scraping rule. No action needed from this session until
 the registration is actually confirmed done.
+
+## Entitlement signature collision fix — same-building identical units (Oct 3 2026, PR #41, not yet merged)
+
+Found by this session's own recurring oversight/stress-test routine
+(adversarial reasoning over the entitlement-gate code, per that routine's
+charter — money-touching code is its highest priority). Two different
+units in the same new-build building — same floor plan, so identical
+price/size/bedrooms/bathrooms/estimated rent, and an address that's just
+the building's street address (no unit number) — produced the exact same
+report_signature. Once either unit's report was purchased,
+isReportPaid()/checkEntitlement() silently treated the OTHER unit as
+already paid for: a real revenue leak (standardized-unit new-build condos
+are a common case for this product), not theoretical. This is the exact
+scenario the Oct 2026 "fold in address/beds/baths/propertyType/
+monthlyRent" fix's own comment already named as its motivating case,
+without fully closing it.
+
+Fix: an optional "Unit / Apartment / Floor" field added to the property
+form (index.html), threaded into getInputs(), reportSignature(), the
+cached property object, and — critically — refreshFullReportData()'s
+Stripe-return form refill in engine.js (missing that last one would have
+reintroduced a silent "paid report shows as locked" bug after a Stripe
+redirect, the exact bug class this routine watches for), plus the
+matching server-side signature in api/orchestrator.js. Blank by default,
+zero behavior change for houses/single units. Backward compatible: a
+midReportSignature()/midSignature fallback (mirroring the existing
+legacySignature pattern) keeps every report already purchased under the
+current 9-field format recognized — verified with a standalone script
+mirroring both join formats before pushing. node --check clean, headless
+Chromium screenshot confirms the new field renders correctly in place.
+Pushed as PR #41 — not merged, per standing convention, awaiting the
+user's review.
+
+## Telegram Ads — ad copy iteration and real campaign numbers (Oct 3 2026)
+
+Follow-up to the campaign setup documented above. English ad text went
+through two more revisions same day, each requiring a fresh moderation
+review (editing an ad's text resets it to "On Hold," same as a new ad;
+targeting stays locked either way): a curiosity-driven version ("That
+perfect overseas deal? 9 out of 10 don't survive a Reality Check...") and
+then, once FIRST1000 was confirmed live (see above), a version leading
+with that real offer ("First 1000 reports free. Real government data, no
+sales pitch — see if your deal survives a Reality Check."). Declined the
+user's "add an insult to the reader" idea (e.g. "Are you dumb?") — real
+risk of moderation rejection for abusive content, and insulting the
+audience tends to suppress clicks, not raise them, in direct-response
+advertising generally.
+
+Real numbers so far, not promising: the English ad's actual CTR is
+~0.11% (2 actions / 1,799 views at the time), well below the ~0.5-1%+
+typical benchmark for a well-targeted Telegram channel ad — confirmed via
+Supabase (purchases table: zero new purchases since Sept 30) and Vercel
+Web Analytics (daily pageviews actually declining Sept 28 to Oct 3:
+57,80,38,15,7,0; no referrer bucket cleanly attributable to Telegram,
+likely merged into the 39-visitor "no referrer" bucket since Telegram's
+in-app browser often strips it). The Hebrew ad only went active Oct 3
+(after a slow approval cycle) and had 0 actions at ~40 views as of
+Shabbat — too early and confounded by Shabbat timing to read yet.
+
+This session's recommendation to the user, given above: stop scaling
+Telegram ad spend (currently 1 TON/day, ~$1.45 — too small a budget to
+read real signal from anyway) until the funnel itself is proven. No live
+customer has ever been through the complete flow end to end (same gap
+flagged earlier in this file, under "Known gaps before a real public
+push"). Recommended instead: 5 people from the user's own personal
+network who are actually shopping for overseas property right now, each
+given the property check for free via FIRST1000, with an explicit ask for
+honest feedback afterward — this is the original beachhead plan from the
+Go-to-market section above, not yet actually executed. Not acted on by
+this session (it's outreach the user does personally); just the
+recommendation, given plainly when he asked directly whether the product
+itself might be unnecessary — the honest answer given: the underlying
+cross-border-property-buying behavior is real and documented (active
+Facebook/Telegram communities), but there is no real demand signal for
+Pradixium specifically yet either way, because so few real people have
+been through the paid flow.
+
+Market research done this session, not yet acted on (reference for a
+future session or the user's own outreach), all real/sourced, nothing
+invented:
+- Dubai investor communities found: Facebook's "Dubai Expat Community"
+  (110k+ members, general expat group, not real-estate-specific),
+  Meetup's "Real Estate Investors Meetup in Dubai" (522 members) and
+  "Networking Behomes Real Estate" (427 members), the curated/private
+  "Real Estate Club Dubai," and r/DubaiPropertyHub. No public
+  forum/group found specifically for Chinese or European investors in
+  Dubai — Chinese buyer activity there runs through WeChat/Weibo, which
+  aren't publicly searchable, so nothing invented in that gap.
+- Juwai.com (confirmed real and large: 3.3M monthly visitors, 6M+
+  listings, 111 countries) is the dominant portal connecting Chinese
+  buyers to overseas property, including real, sourced France activity
+  (Chinese buyers are the largest foreign-buyer group in the Paris/
+  Ile-de-France market, 16%, plus 30+ Bordeaux vineyard purchases in two
+  years). It's a paid listing/lead-gen platform for agents/developers
+  (~$550/month for its basic "Asia Pro 10" package, 10 listings), not a
+  free community — and it markets through WeChat/Weibo, not Telegram/
+  Facebook. Confirms the Chinese-buyer market is real and large, but
+  doesn't directly fit Pradixium (we sell a service, not a listed
+  property) without further checking whether Juwai has a separate
+  media/display-ad product rather than a listing package — not yet
+  checked.
+- A Hebrew-language Telegram travel group, "Kivunim Georgia Batumi
+  Tbilisi" (5,662 members, ~200 online) — general Georgia-travel content
+  (vacation deals), not real-estate-investor-specific. Flagged by the
+  user as a possible future channel for Georgia property outreach; left
+  as-is for now, not posted to.
+
+Marketing copy drafted (reusable reference, not yet deployed anywhere): a
+short "who actually checks if the price is fair" pitch — broker/friend
+conflict-of-interest framing, $30-report-as-insurance framing, ending with
+the existing "Don't buy the dream. Check the reality." tagline — in
+Hebrew, English, French, German and Spanish. Not yet used in any live ad
+or outreach message as of this writing.
