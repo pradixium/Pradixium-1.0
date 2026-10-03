@@ -38,6 +38,7 @@
  * key's owner has an active Business plan (checkApiKeyEntitlement()).
  */
 
+import { licenceNotices } from "../lib/data/licences.js";
 import { createHash } from "node:crypto";
 import { runPropertyInvestmentAgent } from "../lib/agents/propertyInvestmentAgent.js";
 import { computePradixiumScore } from "../lib/scoring/pradixiumScore.js";
@@ -558,6 +559,9 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
     const cityWideNote = byArr
       ? `No single benchmark for the whole city: DVF prices differ by arrondissement from ${eur(byArr[byArr.length - 1].medianEurPerM2)}/m² (${ord(byArr[byArr.length - 1].arrondissement)}) to ${eur(byArr[0].medianEurPerM2)}/m² (${ord(byArr[0].arrondissement)}) — enter the street address or the arrondissement for this property's own benchmark. Medians by arrondissement (single-dwelling sales, ${dvf.transactionWindow || "latest year"}): ${byArr.map((x) => `${ord(x.arrondissement)} ${eur(x.medianEurPerM2)} (${x.sampleSize.toLocaleString("en-US")})`).join(" · ")}.` + (dvf.missingArrondissements?.length ? ` No data could be loaded this time for: ${dvf.missingArrondissements.map(ord).join(", ")} — the range above may be incomplete.` : "")
       : null;
+    // the ministry's rent map: advertised rents incl. charges, flats and
+    // houses separately; "maille" = estimated on a wider area (few ads)
+    const rentPart = rental.available && rental.rentEurPerM2 != null ? { title: "Rent (Carte des loyers 2025)", text: `${rental.source}: advertised ${rental.kind === "house" ? "house" : "flat"} rents in ${raw.commune?.name || "the commune"}, charges included, €${rental.rentEurPerM2.toFixed(2)}/m² a month${rental.lowerEurPerM2 != null && rental.upperEurPerM2 != null ? ` (prediction interval €${rental.lowerEurPerM2.toFixed(2)}–${rental.upperEurPerM2.toFixed(2)})` : ""}${/maille/i.test(rental.estimatedOn || "") ? ", estimated on a wider area because the commune has few ads" : rental.adsInCommune ? `, from ${Math.round(rental.adsInCommune).toLocaleString("en-US")} ads in the commune` : ""}. Asking rents in ads, not signed leases.${isPrimeOutlier ? " Not used for the yield at this prime address." : ""}` } : null;
     return {
       benchmarkValue: benchmarkSource?.medianEurPerM2 ?? null,
       benchmarkUnit: "perSqm",
@@ -567,13 +571,11 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
       transactionPeriod: dvf.transactionWindow ?? null,
       marketArea: raw.commune?.name ? raw.commune.name + (arr && !/arrondissement/i.test(raw.commune.name) ? ` — ${arr}${arr === 1 ? "er" : "e"} arrondissement` : "") : null,
       source: (cityWideNote ? cityWideNote + " " : "") + `INSEE + ${dvf.source || "DVF (DGFiP)"}${dvf.sampleSize ? ` — ${dvf.sampleSize.toLocaleString("en-US")} single-dwelling sales` : ""} + geo.api.gouv.fr`,
-      sourceParts: franceParts(raw, dvf, sim, sizeFits, wantsHouse, eur),
+      sourceParts: [...(franceParts(raw, dvf, sim, sizeFits, wantsHouse, eur) || []), ...(rentPart ? [rentPart] : [])],
       coverage: benchmarkSource?.medianEurPerM2 != null ? "city" : "none",
-      // Real government/open-data rental benchmark (data.gouv.fr commune
-      // rental dataset) that was already being fetched but never used —
-      // lets us estimate rent/yield even when the user doesn't type one in.
+      // the ministry's commune rent map — rent/yield when none is entered
       rentalBenchmark: rental.available && !isPrimeOutlier
-        ? { monthlyRentPerSqm: rental.rentEurPerM2 ?? null, grossYieldPercent: rental.grossYieldPct ?? null, source: rental.source }
+        ? { monthlyRentPerSqm: rental.rentEurPerM2 ?? null, grossYieldPercent: null, source: rental.source }
         : null,
       priceTrendPercent: raw.housingPriceIndex?.annualVariation ?? null,
       // DVF is transaction-level open data — api/france-intelligence.js's
@@ -1003,15 +1005,28 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
       parts.push({ title: "URA — rent of this project", text: t });
       if (r.monthly) rentalBenchmark = { monthlyRentFlat: r.monthly, grossYieldPercent: null, source: r.source };
     }
-    const note = "URA publishes each project's transaction prices only through its data service, which needs an access key (not yet held) — so there is no official price level here.";
+    let benchmarkValue = null, saleLabel = null;
+    if (sg.sale) {
+      const s2 = sg.sale;
+      const kindTxt = s2.kind === "resale" ? "resales and sub-sales" : "new sales from the developer (no resales with 10+ in the period)";
+      const t = `URA transactions ${s2.from} to ${s2.to}, ${s2.project}: median S$${s2.psm.toLocaleString("en-US")} per m² of strata area from ${s2.n} single-unit ${kindTxt}${s2.other ? `; new sales S$${s2.other.psm.toLocaleString("en-US")} (${s2.other.n})` : ""}.`;
+      parts.splice(1, 0, { title: "URA — transactions of this project", text: t });
+      benchmarkValue = s2.psm; saleLabel = `URA median ${s2.kind === "resale" ? "resale" : "new-sale"} price, ${s2.project}`;
+    }
+    const note = sg.sale ? "" : "URA's transaction prices are per project — type the condo project's name for its official median price.";
+    // Singapore Open Data Licence v1.0: a visible notice naming the dataset,
+    // the access date and the source, with a link to the licence
+    const lic = [sg.sale && `Private Residential Property Transactions accessed on ${sg.sale.accessed} from the Urban Redevelopment Authority (URA)`,
+      sg.rent && `Rentals of Non-Landed Residential Buildings accessed on ${sg.rent.accessed} from URA via data.gov.sg`].filter(Boolean);
+    if (lic.length) parts.push({ title: "Licence", text: `Contains information from ${lic.join(" and ")} which is made available under the terms of the Singapore Open Data Licence version 1.0 (https://data.gov.sg/open-data-licence).` });
     return {
-      benchmarkValue: null, benchmarkUnit: "perSqm", benchmarkLabel: "Market price level (URA transaction data needs an access key — not yet connected)",
+      benchmarkValue, benchmarkUnit: "perSqm", benchmarkLabel: saleLabel || "URA median price per m² (type the condo project's name)",
       governmentValue: null, transactionValue: null, transactionPeriod: p?.period ?? null,
-      marketArea: sg.rent ? `${sg.rent.project}, Singapore — official price trend and project rent` : "Singapore — official price trend (type the condo project's name for its official rent)",
-      source: [trendTxt + ".", ...parts.slice(1).map((x) => x.text), note].join(" "),
+      marketArea: (sg.sale || sg.rent) ? `${(sg.sale || sg.rent).project}, Singapore` : "Singapore — type the condo project's name for its official price and rent",
+      source: [trendTxt + ".", ...parts.slice(1).map((x) => x.text), note].filter(Boolean).join(" "),
       sourceUrl: sg.ppiUrl || "https://tablebuilder.singstat.gov.sg/table/TS/M212261",
-      coverage: sg.rent ? "city" : "national", priceTrendPercent: change, rentalBenchmark,
-      sourceParts: [...parts, { title: "Not available", text: note }]
+      coverage: (sg.sale || sg.rent) ? "city" : "national", priceTrendPercent: change, rentalBenchmark,
+      sourceParts: note ? [...parts, { title: "Missing", text: note }] : parts
     };
   }
   if (c === "greece") {
@@ -1827,6 +1842,18 @@ export default async function handler(req, res) {
     marketEvidence.rentalBenchmark = { monthlyRentPerSqm: deRent.rentPerSqm, grossYieldPercent: null, source: deRent.source };
     marketEvidence.sourceParts = [...(marketEvidence.sourceParts || [{ title: "Market evidence", text: marketEvidence.source }]), { title: "Rent (Zensus 2022)", text }];
     marketEvidence.source = `${marketEvidence.source} ${text}`;
+  }
+
+  // each source's own licence / attribution terms (lib/data/licences.js),
+  // only for the sources this report's evidence used
+  if (marketEvidence) {
+    const used = [marketEvidence.source, ...(marketEvidence.sourceParts || []).map((p) => p.text)].join(" ");
+    const lic = licenceNotices(property.country, used, marketData);
+    if (lic.length && !(marketEvidence.sourceParts || []).some((p) => p.title === "Licence")) {
+      const text = lic.join(" ");
+      marketEvidence.sourceParts = [...(marketEvidence.sourceParts || [{ title: "Market evidence", text: marketEvidence.source }]), { title: "Licence", text }];
+      marketEvidence.source = `${marketEvidence.source} Licence: ${text}`;
+    }
   }
 
   // The Pradixium Score is a deterministic, weighted calculation over

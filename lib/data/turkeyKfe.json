@@ -1,181 +1,95 @@
 {
- "period": "2026-08",
- "source": "TCMB — Konut Fiyat Endeksi ve Yeni Kiracı Kira Endeksi (2023=100)",
- "sourceUrl": "https://www.tcmb.gov.tr/wps/wcm/connect/8bbac42a-c854-4c58-8b0c-e7e55c35ec2d/KFE.pdf?MOD=AJPERES",
+ "source": "TCMB — Konut Fiyat Endeksi (KFE, 2023=100) and Yeni Kiracı Kira Endeksi (YKKE), EVDS",
+ "termsUrl": "https://evds3.tcmb.gov.tr/igmevdsms-dis/documents/showDocument?docId=18",
  "national": {
-  "price": {
-   "index": 236.8,
-   "yoyPercent": 23.0,
-   "momPercent": 0.9,
-   "realYoyPercent": -6.5
-  },
-  "rent": {
-   "index": 336.2,
-   "yoyPercent": 26.4,
-   "momPercent": 2.3,
-   "realYoyPercent": -3.9
-  }
- },
- "cities": {
-  "İstanbul": {
-   "price": {
-    "index": 226.6,
-    "yoyPercent": 26.3,
-    "momPercent": 1.9
-   },
-   "rent": {
-    "index": 324.9,
-    "yoyPercent": 34.5,
-    "momPercent": 4.9
-   }
-  },
-  "Ankara": {
-   "price": {
-    "index": 265.0,
-    "yoyPercent": 24.8,
-    "momPercent": 1.5
-   },
-   "rent": {
-    "index": 368.9,
-    "yoyPercent": 28.3,
-    "momPercent": 2.6
-   }
-  },
-  "İzmir": {
-   "price": {
-    "index": 229.6,
-    "yoyPercent": 23.3,
-    "momPercent": 2.7
-   },
-   "rent": {
-    "index": 334.2,
-    "yoyPercent": 25.5,
-    "momPercent": 5.4
-   }
-  }
+  "kfe": "TP.KFE.TR",
+  "ykke": "TP.YKKE.TR"
  },
  "regions": [
   {
-   "label": "Bingöl, Elazığ, Malatya, Tunceli, Van, Bitlis, Hakkâri, Muş",
-   "provinces": [
-    "Bingöl",
-    "Elazığ",
-    "Malatya",
-    "Tunceli",
-    "Van",
-    "Bitlis",
-    "Hakkâri",
-    "Muş"
-   ],
-   "priceYoyPercent": 27.0,
-   "rentYoyPercent": 22.4
-  },
-  {
+   "code": "TR10",
    "label": "İstanbul",
    "provinces": [
     "İstanbul"
    ],
-   "priceYoyPercent": 26.3,
-   "rentYoyPercent": 34.5
+   "kfe": "TP.KFE.TR10",
+   "ykke": "TP.YKKE.TR10"
   },
   {
-   "label": "Artvin, Giresun, Gümüşhane, Ordu, Rize, Trabzon",
-   "provinces": [
-    "Artvin",
-    "Giresun",
-    "Gümüşhane",
-    "Ordu",
-    "Rize",
-    "Trabzon"
-   ],
-   "priceYoyPercent": 25.7,
-   "rentYoyPercent": 27.2
-  },
-  {
-   "label": "Kilis, Adıyaman, Gaziantep, Diyarbakır, Şanlıurfa, Batman, Mardin, Siirt, Şırnak",
-   "provinces": [
-    "Kilis",
-    "Adıyaman",
-    "Gaziantep",
-    "Diyarbakır",
-    "Şanlıurfa",
-    "Batman",
-    "Mardin",
-    "Siirt",
-    "Şırnak"
-   ],
-   "priceYoyPercent": 24.8,
-   "rentYoyPercent": 27.1
-  },
-  {
+   "code": "TR51",
    "label": "Ankara",
    "provinces": [
     "Ankara"
    ],
-   "priceYoyPercent": 24.8,
-   "rentYoyPercent": 28.3
+   "kfe": "TP.KFE.TR51",
+   "ykke": "TP.YKKE.TR51"
   },
   {
-   "label": "Nevşehir, Niğde, Aksaray, Kırıkkale, Kırşehir, Kayseri, Sivas, Yozgat",
-   "provinces": [
-    "Nevşehir",
-    "Niğde",
-    "Aksaray",
-    "Kırıkkale",
-    "Kırşehir",
-    "Kayseri",
-    "Sivas",
-    "Yozgat"
-   ],
-   "priceYoyPercent": 24.3,
-   "rentYoyPercent": 25.1
-  },
-  {
+   "code": "TR31",
    "label": "İzmir",
    "provinces": [
     "İzmir"
    ],
-   "priceYoyPercent": 23.3,
-   "rentYoyPercent": 25.5
+   "kfe": "TP.KFE.TR31",
+   "ykke": "TP.YKKE.TR31"
   },
   {
-   "label": "Zonguldak, Bartın, Karabük, Çankırı, Kastamonu, Sinop, Samsun, Çorum, Amasya, Tokat",
+   "code": "TR21",
+   "label": "Edirne, Kırklareli, Tekirdağ",
    "provinces": [
-    "Zonguldak",
-    "Bartın",
-    "Karabük",
-    "Çankırı",
-    "Kastamonu",
-    "Sinop",
-    "Samsun",
-    "Çorum",
-    "Amasya",
-    "Tokat"
+    "Edirne",
+    "Kırklareli",
+    "Tekirdağ"
    ],
-   "priceYoyPercent": 22.7,
-   "rentYoyPercent": 21.4
+   "kfe": "TP.KFE.TR21",
+   "ykke": "TP.YKKE.TR21"
   },
   {
+   "code": "TR22",
+   "label": "Balıkesir, Çanakkale",
+   "provinces": [
+    "Balıkesir",
+    "Çanakkale"
+   ],
+   "kfe": "TP.KFE.TR22",
+   "ykke": "TP.YKKE.TR22"
+  },
+  {
+   "code": "TR32",
+   "label": "Aydın, Denizli, Muğla",
+   "provinces": [
+    "Aydın",
+    "Denizli",
+    "Muğla"
+   ],
+   "kfe": "TP.KFE.TR32",
+   "ykke": "TP.YKKE.TR32"
+  },
+  {
+   "code": "TR33",
+   "label": "Afyonkarahisar, Kütahya, Manisa, Uşak",
+   "provinces": [
+    "Afyonkarahisar",
+    "Kütahya",
+    "Manisa",
+    "Uşak"
+   ],
+   "kfe": "TP.KFE.TR33",
+   "ykke": "TP.YKKE.TR33"
+  },
+  {
+   "code": "TR41",
    "label": "Bursa, Eskişehir, Bilecik",
    "provinces": [
     "Bursa",
     "Eskişehir",
     "Bilecik"
    ],
-   "priceYoyPercent": 22.5,
-   "rentYoyPercent": 23.4
+   "kfe": "TP.KFE.TR41",
+   "ykke": "TP.YKKE.TR41"
   },
   {
-   "label": "Hatay, Kahramanmaraş, Osmaniye",
-   "provinces": [
-    "Hatay",
-    "Kahramanmaraş",
-    "Osmaniye"
-   ],
-   "priceYoyPercent": 22.1,
-   "rentYoyPercent": 26.4
-  },
-  {
+   "code": "TR42",
    "label": "Bolu, Kocaeli, Sakarya, Yalova, Düzce",
    "provinces": [
     "Bolu",
@@ -184,90 +98,146 @@
     "Yalova",
     "Düzce"
    ],
-   "priceYoyPercent": 21.2,
-   "rentYoyPercent": 23.7
+   "kfe": "TP.KFE.TR42",
+   "ykke": "TP.YKKE.TR42"
   },
   {
-   "label": "Afyonkarahisar, Kütahya, Manisa, Uşak",
+   "code": "TR52",
+   "label": "Konya, Karaman",
    "provinces": [
-    "Afyonkarahisar",
-    "Kütahya",
-    "Manisa",
-    "Uşak"
+    "Konya",
+    "Karaman"
    ],
-   "priceYoyPercent": 20.2,
-   "rentYoyPercent": 25.0
+   "kfe": "TP.KFE.TR52",
+   "ykke": "TP.YKKE.TR52"
   },
   {
-   "label": "Adana, Mersin",
-   "provinces": [
-    "Adana",
-    "Mersin"
-   ],
-   "priceYoyPercent": 19.7,
-   "rentYoyPercent": 21.0
-  },
-  {
+   "code": "TR61",
    "label": "Antalya, Burdur, Isparta",
    "provinces": [
     "Antalya",
     "Burdur",
     "Isparta"
    ],
-   "priceYoyPercent": 19.5,
-   "rentYoyPercent": 22.8
+   "kfe": "TP.KFE.TR61",
+   "ykke": "TP.YKKE.TR61"
   },
   {
-   "label": "Konya, Karaman",
+   "code": "TR62",
+   "label": "Adana, Mersin",
    "provinces": [
-    "Konya",
-    "Karaman"
+    "Adana",
+    "Mersin"
    ],
-   "priceYoyPercent": 19.5,
-   "rentYoyPercent": 23.2
+   "kfe": "TP.KFE.TR62",
+   "ykke": "TP.YKKE.TR62"
   },
   {
-   "label": "Erzurum, Erzincan, Bayburt, Ağrı, Ardahan, Kars, Iğdır",
+   "code": "TR63",
+   "label": "Hatay, Kahramanmaraş, Osmaniye",
+   "provinces": [
+    "Hatay",
+    "Kahramanmaraş",
+    "Osmaniye"
+   ],
+   "kfe": "TP.KFE.TR63",
+   "ykke": "TP.YKKE.TR63"
+  },
+  {
+   "code": "TR7",
+   "label": "Nevşehir, Niğde, Kırıkkale, Kırşehir, Aksaray, Kayseri, Sivas, Yozgat",
+   "provinces": [
+    "Nevşehir",
+    "Niğde",
+    "Kırıkkale",
+    "Kırşehir",
+    "Aksaray",
+    "Kayseri",
+    "Sivas",
+    "Yozgat"
+   ],
+   "kfe": "TP.KFE.TR7",
+   "ykke": "TP.YKKE.TR7"
+  },
+  {
+   "code": "TR8",
+   "label": "Zonguldak, Karabük, Bartın, Kastamonu, Çankırı, Sinop, Samsun, Tokat, Çorum, Amasya",
+   "provinces": [
+    "Zonguldak",
+    "Karabük",
+    "Bartın",
+    "Kastamonu",
+    "Çankırı",
+    "Sinop",
+    "Samsun",
+    "Tokat",
+    "Çorum",
+    "Amasya"
+   ],
+   "kfe": "TP.KFE.TR8",
+   "ykke": "TP.YKKE.TR8"
+  },
+  {
+   "code": "TR9",
+   "label": "Trabzon, Ordu, Giresun, Rize, Artvin, Gümüşhane",
+   "provinces": [
+    "Trabzon",
+    "Ordu",
+    "Giresun",
+    "Rize",
+    "Artvin",
+    "Gümüşhane"
+   ],
+   "kfe": "TP.KFE.TR9",
+   "ykke": "TP.YKKE.TR9"
+  },
+  {
+   "code": "TRA",
+   "label": "Erzurum, Erzincan, Bayburt, Ağrı, Kars, Iğdır, Ardahan",
    "provinces": [
     "Erzurum",
     "Erzincan",
     "Bayburt",
     "Ağrı",
-    "Ardahan",
     "Kars",
-    "Iğdır"
+    "Iğdır",
+    "Ardahan"
    ],
-   "priceYoyPercent": 19.3,
-   "rentYoyPercent": 20.0
+   "kfe": "TP.KFE.TRA",
+   "ykke": "TP.YKKE.TRA"
   },
   {
-   "label": "Aydın, Denizli, Muğla",
+   "code": "TRB",
+   "label": "Malatya, Elazığ, Bingöl, Tunceli, Van, Muş, Bitlis, Hakkari",
    "provinces": [
-    "Aydın",
-    "Denizli",
-    "Muğla"
+    "Malatya",
+    "Elazığ",
+    "Bingöl",
+    "Tunceli",
+    "Van",
+    "Muş",
+    "Bitlis",
+    "Hakkari"
    ],
-   "priceYoyPercent": 17.9,
-   "rentYoyPercent": 20.0
+   "kfe": "TP.KFE.TRB",
+   "ykke": "TP.YKKE.TRB"
   },
   {
-   "label": "Balıkesir, Çanakkale",
+   "code": "TRC",
+   "label": "Gaziantep, Adıyaman, Kilis, Şanlıurfa, Diyarbakır, Mardin, Batman, Şırnak, Siirt",
    "provinces": [
-    "Balıkesir",
-    "Çanakkale"
+    "Gaziantep",
+    "Adıyaman",
+    "Kilis",
+    "Şanlıurfa",
+    "Diyarbakır",
+    "Mardin",
+    "Batman",
+    "Şırnak",
+    "Siirt"
    ],
-   "priceYoyPercent": 16.3,
-   "rentYoyPercent": 19.0
-  },
-  {
-   "label": "Edirne, Kırklareli, Tekirdağ",
-   "provinces": [
-    "Edirne",
-    "Kırklareli",
-    "Tekirdağ"
-   ],
-   "priceYoyPercent": 13.0,
-   "rentYoyPercent": 17.3
+   "kfe": "TP.KFE.TRC",
+   "ykke": "TP.YKKE.TRC"
   }
  ],
  "unitPriceCodes": {

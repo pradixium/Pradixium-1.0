@@ -12,7 +12,7 @@
    "median per square feet per month").
   python3 scripts/build-sg.py
 """
-import json, os, re, urllib.request
+import datetime, json, os, re, urllib.request
 UA = {"User-Agent": "Mozilla/5.0", "Accept": "*/*"}   # SingStat answers 403 without an Accept header
 get = lambda u: json.loads(urllib.request.urlopen(urllib.request.Request(u, headers=UA), timeout=90).read())
 
@@ -44,11 +44,47 @@ while True:
     if off >= r["total"]: break
 q = max(x["qtr"] for x in recs)
 out["rents"] = {"source": "URA — Rentals of Non-Landed Residential Buildings (major projects, 10+ rental contracts in the quarter), data.gov.sg",
-                "sourceUrl": "https://data.gov.sg/datasets/d_149ac00a2734bb0a03867bbe2ec0e7b0/view", "period": q, "unit": "S$ per sq ft per month",
+                "sourceUrl": "https://data.gov.sg/datasets/d_149ac00a2734bb0a03867bbe2ec0e7b0/view", "period": q, "accessed": datetime.date.today().isoformat(), "unit": "S$ per sq ft per month",
                 "projects": {x["project_name"].strip().upper(): {"district": x["postal_district"], "median": float(x["median"]), "p25": float(x["25th_percentile"]),
                                                                   "p75": float(x["75th_percentile"]), "contracts": int(float(x["rental_contracts"]))}
                              for x in recs if x["qtr"] == q}}
+# URA Data Service PMI_Resi_Transaction (caveats lodged, 5 years, no
+# names): needs URA_KEY in the environment (free access key) — the key is
+# never written to the repo; without it the previous sales block is kept.
 p = os.path.join(os.path.dirname(__file__), "..", "lib", "data", "singapore.json")
+KEY = os.environ.get("URA_KEY")
+if KEY:
+    import statistics
+    H = {"AccessKey": KEY, "User-Agent": "Mozilla/5.0"}
+    tok = json.loads(urllib.request.urlopen(urllib.request.Request("https://eservice.ura.gov.sg/uraDataService/insertNewToken/v1", headers=H), timeout=60).read())["Result"]
+    projects = []
+    for b in range(1, 5):
+        raw = urllib.request.urlopen(urllib.request.Request(f"https://eservice.ura.gov.sg/uraDataService/invokeUraDS/v1?service=PMI_Resi_Transaction&batch={b}", headers={**H, "Token": tok}), timeout=300).read()
+        projects += json.loads(raw.decode("latin-1"))["Result"]
+    ym = lambda d: (2000 + int(d[2:]), int(d[:2]))          # contractDate mmyy
+    last = max(ym(t["contractDate"]) for pr in projects for t in pr["transaction"])
+    first = (last[0] - 1, last[1] + 1) if last[1] < 12 else (last[0], 1)   # 12 months up to the latest month
+    NONLANDED = {"Apartment", "Condominium", "Executive Condominium"}
+    sales = {}
+    for pr in projects:
+        groups = {}
+        for t in pr["transaction"]:
+            d = ym(t["contractDate"])
+            if not (first <= d <= last) or t.get("noOfUnits") != "1" or t["propertyType"] not in NONLANDED or t.get("typeOfArea") != "Strata": continue
+            price = float(t.get("nettPrice") or t["price"]); area = float(t["area"])
+            if area <= 0 or price <= 0: continue
+            kind = "new" if t["typeOfSale"] == "1" else "resale"
+            groups.setdefault(kind, []).append(price / area)
+        g = {k: {"psm": round(statistics.median(v)), "n": len(v)} for k, v in groups.items() if len(v) >= 10}
+        if g:
+            sales[pr["project"].strip().upper()] = {"segment": pr.get("marketSegment"), "street": pr.get("street"), **g}
+    out["sales"] = {"source": "URA — private residential transactions (caveats lodged), URA Data Service", "sourceUrl": "https://eservice.ura.gov.sg/maps/api/",
+                    "from": f"{first[0]}-{first[1]:02d}", "to": f"{last[0]}-{last[1]:02d}", "accessed": datetime.date.today().isoformat(), "unit": "S$ per m² of strata area", "projects": sales}
+    print("URA sales", out["sales"]["from"], out["sales"]["to"], len(sales), "projects with 10+ sales")
+elif os.path.exists(p):
+    old_doc = json.load(open(p))
+    if "sales" in old_doc: out["sales"] = old_doc["sales"]
+
 json.dump(out, open(p, "w"), ensure_ascii=False, separators=(",", ":"))
 print(out["ppi"]["all"], out["ppi"]["landed"], out["ppi"]["nonLanded"])
 print({k: v for k, v in out["locality"].items() if isinstance(v, dict)})
