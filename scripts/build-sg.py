@@ -12,7 +12,7 @@
    "median per square feet per month").
   python3 scripts/build-sg.py
 """
-import json, os, re, urllib.request
+import datetime, json, os, re, urllib.request
 UA = {"User-Agent": "Mozilla/5.0", "Accept": "*/*"}   # SingStat answers 403 without an Accept header
 get = lambda u: json.loads(urllib.request.urlopen(urllib.request.Request(u, headers=UA), timeout=90).read())
 
@@ -44,7 +44,7 @@ while True:
     if off >= r["total"]: break
 q = max(x["qtr"] for x in recs)
 out["rents"] = {"source": "URA — Rentals of Non-Landed Residential Buildings (major projects, 10+ rental contracts in the quarter), data.gov.sg",
-                "sourceUrl": "https://data.gov.sg/datasets/d_149ac00a2734bb0a03867bbe2ec0e7b0/view", "period": q, "unit": "S$ per sq ft per month",
+                "sourceUrl": "https://data.gov.sg/datasets/d_149ac00a2734bb0a03867bbe2ec0e7b0/view", "period": q, "accessed": datetime.date.today().isoformat(), "unit": "S$ per sq ft per month",
                 "projects": {x["project_name"].strip().upper(): {"district": x["postal_district"], "median": float(x["median"]), "p25": float(x["25th_percentile"]),
                                                                   "p75": float(x["75th_percentile"]), "contracts": int(float(x["rental_contracts"]))}
                              for x in recs if x["qtr"] == q}}
@@ -79,7 +79,7 @@ if KEY:
         if g:
             sales[pr["project"].strip().upper()] = {"segment": pr.get("marketSegment"), "street": pr.get("street"), **g}
     out["sales"] = {"source": "URA — private residential transactions (caveats lodged), URA Data Service", "sourceUrl": "https://eservice.ura.gov.sg/maps/api/",
-                    "from": f"{first[0]}-{first[1]:02d}", "to": f"{last[0]}-{last[1]:02d}", "unit": "S$ per m² of strata area", "projects": sales}
+                    "from": f"{first[0]}-{first[1]:02d}", "to": f"{last[0]}-{last[1]:02d}", "accessed": datetime.date.today().isoformat(), "unit": "S$ per m² of strata area", "projects": sales}
     print("URA sales", out["sales"]["from"], out["sales"]["to"], len(sales), "projects with 10+ sales")
 elif os.path.exists(p):
     old_doc = json.load(open(p))

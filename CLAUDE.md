@@ -1430,6 +1430,11 @@ scripts/build-sg.py` (quarterly) → lib/data/singapore.json.
   from the raw batches). Without URA_KEY the script keeps the old sales
   block. HDB resale prices are public but foreigners cannot buy HDB flats →
   not used.
+  TERMS (URA API Terms of Service + Singapore Open Data Licence v1.0):
+  commercial use allowed; call the service only from a server (we only
+  call it at build time); every report using the data shows the licence
+  notice ("Contains information from … accessed on … from URA … Singapore
+  Open Data Licence version 1.0" + link) — the "Licence" source block.
 - (2) trend — DONE: URA PPI via SingStat tables M212261 (all / landed /
   non-landed) and M212271 (CCR / RCR / OCR, only when typed). 2026-Q2:
   all +2.9%, landed +7.0%, non-landed +1.8% (219.4/213.2 etc.). SingStat

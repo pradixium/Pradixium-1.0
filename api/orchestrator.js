@@ -1012,6 +1012,11 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
       benchmarkValue = s2.psm; saleLabel = `URA median ${s2.kind === "resale" ? "resale" : "new-sale"} price, ${s2.project}`;
     }
     const note = sg.sale ? "" : "URA's transaction prices are per project — type the condo project's name for its official median price.";
+    // Singapore Open Data Licence v1.0: a visible notice naming the dataset,
+    // the access date and the source, with a link to the licence
+    const lic = [sg.sale && `Private Residential Property Transactions accessed on ${sg.sale.accessed} from the Urban Redevelopment Authority (URA)`,
+      sg.rent && `Rentals of Non-Landed Residential Buildings accessed on ${sg.rent.accessed} from URA via data.gov.sg`].filter(Boolean);
+    if (lic.length) parts.push({ title: "Licence", text: `Contains information from ${lic.join(" and ")} which is made available under the terms of the Singapore Open Data Licence version 1.0 (https://data.gov.sg/open-data-licence).` });
     return {
       benchmarkValue, benchmarkUnit: "perSqm", benchmarkLabel: saleLabel || "URA median price per m² (type the condo project's name)",
       governmentValue: null, transactionValue: null, transactionPeriod: p?.period ?? null,
