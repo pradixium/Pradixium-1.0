@@ -10,6 +10,9 @@
     "api/market-data.js": {
       "includeFiles": "lib/data/spainZones/**"
     },
+    "api/japan-intelligence.js": {
+      "includeFiles": "lib/data/japanPrices.json"
+    },
     "api/hong-kong-intelligence.js": {
       "includeFiles": "lib/data/hongKong.json"
     },

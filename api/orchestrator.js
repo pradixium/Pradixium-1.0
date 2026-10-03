@@ -156,7 +156,7 @@ const COUNTRY_ENDPOINTS = {
   "indonesia": "regional-fixture-intelligence",
   "south korea": "regional-fixture-intelligence",
   "india": "regional-fixture-intelligence",
-  "japan": "regional-fixture-intelligence",
+  "japan": "japan-intelligence",
   "vietnam": "pending-intelligence",
   "sri lanka": "regional-fixture-intelligence",
   "cambodia": "regional-fixture-intelligence",
@@ -937,6 +937,21 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
     };
   }
 
+  // Japan: MLIT's residential price index for the narrowest published
+  // area and the home's type; no official price level without MLIT's API key
+  if (c === "japan" && raw.jp) {
+    const jp = raw.jp;
+    const pct = (v) => `${v >= 0 ? "+" : ""}${v}%`;
+    const t = `MLIT Real Estate Price Index ${jp.period}, ${jp.area}, ${jp.typeLabel}: ${jp.change != null ? pct(jp.change) : "n/a"} on a year earlier (${jp.sample} transactions in the month${jp.national ? "" : `; Japan overall ${pct(jp.nationalChange)}`}). Built from registered transactions; no price level is published.`;
+    const note = "MLIT's per-transaction prices (Real Estate Information Library) need an API key — not yet held — so there is no official price level here.";
+    return {
+      benchmarkValue: null, benchmarkUnit: "perSqm", benchmarkLabel: "Market price level (MLIT transaction data needs an API key — not yet connected)",
+      governmentValue: null, transactionValue: null, transactionPeriod: jp.period,
+      marketArea: `${jp.area} — official price trend; no official price level is published`,
+      source: `${t} ${note}`, sourceUrl: jp.sourceUrl, coverage: jp.national ? "national" : "regional", priceTrendPercent: jp.change,
+      sourceParts: [{ title: "MLIT — price index", text: t }, { title: "Not available", text: note }]
+    };
+  }
   // Hong Kong: RVD average price / rent per m² of SALEABLE area of the
   // property's region × size class (second-hand sales); 20+ transactions
   if (c === "hong kong") {

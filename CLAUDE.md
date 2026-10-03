@@ -1466,6 +1466,22 @@ and Valuation Department's Property Market Statistics xls (rvd.gov.hk).
 - (7) property record — not used: Land Registry searches are paid and
   carry owner names.
 
+## Japan (Oct 3 2026, Claude B)
+
+`api/japan-intelligence.js` + `lib/japan/mlit.js` ← `python3
+scripts/build-jp.py` (monthly) → lib/data/japanPrices.json: MLIT 不動産価格
+指数（住宅）, ORIGINAL series (原系列), latest month (Dec 2025, published
+31 Mar 2026 — MLIT's page lists nothing newer as of Oct 2026): narrowest
+published area (Tokyo / Aichi / Osaka prefecture → Greater Tokyo /
+Keihanshin → the 9 regions; a city name beats a ward name — Kita, Minato,
+Chuo exist in Osaka/Nagoya too) × type (condominium / detached), y-o-y +
+sample count. Check: Japan condos 221.24/204.16 → +8.4%, Tokyo +9.8%,
+Osaka +12.9% (hand recompute from the xlsx). No price level: MLIT's
+transaction API (reinfolib) needs a key — company registration first.
+The regional fixture's unsourced "¥36 million average home" and an
+unverified land-price line were removed (the fixture stays for the
+Global Index).
+
 ## Brazil — City of São Paulo (Oct 1 2026, Claude B)
 
 `lib/brazil/saoPaulo.js` ← `python3 scripts/build-br-sp-itbi.py <2025.xlsx>

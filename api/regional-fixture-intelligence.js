@@ -400,13 +400,16 @@ const FIXTURES = {
   },
   japan: {
     country: "Japan",
-    period: "2025-11",
-    nationalChangePercent: 5.0,
-    nationalBenchmarkValue: 36000000,
+    period: "2025-12",
+    // MLIT 不動産価格指数（住宅）, original series, all residential, Japan:
+    // 145.05 vs 137.81 a year earlier (lib/data/japanPrices.json). MLIT
+    // publishes no price level → none here (the old "¥36 million average
+    // home" had no source and was removed).
+    nationalChangePercent: 5.3,
     benchmarkUnit: "total",
-    coverageNote: "Benchmark value is the average price of an existing condo/apartment nationwide; an average existing detached house runs closer to ¥30 million. Separately, MLIT's annual land price survey (koji chika) showed nationwide land prices up 2.8% in 2026 — the strongest rise since 1992, residential land specifically +2.1%.",
-    source: "Ministry of Land, Infrastructure, Transport and Tourism (MLIT) — Residential Property Price Index, November 2025",
-    officialSource: "https://www.mlit.go.jp/en/"
+    coverageNote: "Change of MLIT's residential price index (all residential property, from registered transactions); condominiums +8.4%, detached houses +3.0%.",
+    source: "Ministry of Land, Infrastructure, Transport and Tourism (MLIT) — Real Estate Price Index (residential), December 2025",
+    officialSource: "https://www.mlit.go.jp/totikensangyo/totikensangyo_tk5_000085.html"
   },
   "sri lanka": {
     country: "Sri Lanka",
