@@ -1003,15 +1003,23 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
       parts.push({ title: "URA — rent of this project", text: t });
       if (r.monthly) rentalBenchmark = { monthlyRentFlat: r.monthly, grossYieldPercent: null, source: r.source };
     }
-    const note = "URA publishes each project's transaction prices only through its data service, which needs an access key (not yet held) — so there is no official price level here.";
+    let benchmarkValue = null, saleLabel = null;
+    if (sg.sale) {
+      const s2 = sg.sale;
+      const kindTxt = s2.kind === "resale" ? "resales and sub-sales" : "new sales from the developer (no resales with 10+ in the period)";
+      const t = `URA transactions ${s2.from} to ${s2.to}, ${s2.project}: median S$${s2.psm.toLocaleString("en-US")} per m² of strata area from ${s2.n} single-unit ${kindTxt}${s2.other ? `; new sales S$${s2.other.psm.toLocaleString("en-US")} (${s2.other.n})` : ""}.`;
+      parts.splice(1, 0, { title: "URA — transactions of this project", text: t });
+      benchmarkValue = s2.psm; saleLabel = `URA median ${s2.kind === "resale" ? "resale" : "new-sale"} price, ${s2.project}`;
+    }
+    const note = sg.sale ? "" : "URA's transaction prices are per project — type the condo project's name for its official median price.";
     return {
-      benchmarkValue: null, benchmarkUnit: "perSqm", benchmarkLabel: "Market price level (URA transaction data needs an access key — not yet connected)",
+      benchmarkValue, benchmarkUnit: "perSqm", benchmarkLabel: saleLabel || "URA median price per m² (type the condo project's name)",
       governmentValue: null, transactionValue: null, transactionPeriod: p?.period ?? null,
-      marketArea: sg.rent ? `${sg.rent.project}, Singapore — official price trend and project rent` : "Singapore — official price trend (type the condo project's name for its official rent)",
-      source: [trendTxt + ".", ...parts.slice(1).map((x) => x.text), note].join(" "),
+      marketArea: (sg.sale || sg.rent) ? `${(sg.sale || sg.rent).project}, Singapore` : "Singapore — type the condo project's name for its official price and rent",
+      source: [trendTxt + ".", ...parts.slice(1).map((x) => x.text), note].filter(Boolean).join(" "),
       sourceUrl: sg.ppiUrl || "https://tablebuilder.singstat.gov.sg/table/TS/M212261",
-      coverage: sg.rent ? "city" : "national", priceTrendPercent: change, rentalBenchmark,
-      sourceParts: [...parts, { title: "Not available", text: note }]
+      coverage: (sg.sale || sg.rent) ? "city" : "national", priceTrendPercent: change, rentalBenchmark,
+      sourceParts: note ? [...parts, { title: "Missing", text: note }] : parts
     };
   }
   if (c === "greece") {

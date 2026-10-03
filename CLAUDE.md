@@ -1418,12 +1418,18 @@ non-commercial; VIC/WA/TAS valuation portals are paid or 403.
 
 `api/singapore-intelligence.js` + `lib/singapore/sg.js` ← `python3
 scripts/build-sg.py` (quarterly) → lib/data/singapore.json.
-- (1) price level — needs the user: URA's per-project transaction prices
-  are only in the URA Data Service (free access key: account at
-  eservice.ura.gov.sg/maps/api/ → key by e-mail → daily token;
-  PMI_Resi_Transaction holds 5 years of caveats, no names). URA's public
-  PMI search page answers 403 to servers → not used. HDB resale prices are
-  public but foreigners cannot buy HDB flats → not used.
+- (1) price — DONE Oct 3 2026 with the user's URA access key (the user
+  holds it — NEVER commit it; ask for it at refresh time): `URA_KEY=… python3
+  scripts/build-sg.py` → PMI_Resi_Transaction (4 batches, ~132k caveats, no
+  names) → per project, 12 months to the latest month (2025-10..2026-09):
+  median S$ per m² of STRATA area of single-unit non-landed sales (Apartment
+  / Condominium / EC), resale+sub-sale and new sale kept apart, 10+ each →
+  463 projects. Benchmark = resale median, else new-sale (labelled). The
+  project's URA market segment (CCR/RCR/OCR) now picks the regional PPI.
+  Check: Treasure at Tampines 124 resales, S$19,405 (separate recompute
+  from the raw batches). Without URA_KEY the script keeps the old sales
+  block. HDB resale prices are public but foreigners cannot buy HDB flats →
+  not used.
 - (2) trend — DONE: URA PPI via SingStat tables M212261 (all / landed /
   non-landed) and M212271 (CCR / RCR / OCR, only when typed). 2026-Q2:
   all +2.9%, landed +7.0%, non-landed +1.8% (219.4/213.2 etc.). SingStat
