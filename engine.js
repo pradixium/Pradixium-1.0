@@ -95,7 +95,8 @@
       bedrooms: num($("bedrooms")?.value),
       bathrooms: num($("bathrooms")?.value),
       propertyType: $("propertyType")?.value || window.pradixiumPropertyType || "Apartment",
-      monthlyRent: rentForType()
+      monthlyRent: rentForType(),
+      unitNumber: $("unitNumber")?.value?.trim() || ""
     };
   }
 
@@ -1142,6 +1143,7 @@
       bathrooms: inputs.bathrooms,
       propertyType: inputs.propertyType,
       monthlyRent: inputs.monthlyRent,
+      unitNumber: inputs.unitNumber,
       landArea: num($("landArea")?.value),
       renovated: $("renovated")?.value === "1",
       renovationYear: num($("renovationYear")?.value),
@@ -1468,16 +1470,41 @@
   // instead of just city and would silently break checkEntitlement's match
   // for every manually-typed (non-URL-imported) property, i.e. the common
   // case, the moment this signature was introduced.
+  //
+  // FIX (Oct 2026): even after the fold-in above, two DIFFERENT units in
+  // the same new-build building -- the exact scenario the comment above
+  // already names -- still collide when the customer's address text is
+  // just the building's street address (no unit), because every other
+  // field (price, size, beds, baths, rent) is identical by design for a
+  // standardized floor plan. Once one unit was purchased, isReportPaid()
+  // silently unlocked every other identical unit in the same building for
+  // free -- a real revenue leak, not just theoretical (new-build condos
+  // selling multiple identical-spec units are a common case for this
+  // product). unitNumber is an optional field with no other effect; when
+  // left blank (houses, single units) this changes nothing. Must stay in
+  // sync with api/orchestrator.js's server-side signature and with the
+  // property object cached by analyzeProperty() / restored by
+  // refreshFullReportData() -- all three touched by this fix.
   function reportSignature(data) {
     const inputs = getInputs();
     const address = window.pradixiumPropertyAddress || inputs.city;
-    return [data.country, data.city, address, data.askingPrice, data.size, inputs.bedrooms, inputs.bathrooms, inputs.propertyType, data.rent].join("|");
+    return [data.country, data.city, address, data.askingPrice, data.size, inputs.bedrooms, inputs.bathrooms, inputs.propertyType, data.rent, inputs.unitNumber].join("|");
   }
   // The format used before the Oct 2026 fix above -- kept only so a
   // report already purchased under it (13 live rows as of this fix) is
   // still recognized. Never used for a new purchase.
   function legacyReportSignature(data) {
     return [data.country, data.city, data.askingPrice, data.size].join("|");
+  }
+  // The format used right before the unitNumber fix above -- every report
+  // purchased between the Oct 2026 address/beds/baths fix and this fix is
+  // stored under this shorter format (no trailing unitNumber field), so it
+  // must still be recognized or those real, already-paid customers would
+  // see their own report as locked. Never used for a new purchase.
+  function midReportSignature(data) {
+    const inputs = getInputs();
+    const address = window.pradixiumPropertyAddress || inputs.city;
+    return [data.country, data.city, address, data.askingPrice, data.size, inputs.bedrooms, inputs.bathrooms, inputs.propertyType, data.rent].join("|");
   }
 
   async function getAccessToken() {
@@ -1494,6 +1521,7 @@
         .select("kind, report_signature, expires_at");
       if (error || !rows) return false;
       const signature = reportSignature(data);
+      const midSignature = midReportSignature(data);
       const legacySignature = legacyReportSignature(data);
       const now = Date.now();
       return rows.some((row) => {
@@ -1501,7 +1529,7 @@
         // "monthly_usage" = this report was already spent from the
         // individual monthly plan's per-cycle cap — permanent access to
         // it from then on, same as a one-time "report" purchase.
-        return (row.kind === "report" || row.kind === "monthly_usage") && (row.report_signature === signature || row.report_signature === legacySignature);
+        return (row.kind === "report" || row.kind === "monthly_usage") && (row.report_signature === signature || row.report_signature === midSignature || row.report_signature === legacySignature);
       });
     } catch (e) {
       console.warn("Pradixium: could not check report entitlement", e);
@@ -1811,6 +1839,7 @@
     // exact fields getInputs() reads before any of that runs.
     if ($("country")) $("country").value = property.country || "";
     if ($("city")) $("city").value = property.city || "";
+    if ($("unitNumber")) $("unitNumber").value = property.unitNumber || "";
     if ($("askingPrice")) $("askingPrice").value = property.price ?? "";
     if ($("size")) $("size").value = property.size ?? "";
     if ($("bedrooms")) $("bedrooms").value = property.bedrooms ?? "";
