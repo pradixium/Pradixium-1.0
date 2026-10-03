@@ -205,7 +205,8 @@ const COUNTRY_ENDPOINTS = {
   // (TCMB_EVDS_API_KEY env var) — degrades honestly if unset, same
   // pattern as ANTHROPIC_API_KEY.
   "turkey": "turkey-intelligence",
-  "singapore": "singapore-intelligence"
+  "singapore": "singapore-intelligence",
+  "hong kong": "hong-kong-intelligence"
 };
 
 // Every country adapter returns data shaped around whatever its own
@@ -936,6 +937,39 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
     };
   }
 
+  // Hong Kong: RVD average price / rent per m² of SALEABLE area of the
+  // property's region × size class (second-hand sales); 20+ transactions
+  if (c === "hong kong") {
+    const hk = raw.hk || {};
+    const pct = (v) => `${v >= 0 ? "+" : ""}${v}%`;
+    const hkd = (v) => `HK$${Math.round(v).toLocaleString("en-US")}`;
+    const rng = hk.classRange ? `${hk.classRange[0]}${hk.classRange[1] === null || hk.classRange[1] === Infinity ? "+" : `–${hk.classRange[1] - 0.1}`} m² saleable` : "";
+    const where = hk.region ? `${hk.region}${hk.cls ? `, class ${hk.cls} (${rng})` : ""}` : null;
+    const prov = (x) => x?.provisional ? ", provisional" : "";
+    const parts = [];
+    let benchmarkValue = null, rentalBenchmark = null;
+    if (hk.price) {
+      const t = `RVD average price ${hk.price.period}${prov(hk.price)}, ${where}: ${hkd(hk.price.value)} per m² of saleable area (second-hand sales; the size entered is read as the saleable area, 實用面積)${hk.price.fewerThan20 ? " — fewer than 20 transactions, so context only" : ""}.`;
+      parts.push({ title: "RVD — average price", text: t });
+      if (!hk.price.fewerThan20) benchmarkValue = hk.price.value;
+    }
+    if (hk.rent) {
+      parts.push({ title: "RVD — average rent", text: `RVD average rent ${hk.rent.period}${prov(hk.rent)}, ${where}: ${hkd(hk.rent.value)} per m² a month${hk.rent.fewerThan20 ? " — fewer than 20 lettings, context only" : property?.monthlyRent ? "" : ". No rent was entered, so the yield uses this rent (estimated)."}` });
+      if (!hk.rent.fewerThan20) rentalBenchmark = { monthlyRentPerSqm: hk.rent.value, grossYieldPercent: null, source: hk.source };
+    }
+    const trendTxt = `RVD price index ${hk.trend?.period || ""}${prov(hk.trend)}${hk.cls ? `, class ${hk.cls}` : ""} (territory-wide): ${pct(hk.trend?.change)} on a year earlier${hk.cls ? ` (all classes ${pct(hk.trend.all)})` : ""}${hk.yieldPct != null ? `. RVD market yield for class ${hk.cls}: ${hk.yieldPct}% (${hk.yieldPeriod})` : ""}.`;
+    parts.push({ title: "RVD — price index", text: trendTxt });
+    const missing = !hk.region ? "Type the district or area (e.g. Mid-Levels, Kowloon City, Sha Tin) for the regional average." : !hk.cls ? "Enter the saleable area for the class average." : "";
+    return {
+      benchmarkValue, benchmarkUnit: "perSqm", benchmarkLabel: where ? `RVD average price, ${where}` : "RVD average price per m² (saleable area)",
+      governmentValue: null, transactionValue: null, transactionPeriod: hk.price?.period || hk.trend?.period || null,
+      marketArea: where ? `${where}${benchmarkValue ? "" : " — context only"}` : "Hong Kong — enter the district / area",
+      source: [...parts.map((x) => x.text), missing].filter(Boolean).join(" "),
+      sourceUrl: hk.sourceUrl || "https://www.rvd.gov.hk/en/publications/property_market_statistics.html",
+      coverage: benchmarkValue ? "city" : "national", priceTrendPercent: hk.trend?.change ?? null, rentalBenchmark,
+      sourceParts: missing ? [...parts, { title: "Missing", text: missing }] : parts
+    };
+  }
   // Singapore: URA's price index by type (no official price level without
   // URA's data service key) + URA's median rent of the customer's condo project
   if (c === "singapore") {

@@ -1441,6 +1441,31 @@ scripts/build-sg.py` (quarterly) → lib/data/singapore.json.
 - (6) foreign buyers — DONE earlier (TAX SURCHARGE).
 - (7) property record — officially impossible: no open per-unit record.
 
+## Hong Kong (Oct 3 2026, Claude B — added to the dropdown)
+
+`api/hong-kong-intelligence.js` + `lib/hongkong/rvd.js` ← `python3
+scripts/build-hk.py` (monthly) → lib/data/hongKong.json, from the Rating
+and Valuation Department's Property Market Statistics xls (rvd.gov.hk).
+- (1) price — DONE: average price per m² of SALEABLE area, second-hand
+  sales, region (HK Island / Kowloon / New Territories) × class (A < 40,
+  B 40–69.9, C 70–99.9, D 100–159.9, E ≥ 160 m²), latest month
+  (provisional "*" said so); "( )" = fewer than 20 transactions → context.
+  Benchmark (perSqm) — the entered size is read as saleable area. Place →
+  region via the 18 districts + named areas (longest match). Check: Aug
+  2026 NT class B HK$110,084, Kowloon B HK$137,442 = the raw cells.
+- (2) trend — DONE: RVD price index by class (1999 = 100), y-o-y; all
+  classes Aug 2026 320.5 / 288.8 → +11.0% (recomputed).
+- (3) rent — DONE: RVD average rent per m² a month, same region × class
+  → monthlyRentPerSqm → the yield; RVD class yield as context.
+- (4) closing — DONE: AVD residential scale from 26 Feb 2026 (GovHK page),
+  same for every buyer since 28 Feb 2024; computed (`hkAvd`). Checks:
+  HK$4.2m → HK$40,100; HK$10m → HK$370,000.
+- (5) rates — DONE: 5% of rateable value; progressive 5/8/12% above
+  HK$550,000 RV from 2025; Government rent 3% (Cap. 515).
+- (6) foreign buyers — DONE earlier (OPEN).
+- (7) property record — not used: Land Registry searches are paid and
+  carry owner names.
+
 ## Brazil — City of São Paulo (Oct 1 2026, Claude B)
 
 `lib/brazil/saoPaulo.js` ← `python3 scripts/build-br-sp-itbi.py <2025.xlsx>
