@@ -1718,6 +1718,63 @@ registered business when opening a paid business account), and run
 alongside — not instead of — the free organic channels (Telegram real-
 estate groups, personal outreach) already in motion. Not yet purchased.
 
+## Telegram Ads campaign — first paid channel, shipped Oct 3 2026
+
+First actual paid-advertising spend (vs. free organic outreach above).
+Platform: ads.telegram.org, the **TON-denominated self-serve cabinet**
+(shows as "CPM in Gram") — not the official EUR Cabinet, which needs a
+€1,000-2,000 minimum deposit and is too big a commitment for "testing the
+water." The TON cabinet's real minimums: ~20 TON one-time top-up to fund
+the Ads account balance, 1 TON/day minimum campaign budget (~$1.45/TON on
+the day this was done — check live, it moves). Funding flow: buy TON via
+Telegram's own `@wallet` bot (card, no separate exchange needed) →
+fragment.com → Pay for Telegram Ads → pick the Telegram Ads account →
+amount in TON. Fragment requires identity verification (KYC) for the TON
+purchase — this is MiCA (EU crypto regulation), not a red flag.
+
+**Real gotchas hit, worth knowing in advance next time:**
+- **Targeting (language, topic, specific-channel) locks permanently once
+  the ad is created** — decide this up front, there's no editing it after.
+- **The Ad Text field has its own character limit (~160) and rejects a
+  literal URL/domain in the text** — the destination goes in the separate
+  "URL you want to promote" field instead (`t.me/<bot or channel>`, not an
+  external pradixium.com link — this field is Telegram-entity-only).
+- **One language per ad, not one ad for several target languages** — the
+  ad text itself doesn't auto-translate per viewer, so running in several
+  languages (this campaign: Hebrew, English, French, German) means
+  creating a separate ad per language, each with its own translated text.
+- **First rejection: "ad destination was rejected — Profile details."**
+  Telegram requires the promoted bot/channel to have BOTH a profile photo
+  AND a non-empty About or Description text — @PradixiumBot had the photo
+  but an empty About. Fixed in BotFather → Edit Info.
+- **BotFather field mix-up that's easy to repeat:** the bot's **Name**
+  field (top of Edit Info, meant to stay short, e.g. "Pradixium") is a
+  different field from **Description** (shown under "What can this bot
+  do?") and **About** (shown on the profile page) — accidentally pasting
+  the long About paragraph into the Name field throws "Sorry, this isn't a
+  proper name for a bot." Also observed: a bot Name containing **".com"
+  gets rejected** by BotFather — keep it to a plain word.
+- **BotFather supports per-language Name/About/Description** via the
+  language dropdown next to "Info" (defaults to "Default") — used this to
+  give the bot a Hebrew About distinct from the English/French/German one,
+  matching each ad's target language.
+- **"Send to Review" has its own rate limit** ("cannot send too
+  frequently") separate from the review outcome itself — a quick retry
+  after a rejection fix just hits this, not a real error; wait and retry.
+- **Ad lifecycle is explicit, not automatic:** created → Review (pending)
+  → Active or On Hold (user's own choice, doesn't auto-start) — "On Hold"
+  right after creation is the expected default, not a stuck state.
+- Geo note from the platform itself: ads here will **not** show to users
+  in Russia or Ukraine (Telegram's own restriction, not something this
+  project chose).
+
+Ad copy used (English, the base version other languages were translated
+from): "Would you buy a property without checking it against real market
+data first? We do it in seconds. Questions? @PradixiumBot" — a curiosity-
+hook style deliberately chosen over a direct pitch. Dropped an earlier
+"in 30 seconds" framing since response time was never actually measured —
+same honesty discipline applied to marketing copy as to the product itself.
+
 ## Business/legal decisions (Sept 2026, user's own calls — not to be revisited without him raising it)
 
 - **Staying an Irish company for now.** Explicitly considered and declined a
