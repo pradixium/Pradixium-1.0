@@ -798,8 +798,14 @@ servers → not used. Check: Lieusaint 66/86 matched, C €3,222 (23), D €3,18
   homes let as a habitual residence, relatives excluded — median + p25/p75
   €/m² a month (Catastro built area) and the number of let homes, flats
   (VC) vs houses (VU), per municipality (3,346) and census section (28,735;
-  not used yet — needs the INE section polygons, SECC_CE zip 68 MB on the
-  same CDN). 10+ homes. Municipality from the Catastro geo, or the town
+  USED since Oct 4 2026: INE 2021 section perimeters from the SECC_CE zip
+  on the same CDN → lib/data/spainSections/<CUMUN>.json.gz (1,766 munis,
+  27,307 sections, ~5 m simplification, 12 MB) ← `python3
+  scripts/build-es-sections.py <SECC_CE_…_WM.shp>`; an exactly located
+  address (Catastro geo type "portal") → its section's rent when 10+ let
+  homes of the type, else the municipality). 10+ homes. Check: Calle de
+  Serrano 50 → section 2807904006, 90 flats, €25.73 (shapely on the
+  unsimplified perimeters + the raw xlsx row). Municipality from the Catastro geo, or the town
   when only a town is typed (catastroZone now returns `town`). Used for the
   yield only when no rent is entered. MIVAU aviso legal: commercial reuse
   allowed, cite source + date of last update (licence notice). Check:

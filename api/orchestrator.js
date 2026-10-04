@@ -1859,11 +1859,13 @@ export default async function handler(req, res) {
   // habitual-residence lets) — used for the yield only when no rent was
   // entered (flagged as estimated there)
   const esRent = /^spain$/i.test(String(property.country || "").trim()) && !/commercial|land/i.test(String(property.propertyType || "")) && marketEvidence
-    ? spainRent(marketData?.catastroZone?.geo?.muniCode || marketData?.catastroZone?.town?.muniCode, property.propertyType) : null;
+    ? spainRent(marketData?.catastroZone?.geo?.muniCode || marketData?.catastroZone?.town?.muniCode, property.propertyType, marketData?.catastroZone?.geo?.type === "portal" ? { lat: marketData.catastroZone.geo.lat, lon: marketData.catastroZone.geo.lon } : null) : null;
   if (esRent) {
     const town = marketData.catastroZone.geo?.muni || marketData.catastroZone.town?.muni || "the municipality";
     const sz = Number(property.size);
-    const text = `${esRent.source} (last updated ${esRent.lastUpdate}): ${esRent.year} tax returns of homes let as a habitual residence in ${town} — ${esRent.kind === "house" ? "houses" : "flats"}: median €${esRent.median.toFixed(2)}/m² a month, middle half €${esRent.p25.toFixed(2)}–${esRent.p75.toFixed(2)}, ${esRent.homes.toLocaleString("en-US")} let homes (Catastro built area). Existing leases of that year, not today's asking rents.${property.monthlyRent ? "" : sz > 0 ? ` No rent was entered, so the yield uses ${sz} m² × €${esRent.median.toFixed(2)} = €${Math.round(sz * esRent.median).toLocaleString("en-US")}/month (estimated).` : ""}`;
+    const where = esRent.level === "section" ? `this address's census section (${esRent.section}, ${town})` : town;
+    const muniTxt = esRent.level === "section" && esRent.municipality ? ` ${town} as a whole: €${esRent.municipality.median.toFixed(2)} (${esRent.municipality.homes.toLocaleString("en-US")} homes).` : "";
+    const text = `${esRent.source} (last updated ${esRent.lastUpdate}): ${esRent.year} tax returns of homes let as a habitual residence in ${where} — ${esRent.kind === "house" ? "houses" : "flats"}: median €${esRent.median.toFixed(2)}/m² a month, middle half €${esRent.p25.toFixed(2)}–${esRent.p75.toFixed(2)}, ${esRent.homes.toLocaleString("en-US")} let homes (Catastro built area).${muniTxt} Existing leases of that year, not today's asking rents.${property.monthlyRent ? "" : sz > 0 ? ` No rent was entered, so the yield uses ${sz} m² × €${esRent.median.toFixed(2)} = €${Math.round(sz * esRent.median).toLocaleString("en-US")}/month (estimated).` : ""}`;
     marketEvidence.rentalBenchmark = { monthlyRentPerSqm: esRent.median, grossYieldPercent: null, source: esRent.source };
     marketEvidence.sourceParts = [...(marketEvidence.sourceParts || [{ title: "Market evidence", text: marketEvidence.source }]), { title: `Rent (MIVAU SERPAVI ${esRent.year})`, text }];
     marketEvidence.source = `${marketEvidence.source} ${text}`;
