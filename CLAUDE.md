@@ -2905,3 +2905,28 @@ conflict-of-interest framing, $30-report-as-insurance framing, ending with
 the existing "Don't buy the dream. Check the reality." tagline — in
 Hebrew, English, French, German and Spanish. Not yet used in any live ad
 or outreach message as of this writing.
+
+## Standing git rule (Oct 4 2026, user's explicit instruction, applies to both sessions): never force-push, always a fresh branch
+
+The daily data-scan routine's original design reused one fixed branch name
+(claude/t90-pradiium-foreign-buyer-market-14yv9o), resetting it from main
+each run with `git checkout -B ... origin/main` and force-pushing over
+whatever was there. On Oct 4 2026 that force-push was blocked by this
+session's own safety tooling (flagged as a destructive git operation) --
+reasonably so, since force-push is inherently the kind of operation that
+can silently destroy someone else's work on a shared branch, even when
+in this specific case it would have been safe (a disposable, single-session
+scratch branch).
+
+**The user's explicit, standing instruction after this**: never force-push,
+never try to work around a block the system puts up on purpose -- a block
+is a signal to stop, not a puzzle to route around. Open a brand new branch
+with a fresh name instead whenever the old recurring-branch pattern would
+need a force-push. This applies to BOTH sessions working this repo (this
+one and Claude B's). Practical effect: zero real downside -- every branch
+still gets squash-merged into main the same way regardless of its name, so
+the only difference is a few more branch names accumulating in GitHub's
+branch list over time, which is harmless. The daily-scan routine's prompt
+should be treated as updated to "push to a fresh branch each run" rather
+than reusing and resetting one fixed name -- if you hit the same fixed-branch
+instruction in an older stored routine prompt, follow this note instead.
