@@ -664,6 +664,22 @@ largest metro first.
   indication (+ the amount at the asking price), never for a state-only
   match; top-coded medians not used. Check: ZIP 60610 $9,122 / $505,900 =
   1.80%; Miami city $4,586 / $518,100 = 0.89% (raw .dat).
+- US TRANSFER TAX (Oct 4 2026): closingCosts.js `byUsState` — the state's
+  own schedule on the asking price (state from us-intelligence; county via
+  property.countyFips; NYC by county FIPS): FL doc stamps (Miami-Dade
+  60¢ + 45¢ surtax non-single-family), NY state $2/$500 + mansion 1% at
+  $1m + NYC RPTT 1%/1.425% (+ $1.25/$500 at $3m; supplemental 0.25–2.9%
+  at $2m NOT computed), NJ realty transfer fee (marginal per $500, two
+  schedules ≤/> $350k) + graduated percent fee (seller, since 10 Jul
+  2025), WA graduated REET (rates from 1 May 2026; local REET not
+  included), NV $1.95/$500 (+60¢ Clark, +10¢ Washoe/Churchill), IL 50¢ +
+  county 25¢ (Chicago's own tax not included — chicago.gov 403), GA, CA
+  county 55¢/$500 (city taxes not included), TX none (Const. art. VIII
+  § 29), MA $2.28/$500 (Barnstable: sources disagree → nothing).
+  Payer only where the official page says so. Other states → generic
+  line. The old "2–5% closing costs / CFPB surveys" + agent line removed.
+  Hawaii: capitol.hawaii.gov 403 → not added. Checks: NJ $600k → $5,185;
+  WA $900k → $10,528; GA $400k → $400.
 - Sandbox quirk: Node's built-in fetch here ignores HTTPS_PROXY for some hosts
   (King County, DCAD fail with "upstream connect error"); run local tests with
   `NODE_USE_ENV_PROXY=1`. Vercel production is unaffected — always confirm on
