@@ -41,6 +41,7 @@
 import { licenceNotices } from "../lib/data/licences.js";
 import { spainRent } from "../lib/spain/rents.js";
 import { usRent } from "../lib/us/rents.js";
+import { newZealandRent } from "../lib/newzealand/rents.js";
 import { irelandRent } from "../lib/ireland/rents.js";
 import { canadaRent } from "../lib/canada/rents.js";
 import { finlandRent } from "../lib/finland/rents.js";
@@ -1881,6 +1882,24 @@ export default async function handler(req, res) {
     const text = `${usR.source}: median gross rent of ${usR.label} in ${usR.place ? `${usR.place} (the whole city — enter the street address or ZIP for the local figure)` : `ZIP ${usR.zip}`}, ${usR.period}: ${usR.topCoded ? `${usd(usR.value - 1)} or more (the Census top-codes this median — not used as a number)` : `${usd(usR.value)} a month`}. Gross rent includes utilities paid by the tenant and covers existing tenancies over the 5-year period, not today's asking rents.${use ? ` No rent was entered, so the yield uses ${usd(usR.value)}/month (estimated).` : ""}`;
     if (use) marketEvidence.rentalBenchmark = { monthlyRentFlat: usR.value, grossYieldPercent: null, source: usR.source };
     marketEvidence.sourceParts = [...(marketEvidence.sourceParts || [{ title: "Market evidence", text: marketEvidence.source }]), { title: "Rent (Census ACS)", text }];
+    marketEvidence.source = `${marketEvidence.source} ${text}`;
+  }
+
+  // New Zealand: median weekly rent of new private tenancies (MBIE bond
+  // data) — suburb (SA2) by type × bedrooms, else the council area
+  const nzR = /^new zealand$/i.test(String(property.country || "").trim()) && !/commercial|land/i.test(String(property.propertyType || "")) && marketEvidence
+    ? newZealandRent(`${property.address || ""}, ${property.city || ""}`, property.propertyType, property.bedrooms) : null;
+  if (nzR) {
+    const nzd = (x) => "NZ$" + Math.round(x).toLocaleString("en-US");
+    const what = (k) => { const [t, b] = k.split("|"); return `${t === "ALL" ? "all dwellings" : t.toLowerCase() + "s"}${b === "ALL" ? "" : `, ${b} bedroom${b === "1" ? "" : "s"}`}`; };
+    const many = nzR.several?.length ? ` Suburb areas of that name (Stats NZ SA2, ${nzR.quarter || nzR.period}): ${nzR.several.slice(0, 8).map((x) => `${x.area} ${nzd(x.values[0])}/week (${what(x.key)}, ${x.values[1]} bonds)`).join("; ")} — several areas, none picked; enter the exact area name to use one.` : "";
+    const v = nzR.values;
+    const monthly = v ? Math.round(v[0] * 52 / 12) : null;
+    const use = v && !property.monthlyRent;
+    const head = v ? `median weekly rent of new tenancies in ${nzR.level === "sa2" ? `${nzR.area} (${nzR.ta}, Stats NZ SA2 area)` : `${nzR.area} (whole council area)`}, ${nzR.period}, ${what(nzR.key)}: ${nzd(v[0])} (middle half ${nzd(v[2])}–${nzd(v[3])}, ${v[1].toLocaleString("en-US")} bonds lodged).` : "no single area matched.";
+    const text = `${nzR.source}, ${head}${many} Rents agreed on new private lettings.${use ? ` No rent was entered, so the yield uses ${nzd(v[0])} × 52 ÷ 12 = ${nzd(monthly)}/month (estimated).` : ""}`;
+    if (use) marketEvidence.rentalBenchmark = { monthlyRentFlat: monthly, grossYieldPercent: null, source: nzR.source };
+    marketEvidence.sourceParts = [...(marketEvidence.sourceParts || [{ title: "Market evidence", text: marketEvidence.source }]), { title: `Rent (MBIE bond data)`, text }];
     marketEvidence.source = `${marketEvidence.source} ${text}`;
   }
 

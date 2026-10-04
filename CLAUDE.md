@@ -1697,6 +1697,22 @@ CONTEXT ONLY: mortgaged homes skew to economy/social housing (a Playa del
 Carmen flat read "167% above market") → never the benchmark; the
 municipal (else state) index change IS the trend.
 
+## New Zealand RENT (Oct 4 2026, Claude B)
+
+`lib/newzealand/rents.js` ← `python3 scripts/build-nz-rents.py` (monthly) →
+lib/data/newZealandRents.json — MBIE Tenancy Services rental bond data
+(tenancy.govt.nz, CC BY 3.0 NZ, credit MBIE): median WEEKLY rent of NEW
+private bonds. SA2 (2019 = 2018 codes) from the quarterly file, latest
+quarter, House / Flat / Apartment / ALL × bedrooms, 10+ bonds (1,222 SA2s,
+2026 Q2); council area (TA) from the monthly TLA file, latest month, all
+dwellings only (61 TAs, July 2026). SA2 names + TA: Stats NZ's own ArcGIS
+org (vKb0s8tBIA3bdocZ; SA2 centroid in TA polygon). A typed suburb that is
+ONE SA2 → that SA2; several (Ponsonby East/West, Remuera …) → listed, none
+picked, TA figure used; a part with digits (street line) is never matched.
+× 52 ÷ 12 → yield when no rent is entered. Check: Takapuna West houses
+45 bonds NZ$700, Auckland July 2026 5,592 bonds NZ$640 = the raw CSVs.
+No official NZ price LEVEL yet (REINZ is private; QV is a commercial arm).
+
 ## Canada (Oct 1 2026, Claude B)
 
 `lib/canada/nhpi.js` ← `python3 scripts/build-ca-prices.py` (monthly) →
