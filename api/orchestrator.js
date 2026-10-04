@@ -1251,7 +1251,7 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
           : "";
         if (best) omi = { ...omi, main: best };
         const mid = (omi.main.min + omi.main.max) / 2;
-        const zoneTxt = `OMI zone ${omi.zone} of ${omi.comune} ("${omi.zoneName}")`;
+        const zoneTxt = `OMI zone ${omi.zone} of ${omi.comune} ("${omi.zoneName}")${omi.matchedBy === "address" ? ` — the address (${omi.matchedAddress}) placed inside the zone perimeter on the agency's OMI map` : ""}`;
         return {
           benchmarkValue: mid,
           benchmarkUnit: "perSqm",
@@ -1259,14 +1259,16 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
           governmentValue: null,
           transactionValue: null,
           transactionPeriod: omi.period,
-          marketArea: `${omi.comune} — ${zoneTxt.replace(` of ${omi.comune}`, "")}`,
+          marketArea: `${omi.comune} — OMI zone ${omi.zone} ("${omi.zoneName}")`,
           source: `${omi.source}, ${omi.period}: ${zoneTxt}. The agency's €/m² ranges (gross area) for this zone: ${omi.rows.map(r).join("; ")}. Benchmark = midpoint of the range for ${best ? `${omi.main.state.toLowerCase()} condition` : `the zone's most common condition (${omi.main.state.toLowerCase()})`}; OMI ranges are calibrated on registered deeds.${renoNote} ${trendSource}.`,
           sourceUrl: omi.sourceUrl,
           coverage: "city",
           priceTrendPercent: change ?? null
         };
       }
-      const ctx = omi.status === "comune_range"
+      const ctx = omi.boundary
+        ? `${omi.source}, ${omi.period}: the address (${omi.matchedAddress}) lies within 25 m of the boundary between OMI zones ${omi.zones.map((z) => `${z.zone} ("${z.zoneName}", ${eur(z.main.min)}–${eur(z.main.max)}/m²)`).join(" and ")} — the zone depends on which side the building stands, so none is applied.`
+        : omi.status === "comune_range"
         ? `${omi.source}, ${omi.period}: ${omi.comune} has ${omi.zonesTotal} OMI zones; for this home type they range from ${eur(omi.low.main.min)}/m² (zone ${omi.low.zone}, "${omi.low.zoneName}") to ${eur(omi.high.main.max)}/m² (zone ${omi.high.zone}, "${omi.high.zoneName}"). Name the locality / neighbourhood to get the property's own zone — a town-wide range is not applied to this property.`
         : `${omi.source}, ${omi.period}: ${omi.comune} is divided into ${omi.zonesTotal} OMI zones with very different values — enter the neighbourhood (quartiere) with the address, e.g. "Testaccio, Roma", for the property's own zone.`;
       return {

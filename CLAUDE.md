@@ -823,6 +823,18 @@ servers → not used. Check: Lieusaint 66/86 matched, C €3,222 (23), D €3,18
   prevailing-condition range is the benchmark; several → town range as
   context; > 20 zones (Rome, Milan) → asks for the neighbourhood.
   Municipality list: `python3 scripts/build-it-comuni.py`.
+- Italy ADDRESS → OMI zone (Oct 4 2026): a street + number typed → Esri
+  World geocoder (anonymous, not stored; PointAddress/StreetAddress, score
+  90+, same municipality) → the zone perimeter that contains the point —
+  the agency's own map perimeters (zoneomi.php richiesta=6, the request its
+  public map makes). Prebuilt for 49 big cities (Roma 233 zones, Milano 43,
+  Napoli 67 …): lib/data/italyOmiZones/<codcom>.json.gz ← `python3
+  scripts/build-it-omi-zones.py` (re-run each new semester); other towns
+  read live. Within 25 m of another zone → both listed, none applied.
+  Before: Rome/Milan reports had NO benchmark ("enter the neighbourhood").
+  Check: Via del Corso 100 → B31 Tridente €8,300–11,000; Viale di
+  Trastevere 50 → B14 (raw-perimeter ray-cast recompute in Python, same
+  zones). italy-intelligence now accepts an address without a city.
 - Italy renovation (Sept 2026): the "Renovated?" input switches the OMI
   benchmark to the agency's own EXCELLENT-condition ("ottimo") range of the
   same type when the zone publishes one (Porto Cervo E7 flats: normale
