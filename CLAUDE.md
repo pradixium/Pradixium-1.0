@@ -1641,6 +1641,18 @@ price … market sale" cells are all empty (".."); CMHC absorbed-unit prices
 not checked yet. Suburbs not in a CMA name (Mississauga) → the province if
 typed. Check: Toronto 2026-08 −4.3% (index 106.0) = the WDS series.
 
+Canada RENT (Oct 4 2026): `lib/canada/rents.js` ← `python3
+scripts/build-ca-rents.py` (each January) → lib/data/canadaRents.json —
+CMHC Rental Market Survey average rents by bedrooms (bachelor–3) per centre
+(190), Statistics Canada table 34-10-0133 (WDS full-table CSV, keyless),
+"Row and apartment structures of three units and over" = purpose-built
+rental, ALL occupied units (long tenancies included) — said so; not
+rented condos or houses → yield basis for an apartment only, a house gets
+it as context. Ottawa-Gatineau split into its Ontario / Quebec parts;
+Kitchener-Cambridge-Waterloo by each name. Mississauga etc. (inside the
+Toronto CMA, not a centre of their own) → not matched. Check: Toronto
+2-bed C$2,045, Vancouver 3-bed C$2,820 = the raw CSV.
+
 ## Checked Oct 1 2026, not usable (do not retry the same route)
 
 - Brazil, Porto Alegre ITBI (dadosabertos.poa.br/dataset/itbi): publishes

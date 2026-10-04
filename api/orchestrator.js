@@ -42,6 +42,7 @@ import { licenceNotices } from "../lib/data/licences.js";
 import { spainRent } from "../lib/spain/rents.js";
 import { usRent } from "../lib/us/rents.js";
 import { irelandRent } from "../lib/ireland/rents.js";
+import { canadaRent } from "../lib/canada/rents.js";
 import { createHash } from "node:crypto";
 import { runPropertyInvestmentAgent } from "../lib/agents/propertyInvestmentAgent.js";
 import { computePradixiumScore } from "../lib/scoring/pradixiumScore.js";
@@ -1888,6 +1889,22 @@ export default async function handler(req, res) {
     const text = `${ieR.source}, ${ieR.quarter}: average monthly rent of new tenancies registered in ${ieR.place} (${what}): ${eur(ieR.monthly)}. These are rents agreed on new lettings in that quarter.${property.monthlyRent ? "" : ` No rent was entered, so the yield uses ${eur(ieR.monthly)}/month (estimated).`}`;
     if (!property.monthlyRent) marketEvidence.rentalBenchmark = { monthlyRentFlat: ieR.monthly, grossYieldPercent: null, source: ieR.source };
     marketEvidence.sourceParts = [...(marketEvidence.sourceParts || [{ title: "Market evidence", text: marketEvidence.source }]), { title: `Rent (RTB ${ieR.quarter})`, text }];
+    marketEvidence.source = `${marketEvidence.source} ${text}`;
+  }
+
+  // Canada: CMHC average rent by bedrooms (purpose-built rental, October
+  // survey) — the yield basis for an apartment only when no rent was entered
+  const caR = /^canada$/i.test(String(property.country || "").trim()) && !/commercial|land/i.test(String(property.propertyType || "")) && marketEvidence
+    ? canadaRent(`${property.address || ""}, ${property.city || ""}`, property.bedrooms) : null;
+  if (caR) {
+    const cad = (x) => "C$" + Math.round(x).toLocaleString("en-US");
+    const isFlat = /apart|flat|condo|studio|penthouse/i.test(String(property.propertyType || ""));
+    const use = isFlat && caR.monthly && !property.monthlyRent;
+    const area = caR.geo.replace(/, (Ontario|Quebec|British Columbia|Alberta|Manitoba|Saskatchewan|Nova Scotia|New Brunswick|Newfoundland and Labrador|Prince Edward Island)$/, "");
+    const all = ["bachelor", "1-bed", "2-bed", "3-bed"].map((l, i) => caR.row[i] != null ? `${l} ${cad(caR.row[i])}` : null).filter(Boolean).join(", ");
+    const text = `${caR.source}, October ${caR.year}, ${area}: average monthly rents ${all}. These average ALL occupied units in purpose-built rental buildings (long-standing tenancies included) — not new lettings, rented condominiums or houses.${!isFlat ? " Not used for a house's yield." : use ? ` No rent was entered, so the yield uses the ${["bachelor", "1-bed", "2-bed", "3-bed"][caR.beds]} average ${cad(caR.monthly)}/month (estimated).` : ""}`;
+    if (use) marketEvidence.rentalBenchmark = { monthlyRentFlat: caR.monthly, grossYieldPercent: null, source: caR.source };
+    marketEvidence.sourceParts = [...(marketEvidence.sourceParts || [{ title: "Market evidence", text: marketEvidence.source }]), { title: `Rent (CMHC ${caR.year})`, text }];
     marketEvidence.source = `${marketEvidence.source} ${text}`;
   }
 
