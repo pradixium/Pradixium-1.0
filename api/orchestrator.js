@@ -2049,7 +2049,7 @@ export default async function handler(req, res) {
   // place of the state-range line
   if (propertyTax && /^(united states|usa|us)$/i.test(String(property.country || "").trim())) {
     const mp = marketData?.property || {};
-    const ut = usPropertyTax({ zip: mp.zip || property.zip, placeKey: usPlaceKey(mp.city || marketData?.city, mp.state || marketData?.region), place: `${String(mp.city || marketData?.city || "").replace(/\s+(city|town|village|borough|CDP)$/i, "")}, ${mp.state || marketData?.region}`, countyFips: mp.countyFips, county: mp.county, stateCode: mp.stateCode, state: mp.state || marketData?.region });
+    const ut = usPropertyTax({ zip: mp.zip || property.zip, placeKey: usPlaceKey(mp.city || marketData?.city, mp.state || marketData?.region), place: `${String(mp.city || marketData?.city || "").replace(/\s+(city|town|village|borough|CDP)$/, "")}, ${mp.state || marketData?.region}`, countyFips: mp.countyFips, county: mp.county, stateCode: mp.stateCode, state: mp.state || marketData?.region });
     if (ut) {
       const usd = (x) => "$" + Math.round(x).toLocaleString("en-US");
       const ratio = !ut.taxTop && ut.value && !ut.valueTop && ut.level !== "state" ? ut.tax / ut.value * 100 : null;
