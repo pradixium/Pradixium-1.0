@@ -631,6 +631,13 @@ largest metro first.
 - Coverage tracker (session scratch, not in repo): county population from
   Census 2024 estimates vs the modules' matchers — ~55% of US population had
   a local property record as of the Nassau commit (Sept 2026).
+- US city-only input (Oct 4 2026, live audit): "Miami, FL" / "Austin,
+  Texas" / "Phoenix, AZ 85004" typed without a street returned NOTHING (no
+  state → no FHFA). us-intelligence now splits "City, ST|State [ZIP]" into
+  city + state name (+ ZIP), and hpiCity() without a county matches the
+  FHFA metro whose principal cities include the city in that state (exactly
+  one) — "Miami" → Miami-Miami Beach-Kendall MSAD +1.27%. NOTE: the file is
+  minified on long lines — never append a `//` comment mid-line.
 - US RENT (Oct 4 2026, was missing): `lib/us/rents.js` ← `python3
   scripts/build-us-rents.py 2024` (each December) → lib/data/usRents.json:
   ACS 5-year table B25031 median GROSS rent by bedrooms per ZCTA (25,996),
