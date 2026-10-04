@@ -648,6 +648,13 @@ largest metro first.
   the record's, else all homes). Yield basis only when no rent is entered;
   text says gross rent includes tenant-paid utilities and existing
   tenancies. Check: 60610 2-bed $3,098, 10019 1-bed $2,810 = the raw .dat.
+  City typed without a ZIP ("Miami, FL") → the same table for the Census
+  PLACE of that name in that state (22,532 places; names from the summary
+  file's Geos list, "(balance)"/consolidated-government names aliased —
+  Nashville, Louisville, Athens, Augusta, Boise City, Urban Honolulu; an
+  incorporated place beats a same-name CDP, otherwise dropped), labelled
+  "the whole city". Check: Miami city 2-bed $1,885, all $1,758 = raw row
+  1600000US1245000.
 - Sandbox quirk: Node's built-in fetch here ignores HTTPS_PROXY for some hosts
   (King County, DCAD fail with "upstream connect error"); run local tests with
   `NODE_USE_ENV_PROXY=1`. Vercel production is unaffected — always confirm on

@@ -1874,11 +1874,11 @@ export default async function handler(req, res) {
   // US: the ZIP's median gross rent by bedrooms (Census ACS 5-year B25031)
   // — the yield basis only when no rent was entered (flagged as estimated)
   const usR = /^(united states|usa|us)$/i.test(String(property.country || "").trim()) && !/commercial|land/i.test(String(property.propertyType || "")) && marketEvidence
-    ? usRent(marketData?.property?.zip || property.zip, property.bedrooms ?? marketData?.property?.bedrooms) : null;
+    ? usRent(marketData?.property?.zip || property.zip, property.bedrooms ?? marketData?.property?.bedrooms, marketData?.property?.city || marketData?.city, marketData?.property?.state || marketData?.region) : null;
   if (usR) {
     const usd = (x) => "$" + Math.round(x).toLocaleString("en-US");
     const use = !usR.topCoded && !property.monthlyRent;
-    const text = `${usR.source}: median gross rent of ${usR.label} in ZIP ${usR.zip}, ${usR.period}: ${usR.topCoded ? `${usd(usR.value - 1)} or more (the Census top-codes this median — not used as a number)` : `${usd(usR.value)} a month`}. Gross rent includes utilities paid by the tenant and covers existing tenancies over the 5-year period, not today's asking rents.${use ? ` No rent was entered, so the yield uses ${usd(usR.value)}/month (estimated).` : ""}`;
+    const text = `${usR.source}: median gross rent of ${usR.label} in ${usR.place ? `${usR.place} (the whole city — enter the street address or ZIP for the local figure)` : `ZIP ${usR.zip}`}, ${usR.period}: ${usR.topCoded ? `${usd(usR.value - 1)} or more (the Census top-codes this median — not used as a number)` : `${usd(usR.value)} a month`}. Gross rent includes utilities paid by the tenant and covers existing tenancies over the 5-year period, not today's asking rents.${use ? ` No rent was entered, so the yield uses ${usd(usR.value)}/month (estimated).` : ""}`;
     if (use) marketEvidence.rentalBenchmark = { monthlyRentFlat: usR.value, grossYieldPercent: null, source: usR.source };
     marketEvidence.sourceParts = [...(marketEvidence.sourceParts || [{ title: "Market evidence", text: marketEvidence.source }]), { title: "Rent (Census ACS)", text }];
     marketEvidence.source = `${marketEvidence.source} ${text}`;
