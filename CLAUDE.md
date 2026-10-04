@@ -1551,6 +1551,26 @@ attribution is added as a "Licence" source block by `lib/data/licences.js`
   INE/MIVAU, Serbia RGZ, Mexico SHF, Brazil SP (source named in the text
   meanwhile).
 
+## Deploy gotcha (Oct 4 2026)
+
+vercel.json `includeFiles` is limited to 256 characters per function — a
+longer list FAILS THE WHOLE DEPLOY (the site keeps serving the previous
+version, so nothing looks broken). The orchestrator now uses the pattern
+`{lib/data/*{Rents,Prices,Sales,Shf,Imi,Suburbs,Condo}.json,lib/data/spainSections/**}`
+— name new data files to fit it. After every push, check the live site
+actually shows the new text (or the Vercel deployment state).
+
+## Rent sweep, Oct 4 2026 — checked, NOT available (do not retry)
+
+Netherlands (CBS has rent CHANGES only, no level per region), Denmark
+(HUS1 indices only), Austria (no rent level in Statistik Austria open data),
+Poland (NBP file has no rents), Switzerland (BFS Strukturerhebung to 2022
+only, Lex Koller limits buy-to-let), Israel (CBS index API has no average
+rents; cbs.gov.il unreachable), Rio de Janeiro (no open ITBI data).
+South Africa property rates: Cape Town's 2026/27 tariff is being amended
+after the Western Cape High Court judgment of 30 Apr 2026 (city calculator
+"under construction", Annexure 2 unreachable) → not added.
+
 ## Singapore (Oct 3 2026, Claude B — added to the dropdown)
 
 `api/singapore-intelligence.js` + `lib/singapore/sg.js` ← `python3
