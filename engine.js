@@ -1555,6 +1555,28 @@
     }
   }
 
+  // First-1,000-customers free grant (api/claim-free-report.js): bypasses
+  // Stripe entirely, not just a 100%-off coupon inside it — the owner's
+  // call is that even seeing Stripe's checkout page before typing the
+  // code deters scam-wary buyers. One grant per account; stays available
+  // until the global cap is reached, at which point this simply returns
+  // false and openReport() falls through to the normal Stripe checkout.
+  async function claimFreeReport(data) {
+    const token = await getAccessToken();
+    if (!token) return false;
+    try {
+      const r = await fetchWithTimeout("/api/claim-free-report", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ reportSignature: reportSignature(data) })
+      }, 10000);
+      const json = await r.json().catch(() => null);
+      return !!json?.allowed;
+    } catch (e) {
+      return false;
+    }
+  }
+
   // Watermark — traces an unauthorized leak/screenshot of a paid report
   // back to the account it came from. Best-effort only: any failure here
   // (missing created_at column, network hiccup, no session) just means no
@@ -1710,6 +1732,17 @@
         // `data` is still the pre-payment snapshot built while unpaid, and
         // the report would open on the 🔒 placeholders despite the slot
         // having just been consumed for real.
+        if (!(await loadFullReport())) { alert(FULL_REPORT_DELAYED); return; }
+        const full = JSON.parse(localStorage.getItem("pradixiumReportData") || "null") || data;
+        await attachWatermark(full);
+        window.location.href = "/report.html";
+        return;
+      }
+      // First-1,000-customers free grant — tried before Stripe, not after
+      // a failed checkout, so eligible users never see a payment screen
+      // at all. Falls through to the normal paid checkout once the cap
+      // is reached or this account has already used its one grant.
+      if (await claimFreeReport(data)) {
         if (!(await loadFullReport())) { alert(FULL_REPORT_DELAYED); return; }
         const full = JSON.parse(localStorage.getItem("pradixiumReportData") || "null") || data;
         await attachWatermark(full);
