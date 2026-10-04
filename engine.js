@@ -1577,6 +1577,26 @@
     }
   }
 
+  // Same first-1,000-customers free grant, generalized to the
+  // monthly/annual/business plans (api/claim-free-report.js routes
+  // "plan" to claim_free_plan() instead of claim_free_report() for
+  // these three) — same shared pool, same one-grant-per-account rule.
+  async function claimFreePlan(plan) {
+    const token = await getAccessToken();
+    if (!token) return false;
+    try {
+      const r = await fetchWithTimeout("/api/claim-free-report", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ plan })
+      }, 10000);
+      const json = await r.json().catch(() => null);
+      return !!json?.allowed;
+    } catch (e) {
+      return false;
+    }
+  }
+
   // Watermark — traces an unauthorized leak/screenshot of a paid report
   // back to the account it came from. Best-effort only: any failure here
   // (missing created_at column, network hiccup, no session) just means no
@@ -1762,27 +1782,30 @@
     window.location.href = "/report.html";
   }
 
-  function openSubscription() {
+  async function openSubscription() {
     const data = currentReportData();
     if (!data) return;
+    if (await claimFreePlan("subscription")) { window.location.reload(); return; }
     startCheckout(data, "subscription");
   }
 
   // Companies & institutions (banks, funds, agencies) — same unlimited-
   // reports access as the individual annual plan, billed monthly instead
   // (see api/create-checkout-session.js's "business" plan).
-  function openBusinessSubscription() {
+  async function openBusinessSubscription() {
     const data = currentReportData();
     if (!data) return;
+    if (await claimFreePlan("business")) { window.location.reload(); return; }
     startCheckout(data, "business");
   }
 
   // Flexible individual entry point: $29.99/month, capped at 3 reports per
   // cycle (see api/consume-monthly-slot.js) — for someone not ready to
   // commit to the annual plan.
-  function openMonthlySubscription() {
+  async function openMonthlySubscription() {
     const data = currentReportData();
     if (!data) return;
+    if (await claimFreePlan("monthly")) { window.location.reload(); return; }
     startCheckout(data, "monthly");
   }
 
@@ -1798,6 +1821,7 @@
       else alert("Please sign in first, then click Business again.");
       return;
     }
+    if (await claimFreePlan("business")) { window.location.reload(); return; }
     startCheckout({ title: "Business Plan Signup" }, "business");
   }
 
