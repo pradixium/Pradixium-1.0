@@ -680,6 +680,25 @@ largest metro first.
   line. The old "2–5% closing costs / CFPB surveys" + agent line removed.
   Hawaii: capitol.hawaii.gov 403 → not added. Checks: NJ $600k → $5,185;
   WA $900k → $10,528; GA $400k → $400.
+  Oct 4 2026 (second pass, user: "כל ארה״ב, בלי תקלות"): 39 jurisdictions
+  now computed — + PA (1% + local 1%; Philadelphia 3.578%), CT (0.75 /
+  1.25 / 2.25% marginal, seller; town tax not incl.), VA (25¢/$100 +
+  grantor 50¢/$500), NC ($1/$500), DC (1.1% / 1.45% each, recordation +
+  transfer), MD (0.5% state; county taxes not incl.), DE (2.5% state;
+  local ≤1.5% not incl.), MI ($3.75 + 55¢ per $500), TN (37¢/$100), SC
+  ($1.85/$500), MN (0.33% + 0.01% Hennepin/Ramsey), CO (1¢/$100), AZ ($2
+  affidavit fee), OH (1 mill; county ≤3 mills not incl.), KY, WI, AL, OK,
+  IA, NE ($3.32/$1,000 from 18 Jul 2026), AR, NH (0.75% each side), VT
+  (1.47% rental / main-home and 3.62% second-home variants in the text),
+  ME (+ $3.80/$500 above $1m since Nov 2025), RI ($3.75/$500 since Oct
+  2025; tier 2 above the indexed $800k NOT computed), WV ($1.10/$500 + $20;
+  county not incl.), SD, HI (HRS § 247-2 from the DoTax PDF compilation —
+  non-homeowner-exemption table headline, owner-occupier in the text), OR
+  (ORS 306.815; Washington County $1/$1,000). Not listed (no official
+  schedule or "no tax" statement found): AK, ID, IN, KS, LA, MS, MO, MT,
+  NM, ND, UT, WY → "ask the county recorder". Test: every state × 9 prices
+  × 4 county cases, no NaN/undefined. Known geocoder gap: "100 Beacon St,
+  Boston" → Census matches 02136 (one match) — a typed ZIP wins.
 - Sandbox quirk: Node's built-in fetch here ignores HTTPS_PROXY for some hosts
   (King County, DCAD fail with "upstream connect error"); run local tests with
   `NODE_USE_ENV_PROXY=1`. Vercel production is unaffected — always confirm on
