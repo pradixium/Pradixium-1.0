@@ -631,6 +631,16 @@ largest metro first.
 - Coverage tracker (session scratch, not in repo): county population from
   Census 2024 estimates vs the modules' matchers — ~55% of US population had
   a local property record as of the Nassau commit (Sept 2026).
+- US RENT (Oct 4 2026, was missing): `lib/us/rents.js` ← `python3
+  scripts/build-us-rents.py 2024` (each December) → lib/data/usRents.json:
+  ACS 5-year table B25031 median GROSS rent by bedrooms per ZCTA (25,996),
+  from the Census table-based summary file on www2.census.gov (the Census
+  API now demands a key → not used). Top-coded medians ("$3,500 or more",
+  margin code -333333333) are stored negative, shown as such, never used
+  as a number. ZIP from the geocoder ("ZCTA5 60610"), bedrooms entered (else
+  the record's, else all homes). Yield basis only when no rent is entered;
+  text says gross rent includes tenant-paid utilities and existing
+  tenancies. Check: 60610 2-bed $3,098, 10019 1-bed $2,810 = the raw .dat.
 - Sandbox quirk: Node's built-in fetch here ignores HTTPS_PROXY for some hosts
   (King County, DCAD fail with "upstream connect error"); run local tests with
   `NODE_USE_ENV_PROXY=1`. Vercel production is unaffected — always confirm on

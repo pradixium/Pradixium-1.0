@@ -40,6 +40,7 @@
 
 import { licenceNotices } from "../lib/data/licences.js";
 import { spainRent } from "../lib/spain/rents.js";
+import { usRent } from "../lib/us/rents.js";
 import { createHash } from "node:crypto";
 import { runPropertyInvestmentAgent } from "../lib/agents/propertyInvestmentAgent.js";
 import { computePradixiumScore } from "../lib/scoring/pradixiumScore.js";
@@ -1860,6 +1861,19 @@ export default async function handler(req, res) {
     const text = `${esRent.source} (last updated ${esRent.lastUpdate}): ${esRent.year} tax returns of homes let as a habitual residence in ${town} — ${esRent.kind === "house" ? "houses" : "flats"}: median €${esRent.median.toFixed(2)}/m² a month, middle half €${esRent.p25.toFixed(2)}–${esRent.p75.toFixed(2)}, ${esRent.homes.toLocaleString("en-US")} let homes (Catastro built area). Existing leases of that year, not today's asking rents.${property.monthlyRent ? "" : sz > 0 ? ` No rent was entered, so the yield uses ${sz} m² × €${esRent.median.toFixed(2)} = €${Math.round(sz * esRent.median).toLocaleString("en-US")}/month (estimated).` : ""}`;
     marketEvidence.rentalBenchmark = { monthlyRentPerSqm: esRent.median, grossYieldPercent: null, source: esRent.source };
     marketEvidence.sourceParts = [...(marketEvidence.sourceParts || [{ title: "Market evidence", text: marketEvidence.source }]), { title: `Rent (MIVAU SERPAVI ${esRent.year})`, text }];
+    marketEvidence.source = `${marketEvidence.source} ${text}`;
+  }
+
+  // US: the ZIP's median gross rent by bedrooms (Census ACS 5-year B25031)
+  // — the yield basis only when no rent was entered (flagged as estimated)
+  const usR = /^(united states|usa|us)$/i.test(String(property.country || "").trim()) && !/commercial|land/i.test(String(property.propertyType || "")) && marketEvidence
+    ? usRent(marketData?.property?.zip || property.zip, property.bedrooms ?? marketData?.property?.bedrooms) : null;
+  if (usR) {
+    const usd = (x) => "$" + Math.round(x).toLocaleString("en-US");
+    const use = !usR.topCoded && !property.monthlyRent;
+    const text = `${usR.source}: median gross rent of ${usR.label} in ZIP ${usR.zip}, ${usR.period}: ${usR.topCoded ? `${usd(usR.value - 1)} or more (the Census top-codes this median — not used as a number)` : `${usd(usR.value)} a month`}. Gross rent includes utilities paid by the tenant and covers existing tenancies over the 5-year period, not today's asking rents.${use ? ` No rent was entered, so the yield uses ${usd(usR.value)}/month (estimated).` : ""}`;
+    if (use) marketEvidence.rentalBenchmark = { monthlyRentFlat: usR.value, grossYieldPercent: null, source: usR.source };
+    marketEvidence.sourceParts = [...(marketEvidence.sourceParts || [{ title: "Market evidence", text: marketEvidence.source }]), { title: "Rent (Census ACS)", text }];
     marketEvidence.source = `${marketEvidence.source} ${text}`;
   }
 
