@@ -83,7 +83,7 @@
     let l = "";
     try { l = localStorage.getItem("pradixiumLanguage") || ""; } catch (e) {}
     if (l === "vlaams") l = "nl";
-    return ["fr", "es", "de", "it", "pt", "nl", "ru"].includes(l) ? l : "";
+    return ["fr", "es", "de", "it", "pt", "nl", "ru", "he"].includes(l) ? l : "";
   }
 
   function getInputs() {
