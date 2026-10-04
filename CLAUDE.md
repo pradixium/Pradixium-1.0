@@ -774,6 +774,19 @@ servers → not used. Check: Lieusaint 66/86 matched, C €3,222 (23), D €3,18
   (share of home purchases by foreigners 2025 + pp change). Update each
   spring from the next Anuario. MIVAU names like "Palmas, Las" are
   reordered before matching (Las Palmas had no MIVAU figure before).
+- Spain RENT (Oct 4 2026, was missing): `lib/spain/rents.js` ←
+  `python3 scripts/build-es-rents.py <bd_SERPAVI_2011-YYYY.xlsx>` (MIVAU
+  SERPAVI database, cdn.mivau.gob.es — the serpavi page lists it; browser
+  User-Agent) → lib/data/spainRents.json: 2024 tax returns (Modelo 100) of
+  homes let as a habitual residence, relatives excluded — median + p25/p75
+  €/m² a month (Catastro built area) and the number of let homes, flats
+  (VC) vs houses (VU), per municipality (3,346) and census section (28,735;
+  not used yet — needs the INE section polygons, SECC_CE zip 68 MB on the
+  same CDN). 10+ homes. Municipality from the Catastro geo, or the town
+  when only a town is typed (catastroZone now returns `town`). Used for the
+  yield only when no rent is entered. MIVAU aviso legal: commercial reuse
+  allowed, cite source + date of last update (licence notice). Check:
+  Madrid flats €13.97 (300,447), Marbella €9.63 (6,374) = the raw xlsx.
 - Spain MIVAU benchmark is a PROVINCE average → labelled as such; the VDP003
   "transaction value" (province total, unit unstated) is no longer shown.
 - Portugal: `lib/portugal/inePrices.js` ← `python3 scripts/build-pt-prices.py`

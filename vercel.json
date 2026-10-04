@@ -5,7 +5,7 @@
     },
     "api/orchestrator.js": {
       "maxDuration": 60,
-      "includeFiles": "lib/data/{serbiaPrices,zurichCondoPrices,dubaiSales,australiaPrices,saoPauloSales,mexicoShf,canadaPrices,australiaSuburbs,australiaRents,portugalImi}.json"
+      "includeFiles": "lib/data/{serbiaPrices,zurichCondoPrices,dubaiSales,australiaPrices,saoPauloSales,mexicoShf,canadaPrices,australiaSuburbs,australiaRents,portugalImi,spainRents}.json"
     },
     "api/market-data.js": {
       "includeFiles": "lib/data/spainZones/**"

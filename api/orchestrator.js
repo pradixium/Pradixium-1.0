@@ -39,6 +39,7 @@
  */
 
 import { licenceNotices } from "../lib/data/licences.js";
+import { spainRent } from "../lib/spain/rents.js";
 import { createHash } from "node:crypto";
 import { runPropertyInvestmentAgent } from "../lib/agents/propertyInvestmentAgent.js";
 import { computePradixiumScore } from "../lib/scoring/pradixiumScore.js";
@@ -1845,6 +1846,20 @@ export default async function handler(req, res) {
     const text = `Zensus 2022 (census of ${deRent.date}): average net cold rent (Nettokaltmiete) of let dwellings in ${deRent.municipality} (${deRent.land}): €${deRent.rentPerSqm.toFixed(2)}/m²${deRent.letDwellings ? ` over ${deRent.letDwellings.toLocaleString("en-US")} let dwellings` : ""}. It covers all existing tenancies, not the rent of a new letting today.${property.monthlyRent ? "" : sz > 0 ? ` No rent was entered, so the yield uses ${sz} m² × €${deRent.rentPerSqm.toFixed(2)} = €${Math.round(sz * deRent.rentPerSqm).toLocaleString("en-US")}/month (estimated).` : ""}`;
     marketEvidence.rentalBenchmark = { monthlyRentPerSqm: deRent.rentPerSqm, grossYieldPercent: null, source: deRent.source };
     marketEvidence.sourceParts = [...(marketEvidence.sourceParts || [{ title: "Market evidence", text: marketEvidence.source }]), { title: "Rent (Zensus 2022)", text }];
+    marketEvidence.source = `${marketEvidence.source} ${text}`;
+  }
+
+  // Spain: the municipality's official rent (MIVAU SERPAVI, tax returns of
+  // habitual-residence lets) — used for the yield only when no rent was
+  // entered (flagged as estimated there)
+  const esRent = /^spain$/i.test(String(property.country || "").trim()) && !/commercial|land/i.test(String(property.propertyType || "")) && marketEvidence
+    ? spainRent(marketData?.catastroZone?.geo?.muniCode || marketData?.catastroZone?.town?.muniCode, property.propertyType) : null;
+  if (esRent) {
+    const town = marketData.catastroZone.geo?.muni || marketData.catastroZone.town?.muni || "the municipality";
+    const sz = Number(property.size);
+    const text = `${esRent.source} (last updated ${esRent.lastUpdate}): ${esRent.year} tax returns of homes let as a habitual residence in ${town} — ${esRent.kind === "house" ? "houses" : "flats"}: median €${esRent.median.toFixed(2)}/m² a month, middle half €${esRent.p25.toFixed(2)}–${esRent.p75.toFixed(2)}, ${esRent.homes.toLocaleString("en-US")} let homes (Catastro built area). Existing leases of that year, not today's asking rents.${property.monthlyRent ? "" : sz > 0 ? ` No rent was entered, so the yield uses ${sz} m² × €${esRent.median.toFixed(2)} = €${Math.round(sz * esRent.median).toLocaleString("en-US")}/month (estimated).` : ""}`;
+    marketEvidence.rentalBenchmark = { monthlyRentPerSqm: esRent.median, grossYieldPercent: null, source: esRent.source };
+    marketEvidence.sourceParts = [...(marketEvidence.sourceParts || [{ title: "Market evidence", text: marketEvidence.source }]), { title: `Rent (MIVAU SERPAVI ${esRent.year})`, text }];
     marketEvidence.source = `${marketEvidence.source} ${text}`;
   }
 
