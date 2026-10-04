@@ -45,6 +45,7 @@ import { irelandRent } from "../lib/ireland/rents.js";
 import { canadaRent } from "../lib/canada/rents.js";
 import { finlandRent } from "../lib/finland/rents.js";
 import { norwayRent } from "../lib/norway/rents.js";
+import { swedenRent } from "../lib/sweden/rents.js";
 import { createHash } from "node:crypto";
 import { runPropertyInvestmentAgent } from "../lib/agents/propertyInvestmentAgent.js";
 import { computePradixiumScore } from "../lib/scoring/pradixiumScore.js";
@@ -1934,6 +1935,22 @@ export default async function handler(req, res) {
     const text = `${noR.source}, ${noR.year}, ${noR.zone}: average monthly rent of ${noR.rooms} dwellings ${nok(noR.monthly)} (${nok(noR.perSqmYear)} per m² a year). Rooms counted as living rooms + bedrooms (kitchen excluded); all current tenancies in the survey.${property.monthlyRent ? "" : ` No rent was entered, so the yield uses ${nok(noR.monthly)}/month (estimated).`}`;
     if (!property.monthlyRent) marketEvidence.rentalBenchmark = { monthlyRentFlat: noR.monthly, grossYieldPercent: null, source: noR.source };
     marketEvidence.sourceParts = [...(marketEvidence.sourceParts || [{ title: "Market evidence", text: marketEvidence.source }]), { title: `Rent (SSB ${noR.year})`, text }];
+    marketEvidence.source = `${marketEvidence.source} ${text}`;
+  }
+
+  // Sweden: SCB median rent per m² of rental flats (hyresrätter, regulated
+  // first-hand stock) — the yield basis for a flat only when no rent was
+  // entered; context for a house
+  const seR = /^sweden$/i.test(String(property.country || "").trim()) && !/commercial|land/i.test(String(property.propertyType || "")) && marketEvidence
+    ? swedenRent(`${property.address || ""} ${property.city || ""}`) : null;
+  if (seR) {
+    const isFlat = !/house|villa|detached|cottage|terrace|town/i.test(String(property.propertyType || ""));
+    const sz = Number(property.size);
+    const perMonth = seR.perSqmYear / 12;
+    const use = isFlat && !property.monthlyRent && sz > 0;
+    const text = `${seR.source}, ${seR.year}, ${seR.municipality}: median rent SEK ${seR.perSqmYear.toLocaleString("en-US")} per m² a year (±${seR.moe}), i.e. SEK ${perMonth.toFixed(0)}/m² a month, of first-hand rental flats (hyresrätter, rents set in the regulated utility-value system). Sub-letting an owned flat follows other rules.${!isFlat ? " Not used for a house's yield." : use ? ` No rent was entered, so the yield uses ${sz} m² × SEK ${perMonth.toFixed(0)} = SEK ${Math.round(sz * perMonth).toLocaleString("en-US")}/month (estimated).` : ""}`;
+    if (use) marketEvidence.rentalBenchmark = { monthlyRentPerSqm: perMonth, grossYieldPercent: null, source: seR.source };
+    marketEvidence.sourceParts = [...(marketEvidence.sourceParts || [{ title: "Market evidence", text: marketEvidence.source }]), { title: `Rent (SCB ${seR.year})`, text }];
     marketEvidence.source = `${marketEvidence.source} ${text}`;
   }
 

@@ -910,6 +910,12 @@ servers → not used. Check: Lieusaint 66/86 matched, C €3,222 (23), D €3,18
   Akershus ex Bærum, Bergen, Trondheim, Stavanger) × rooms (bedrooms + 1).
   Needs the bedrooms; size-class zones (by settlement population) not
   matched. Check: Oslo 2 rooms NOK 15,260/month (2025) = the raw cube.
+- Sweden RENT (Oct 4 2026): `lib/sweden/rents.js` ← `python3
+  scripts/build-se-rents.py` (each autumn) → lib/data/swedenRents.json — SCB
+  BO0406 Tab01 median annual rent per m² (+ margin of error) of rental flats
+  (hyresrätter, regulated utility-value rents) per municipality (311), 2026.
+  Flats: yield basis when no rent is entered (÷ 12); a house: context.
+  Check: Stockholm SEK 1,772 ±31 = the raw cube.
 - Iceland (Sept 2026): `scripts/build-is-prices.py` → lib/data/
   icelandPrices.json — HMS Kaupskrá fasteigna (every recorded purchase
   agreement, CSV on HMS's public object storage, updated nightly):
