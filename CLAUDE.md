@@ -903,6 +903,13 @@ servers → not used. Check: Lieusaint 66/86 matched, C €3,222 (23), D €3,18
   city (Swedish names mapped; sub-city zones not matched). Flats only →
   yield basis for a flat when no rent is entered. Check: Helsinki
   two-room new €21.19 (2026Q2) = the raw cube.
+- Norway RENT (Oct 4 2026): `lib/norway/rents.js` ← `python3
+  scripts/build-no-rents.py` (each spring) → lib/data/norwayRents.json — SSB
+  Rental market survey 09895 (actual averages; 09897 "predicted rents" is a
+  model → not used): monthly rent + annual rent per m² by zone (Oslo+Bærum,
+  Akershus ex Bærum, Bergen, Trondheim, Stavanger) × rooms (bedrooms + 1).
+  Needs the bedrooms; size-class zones (by settlement population) not
+  matched. Check: Oslo 2 rooms NOK 15,260/month (2025) = the raw cube.
 - Iceland (Sept 2026): `scripts/build-is-prices.py` → lib/data/
   icelandPrices.json — HMS Kaupskrá fasteigna (every recorded purchase
   agreement, CSV on HMS's public object storage, updated nightly):

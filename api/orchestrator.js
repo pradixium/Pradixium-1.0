@@ -44,6 +44,7 @@ import { usRent } from "../lib/us/rents.js";
 import { irelandRent } from "../lib/ireland/rents.js";
 import { canadaRent } from "../lib/canada/rents.js";
 import { finlandRent } from "../lib/finland/rents.js";
+import { norwayRent } from "../lib/norway/rents.js";
 import { createHash } from "node:crypto";
 import { runPropertyInvestmentAgent } from "../lib/agents/propertyInvestmentAgent.js";
 import { computePradixiumScore } from "../lib/scoring/pradixiumScore.js";
@@ -1921,6 +1922,18 @@ export default async function handler(req, res) {
     const text = `${fiR.source}, ${fiR.quarter}, ${fiR.city}: average rent of ${fiR.basis === "new" ? "NEW rental contracts" : "all rental contracts"} for ${fiR.room === "Total" ? "all flats" : fiR.room.toLowerCase().replace("+", "s and larger")}: €${fiR.perSqm.toFixed(2)}/m² a month (${fiR.n.toLocaleString("en-US")} contracts).${!isFlat ? " The statistics cover rental flats — not used for a house's yield." : use ? ` No rent was entered, so the yield uses ${sz} m² × €${fiR.perSqm.toFixed(2)} = €${Math.round(sz * fiR.perSqm).toLocaleString("en-US")}/month (estimated).` : ""}`;
     if (use) marketEvidence.rentalBenchmark = { monthlyRentPerSqm: fiR.perSqm, grossYieldPercent: null, source: fiR.source };
     marketEvidence.sourceParts = [...(marketEvidence.sourceParts || [{ title: "Market evidence", text: marketEvidence.source }]), { title: `Rent (Statistics Finland ${fiR.quarter})`, text }];
+    marketEvidence.source = `${marketEvidence.source} ${text}`;
+  }
+
+  // Norway: SSB rental market survey average rent by zone and rooms — the
+  // yield basis only when no rent was entered
+  const noR = /^norway$/i.test(String(property.country || "").trim()) && !/commercial|land/i.test(String(property.propertyType || "")) && marketEvidence
+    ? norwayRent(`${property.address || ""} ${property.city || ""}`, property.bedrooms) : null;
+  if (noR) {
+    const nok = (x) => "NOK " + Math.round(x).toLocaleString("en-US");
+    const text = `${noR.source}, ${noR.year}, ${noR.zone}: average monthly rent of ${noR.rooms} dwellings ${nok(noR.monthly)} (${nok(noR.perSqmYear)} per m² a year). Rooms counted as living rooms + bedrooms (kitchen excluded); all current tenancies in the survey.${property.monthlyRent ? "" : ` No rent was entered, so the yield uses ${nok(noR.monthly)}/month (estimated).`}`;
+    if (!property.monthlyRent) marketEvidence.rentalBenchmark = { monthlyRentFlat: noR.monthly, grossYieldPercent: null, source: noR.source };
+    marketEvidence.sourceParts = [...(marketEvidence.sourceParts || [{ title: "Market evidence", text: marketEvidence.source }]), { title: `Rent (SSB ${noR.year})`, text }];
     marketEvidence.source = `${marketEvidence.source} ${text}`;
   }
 
