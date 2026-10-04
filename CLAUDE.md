@@ -631,6 +631,81 @@ largest metro first.
 - Coverage tracker (session scratch, not in repo): county population from
   Census 2024 estimates vs the modules' matchers — ~55% of US population had
   a local property record as of the Nassau commit (Sept 2026).
+- US city-only input (Oct 4 2026, live audit): "Miami, FL" / "Austin,
+  Texas" / "Phoenix, AZ 85004" typed without a street returned NOTHING (no
+  state → no FHFA). us-intelligence now splits "City, ST|State [ZIP]" into
+  city + state name (+ ZIP), and hpiCity() without a county matches the
+  FHFA metro whose principal cities include the city in that state (exactly
+  one) — "Miami" → Miami-Miami Beach-Kendall MSAD +1.27%. NOTE: the file is
+  minified on long lines — never append a `//` comment mid-line.
+- US RENT (Oct 4 2026, was missing): `lib/us/rents.js` ← `python3
+  scripts/build-us-rents.py 2024` (each December) → lib/data/usRents.json:
+  ACS 5-year table B25031 median GROSS rent by bedrooms per ZCTA (25,996),
+  from the Census table-based summary file on www2.census.gov (the Census
+  API now demands a key → not used). Top-coded medians ("$3,500 or more",
+  margin code -333333333) are stored negative, shown as such, never used
+  as a number. ZIP from the geocoder ("ZCTA5 60610"), bedrooms entered (else
+  the record's, else all homes). Yield basis only when no rent is entered;
+  text says gross rent includes tenant-paid utilities and existing
+  tenancies. Check: 60610 2-bed $3,098, 10019 1-bed $2,810 = the raw .dat.
+  City typed without a ZIP ("Miami, FL") → the same table for the Census
+  PLACE of that name in that state (22,532 places; names from the summary
+  file's Geos list, "(balance)"/consolidated-government names aliased —
+  Nashville, Louisville, Athens, Augusta, Boise City, Urban Honolulu; an
+  incorporated place beats a same-name CDP, otherwise dropped), labelled
+  "the whole city". Check: Miami city 2-bed $1,885, all $1,758 = raw row
+  1600000US1245000.
+- US PROPERTY TAX (Oct 4 2026): the Tax Foundation line (a think tank,
+  not official) is gone. `lib/us/tax.js` ← `python3 scripts/build-us-tax.py
+  2024` (each December) → lib/data/usTaxPrices.json: ACS 5-year B25103
+  (owners' median real estate taxes paid) + B25077 (median value) per ZIP,
+  Census place (same keys as usRents places), county (us-intelligence now
+  returns property.countyFips), state. Ratio of the two medians shown as an
+  indication (+ the amount at the asking price), never for a state-only
+  match; top-coded medians not used. Check: ZIP 60610 $9,122 / $505,900 =
+  1.80%; Miami city $4,586 / $518,100 = 0.89% (raw .dat).
+- US TRANSFER TAX (Oct 4 2026): closingCosts.js `byUsState` — the state's
+  own schedule on the asking price (state from us-intelligence; county via
+  property.countyFips; NYC by county FIPS): FL doc stamps (Miami-Dade
+  60¢ + 45¢ surtax non-single-family), NY state $2/$500 + mansion 1% at
+  $1m + NYC RPTT 1%/1.425% (+ $1.25/$500 at $3m; supplemental 0.25–2.9%
+  at $2m NOT computed), NJ realty transfer fee (marginal per $500, two
+  schedules ≤/> $350k) + graduated percent fee (seller, since 10 Jul
+  2025), WA graduated REET (rates from 1 May 2026; local REET not
+  included), NV $1.95/$500 (+60¢ Clark, +10¢ Washoe/Churchill), IL 50¢ +
+  county 25¢ (Chicago's own tax not included — chicago.gov 403), GA, CA
+  county 55¢/$500 (city taxes not included), TX none (Const. art. VIII
+  § 29), MA $2.28/$500 (Barnstable: sources disagree → nothing).
+  Payer only where the official page says so. Other states → generic
+  line. The old "2–5% closing costs / CFPB surveys" + agent line removed.
+  Hawaii: capitol.hawaii.gov 403 → not added. Checks: NJ $600k → $5,185;
+  WA $900k → $10,528; GA $400k → $400.
+  Oct 4 2026 (second pass, user: "כל ארה״ב, בלי תקלות"): 39 jurisdictions
+  now computed — + PA (1% + local 1%; Philadelphia 3.578%), CT (0.75 /
+  1.25 / 2.25% marginal, seller; town tax not incl.), VA (25¢/$100 +
+  grantor 50¢/$500), NC ($1/$500), DC (1.1% / 1.45% each, recordation +
+  transfer), MD (0.5% state; county taxes not incl.), DE (2.5% state;
+  local ≤1.5% not incl.), MI ($3.75 + 55¢ per $500), TN (37¢/$100), SC
+  ($1.85/$500), MN (0.33% + 0.01% Hennepin/Ramsey), CO (1¢/$100), AZ ($2
+  affidavit fee), OH (1 mill; county ≤3 mills not incl.), KY, WI, AL, OK,
+  IA, NE ($3.32/$1,000 from 18 Jul 2026), AR, NH (0.75% each side), VT
+  (1.47% rental / main-home and 3.62% second-home variants in the text),
+  ME (+ $3.80/$500 above $1m since Nov 2025), RI ($3.75/$500 since Oct
+  2025; tier 2 above the indexed $800k NOT computed), WV ($1.10/$500 + $20;
+  county not incl.), SD, HI (HRS § 247-2 from the DoTax PDF compilation —
+  non-homeowner-exemption table headline, owner-occupier in the text), OR
+  (ORS 306.815; Washington County $1/$1,000). Not listed (no official
+  schedule or "no tax" statement found): AK, ID, IN, KS, LA, MS, MO, MT,
+  NM, ND, UT, WY → "ask the county recorder". Test: every state × 9 prices
+  × 4 county cases, no NaN/undefined. Known geocoder gap: "100 Beacon St,
+  Boston" → Census matches 02136 (one match) — a typed ZIP wins.
+  City-only input has no geocoded county → usRents.json `placeCounty`
+  (Census summary level 155 place-within-county parts, weighted by
+  occupied homes B25003; one county with 80%+ of the place's homes) →
+  `usPlaceCounty()`: Philadelphia 42101, Las Vegas 32003, Miami 12086.
+  The geocoder's place name ("Pittsburgh city") = the incorporated
+  municipality → City of Pittsburgh local 4% (Allegheny County's local
+  rate table: city 3% + school district 1%) only then.
 - Sandbox quirk: Node's built-in fetch here ignores HTTPS_PROXY for some hosts
   (King County, DCAD fail with "upstream connect error"); run local tests with
   `NODE_USE_ENV_PROXY=1`. Vercel production is unaffected — always confirm on
@@ -774,6 +849,25 @@ servers → not used. Check: Lieusaint 66/86 matched, C €3,222 (23), D €3,18
   (share of home purchases by foreigners 2025 + pp change). Update each
   spring from the next Anuario. MIVAU names like "Palmas, Las" are
   reordered before matching (Las Palmas had no MIVAU figure before).
+- Spain RENT (Oct 4 2026, was missing): `lib/spain/rents.js` ←
+  `python3 scripts/build-es-rents.py <bd_SERPAVI_2011-YYYY.xlsx>` (MIVAU
+  SERPAVI database, cdn.mivau.gob.es — the serpavi page lists it; browser
+  User-Agent) → lib/data/spainRents.json: 2024 tax returns (Modelo 100) of
+  homes let as a habitual residence, relatives excluded — median + p25/p75
+  €/m² a month (Catastro built area) and the number of let homes, flats
+  (VC) vs houses (VU), per municipality (3,346) and census section (28,735;
+  USED since Oct 4 2026: INE 2021 section perimeters from the SECC_CE zip
+  on the same CDN → lib/data/spainSections/<CUMUN>.json.gz (1,766 munis,
+  27,307 sections, ~5 m simplification, 12 MB) ← `python3
+  scripts/build-es-sections.py <SECC_CE_…_WM.shp>`; an exactly located
+  address (Catastro geo type "portal") → its section's rent when 10+ let
+  homes of the type, else the municipality). 10+ homes. Check: Calle de
+  Serrano 50 → section 2807904006, 90 flats, €25.73 (shapely on the
+  unsimplified perimeters + the raw xlsx row). Municipality from the Catastro geo, or the town
+  when only a town is typed (catastroZone now returns `town`). Used for the
+  yield only when no rent is entered. MIVAU aviso legal: commercial reuse
+  allowed, cite source + date of last update (licence notice). Check:
+  Madrid flats €13.97 (300,447), Marbella €9.63 (6,374) = the raw xlsx.
 - Spain MIVAU benchmark is a PROVINCE average → labelled as such; the VDP003
   "transaction value" (province total, unit unstated) is no longer shown.
 - Portugal: `lib/portugal/inePrices.js` ← `python3 scripts/build-pt-prices.py`
@@ -823,6 +917,24 @@ servers → not used. Check: Lieusaint 66/86 matched, C €3,222 (23), D €3,18
   prevailing-condition range is the benchmark; several → town range as
   context; > 20 zones (Rome, Milan) → asks for the neighbourhood.
   Municipality list: `python3 scripts/build-it-comuni.py`.
+- Italy ADDRESS → OMI zone (Oct 4 2026): a street + number typed → Esri
+  World geocoder (anonymous, not stored; PointAddress/StreetAddress, score
+  90+, same municipality) → the zone perimeter that contains the point —
+  the agency's own map perimeters (zoneomi.php richiesta=6, the request its
+  public map makes). Prebuilt for 49 big cities (Roma 233 zones, Milano 43,
+  Napoli 67 …): lib/data/italyOmiZones/<codcom>.json.gz ← `python3
+  scripts/build-it-omi-zones.py` (re-run each new semester); other towns
+  read live. Within 25 m of another zone → both listed, none applied.
+  Before: Rome/Milan reports had NO benchmark ("enter the neighbourhood").
+  Check: Via del Corso 100 → B31 Tridente €8,300–11,000; Viale di
+  Trastevere 50 → B14 (raw-perimeter ray-cast recompute in Python, same
+  zones). italy-intelligence now accepts an address without a city.
+  Same day: (a) a flat now uses the zone's own "Tipologia prevalente"
+  (Rome B31 is mostly "abitazioni civili" €7,400–9,700 — the luxury
+  "signorili" row €8,300–11,000 used to be picked first); (b) the OMI sheet's
+  RENT range (€/m² a month, same zone/type/condition) → rentalBenchmark →
+  yield when no rent is entered (B31 19.5–25.8 → €22.65; 100 m² €2,265/mo,
+  3.02% on €900k — hand-checked). Rent was missing for Italy before.
 - Italy renovation (Sept 2026): the "Renovated?" input switches the OMI
   benchmark to the agency's own EXCELLENT-condition ("ottimo") range of the
   same type when the zone publishes one (Porto Cervo E7 flats: normale
@@ -855,6 +967,33 @@ servers → not used. Check: Lieusaint 66/86 matched, C €3,222 (23), D €3,18
   1/2/3+ rooms, unknown → sales-weighted mean of the three), else
   municipality (Swedish names mapped). Detached houses are not in these
   statistics → said so. Check: Tampere flats 2025 €3,062 (3,402 sales).
+- Finland RENT (Oct 4 2026, was missing): `lib/finland/rents.js` ←
+  `python3 scripts/build-fi-rents.py` (quarterly) → lib/data/finlandRents.json
+  — StatFin asvu 15fa: average rent €/m² a month of NON-SUBSIDISED flats,
+  new contracts (else all), by rooms (bedrooms 0/1/2+ → 1/2/3+ rooms), per
+  city (Swedish names mapped; sub-city zones not matched). Flats only →
+  yield basis for a flat when no rent is entered. Check: Helsinki
+  two-room new €21.19 (2026Q2) = the raw cube.
+- Norway RENT (Oct 4 2026): `lib/norway/rents.js` ← `python3
+  scripts/build-no-rents.py` (each spring) → lib/data/norwayRents.json — SSB
+  Rental market survey 09895 (actual averages; 09897 "predicted rents" is a
+  model → not used): monthly rent + annual rent per m² by zone (Oslo+Bærum,
+  Akershus ex Bærum, Bergen, Trondheim, Stavanger) × rooms (bedrooms + 1).
+  Needs the bedrooms; size-class zones (by settlement population) not
+  matched. Check: Oslo 2 rooms NOK 15,260/month (2025) = the raw cube.
+- Sweden RENT (Oct 4 2026): `lib/sweden/rents.js` ← `python3
+  scripts/build-se-rents.py` (each autumn) → lib/data/swedenRents.json — SCB
+  BO0406 Tab01 median annual rent per m² (+ margin of error) of rental flats
+  (hyresrätter, regulated utility-value rents) per municipality (311), 2026.
+  Flats: yield basis when no rent is entered (÷ 12); a house: context.
+  Check: Stockholm SEK 1,772 ±31 = the raw cube.
+- Sweden flats CONTEXT (Oct 4 2026): `swedenCondo()` in lib/sweden/rents.js
+  ← `python3 scripts/build-se-condo.py` → lib/data/swedenCondo.json — SCB
+  BO0501C median price of SOLD tenant-owned flats per metro area (Greater
+  Stockholm / Gothenburg / Malmö, by their municipalities) or county, last
+  two years. A whole-flat price over a whole area → context only (the
+  "no official flat price" gap stays: no per-m² / local figure). Check:
+  Greater Stockholm 2025 39,748 sales, median SEK 3,500k = the raw cube.
 - Iceland (Sept 2026): `scripts/build-is-prices.py` → lib/data/
   icelandPrices.json — HMS Kaupskrá fasteigna (every recorded purchase
   agreement, CSV on HMS's public object storage, updated nightly):
@@ -862,6 +1001,15 @@ servers → not used. Check: Lieusaint 66/86 matched, C €3,222 (23), D €3,18
   months, median ISK/m² per postcode / municipality for Fjölbýli (flats),
   Einbýli (detached), Sérbýli (semi/terraced), 10+ sales. Check: Reykjavík
   flats 822,865 ISK/m² (2,584 sales). Re-run monthly.
+- Ireland RENT (Oct 4 2026, was missing): `lib/ireland/rents.js` ←
+  `python3 scripts/build-ie-rents.py` (quarterly) → lib/data/irelandRents.json
+  — RTB average monthly rent of NEW tenancies, CSO PxStat RIQ02 (JSON-stat,
+  CC BY 4.0), latest quarter (2025Q4, 306 of 446 places with values):
+  locality ("Ballsbridge, Dublin 4") → Dublin postal district → county;
+  type (Apartment / Semi / Terrace / Detached; a plain "house" → all types)
+  × bedrooms, cascading to coarser cells. Yield basis when no rent is
+  entered. Check: Ballsbridge 2-bed apartment €2,830.54 = the raw cube;
+  €650k → 5.23% gross.
 - A fixed figure for flats only is never applied to a house (orchestrator
   `flatsOnly`). Denmark: Statistics Denmark stops at landsdel; EJEN88's
   per-m² key figure is empty for homes. Sweden: bostadsrätter are not in
@@ -1443,9 +1591,43 @@ attribution is added as a "Licence" source block by `lib/data/licences.js`
 - Not commercial-use-safe, still not used: NSW Valuer General (CC BY-NC-ND),
   KSH tailored extracts (CC BY-NC; STADAT tables are CC BY 4.0 — those are
   what we use), INE Portugal's OLD terms (now CC BY 4.0).
-- Not yet checked: Dubai DLD export terms, US county open-data portals,
-  NBP/GUS, Spain INE/MIVAU, Serbia RGZ, Mexico SHF, Brazil SP (source named
-  in the text meanwhile).
+- Spain Catastro (Oct 4 2026): the Catastro licence (licdescargaES.pdf
+  cl. 5–7, 12) allows public and commercial use of TRANSFORMED information,
+  must cite the Dirección General del Catastro + the date of access, and a
+  product must not present itself as "información catastral" → notice with
+  the access date (prebuilt map's build date / today for live lookups).
+- Dubai (Oct 4 2026), OPEN QUESTION for the user: dubailand.gov.ae's site
+  terms allow Web Site Materials "solely for your personal, noncommercial
+  use"; the Real Estate Data page shows no licence of its own. Dubai Law
+  No. 26 of 2015 makes government data open by default, and the DLD
+  transactions dataset is classified Open Data (Dubai Pulse
+  "dld_transactions-open", reported as CC BY 4.0 / attribution to the Dubai
+  Government and DLD) — but dubaipulse.gov.ae/legal answered 503, so the
+  licence text itself was not read. Attribution notice added meanwhile;
+  written confirmation from DLD recommended (same as Lithuania).
+- Not yet checked: US county open-data portals, NBP/GUS, Spain
+  INE/MIVAU, Serbia RGZ, Mexico SHF, Brazil SP (source named in the text
+  meanwhile).
+
+## Deploy gotcha (Oct 4 2026)
+
+vercel.json `includeFiles` is limited to 256 characters per function — a
+longer list FAILS THE WHOLE DEPLOY (the site keeps serving the previous
+version, so nothing looks broken). The orchestrator now uses the pattern
+`{lib/data/*{Rents,Prices,Sales,Shf,Imi,Suburbs,Condo}.json,lib/data/spainSections/**}`
+— name new data files to fit it. After every push, check the live site
+actually shows the new text (or the Vercel deployment state).
+
+## Rent sweep, Oct 4 2026 — checked, NOT available (do not retry)
+
+Netherlands (CBS has rent CHANGES only, no level per region), Denmark
+(HUS1 indices only), Austria (no rent level in Statistik Austria open data),
+Poland (NBP file has no rents), Switzerland (BFS Strukturerhebung to 2022
+only, Lex Koller limits buy-to-let), Israel (CBS index API has no average
+rents; cbs.gov.il unreachable), Rio de Janeiro (no open ITBI data).
+South Africa property rates: Cape Town's 2026/27 tariff is being amended
+after the Western Cape High Court judgment of 30 Apr 2026 (city calculator
+"under construction", Annexure 2 unreachable) → not added.
 
 ## Singapore (Oct 3 2026, Claude B — added to the dropdown)
 
@@ -1526,6 +1708,20 @@ The regional fixture's unsourced "¥36 million average home" and an
 unverified land-price line were removed (the fixture stays for the
 Global Index).
 
+Japan RENT (Oct 4 2026): `lib/japan/rents.js` ← `python3
+scripts/build-jp-rents.py` (next survey 2028) → lib/data/japanRents.json —
+Statistics Bureau 2023 Housing and Land Survey table 122-4 (e-Stat file
+statInfId 000040210062, keyless): average monthly rent per m² of floor
+area of PRIVATE rented homes (民営借家, rent-free excluded) per prefecture /
+municipality / designated-city ward (1,274 areas; towns < 15,000 people
+not surveyed). English names, postcodes and town names (Roppongi →
+Minato) from Japan Post's KEN_ALL_ROME (service/search/zipcode/download/
+roman/ — the old /zipcode/dl/ path 404s). A ward of a designated city only
+with its city typed ("Kita-ku, Osaka"); "Kita" alone → ambiguous; a
+prefecture-only match (Niseko → Hokkaido) is context, never the yield.
+Existing tenancies, 1 Oct 2023 — said so. Check: Minato ¥4,504 (66,230),
+Naha ¥1,320 = the raw xlsx. Licence: e-Stat 出典 + を加工して作成.
+
 ## Brazil — City of São Paulo (Oct 1 2026, Claude B)
 
 `lib/brazil/saoPaulo.js` ← `python3 scripts/build-br-sp-itbi.py <2025.xlsx>
@@ -1566,6 +1762,22 @@ CONTEXT ONLY: mortgaged homes skew to economy/social housing (a Playa del
 Carmen flat read "167% above market") → never the benchmark; the
 municipal (else state) index change IS the trend.
 
+## New Zealand RENT (Oct 4 2026, Claude B)
+
+`lib/newzealand/rents.js` ← `python3 scripts/build-nz-rents.py` (monthly) →
+lib/data/newZealandRents.json — MBIE Tenancy Services rental bond data
+(tenancy.govt.nz, CC BY 3.0 NZ, credit MBIE): median WEEKLY rent of NEW
+private bonds. SA2 (2019 = 2018 codes) from the quarterly file, latest
+quarter, House / Flat / Apartment / ALL × bedrooms, 10+ bonds (1,222 SA2s,
+2026 Q2); council area (TA) from the monthly TLA file, latest month, all
+dwellings only (61 TAs, July 2026). SA2 names + TA: Stats NZ's own ArcGIS
+org (vKb0s8tBIA3bdocZ; SA2 centroid in TA polygon). A typed suburb that is
+ONE SA2 → that SA2; several (Ponsonby East/West, Remuera …) → listed, none
+picked, TA figure used; a part with digits (street line) is never matched.
+× 52 ÷ 12 → yield when no rent is entered. Check: Takapuna West houses
+45 bonds NZ$700, Auckland July 2026 5,592 bonds NZ$640 = the raw CSVs.
+No official NZ price LEVEL yet (REINZ is private; QV is a commercial arm).
+
 ## Canada (Oct 1 2026, Claude B)
 
 `lib/canada/nhpi.js` ← `python3 scripts/build-ca-prices.py` (monthly) →
@@ -1576,6 +1788,18 @@ flat. No official price level per city: CHSP 46-10-0030's "median sale
 price … market sale" cells are all empty (".."); CMHC absorbed-unit prices
 not checked yet. Suburbs not in a CMA name (Mississauga) → the province if
 typed. Check: Toronto 2026-08 −4.3% (index 106.0) = the WDS series.
+
+Canada RENT (Oct 4 2026): `lib/canada/rents.js` ← `python3
+scripts/build-ca-rents.py` (each January) → lib/data/canadaRents.json —
+CMHC Rental Market Survey average rents by bedrooms (bachelor–3) per centre
+(190), Statistics Canada table 34-10-0133 (WDS full-table CSV, keyless),
+"Row and apartment structures of three units and over" = purpose-built
+rental, ALL occupied units (long tenancies included) — said so; not
+rented condos or houses → yield basis for an apartment only, a house gets
+it as context. Ottawa-Gatineau split into its Ontario / Quebec parts;
+Kitchener-Cambridge-Waterloo by each name. Mississauga etc. (inside the
+Toronto CMA, not a centre of their own) → not matched. Check: Toronto
+2-bed C$2,045, Vancouver 3-bed C$2,820 = the raw CSV.
 
 ## Checked Oct 1 2026, not usable (do not retry the same route)
 

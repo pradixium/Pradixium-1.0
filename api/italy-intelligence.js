@@ -13,7 +13,8 @@ export default async function handler(req, res) {
   res.setHeader('Cache-Control', 's-maxage=900, stale-while-revalidate=3600');
   res.setHeader('Access-Control-Allow-Origin', '*');
 
-  const city = String(req.query?.city || '').trim().slice(0, 120);
+  const address0 = String(req.query?.address || '').trim().slice(0, 200);
+  const city = String(req.query?.city || '').trim().slice(0, 120) || address0.slice(0, 120);
   if (!city) return res.status(400).json({ success: false, error: 'City is required.' });
 
   // the zone's official OMI quotation (lib/italy/omi.js)

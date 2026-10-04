@@ -39,6 +39,16 @@
  */
 
 import { licenceNotices } from "../lib/data/licences.js";
+import { spainRent } from "../lib/spain/rents.js";
+import { usRent, usPlaceKey, usPlaceCounty } from "../lib/us/rents.js";
+import { usPropertyTax } from "../lib/us/tax.js";
+import { newZealandRent } from "../lib/newzealand/rents.js";
+import { japanRent } from "../lib/japan/rents.js";
+import { irelandRent } from "../lib/ireland/rents.js";
+import { canadaRent } from "../lib/canada/rents.js";
+import { finlandRent } from "../lib/finland/rents.js";
+import { norwayRent } from "../lib/norway/rents.js";
+import { swedenRent, swedenCondo } from "../lib/sweden/rents.js";
 import { createHash } from "node:crypto";
 import { runPropertyInvestmentAgent } from "../lib/agents/propertyInvestmentAgent.js";
 import { computePradixiumScore } from "../lib/scoring/pradixiumScore.js";
@@ -1251,7 +1261,7 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
           : "";
         if (best) omi = { ...omi, main: best };
         const mid = (omi.main.min + omi.main.max) / 2;
-        const zoneTxt = `OMI zone ${omi.zone} of ${omi.comune} ("${omi.zoneName}")`;
+        const zoneTxt = `OMI zone ${omi.zone} of ${omi.comune} ("${omi.zoneName}")${omi.matchedBy === "address" ? ` — the address (${omi.matchedAddress}) placed inside the zone perimeter on the agency's OMI map` : ""}`;
         return {
           benchmarkValue: mid,
           benchmarkUnit: "perSqm",
@@ -1259,14 +1269,18 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
           governmentValue: null,
           transactionValue: null,
           transactionPeriod: omi.period,
-          marketArea: `${omi.comune} — ${zoneTxt.replace(` of ${omi.comune}`, "")}`,
-          source: `${omi.source}, ${omi.period}: ${zoneTxt}. The agency's €/m² ranges (gross area) for this zone: ${omi.rows.map(r).join("; ")}. Benchmark = midpoint of the range for ${best ? `${omi.main.state.toLowerCase()} condition` : `the zone's most common condition (${omi.main.state.toLowerCase()})`}; OMI ranges are calibrated on registered deeds.${renoNote} ${trendSource}.`,
+          marketArea: `${omi.comune} — OMI zone ${omi.zone} ("${omi.zoneName}")`,
+          source: `${omi.source}, ${omi.period}: ${zoneTxt}. The agency's €/m² ranges (gross area) for this zone: ${omi.rows.map(r).join("; ")}${omi.prevalentType ? ` (the zone's prevailing type: ${omi.prevalentType.toLowerCase()})` : ""}. Benchmark = midpoint of the range for ${best ? `${omi.main.state.toLowerCase()} condition` : `the zone's most common condition (${omi.main.state.toLowerCase()})`}; OMI ranges are calibrated on registered deeds.${omi.main.rentMin != null ? ` Rents in the same zone and type: €${omi.main.rentMin}–${omi.main.rentMax}/m² a month (${omi.main.rentSurface || "gross"} area) — the midpoint is used for the yield when no rent is entered.` : ""}${renoNote} ${trendSource}.`,
           sourceUrl: omi.sourceUrl,
           coverage: "city",
-          priceTrendPercent: change ?? null
+          priceTrendPercent: change ?? null,
+          // the agency's rent range for the same zone, type and condition
+          rentalBenchmark: omi.main.rentMin != null && omi.main.rentMax != null ? { monthlyRentPerSqm: (omi.main.rentMin + omi.main.rentMax) / 2, grossYieldPercent: null, source: `${omi.source}, ${omi.period} — zone ${omi.zone} rent range` } : null
         };
       }
-      const ctx = omi.status === "comune_range"
+      const ctx = omi.boundary
+        ? `${omi.source}, ${omi.period}: the address (${omi.matchedAddress}) lies within 25 m of the boundary between OMI zones ${omi.zones.map((z) => `${z.zone} ("${z.zoneName}", ${eur(z.main.min)}–${eur(z.main.max)}/m²)`).join(" and ")} — the zone depends on which side the building stands, so none is applied.`
+        : omi.status === "comune_range"
         ? `${omi.source}, ${omi.period}: ${omi.comune} has ${omi.zonesTotal} OMI zones; for this home type they range from ${eur(omi.low.main.min)}/m² (zone ${omi.low.zone}, "${omi.low.zoneName}") to ${eur(omi.high.main.max)}/m² (zone ${omi.high.zone}, "${omi.high.zoneName}"). Name the locality / neighbourhood to get the property's own zone — a town-wide range is not applied to this property.`
         : `${omi.source}, ${omi.period}: ${omi.comune} is divided into ${omi.zonesTotal} OMI zones with very different values — enter the neighbourhood (quartiere) with the address, e.g. "Testaccio, Roma", for the property's own zone.`;
       return {
@@ -1844,6 +1858,149 @@ export default async function handler(req, res) {
     marketEvidence.source = `${marketEvidence.source} ${text}`;
   }
 
+  // Spain: the municipality's official rent (MIVAU SERPAVI, tax returns of
+  // habitual-residence lets) — used for the yield only when no rent was
+  // entered (flagged as estimated there)
+  const esRent = /^spain$/i.test(String(property.country || "").trim()) && !/commercial|land/i.test(String(property.propertyType || "")) && marketEvidence
+    ? spainRent(marketData?.catastroZone?.geo?.muniCode || marketData?.catastroZone?.town?.muniCode, property.propertyType, marketData?.catastroZone?.geo?.type === "portal" ? { lat: marketData.catastroZone.geo.lat, lon: marketData.catastroZone.geo.lon } : null) : null;
+  if (esRent) {
+    const town = marketData.catastroZone.geo?.muni || marketData.catastroZone.town?.muni || "the municipality";
+    const sz = Number(property.size);
+    const where = esRent.level === "section" ? `this address's census section (${esRent.section}, ${town})` : town;
+    const muniTxt = esRent.level === "section" && esRent.municipality ? ` ${town} as a whole: €${esRent.municipality.median.toFixed(2)} (${esRent.municipality.homes.toLocaleString("en-US")} homes).` : "";
+    const text = `${esRent.source} (last updated ${esRent.lastUpdate}): ${esRent.year} tax returns of homes let as a habitual residence in ${where} — ${esRent.kind === "house" ? "houses" : "flats"}: median €${esRent.median.toFixed(2)}/m² a month, middle half €${esRent.p25.toFixed(2)}–${esRent.p75.toFixed(2)}, ${esRent.homes.toLocaleString("en-US")} let homes (Catastro built area).${muniTxt} Existing leases of that year, not today's asking rents.${property.monthlyRent ? "" : sz > 0 ? ` No rent was entered, so the yield uses ${sz} m² × €${esRent.median.toFixed(2)} = €${Math.round(sz * esRent.median).toLocaleString("en-US")}/month (estimated).` : ""}`;
+    marketEvidence.rentalBenchmark = { monthlyRentPerSqm: esRent.median, grossYieldPercent: null, source: esRent.source };
+    marketEvidence.sourceParts = [...(marketEvidence.sourceParts || [{ title: "Market evidence", text: marketEvidence.source }]), { title: `Rent (MIVAU SERPAVI ${esRent.year})`, text }];
+    marketEvidence.source = `${marketEvidence.source} ${text}`;
+  }
+
+  // US: the ZIP's median gross rent by bedrooms (Census ACS 5-year B25031)
+  // — the yield basis only when no rent was entered (flagged as estimated)
+  const usR = /^(united states|usa|us)$/i.test(String(property.country || "").trim()) && !/commercial|land/i.test(String(property.propertyType || "")) && marketEvidence
+    ? usRent(marketData?.property?.zip || property.zip, property.bedrooms ?? marketData?.property?.bedrooms, marketData?.property?.city || marketData?.city, marketData?.property?.state || marketData?.region) : null;
+  if (usR) {
+    const usd = (x) => "$" + Math.round(x).toLocaleString("en-US");
+    const use = !usR.topCoded && !property.monthlyRent;
+    const text = `${usR.source}: median gross rent of ${usR.label} in ${usR.place ? `${usR.place} (the whole city — enter the street address or ZIP for the local figure)` : `ZIP ${usR.zip}`}, ${usR.period}: ${usR.topCoded ? `${usd(usR.value - 1)} or more (the Census top-codes this median — not used as a number)` : `${usd(usR.value)} a month`}. Gross rent includes utilities paid by the tenant and covers existing tenancies over the 5-year period, not today's asking rents.${use ? ` No rent was entered, so the yield uses ${usd(usR.value)}/month (estimated).` : ""}`;
+    if (use) marketEvidence.rentalBenchmark = { monthlyRentFlat: usR.value, grossYieldPercent: null, source: usR.source };
+    marketEvidence.sourceParts = [...(marketEvidence.sourceParts || [{ title: "Market evidence", text: marketEvidence.source }]), { title: "Rent (Census ACS)", text }];
+    marketEvidence.source = `${marketEvidence.source} ${text}`;
+  }
+
+  // New Zealand: median weekly rent of new private tenancies (MBIE bond
+  // data) — suburb (SA2) by type × bedrooms, else the council area
+  const nzR = /^new zealand$/i.test(String(property.country || "").trim()) && !/commercial|land/i.test(String(property.propertyType || "")) && marketEvidence
+    ? newZealandRent(`${property.address || ""}, ${property.city || ""}`, property.propertyType, property.bedrooms) : null;
+  if (nzR) {
+    const nzd = (x) => "NZ$" + Math.round(x).toLocaleString("en-US");
+    const what = (k) => { const [t, b] = k.split("|"); return `${t === "ALL" ? "all dwellings" : t.toLowerCase() + "s"}${b === "ALL" ? "" : `, ${b} bedroom${b === "1" ? "" : "s"}`}`; };
+    const many = nzR.several?.length ? ` Suburb areas of that name (Stats NZ SA2, ${nzR.quarter || nzR.period}): ${nzR.several.slice(0, 8).map((x) => `${x.area} ${nzd(x.values[0])}/week (${what(x.key)}, ${x.values[1]} bonds)`).join("; ")} — several areas, none picked; enter the exact area name to use one.` : "";
+    const v = nzR.values;
+    const monthly = v ? Math.round(v[0] * 52 / 12) : null;
+    const use = v && !property.monthlyRent;
+    const head = v ? `median weekly rent of new tenancies in ${nzR.level === "sa2" ? `${nzR.area} (${nzR.ta}, Stats NZ SA2 area)` : `${nzR.area} (whole council area)`}, ${nzR.period}, ${what(nzR.key)}: ${nzd(v[0])} (middle half ${nzd(v[2])}–${nzd(v[3])}, ${v[1].toLocaleString("en-US")} bonds lodged).` : "no single area matched.";
+    const text = `${nzR.source}, ${head}${many} Rents agreed on new private lettings.${use ? ` No rent was entered, so the yield uses ${nzd(v[0])} × 52 ÷ 12 = ${nzd(monthly)}/month (estimated).` : ""}`;
+    if (use) marketEvidence.rentalBenchmark = { monthlyRentFlat: monthly, grossYieldPercent: null, source: nzR.source };
+    marketEvidence.sourceParts = [...(marketEvidence.sourceParts || [{ title: "Market evidence", text: marketEvidence.source }]), { title: `Rent (MBIE bond data)`, text }];
+    marketEvidence.source = `${marketEvidence.source} ${text}`;
+  }
+
+  // Japan: average rent per m² of PRIVATE rented homes (2023 Housing and
+  // Land Survey) for the municipality / ward — × the entered size → yield
+  const jpR = /^japan$/i.test(String(property.country || "").trim()) && !/commercial|land/i.test(String(property.propertyType || "")) && marketEvidence
+    ? japanRent(`${property.address || ""}, ${property.city || ""}`) : null;
+  if (jpR) {
+    const yen = (x) => "¥" + Math.round(x).toLocaleString("en-US");
+    const sz = Number(property.size);
+    const text = jpR.ambiguous
+      ? `${"Statistics Bureau of Japan, 2023 Housing and Land Survey (table 122-4)"}: the place matches several areas (${jpR.ambiguous.join("; ")}) — enter the prefecture or city (e.g. "Kita-ku, Osaka") for the area's average rent.`
+      : `${jpR.source}: average monthly rent per m² of floor area of private rented homes in ${jpR.area}: ${yen(jpR.perM2)}/m² (${jpR.homes.toLocaleString("en-US")} private rented homes, rent-free homes excluded; survey date 1 October ${jpR.year}). An average of ALL existing tenancies (old and new buildings, long-standing leases), not today's asking rents.${jpR.level === "pref" ? " A whole-prefecture average — not used for the yield; enter the city or ward." : !property.monthlyRent && sz > 0 ? ` No rent was entered, so the yield uses ${sz} m² × ${yen(jpR.perM2)} = ${yen(sz * jpR.perM2)}/month (estimated).` : ""}`;
+    if (!jpR.ambiguous && jpR.level !== "pref" && !property.monthlyRent) marketEvidence.rentalBenchmark = { monthlyRentPerSqm: jpR.perM2, grossYieldPercent: null, source: jpR.source };
+    marketEvidence.sourceParts = [...(marketEvidence.sourceParts || [{ title: "Market evidence", text: marketEvidence.source }]), { title: "Rent (Housing and Land Survey 2023)", text }];
+    marketEvidence.source = `${marketEvidence.source} ${text}`;
+  }
+
+  // Ireland: RTB average rent of new tenancies for the place, type and
+  // bedrooms (CSO RIQ02) — the yield basis only when no rent was entered
+  const ieR = /^ireland$/i.test(String(property.country || "").trim()) && !/commercial|land/i.test(String(property.propertyType || "")) && marketEvidence
+    ? irelandRent(`${property.address || ""}, ${property.city || ""}`, property.propertyType, property.bedrooms) : null;
+  if (ieR) {
+    const eur = (x) => "€" + Math.round(x).toLocaleString("en-US");
+    const what = `${ieR.type === "All property types" ? "all home types" : ieR.type.toLowerCase()}, ${ieR.beds === "All bedrooms" ? "all bedroom counts" : ieR.beds.toLowerCase()}`;
+    const text = `${ieR.source}, ${ieR.quarter}: average monthly rent of new tenancies registered in ${ieR.place} (${what}): ${eur(ieR.monthly)}. These are rents agreed on new lettings in that quarter.${property.monthlyRent ? "" : ` No rent was entered, so the yield uses ${eur(ieR.monthly)}/month (estimated).`}`;
+    if (!property.monthlyRent) marketEvidence.rentalBenchmark = { monthlyRentFlat: ieR.monthly, grossYieldPercent: null, source: ieR.source };
+    marketEvidence.sourceParts = [...(marketEvidence.sourceParts || [{ title: "Market evidence", text: marketEvidence.source }]), { title: `Rent (RTB ${ieR.quarter})`, text }];
+    marketEvidence.source = `${marketEvidence.source} ${text}`;
+  }
+
+  // Canada: CMHC average rent by bedrooms (purpose-built rental, October
+  // survey) — the yield basis for an apartment only when no rent was entered
+  const caR = /^canada$/i.test(String(property.country || "").trim()) && !/commercial|land/i.test(String(property.propertyType || "")) && marketEvidence
+    ? canadaRent(`${property.address || ""}, ${property.city || ""}`, property.bedrooms) : null;
+  if (caR) {
+    const cad = (x) => "C$" + Math.round(x).toLocaleString("en-US");
+    const isFlat = /apart|flat|condo|studio|penthouse/i.test(String(property.propertyType || ""));
+    const use = isFlat && caR.monthly && !property.monthlyRent;
+    const area = caR.geo.replace(/, (Ontario|Quebec|British Columbia|Alberta|Manitoba|Saskatchewan|Nova Scotia|New Brunswick|Newfoundland and Labrador|Prince Edward Island)$/, "");
+    const all = ["bachelor", "1-bed", "2-bed", "3-bed"].map((l, i) => caR.row[i] != null ? `${l} ${cad(caR.row[i])}` : null).filter(Boolean).join(", ");
+    const text = `${caR.source}, October ${caR.year}, ${area}: average monthly rents ${all}. These average ALL occupied units in purpose-built rental buildings (long-standing tenancies included) — not new lettings, rented condominiums or houses.${!isFlat ? " Not used for a house's yield." : use ? ` No rent was entered, so the yield uses the ${["bachelor", "1-bed", "2-bed", "3-bed"][caR.beds]} average ${cad(caR.monthly)}/month (estimated).` : ""}`;
+    if (use) marketEvidence.rentalBenchmark = { monthlyRentFlat: caR.monthly, grossYieldPercent: null, source: caR.source };
+    marketEvidence.sourceParts = [...(marketEvidence.sourceParts || [{ title: "Market evidence", text: marketEvidence.source }]), { title: `Rent (CMHC ${caR.year})`, text }];
+    marketEvidence.source = `${marketEvidence.source} ${text}`;
+  }
+
+  // Finland: average rent per m² of non-subsidised flats (new contracts),
+  // Statistics Finland — the yield basis for a flat only when no rent was
+  // entered (the statistics cover rental flats, not houses)
+  const fiR = /^finland$/i.test(String(property.country || "").trim()) && !/commercial|land/i.test(String(property.propertyType || "")) && marketEvidence
+    ? finlandRent(`${property.address || ""} ${property.city || ""}`, property.bedrooms) : null;
+  if (fiR) {
+    const isFlat = !/house|villa|detached|cottage|terrace|town/i.test(String(property.propertyType || ""));
+    const sz = Number(property.size);
+    const use = isFlat && !property.monthlyRent && sz > 0;
+    const text = `${fiR.source}, ${fiR.quarter}, ${fiR.city}: average rent of ${fiR.basis === "new" ? "NEW rental contracts" : "all rental contracts"} for ${fiR.room === "Total" ? "all flats" : fiR.room.toLowerCase().replace("+", "s and larger")}: €${fiR.perSqm.toFixed(2)}/m² a month (${fiR.n.toLocaleString("en-US")} contracts).${!isFlat ? " The statistics cover rental flats — not used for a house's yield." : use ? ` No rent was entered, so the yield uses ${sz} m² × €${fiR.perSqm.toFixed(2)} = €${Math.round(sz * fiR.perSqm).toLocaleString("en-US")}/month (estimated).` : ""}`;
+    if (use) marketEvidence.rentalBenchmark = { monthlyRentPerSqm: fiR.perSqm, grossYieldPercent: null, source: fiR.source };
+    marketEvidence.sourceParts = [...(marketEvidence.sourceParts || [{ title: "Market evidence", text: marketEvidence.source }]), { title: `Rent (Statistics Finland ${fiR.quarter})`, text }];
+    marketEvidence.source = `${marketEvidence.source} ${text}`;
+  }
+
+  // Norway: SSB rental market survey average rent by zone and rooms — the
+  // yield basis only when no rent was entered
+  const noR = /^norway$/i.test(String(property.country || "").trim()) && !/commercial|land/i.test(String(property.propertyType || "")) && marketEvidence
+    ? norwayRent(`${property.address || ""} ${property.city || ""}`, property.bedrooms) : null;
+  if (noR) {
+    const nok = (x) => "NOK " + Math.round(x).toLocaleString("en-US");
+    const text = `${noR.source}, ${noR.year}, ${noR.zone}: average monthly rent of ${noR.rooms} dwellings ${nok(noR.monthly)} (${nok(noR.perSqmYear)} per m² a year). Rooms counted as living rooms + bedrooms (kitchen excluded); all current tenancies in the survey.${property.monthlyRent ? "" : ` No rent was entered, so the yield uses ${nok(noR.monthly)}/month (estimated).`}`;
+    if (!property.monthlyRent) marketEvidence.rentalBenchmark = { monthlyRentFlat: noR.monthly, grossYieldPercent: null, source: noR.source };
+    marketEvidence.sourceParts = [...(marketEvidence.sourceParts || [{ title: "Market evidence", text: marketEvidence.source }]), { title: `Rent (SSB ${noR.year})`, text }];
+    marketEvidence.source = `${marketEvidence.source} ${text}`;
+  }
+
+  // Sweden: SCB median rent per m² of rental flats (hyresrätter, regulated
+  // first-hand stock) — the yield basis for a flat only when no rent was
+  // entered; context for a house
+  const seR = /^sweden$/i.test(String(property.country || "").trim()) && !/commercial|land/i.test(String(property.propertyType || "")) && marketEvidence
+    ? swedenRent(`${property.address || ""} ${property.city || ""}`) : null;
+  const seC = /^sweden$/i.test(String(property.country || "").trim()) && marketEvidence && /apart|flat|condo|studio|penthouse/i.test(String(property.propertyType || ""))
+    ? swedenCondo(`${property.address || ""} ${property.city || ""}`) : null;
+  if (seC) {
+    const sek = (x) => "SEK " + Math.round(x).toLocaleString("en-US");
+    const ch = seC.prevMedian ? ` (${seC.prevYear}: ${sek(seC.prevMedian)}, ${seC.median >= seC.prevMedian ? "+" : ""}${(((seC.median / seC.prevMedian) - 1) * 100).toFixed(1)}%)` : "";
+    const text = `${seC.source}, ${seC.year}, ${seC.region}: median price of the ${seC.n.toLocaleString("en-US")} tenant-owned flats (bostadsrätter) sold — ${sek(seC.median)} per flat${ch}. A whole-flat price over the whole area, any size or location in it — context, not this flat's benchmark.`;
+    marketEvidence.sourceParts = [...(marketEvidence.sourceParts || [{ title: "Market evidence", text: marketEvidence.source }]), { title: `Tenant-owned flats (SCB ${seC.year})`, text }];
+    marketEvidence.source = `${marketEvidence.source} ${text}`;
+  }
+  if (seR) {
+    const isFlat = !/house|villa|detached|cottage|terrace|town/i.test(String(property.propertyType || ""));
+    const sz = Number(property.size);
+    const perMonth = seR.perSqmYear / 12;
+    const use = isFlat && !property.monthlyRent && sz > 0;
+    const text = `${seR.source}, ${seR.year}, ${seR.municipality}: median rent SEK ${seR.perSqmYear.toLocaleString("en-US")} per m² a year (±${seR.moe}), i.e. SEK ${perMonth.toFixed(0)}/m² a month, of first-hand rental flats (hyresrätter, rents set in the regulated utility-value system). Sub-letting an owned flat follows other rules.${!isFlat ? " Not used for a house's yield." : use ? ` No rent was entered, so the yield uses ${sz} m² × SEK ${perMonth.toFixed(0)} = SEK ${Math.round(sz * perMonth).toLocaleString("en-US")}/month (estimated).` : ""}`;
+    if (use) marketEvidence.rentalBenchmark = { monthlyRentPerSqm: perMonth, grossYieldPercent: null, source: seR.source };
+    marketEvidence.sourceParts = [...(marketEvidence.sourceParts || [{ title: "Market evidence", text: marketEvidence.source }]), { title: `Rent (SCB ${seR.year})`, text }];
+    marketEvidence.source = `${marketEvidence.source} ${text}`;
+  }
+
   // each source's own licence / attribution terms (lib/data/licences.js),
   // only for the sources this report's evidence used
   if (marketEvidence) {
@@ -1879,14 +2036,31 @@ export default async function handler(req, res) {
   // guessing a number.
   // Germany: the property's federal state (from its municipality) sets the
   // Grunderwerbsteuer rate
-  const closingCosts = getClosingCosts(property.country, { state: /^germany$/i.test(String(property.country || "").trim()) ? (marketData?.rent?.land || (marketData?.irw?.ags ? "Nordrhein-Westfalen" : null)) : /^(united kingdom|uk)$/i.test(String(property.country || "").trim()) ? (marketData?.nation || null) : /^australia$/i.test(String(property.country || "").trim()) ? (australiaBenchmark({ text: `${property?.address || ""}, ${property?.city || ""}`, propertyType: property.propertyType })?.state || null) : null, price: Number(property.price) || null });
+  const closingCosts = getClosingCosts(property.country, { state: /^germany$/i.test(String(property.country || "").trim()) ? (marketData?.rent?.land || (marketData?.irw?.ags ? "Nordrhein-Westfalen" : null)) : /^(united kingdom|uk)$/i.test(String(property.country || "").trim()) ? (marketData?.nation || null) : /^australia$/i.test(String(property.country || "").trim()) ? (australiaBenchmark({ text: `${property?.address || ""}, ${property?.city || ""}`, propertyType: property.propertyType })?.state || null) : /^(united states|usa|us)$/i.test(String(property.country || "").trim()) ? (marketData?.property?.state || marketData?.region || null) : null, price: Number(property.price) || null,
+    us: { placeKey: usPlaceKey(marketData?.property?.city || marketData?.city, marketData?.property?.state || marketData?.region), cityOnly: !marketData?.property?.countyFips || /\s(city|town|village|borough)$/i.test(String(marketData?.property?.city || "")), countyFips: marketData?.property?.countyFips || usPlaceCounty(marketData?.property?.city || marketData?.city, marketData?.property?.state || marketData?.region), nyc: ["36005", "36047", "36061", "36081", "36085"].includes(marketData?.property?.countyFips) || /^(new york|manhattan|brooklyn|bronx|queens|staten island)\b/i.test(String(marketData?.property?.city || marketData?.city || "")), house: /house|villa|detached|single/i.test(String(property.propertyType || "")) && !/apart|condo|flat/i.test(String(property.propertyType || "")) } });
 
   // Recurring annual ownership tax (property tax / taxe foncière / IBI /
   // Council Tax / Arnona, etc.) — a separate, ongoing cost from the
   // one-time closing costs above. Same rule: only covers countries with a
   // verified, citable rate (see lib/data/propertyTax.js), silent
   // everywhere else.
-  const propertyTax = getPropertyTax(property.country, { state: /^australia$/i.test(String(property.country || "").trim()) ? (australiaBenchmark({ text: `${property?.address || ""}, ${property?.city || ""}`, propertyType: property.propertyType })?.state || null) : null, municipality: marketData?.localPrice?.status === "ok" ? (marketData.localPrice.municipality || marketData.localPrice.area) : null, nuts3: marketData?.localPrice?.nuts3 || null });
+  let propertyTax = getPropertyTax(property.country, { state: /^australia$/i.test(String(property.country || "").trim()) ? (australiaBenchmark({ text: `${property?.address || ""}, ${property?.city || ""}`, propertyType: property.propertyType })?.state || null) : null, municipality: marketData?.localPrice?.status === "ok" ? (marketData.localPrice.municipality || marketData.localPrice.area) : null, nuts3: marketData?.localPrice?.nuts3 || null });
+  // US: the area's own median taxes paid ÷ median value (Census ACS) in
+  // place of the state-range line
+  if (propertyTax && /^(united states|usa|us)$/i.test(String(property.country || "").trim())) {
+    const mp = marketData?.property || {};
+    const ut = usPropertyTax({ zip: mp.zip || property.zip, placeKey: usPlaceKey(mp.city || marketData?.city, mp.state || marketData?.region), place: `${mp.city || marketData?.city}, ${mp.state || marketData?.region}`, countyFips: mp.countyFips, county: mp.county, stateCode: mp.stateCode, state: mp.state || marketData?.region });
+    if (ut) {
+      const usd = (x) => "$" + Math.round(x).toLocaleString("en-US");
+      const ratio = !ut.taxTop && ut.value && !ut.valueTop && ut.level !== "state" ? ut.tax / ut.value * 100 : null;
+      const price = Number(property.askingPrice || property.price);
+      propertyTax = { ...propertyTax, rateRange: undefined,
+        shortLabel: ratio != null ? `≈${ratio.toFixed(2)}% (${ut.area} medians)` : `${ut.taxTop ? usd(ut.tax - 1) + "+" : usd(ut.tax)} median a year (${ut.area})`,
+        rate: `${ut.area}, ${ut.period}: owners' median real estate taxes ${ut.taxTop ? `${usd(ut.tax - 1)} or more` : `${usd(ut.tax)} a year`}; median home value ${ut.value == null ? "not published" : ut.valueTop ? `${usd(ut.value - 1)} or more` : usd(ut.value)}${ratio != null ? ` → ratio of the two medians ≈${ratio.toFixed(2)}%${price > 0 ? ` (≈${usd(price * ratio / 100)} a year at the asking price — an indication only)` : ""}` : ""}.`,
+        basis: `${propertyTax.basis} The ratio divides two separate medians (taxes actually paid by owner-occupiers; owners' own estimate of their home's value) — the real bill depends on this property's assessed value, local rates and exemptions such as homestead; a new owner can be reassessed at the purchase price.`,
+        source: ut.source, sourceUrl: "https://www.census.gov/programs-surveys/acs/data/summary-file.html" };
+    }
+  }
 
   // Real, legally-binding currency/capital-transfer controls on moving
   // money into the country to fund the purchase, or repatriating proceeds
