@@ -699,6 +699,13 @@ largest metro first.
   NM, ND, UT, WY → "ask the county recorder". Test: every state × 9 prices
   × 4 county cases, no NaN/undefined. Known geocoder gap: "100 Beacon St,
   Boston" → Census matches 02136 (one match) — a typed ZIP wins.
+  City-only input has no geocoded county → usRents.json `placeCounty`
+  (Census summary level 155 place-within-county parts, weighted by
+  occupied homes B25003; one county with 80%+ of the place's homes) →
+  `usPlaceCounty()`: Philadelphia 42101, Las Vegas 32003, Miami 12086.
+  The geocoder's place name ("Pittsburgh city") = the incorporated
+  municipality → City of Pittsburgh local 4% (Allegheny County's local
+  rate table: city 3% + school district 1%) only then.
 - Sandbox quirk: Node's built-in fetch here ignores HTTPS_PROXY for some hosts
   (King County, DCAD fail with "upstream connect error"); run local tests with
   `NODE_USE_ENV_PROXY=1`. Vercel production is unaffected — always confirm on

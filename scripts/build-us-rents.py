@@ -53,8 +53,33 @@ for k, v in cand.items():
     inc = [x for x in v if not x[0]]
     pick = inc if inc else v
     if len(pick) == 1: places[k] = [pick[0][1]] + pick[0][2]
+# each place's county (5-digit FIPS) from the place-within-county parts
+# (summary level 155) weighted by occupied homes (B25003); only when one
+# county holds 80%+ of the place's homes
+iN155 = gh.index("NAME")
+hh = {}
+for ln in urllib.request.urlopen(urllib.request.Request(f"https://www2.census.gov/programs-surveys/acs/summary_file/{y}/table-based-SF/data/5YRData/acsdt5y{y}-b25003.dat", headers={"User-Agent": "Mozilla/5.0 (Pradixium data build)"}), timeout=300).read().decode().splitlines()[1:]:
+    c = ln.split("|")
+    if c[0].startswith("1550000US"): hh[c[0]] = max(0, int(c[1]))
+parts = {}
+for ln in geos[1:]:
+    c = ln.split("|")
+    if len(c) < len(gh) or c[gh.index("SUMLEVEL")] != "155" or c[gh.index("COMPONENT")] != "00": continue
+    st, pl, co = c[gh.index("STATE")], c[gh.index("PLACE")], c[gh.index("COUNTY")]
+    parts.setdefault(f"1600000US{st}{pl}", []).append((hh.get(c[gh.index("GEO_ID")], 0), st + co))
+nameToGeo = {}
+for ln in geos[1:]:
+    c = ln.split("|")
+    if len(c) >= len(gh) and c[gh.index("SUMLEVEL")] == "160" and c[gh.index("COMPONENT")] == "00": nameToGeo[c[iN155]] = c[gh.index("GEO_ID")]
+placeCounty = {}
+for k, v in places.items():
+    ps = parts.get(nameToGeo.get(v[0]), [])
+    tot = sum(x for x, _ in ps)
+    if ps:
+        top = max(ps)
+        if len(ps) == 1 or (tot and top[0] / tot >= 0.8): placeCounty[k] = top[1]
 p = os.path.join(os.path.dirname(__file__), "..", "lib", "data", "usRents.json")
 json.dump({"source": f"U.S. Census Bureau, {y-4}–{y} American Community Survey 5-Year Estimates, table B25031 (median gross rent by bedrooms)",
            "url": url, "period": f"{y-4}–{y}", "built": time.strftime("%Y-%m-%d"),
-           "columns": ["all", "studio", "1", "2", "3", "4", "5+"], "zcta": out, "places": places}, open(p, "w"), separators=(",", ":"))
-print(len(out), "ZCTAs;", len(places), "places; miami|FL:", places.get("miami|FL"), "nashville|TN:", places.get("nashville|TN"))
+           "columns": ["all", "studio", "1", "2", "3", "4", "5+"], "zcta": out, "places": places, "placeCounty": placeCounty}, open(p, "w"), separators=(",", ":"))
+print(len(placeCounty), "place counties; philadelphia", placeCounty.get("philadelphia|PA"), "las vegas", placeCounty.get("las vegas|NV"), "miami", placeCounty.get("miami|FL"), "atlanta", placeCounty.get("atlanta|GA"));print(len(out), "ZCTAs;", len(places), "places; miami|FL:", places.get("miami|FL"), "nashville|TN:", places.get("nashville|TN"))

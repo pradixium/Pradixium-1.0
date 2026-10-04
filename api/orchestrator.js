@@ -40,7 +40,7 @@
 
 import { licenceNotices } from "../lib/data/licences.js";
 import { spainRent } from "../lib/spain/rents.js";
-import { usRent, usPlaceKey } from "../lib/us/rents.js";
+import { usRent, usPlaceKey, usPlaceCounty } from "../lib/us/rents.js";
 import { usPropertyTax } from "../lib/us/tax.js";
 import { newZealandRent } from "../lib/newzealand/rents.js";
 import { japanRent } from "../lib/japan/rents.js";
@@ -2037,7 +2037,7 @@ export default async function handler(req, res) {
   // Germany: the property's federal state (from its municipality) sets the
   // Grunderwerbsteuer rate
   const closingCosts = getClosingCosts(property.country, { state: /^germany$/i.test(String(property.country || "").trim()) ? (marketData?.rent?.land || (marketData?.irw?.ags ? "Nordrhein-Westfalen" : null)) : /^(united kingdom|uk)$/i.test(String(property.country || "").trim()) ? (marketData?.nation || null) : /^australia$/i.test(String(property.country || "").trim()) ? (australiaBenchmark({ text: `${property?.address || ""}, ${property?.city || ""}`, propertyType: property.propertyType })?.state || null) : /^(united states|usa|us)$/i.test(String(property.country || "").trim()) ? (marketData?.property?.state || marketData?.region || null) : null, price: Number(property.price) || null,
-    us: { countyFips: marketData?.property?.countyFips || null, nyc: ["36005", "36047", "36061", "36081", "36085"].includes(marketData?.property?.countyFips) || /^(new york|manhattan|brooklyn|bronx|queens|staten island)\b/i.test(String(marketData?.property?.city || marketData?.city || "")), house: /house|villa|detached|single/i.test(String(property.propertyType || "")) && !/apart|condo|flat/i.test(String(property.propertyType || "")) } });
+    us: { placeKey: usPlaceKey(marketData?.property?.city || marketData?.city, marketData?.property?.state || marketData?.region), cityOnly: !marketData?.property?.countyFips || /\s(city|town|village|borough)$/i.test(String(marketData?.property?.city || "")), countyFips: marketData?.property?.countyFips || usPlaceCounty(marketData?.property?.city || marketData?.city, marketData?.property?.state || marketData?.region), nyc: ["36005", "36047", "36061", "36081", "36085"].includes(marketData?.property?.countyFips) || /^(new york|manhattan|brooklyn|bronx|queens|staten island)\b/i.test(String(marketData?.property?.city || marketData?.city || "")), house: /house|villa|detached|single/i.test(String(property.propertyType || "")) && !/apart|condo|flat/i.test(String(property.propertyType || "")) } });
 
   // Recurring annual ownership tax (property tax / taxe foncière / IBI /
   // Council Tax / Arnona, etc.) — a separate, ongoing cost from the
