@@ -923,6 +923,13 @@ servers → not used. Check: Lieusaint 66/86 matched, C €3,222 (23), D €3,18
   (hyresrätter, regulated utility-value rents) per municipality (311), 2026.
   Flats: yield basis when no rent is entered (÷ 12); a house: context.
   Check: Stockholm SEK 1,772 ±31 = the raw cube.
+- Sweden flats CONTEXT (Oct 4 2026): `swedenCondo()` in lib/sweden/rents.js
+  ← `python3 scripts/build-se-condo.py` → lib/data/swedenCondo.json — SCB
+  BO0501C median price of SOLD tenant-owned flats per metro area (Greater
+  Stockholm / Gothenburg / Malmö, by their municipalities) or county, last
+  two years. A whole-flat price over a whole area → context only (the
+  "no official flat price" gap stays: no per-m² / local figure). Check:
+  Greater Stockholm 2025 39,748 sales, median SEK 3,500k = the raw cube.
 - Iceland (Sept 2026): `scripts/build-is-prices.py` → lib/data/
   icelandPrices.json — HMS Kaupskrá fasteigna (every recorded purchase
   agreement, CSV on HMS's public object storage, updated nightly):

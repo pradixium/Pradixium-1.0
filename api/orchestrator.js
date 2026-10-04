@@ -45,7 +45,7 @@ import { irelandRent } from "../lib/ireland/rents.js";
 import { canadaRent } from "../lib/canada/rents.js";
 import { finlandRent } from "../lib/finland/rents.js";
 import { norwayRent } from "../lib/norway/rents.js";
-import { swedenRent } from "../lib/sweden/rents.js";
+import { swedenRent, swedenCondo } from "../lib/sweden/rents.js";
 import { createHash } from "node:crypto";
 import { runPropertyInvestmentAgent } from "../lib/agents/propertyInvestmentAgent.js";
 import { computePradixiumScore } from "../lib/scoring/pradixiumScore.js";
@@ -1943,6 +1943,15 @@ export default async function handler(req, res) {
   // entered; context for a house
   const seR = /^sweden$/i.test(String(property.country || "").trim()) && !/commercial|land/i.test(String(property.propertyType || "")) && marketEvidence
     ? swedenRent(`${property.address || ""} ${property.city || ""}`) : null;
+  const seC = /^sweden$/i.test(String(property.country || "").trim()) && marketEvidence && /apart|flat|condo|studio|penthouse/i.test(String(property.propertyType || ""))
+    ? swedenCondo(`${property.address || ""} ${property.city || ""}`) : null;
+  if (seC) {
+    const sek = (x) => "SEK " + Math.round(x).toLocaleString("en-US");
+    const ch = seC.prevMedian ? ` (${seC.prevYear}: ${sek(seC.prevMedian)}, ${seC.median >= seC.prevMedian ? "+" : ""}${(((seC.median / seC.prevMedian) - 1) * 100).toFixed(1)}%)` : "";
+    const text = `${seC.source}, ${seC.year}, ${seC.region}: median price of the ${seC.n.toLocaleString("en-US")} tenant-owned flats (bostadsrätter) sold — ${sek(seC.median)} per flat${ch}. A whole-flat price over the whole area, any size or location in it — context, not this flat's benchmark.`;
+    marketEvidence.sourceParts = [...(marketEvidence.sourceParts || [{ title: "Market evidence", text: marketEvidence.source }]), { title: `Tenant-owned flats (SCB ${seC.year})`, text }];
+    marketEvidence.source = `${marketEvidence.source} ${text}`;
+  }
   if (seR) {
     const isFlat = !/house|villa|detached|cottage|terrace|town/i.test(String(property.propertyType || ""));
     const sz = Number(property.size);
