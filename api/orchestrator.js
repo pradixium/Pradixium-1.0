@@ -1260,10 +1260,12 @@ function normalizeMarketEvidence(country, raw, propertyType, property = null) {
           transactionValue: null,
           transactionPeriod: omi.period,
           marketArea: `${omi.comune} — OMI zone ${omi.zone} ("${omi.zoneName}")`,
-          source: `${omi.source}, ${omi.period}: ${zoneTxt}. The agency's €/m² ranges (gross area) for this zone: ${omi.rows.map(r).join("; ")}. Benchmark = midpoint of the range for ${best ? `${omi.main.state.toLowerCase()} condition` : `the zone's most common condition (${omi.main.state.toLowerCase()})`}; OMI ranges are calibrated on registered deeds.${renoNote} ${trendSource}.`,
+          source: `${omi.source}, ${omi.period}: ${zoneTxt}. The agency's €/m² ranges (gross area) for this zone: ${omi.rows.map(r).join("; ")}${omi.prevalentType ? ` (the zone's prevailing type: ${omi.prevalentType.toLowerCase()})` : ""}. Benchmark = midpoint of the range for ${best ? `${omi.main.state.toLowerCase()} condition` : `the zone's most common condition (${omi.main.state.toLowerCase()})`}; OMI ranges are calibrated on registered deeds.${omi.main.rentMin != null ? ` Rents in the same zone and type: €${omi.main.rentMin}–${omi.main.rentMax}/m² a month (${omi.main.rentSurface || "gross"} area) — the midpoint is used for the yield when no rent is entered.` : ""}${renoNote} ${trendSource}.`,
           sourceUrl: omi.sourceUrl,
           coverage: "city",
-          priceTrendPercent: change ?? null
+          priceTrendPercent: change ?? null,
+          // the agency's rent range for the same zone, type and condition
+          rentalBenchmark: omi.main.rentMin != null && omi.main.rentMax != null ? { monthlyRentPerSqm: (omi.main.rentMin + omi.main.rentMax) / 2, grossYieldPercent: null, source: `${omi.source}, ${omi.period} — zone ${omi.zone} rent range` } : null
         };
       }
       const ctx = omi.boundary

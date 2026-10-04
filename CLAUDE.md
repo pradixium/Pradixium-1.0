@@ -835,6 +835,12 @@ servers → not used. Check: Lieusaint 66/86 matched, C €3,222 (23), D €3,18
   Check: Via del Corso 100 → B31 Tridente €8,300–11,000; Viale di
   Trastevere 50 → B14 (raw-perimeter ray-cast recompute in Python, same
   zones). italy-intelligence now accepts an address without a city.
+  Same day: (a) a flat now uses the zone's own "Tipologia prevalente"
+  (Rome B31 is mostly "abitazioni civili" €7,400–9,700 — the luxury
+  "signorili" row €8,300–11,000 used to be picked first); (b) the OMI sheet's
+  RENT range (€/m² a month, same zone/type/condition) → rentalBenchmark →
+  yield when no rent is entered (B31 19.5–25.8 → €22.65; 100 m² €2,265/mo,
+  3.02% on €900k — hand-checked). Rent was missing for Italy before.
 - Italy renovation (Sept 2026): the "Renovated?" input switches the OMI
   benchmark to the agency's own EXCELLENT-condition ("ottimo") range of the
   same type when the zone publishes one (Porto Cervo E7 flats: normale
