@@ -40,7 +40,8 @@
 
 import { licenceNotices } from "../lib/data/licences.js";
 import { spainRent } from "../lib/spain/rents.js";
-import { usRent } from "../lib/us/rents.js";
+import { usRent, usPlaceKey } from "../lib/us/rents.js";
+import { usPropertyTax } from "../lib/us/tax.js";
 import { newZealandRent } from "../lib/newzealand/rents.js";
 import { japanRent } from "../lib/japan/rents.js";
 import { irelandRent } from "../lib/ireland/rents.js";
@@ -2042,7 +2043,23 @@ export default async function handler(req, res) {
   // one-time closing costs above. Same rule: only covers countries with a
   // verified, citable rate (see lib/data/propertyTax.js), silent
   // everywhere else.
-  const propertyTax = getPropertyTax(property.country, { state: /^australia$/i.test(String(property.country || "").trim()) ? (australiaBenchmark({ text: `${property?.address || ""}, ${property?.city || ""}`, propertyType: property.propertyType })?.state || null) : null, municipality: marketData?.localPrice?.status === "ok" ? (marketData.localPrice.municipality || marketData.localPrice.area) : null, nuts3: marketData?.localPrice?.nuts3 || null });
+  let propertyTax = getPropertyTax(property.country, { state: /^australia$/i.test(String(property.country || "").trim()) ? (australiaBenchmark({ text: `${property?.address || ""}, ${property?.city || ""}`, propertyType: property.propertyType })?.state || null) : null, municipality: marketData?.localPrice?.status === "ok" ? (marketData.localPrice.municipality || marketData.localPrice.area) : null, nuts3: marketData?.localPrice?.nuts3 || null });
+  // US: the area's own median taxes paid ÷ median value (Census ACS) in
+  // place of the state-range line
+  if (propertyTax && /^(united states|usa|us)$/i.test(String(property.country || "").trim())) {
+    const mp = marketData?.property || {};
+    const ut = usPropertyTax({ zip: mp.zip || property.zip, placeKey: usPlaceKey(mp.city || marketData?.city, mp.state || marketData?.region), place: `${mp.city || marketData?.city}, ${mp.state || marketData?.region}`, countyFips: mp.countyFips, county: mp.county, stateCode: mp.stateCode, state: mp.state || marketData?.region });
+    if (ut) {
+      const usd = (x) => "$" + Math.round(x).toLocaleString("en-US");
+      const ratio = !ut.taxTop && ut.value && !ut.valueTop && ut.level !== "state" ? ut.tax / ut.value * 100 : null;
+      const price = Number(property.askingPrice || property.price);
+      propertyTax = { ...propertyTax, rateRange: undefined,
+        shortLabel: ratio != null ? `≈${ratio.toFixed(2)}% (${ut.area} medians)` : `${ut.taxTop ? usd(ut.tax - 1) + "+" : usd(ut.tax)} median a year (${ut.area})`,
+        rate: `${ut.area}, ${ut.period}: owners' median real estate taxes ${ut.taxTop ? `${usd(ut.tax - 1)} or more` : `${usd(ut.tax)} a year`}; median home value ${ut.value == null ? "not published" : ut.valueTop ? `${usd(ut.value - 1)} or more` : usd(ut.value)}${ratio != null ? ` → ratio of the two medians ≈${ratio.toFixed(2)}%${price > 0 ? ` (≈${usd(price * ratio / 100)} a year at the asking price — an indication only)` : ""}` : ""}.`,
+        basis: `${propertyTax.basis} The ratio divides two separate medians (taxes actually paid by owner-occupiers; owners' own estimate of their home's value) — the real bill depends on this property's assessed value, local rates and exemptions such as homestead; a new owner can be reassessed at the purchase price.`,
+        source: ut.source, sourceUrl: "https://www.census.gov/programs-surveys/acs/data/summary-file.html" };
+    }
+  }
 
   // Real, legally-binding currency/capital-transfer controls on moving
   // money into the country to fund the purchase, or repatriating proceeds

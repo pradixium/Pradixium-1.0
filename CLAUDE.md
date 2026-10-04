@@ -655,6 +655,15 @@ largest metro first.
   incorporated place beats a same-name CDP, otherwise dropped), labelled
   "the whole city". Check: Miami city 2-bed $1,885, all $1,758 = raw row
   1600000US1245000.
+- US PROPERTY TAX (Oct 4 2026): the Tax Foundation line (a think tank,
+  not official) is gone. `lib/us/tax.js` ← `python3 scripts/build-us-tax.py
+  2024` (each December) → lib/data/usTaxPrices.json: ACS 5-year B25103
+  (owners' median real estate taxes paid) + B25077 (median value) per ZIP,
+  Census place (same keys as usRents places), county (us-intelligence now
+  returns property.countyFips), state. Ratio of the two medians shown as an
+  indication (+ the amount at the asking price), never for a state-only
+  match; top-coded medians not used. Check: ZIP 60610 $9,122 / $505,900 =
+  1.80%; Miami city $4,586 / $518,100 = 0.89% (raw .dat).
 - Sandbox quirk: Node's built-in fetch here ignores HTTPS_PROXY for some hosts
   (King County, DCAD fail with "upstream connect error"); run local tests with
   `NODE_USE_ENV_PROXY=1`. Vercel production is unaffected — always confirm on
