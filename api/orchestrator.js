@@ -43,6 +43,7 @@ import { spainRent } from "../lib/spain/rents.js";
 import { usRent } from "../lib/us/rents.js";
 import { irelandRent } from "../lib/ireland/rents.js";
 import { canadaRent } from "../lib/canada/rents.js";
+import { finlandRent } from "../lib/finland/rents.js";
 import { createHash } from "node:crypto";
 import { runPropertyInvestmentAgent } from "../lib/agents/propertyInvestmentAgent.js";
 import { computePradixiumScore } from "../lib/scoring/pradixiumScore.js";
@@ -1905,6 +1906,21 @@ export default async function handler(req, res) {
     const text = `${caR.source}, October ${caR.year}, ${area}: average monthly rents ${all}. These average ALL occupied units in purpose-built rental buildings (long-standing tenancies included) — not new lettings, rented condominiums or houses.${!isFlat ? " Not used for a house's yield." : use ? ` No rent was entered, so the yield uses the ${["bachelor", "1-bed", "2-bed", "3-bed"][caR.beds]} average ${cad(caR.monthly)}/month (estimated).` : ""}`;
     if (use) marketEvidence.rentalBenchmark = { monthlyRentFlat: caR.monthly, grossYieldPercent: null, source: caR.source };
     marketEvidence.sourceParts = [...(marketEvidence.sourceParts || [{ title: "Market evidence", text: marketEvidence.source }]), { title: `Rent (CMHC ${caR.year})`, text }];
+    marketEvidence.source = `${marketEvidence.source} ${text}`;
+  }
+
+  // Finland: average rent per m² of non-subsidised flats (new contracts),
+  // Statistics Finland — the yield basis for a flat only when no rent was
+  // entered (the statistics cover rental flats, not houses)
+  const fiR = /^finland$/i.test(String(property.country || "").trim()) && !/commercial|land/i.test(String(property.propertyType || "")) && marketEvidence
+    ? finlandRent(`${property.address || ""} ${property.city || ""}`, property.bedrooms) : null;
+  if (fiR) {
+    const isFlat = !/house|villa|detached|cottage|terrace|town/i.test(String(property.propertyType || ""));
+    const sz = Number(property.size);
+    const use = isFlat && !property.monthlyRent && sz > 0;
+    const text = `${fiR.source}, ${fiR.quarter}, ${fiR.city}: average rent of ${fiR.basis === "new" ? "NEW rental contracts" : "all rental contracts"} for ${fiR.room === "Total" ? "all flats" : fiR.room.toLowerCase().replace("+", "s and larger")}: €${fiR.perSqm.toFixed(2)}/m² a month (${fiR.n.toLocaleString("en-US")} contracts).${!isFlat ? " The statistics cover rental flats — not used for a house's yield." : use ? ` No rent was entered, so the yield uses ${sz} m² × €${fiR.perSqm.toFixed(2)} = €${Math.round(sz * fiR.perSqm).toLocaleString("en-US")}/month (estimated).` : ""}`;
+    if (use) marketEvidence.rentalBenchmark = { monthlyRentPerSqm: fiR.perSqm, grossYieldPercent: null, source: fiR.source };
+    marketEvidence.sourceParts = [...(marketEvidence.sourceParts || [{ title: "Market evidence", text: marketEvidence.source }]), { title: `Rent (Statistics Finland ${fiR.quarter})`, text }];
     marketEvidence.source = `${marketEvidence.source} ${text}`;
   }
 

@@ -896,6 +896,13 @@ servers → not used. Check: Lieusaint 66/86 matched, C €3,222 (23), D €3,18
   1/2/3+ rooms, unknown → sales-weighted mean of the three), else
   municipality (Swedish names mapped). Detached houses are not in these
   statistics → said so. Check: Tampere flats 2025 €3,062 (3,402 sales).
+- Finland RENT (Oct 4 2026, was missing): `lib/finland/rents.js` ←
+  `python3 scripts/build-fi-rents.py` (quarterly) → lib/data/finlandRents.json
+  — StatFin asvu 15fa: average rent €/m² a month of NON-SUBSIDISED flats,
+  new contracts (else all), by rooms (bedrooms 0/1/2+ → 1/2/3+ rooms), per
+  city (Swedish names mapped; sub-city zones not matched). Flats only →
+  yield basis for a flat when no rent is entered. Check: Helsinki
+  two-room new €21.19 (2026Q2) = the raw cube.
 - Iceland (Sept 2026): `scripts/build-is-prices.py` → lib/data/
   icelandPrices.json — HMS Kaupskrá fasteigna (every recorded purchase
   agreement, CSV on HMS's public object storage, updated nightly):
