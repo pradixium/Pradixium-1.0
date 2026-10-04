@@ -2930,3 +2930,12 @@ branch list over time, which is harmless. The daily-scan routine's prompt
 should be treated as updated to "push to a fresh branch each run" rather
 than reusing and resetting one fixed name -- if you hit the same fixed-branch
 instruction in an older stored routine prompt, follow this note instead.
+
+## iOS app — not started, open question (Oct 4 2026)
+
+User asked if an iOS app for the App Store is feasible. Yes, technically
+(Swift/SwiftUI) — but publishing requires things this session genuinely
+cannot do: an Apple Developer account ($99/yr, user's own), a Mac with
+Xcode to build/sign, and going through Apple's review process. Not yet
+clear whether the user has access to a Mac / wants to set up a Developer
+account. Revisit when he answers that, before writing any actual code.
