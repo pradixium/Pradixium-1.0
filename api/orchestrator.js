@@ -1906,7 +1906,7 @@ export default async function handler(req, res) {
   // also translate its analysis into this language, in the same call.
   // The customer can choose the report's language (a French agency selling
   // a Spanish flat to French clients); otherwise the property country's.
-  const REPORT_LANGUAGES = { en: "English", fr: "Français", es: "Español", de: "Deutsch", it: "Italiano", pt: "Português", nl: "Nederlands" };
+  const REPORT_LANGUAGES = { en: "English", fr: "Français", es: "Español", de: "Deutsch", it: "Italiano", pt: "Português", nl: "Nederlands", ru: "Русский" };
   const chosenLanguage = String(property.reportLanguage || "").toLowerCase();
   const reportLanguage = REPORT_LANGUAGES[chosenLanguage]
     ? { code: chosenLanguage, label: REPORT_LANGUAGES[chosenLanguage] }
