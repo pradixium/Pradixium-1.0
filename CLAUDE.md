@@ -706,6 +706,20 @@ largest metro first.
   The geocoder's place name ("Pittsburgh city") = the incorporated
   municipality → City of Pittsburgh local 4% (Allegheny County's local
   rate table: city 3% + school district 1%) only then.
+  LOCAL TAXES (Oct 4 2026, third pass): WA local REET for every city +
+  unincorporated county (CDP place) ← `python3 scripts/build-wa-reet.py
+  <DOR 84-0013 PDF url>` → lib/data/waLocalReet.js (324 locations, May 1
+  2026; Seattle 0.50% — a search summary said 0.25%, the PDF wins); MD
+  county recordation ($/$500) + transfer (%) from the DLS "Other Local Tax
+  Rates" table FY 2026 (FY 2027 not published there yet — said so;
+  Montgomery varies by value → not computed); San Francisco's own
+  whole-price bands (replaces the county 55¢); City of Los Angeles $2.25/
+  $500 + Measure ULA 4% / 5.5% above $5.4m / $10.9m (from 1 Jul 2026),
+  Pomona / Redondo Beach $2.20/$1,000 (LA County Registrar-Recorder city
+  table); Chicago $3.75/$500 buyer + CTA $1.50/$500 seller. Ohio county
+  mills: only a 2019 collections table exists → not added. us-intelligence:
+  a street typed with "City, ST" in the city field now keeps the state
+  (200 N Spring St, Los Angeles, CA had no state when the geocoder missed).
 - Sandbox quirk: Node's built-in fetch here ignores HTTPS_PROXY for some hosts
   (King County, DCAD fail with "upstream connect error"); run local tests with
   `NODE_USE_ENV_PROXY=1`. Vercel production is unaffected — always confirm on
