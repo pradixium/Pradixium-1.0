@@ -903,6 +903,15 @@ servers → not used. Check: Lieusaint 66/86 matched, C €3,222 (23), D €3,18
   months, median ISK/m² per postcode / municipality for Fjölbýli (flats),
   Einbýli (detached), Sérbýli (semi/terraced), 10+ sales. Check: Reykjavík
   flats 822,865 ISK/m² (2,584 sales). Re-run monthly.
+- Ireland RENT (Oct 4 2026, was missing): `lib/ireland/rents.js` ←
+  `python3 scripts/build-ie-rents.py` (quarterly) → lib/data/irelandRents.json
+  — RTB average monthly rent of NEW tenancies, CSO PxStat RIQ02 (JSON-stat,
+  CC BY 4.0), latest quarter (2025Q4, 306 of 446 places with values):
+  locality ("Ballsbridge, Dublin 4") → Dublin postal district → county;
+  type (Apartment / Semi / Terrace / Detached; a plain "house" → all types)
+  × bedrooms, cascading to coarser cells. Yield basis when no rent is
+  entered. Check: Ballsbridge 2-bed apartment €2,830.54 = the raw cube;
+  €650k → 5.23% gross.
 - A fixed figure for flats only is never applied to a house (orchestrator
   `flatsOnly`). Denmark: Statistics Denmark stops at landsdel; EJEN88's
   per-m² key figure is empty for homes. Sweden: bostadsrätter are not in

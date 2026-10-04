@@ -41,6 +41,7 @@
 import { licenceNotices } from "../lib/data/licences.js";
 import { spainRent } from "../lib/spain/rents.js";
 import { usRent } from "../lib/us/rents.js";
+import { irelandRent } from "../lib/ireland/rents.js";
 import { createHash } from "node:crypto";
 import { runPropertyInvestmentAgent } from "../lib/agents/propertyInvestmentAgent.js";
 import { computePradixiumScore } from "../lib/scoring/pradixiumScore.js";
@@ -1874,6 +1875,19 @@ export default async function handler(req, res) {
     const text = `${usR.source}: median gross rent of ${usR.label} in ZIP ${usR.zip}, ${usR.period}: ${usR.topCoded ? `${usd(usR.value - 1)} or more (the Census top-codes this median — not used as a number)` : `${usd(usR.value)} a month`}. Gross rent includes utilities paid by the tenant and covers existing tenancies over the 5-year period, not today's asking rents.${use ? ` No rent was entered, so the yield uses ${usd(usR.value)}/month (estimated).` : ""}`;
     if (use) marketEvidence.rentalBenchmark = { monthlyRentFlat: usR.value, grossYieldPercent: null, source: usR.source };
     marketEvidence.sourceParts = [...(marketEvidence.sourceParts || [{ title: "Market evidence", text: marketEvidence.source }]), { title: "Rent (Census ACS)", text }];
+    marketEvidence.source = `${marketEvidence.source} ${text}`;
+  }
+
+  // Ireland: RTB average rent of new tenancies for the place, type and
+  // bedrooms (CSO RIQ02) — the yield basis only when no rent was entered
+  const ieR = /^ireland$/i.test(String(property.country || "").trim()) && !/commercial|land/i.test(String(property.propertyType || "")) && marketEvidence
+    ? irelandRent(`${property.address || ""}, ${property.city || ""}`, property.propertyType, property.bedrooms) : null;
+  if (ieR) {
+    const eur = (x) => "€" + Math.round(x).toLocaleString("en-US");
+    const what = `${ieR.type === "All property types" ? "all home types" : ieR.type.toLowerCase()}, ${ieR.beds === "All bedrooms" ? "all bedroom counts" : ieR.beds.toLowerCase()}`;
+    const text = `${ieR.source}, ${ieR.quarter}: average monthly rent of new tenancies registered in ${ieR.place} (${what}): ${eur(ieR.monthly)}. These are rents agreed on new lettings in that quarter.${property.monthlyRent ? "" : ` No rent was entered, so the yield uses ${eur(ieR.monthly)}/month (estimated).`}`;
+    if (!property.monthlyRent) marketEvidence.rentalBenchmark = { monthlyRentFlat: ieR.monthly, grossYieldPercent: null, source: ieR.source };
+    marketEvidence.sourceParts = [...(marketEvidence.sourceParts || [{ title: "Market evidence", text: marketEvidence.source }]), { title: `Rent (RTB ${ieR.quarter})`, text }];
     marketEvidence.source = `${marketEvidence.source} ${text}`;
   }
 
