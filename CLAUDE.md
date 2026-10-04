@@ -1443,9 +1443,23 @@ attribution is added as a "Licence" source block by `lib/data/licences.js`
 - Not commercial-use-safe, still not used: NSW Valuer General (CC BY-NC-ND),
   KSH tailored extracts (CC BY-NC; STADAT tables are CC BY 4.0 — those are
   what we use), INE Portugal's OLD terms (now CC BY 4.0).
-- Not yet checked: Dubai DLD export terms, US county open-data portals,
-  NBP/GUS, Spain INE/MIVAU, Serbia RGZ, Mexico SHF, Brazil SP (source named
-  in the text meanwhile).
+- Spain Catastro (Oct 4 2026): the Catastro licence (licdescargaES.pdf
+  cl. 5–7, 12) allows public and commercial use of TRANSFORMED information,
+  must cite the Dirección General del Catastro + the date of access, and a
+  product must not present itself as "información catastral" → notice with
+  the access date (prebuilt map's build date / today for live lookups).
+- Dubai (Oct 4 2026), OPEN QUESTION for the user: dubailand.gov.ae's site
+  terms allow Web Site Materials "solely for your personal, noncommercial
+  use"; the Real Estate Data page shows no licence of its own. Dubai Law
+  No. 26 of 2015 makes government data open by default, and the DLD
+  transactions dataset is classified Open Data (Dubai Pulse
+  "dld_transactions-open", reported as CC BY 4.0 / attribution to the Dubai
+  Government and DLD) — but dubaipulse.gov.ae/legal answered 503, so the
+  licence text itself was not read. Attribution notice added meanwhile;
+  written confirmation from DLD recommended (same as Lithuania).
+- Not yet checked: US county open-data portals, NBP/GUS, Spain
+  INE/MIVAU, Serbia RGZ, Mexico SHF, Brazil SP (source named in the text
+  meanwhile).
 
 ## Singapore (Oct 3 2026, Claude B — added to the dropdown)
 
