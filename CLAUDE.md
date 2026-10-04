@@ -1657,6 +1657,20 @@ The regional fixture's unsourced "¥36 million average home" and an
 unverified land-price line were removed (the fixture stays for the
 Global Index).
 
+Japan RENT (Oct 4 2026): `lib/japan/rents.js` ← `python3
+scripts/build-jp-rents.py` (next survey 2028) → lib/data/japanRents.json —
+Statistics Bureau 2023 Housing and Land Survey table 122-4 (e-Stat file
+statInfId 000040210062, keyless): average monthly rent per m² of floor
+area of PRIVATE rented homes (民営借家, rent-free excluded) per prefecture /
+municipality / designated-city ward (1,274 areas; towns < 15,000 people
+not surveyed). English names, postcodes and town names (Roppongi →
+Minato) from Japan Post's KEN_ALL_ROME (service/search/zipcode/download/
+roman/ — the old /zipcode/dl/ path 404s). A ward of a designated city only
+with its city typed ("Kita-ku, Osaka"); "Kita" alone → ambiguous; a
+prefecture-only match (Niseko → Hokkaido) is context, never the yield.
+Existing tenancies, 1 Oct 2023 — said so. Check: Minato ¥4,504 (66,230),
+Naha ¥1,320 = the raw xlsx. Licence: e-Stat 出典 + を加工して作成.
+
 ## Brazil — City of São Paulo (Oct 1 2026, Claude B)
 
 `lib/brazil/saoPaulo.js` ← `python3 scripts/build-br-sp-itbi.py <2025.xlsx>

@@ -42,6 +42,7 @@ import { licenceNotices } from "../lib/data/licences.js";
 import { spainRent } from "../lib/spain/rents.js";
 import { usRent } from "../lib/us/rents.js";
 import { newZealandRent } from "../lib/newzealand/rents.js";
+import { japanRent } from "../lib/japan/rents.js";
 import { irelandRent } from "../lib/ireland/rents.js";
 import { canadaRent } from "../lib/canada/rents.js";
 import { finlandRent } from "../lib/finland/rents.js";
@@ -1900,6 +1901,21 @@ export default async function handler(req, res) {
     const text = `${nzR.source}, ${head}${many} Rents agreed on new private lettings.${use ? ` No rent was entered, so the yield uses ${nzd(v[0])} × 52 ÷ 12 = ${nzd(monthly)}/month (estimated).` : ""}`;
     if (use) marketEvidence.rentalBenchmark = { monthlyRentFlat: monthly, grossYieldPercent: null, source: nzR.source };
     marketEvidence.sourceParts = [...(marketEvidence.sourceParts || [{ title: "Market evidence", text: marketEvidence.source }]), { title: `Rent (MBIE bond data)`, text }];
+    marketEvidence.source = `${marketEvidence.source} ${text}`;
+  }
+
+  // Japan: average rent per m² of PRIVATE rented homes (2023 Housing and
+  // Land Survey) for the municipality / ward — × the entered size → yield
+  const jpR = /^japan$/i.test(String(property.country || "").trim()) && !/commercial|land/i.test(String(property.propertyType || "")) && marketEvidence
+    ? japanRent(`${property.address || ""}, ${property.city || ""}`) : null;
+  if (jpR) {
+    const yen = (x) => "¥" + Math.round(x).toLocaleString("en-US");
+    const sz = Number(property.size);
+    const text = jpR.ambiguous
+      ? `${"Statistics Bureau of Japan, 2023 Housing and Land Survey (table 122-4)"}: the place matches several areas (${jpR.ambiguous.join("; ")}) — enter the prefecture or city (e.g. "Kita-ku, Osaka") for the area's average rent.`
+      : `${jpR.source}: average monthly rent per m² of floor area of private rented homes in ${jpR.area}: ${yen(jpR.perM2)}/m² (${jpR.homes.toLocaleString("en-US")} private rented homes, rent-free homes excluded; survey date 1 October ${jpR.year}). An average of ALL existing tenancies (old and new buildings, long-standing leases), not today's asking rents.${jpR.level === "pref" ? " A whole-prefecture average — not used for the yield; enter the city or ward." : !property.monthlyRent && sz > 0 ? ` No rent was entered, so the yield uses ${sz} m² × ${yen(jpR.perM2)} = ${yen(sz * jpR.perM2)}/month (estimated).` : ""}`;
+    if (!jpR.ambiguous && jpR.level !== "pref" && !property.monthlyRent) marketEvidence.rentalBenchmark = { monthlyRentPerSqm: jpR.perM2, grossYieldPercent: null, source: jpR.source };
+    marketEvidence.sourceParts = [...(marketEvidence.sourceParts || [{ title: "Market evidence", text: marketEvidence.source }]), { title: "Rent (Housing and Land Survey 2023)", text }];
     marketEvidence.source = `${marketEvidence.source} ${text}`;
   }
 
