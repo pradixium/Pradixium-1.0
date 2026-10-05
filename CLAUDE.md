@@ -1628,6 +1628,11 @@ attribution is added as a "Licence" source block by `lib/data/licences.js`
 - Stats SA: older releases forbade selling the data; the CURRENT P0160
   imprint only asks to name Stats SA as the source of the basic data and to
   say the analysis is the user's own → allowed, notice added.
+- User's answers (Oct 5 2026): Dubai — "זה נעשה" (handled by the user;
+  the open DLD question is closed, keep the attribution notice). Poland
+  NBP — keep NBP for now; the user will request written confirmation
+  (with Japan's MLIT key and Lithuania's downloads, after the company is
+  registered).
 - Not commercial-use-safe, still not used: NSW Valuer General (CC BY-NC-ND),
   KSH tailored extracts (CC BY-NC; STADAT tables are CC BY 4.0 — those are
   what we use), INE Portugal's OLD terms (now CC BY 4.0).
