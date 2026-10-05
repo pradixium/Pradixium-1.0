@@ -935,7 +935,7 @@
     set("grossYield", pct(b.grossYieldPercent) + " (est.)");
   }
 
-  const LOCKED_LIST_ITEM = "<li>🔒 Unlock the full report — $29.99 — to see this</li>";
+  const LOCKED_LIST_ITEM = "<li>🔒 Unlock the full report — FREE for the first 1,000 — to see this</li>";
 
   // Same bands the AI agent is instructed to use for dealRating (see
   // lib/agents/propertyInvestmentAgent.js) — deterministic, so it works
@@ -1007,7 +1007,7 @@
       if (highlightsEl) highlightsEl.innerHTML = LOCKED_LIST_ITEM;
       const risksEl = $("risks");
       if (risksEl) risksEl.innerHTML = LOCKED_LIST_ITEM;
-      set("investorAction", agent.investorAction || "Unlock the full report — $29.99 — to see the investor action recommendation.");
+      set("investorAction", agent.investorAction || "Unlock the full report — FREE for the first 1,000 — to see the investor action recommendation.");
       return;
     }
 
@@ -1677,7 +1677,7 @@
     const subscribeBtn = $("subscribeReportBtn");
     const businessBtn = $("businessSubscribeBtn");
     const monthlyBtn = $("monthlySubscribeBtn");
-    let label = "Unlock This Report — $29.99&nbsp; →";
+    let label = "Unlock This Report — FREE for the first 1,000&nbsp; →";
     if (!paid) {
       const quota = await checkMonthlyQuota();
       if (quota.active && quota.remaining > 0) label = `View Full Analysis (${quota.remaining} of 3 monthly reports left)&nbsp; →`;
