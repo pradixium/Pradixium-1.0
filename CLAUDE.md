@@ -1645,9 +1645,16 @@ attribution is added as a "Licence" source block by `lib/data/licences.js`
   Government and DLD) — but dubaipulse.gov.ae/legal answered 503, so the
   licence text itself was not read. Attribution notice added meanwhile;
   written confirmation from DLD recommended (same as Lithuania).
-- Not yet checked: US county open-data portals, NBP/GUS, Spain
-  INE/MIVAU, Serbia RGZ, Mexico SHF, Brazil SP (source named in the text
-  meanwhile).
+- Oct 5 2026 licence pass: GUS BDL = CC BY 4.0 (stated on bdl.stat.gov.pl)
+  → notice; Mexico SHF → "Términos de Libre Uso MX" citation (dataset,
+  agency, link, date YYYY-MM-DD); Spain INE → RD 1495/2011 general reuse
+  conditions; São Paulo ITBI and Serbia RGZ: no licence text on their
+  pages → source named. OPEN QUESTION for the user: NBP BaRN (Polish city
+  benchmarks) — nbp.pl's legal page sits behind a bot check (not read);
+  NBP's education portal regulation requires written consent for copying
+  beyond personal use. Source named meanwhile; written confirmation from
+  NBP recommended (else fall back to GUS powiat figures, CC BY).
+- Not yet checked: US county open-data portals.
 
 ## Deploy gotcha (Oct 4 2026)
 
