@@ -618,6 +618,21 @@ largest metro first.
   resultRecordCount), Lane (41039, Address (Site) → maptaxlot → Parcels
   total_mkt_land + total_mkt_imp, weekly; NUMACCNTS > 1 → no value). RMV
   only; capped assessed value not shown; no roll year in any layer.
+- Montgomery County PA (42091, Oct 5 2026) in `moreCounties.js`: county GIS
+  "Montgomery County Parcels" (item licence: "a free and open resource") —
+  facts + Government Value = TOTAL_ASSE (old base-year assessment) × the PA
+  Department of Revenue common level ratio FACTOR 3.36 (documents accepted
+  1 Jul 2026 – 30 Jun 2027; the full 67-county table is in the DoR list
+  "2025 Common Level Ratio Real Estate Valuation Factors, July 2026") —
+  labelled as the State's realty-transfer-tax formula, not an appraisal.
+  Update the factor every July. Check: 1086 Edge Hill Rd 131,700 × 3.36 =
+  442,512. STEB sale codes have no published definitions → last sale shown
+  as "recorded consideration — not screened". Skipped (licence): Chester
+  (CC BY-NC-SA), Bucks ("Not for commercial use"), York (YCPC "internal use
+  … illustration and demonstration purposes only"); Lehigh layer is a
+  test service ("ATestParcel"); Luzerne has no situs address; Tennessee
+  statewide boundaries are "for state agencies with approved access".
+  Douglas NE, Sedgwick KS, Prince William VA layers carry no values.
 - Texas additions (`texas.js`, generic `find` configs): Tarrant (TAD roll as
   published by City of Fort Worth "Parcels_Public_View" — whole county, 2024
   roll as of Sept 2026, shown with its year), Collin (CCAD's own layer; the
