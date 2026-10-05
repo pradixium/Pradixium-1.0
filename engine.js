@@ -1678,14 +1678,19 @@
     const businessBtn = $("businessSubscribeBtn");
     const monthlyBtn = $("monthlySubscribeBtn");
     let label = "Unlock This Report — FREE for the first 1,000&nbsp; →";
+    let monthlyActive = false;
     if (!paid) {
       const quota = await checkMonthlyQuota();
+      monthlyActive = quota.active;
       if (quota.active && quota.remaining > 0) label = `View Full Analysis (${quota.remaining} of 3 monthly reports left)&nbsp; →`;
     }
     if (createBtn) createBtn.innerHTML = paid ? "View Full Analysis&nbsp; →" : label;
     if (subscribeBtn) subscribeBtn.style.display = paid ? "none" : "inline-block";
     if (businessBtn) businessBtn.style.display = paid ? "none" : "inline-block";
-    if (monthlyBtn) monthlyBtn.style.display = paid ? "none" : "inline-block";
+    // An existing monthly subscriber must not be invited to buy the same
+    // plan again just because they haven't viewed THIS property yet —
+    // paid only tracks per-report access, not plan membership.
+    if (monthlyBtn) monthlyBtn.style.display = (paid || monthlyActive) ? "none" : "inline-block";
   }
 
   async function startCheckout(reportData, plan) {
