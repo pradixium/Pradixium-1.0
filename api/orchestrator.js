@@ -1846,7 +1846,17 @@ export default async function handler(req, res) {
     marketDataError = fetched.error;
   }
 
-  const marketEvidence = nonResidentialEvidence(normalizeMarketEvidence(property.country, marketData, property.propertyType, property), property.propertyType);
+  // no market data at all → say why instead of an empty card: a country with
+  // no verified official price source yet, or a source that did not answer now
+  const noEvidence = () => {
+    const cname = String(property.country || "").trim(), key = cname.toLowerCase();
+    const pending = COUNTRY_ENDPOINTS[key] === "pending-intelligence";
+    const text = pending
+      ? `No verified official real-estate price source has been found for ${cname} yet, so no market benchmark is shown. The official taxes, fees and foreign-buyer rules below still apply.`
+      : `The official price data for ${cname} could not be loaded just now, so no market benchmark is shown — please run the analysis again in a few minutes.`;
+    return { benchmarkValue: null, governmentValue: null, transactionValue: null, transactionPeriod: null, marketArea: null, coverage: "none", source: text, sourceUrl: null };
+  };
+  const marketEvidence = nonResidentialEvidence(normalizeMarketEvidence(property.country, marketData, property.propertyType, property), property.propertyType) || noEvidence();
   // Germany: the municipality's Zensus 2022 average rent — used for the
   // yield only when no rent was entered (flagged as estimated there)
   const deRent = /^germany$/i.test(String(property.country || "").trim()) && !/commercial|land/i.test(String(property.propertyType || "")) ? marketData?.rent : null;
