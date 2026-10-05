@@ -720,6 +720,15 @@ largest metro first.
   mills: only a 2019 collections table exists → not added. us-intelligence:
   a street typed with "City, ST" in the city field now keeps the state
   (200 N Spring St, Los Angeles, CA had no state when the geocoder missed).
+  Oct 5 2026: Montgomery County MD recordation (county Finance "Bill 17-23"
+  table, marginal $4.45 → 6.75 / 10.20 / 10.78 / 11.35 per $500 above
+  $500k / 600k / 750k / 1m, non-principal — = the county's own worked
+  examples $400k $3,560, $575k $5,462.50, $675k $7,330); its county
+  transfer tax varies by price → not computed. Alameda County cities
+  (Oakland, Berkeley, Alameda, Albany, Emeryville, Hayward, Piedmont, San
+  Leandro) from the County Clerk-Recorder's city table, per $1,000 of the
+  WHOLE price at its band (Oakland OMC 4.20.020), plus the county 55¢/$500.
+  Berkeley's Measure W rates start 1 Jan 2027 → update then.
 - Sandbox quirk: Node's built-in fetch here ignores HTTPS_PROXY for some hosts
   (King County, DCAD fail with "upstream connect error"); run local tests with
   `NODE_USE_ENV_PROXY=1`. Vercel production is unaffected — always confirm on
