@@ -737,6 +737,15 @@ largest metro first.
   $8m / above, city page); San José conveyance tax $1.65/$500 (Muni Code
   § 4.58.100) + Measure E 0.75 / 1 / 1.5% of the whole price above $2.3m
   (§ 4.59.100; threshold CPI-indexed every 5 years, next July 2030).
+  Also Oct 5: Sacramento city $2.75/$1,000 whole price (City Code
+  § 3.16.020, County Recorder page); Culver City MARGINAL 0.45 / 1.5 / 3 /
+  4% at $1.5m / $3m / $10m (city page, from 1 Apr 2021); Connecticut
+  municipal conveyance tax 0.25% in every town (DRS SN 2011(3)) — the 19
+  eligible towns' extra up-to-0.25% only named (who adopts is not on an
+  official current list); Virginia regional WMATA fee 10¢/$100, grantor
+  (§ 58.1-802.3) in the 9 NVTA localities (§ 33.2-2501); the congestion
+  relief fee § 58.1-802.2 is repealed; local recordation 1/3 of state
+  (§ 58.1-814, optional per locality) → text only.
 - Sandbox quirk: Node's built-in fetch here ignores HTTPS_PROXY for some hosts
   (King County, DCAD fail with "upstream connect error"); run local tests with
   `NODE_USE_ENV_PROXY=1`. Vercel production is unaffected — always confirm on
