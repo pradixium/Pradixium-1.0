@@ -729,6 +729,14 @@ largest metro first.
   Leandro) from the County Clerk-Recorder's city table, per $1,000 of the
   WHOLE price at its band (Oakland OMC 4.20.020), plus the county 55¢/$500.
   Berkeley's Measure W rates start 1 Jan 2027 → update then.
+  Oct 5 2026 (cont.): NYC state supplemental tax (Tax Law § 1402-b, buyer,
+  whole price: 0.25% at $2m → 2.9% at $25m; check = DTF TSB-M-19(1)R
+  example $7m condo → $87,500); Rhode Island tier 2 ($3.75/$500 above
+  $824,000, Advisory 2026-01 — re-check the threshold each January);
+  Santa Monica ($3 / $6 / $56 per $1,000 of the whole price below $5m /
+  $8m / above, city page); San José conveyance tax $1.65/$500 (Muni Code
+  § 4.58.100) + Measure E 0.75 / 1 / 1.5% of the whole price above $2.3m
+  (§ 4.59.100; threshold CPI-indexed every 5 years, next July 2030).
 - Sandbox quirk: Node's built-in fetch here ignores HTTPS_PROXY for some hosts
   (King County, DCAD fail with "upstream connect error"); run local tests with
   `NODE_USE_ENV_PROXY=1`. Vercel production is unaffected — always confirm on
