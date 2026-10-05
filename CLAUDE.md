@@ -1654,7 +1654,21 @@ attribution is added as a "Licence" source block by `lib/data/licences.js`
   NBP's education portal regulation requires written consent for copying
   beyond personal use. Source named meanwhile; written confirmation from
   NBP recommended (else fall back to GUS powiat figures, CC BY).
-- Not yet checked: US county open-data portals.
+- US licence pass (Oct 5 2026): every ArcGIS layer's service + item
+  licence text read (scripted over the 102 layer URLs in lib/usLocal +
+  us-intelligence) and the Socrata datasets' licence field. SWITCHED OFF
+  (`licenceBlocked: true`): Placer CA (service terms "INTERNAL - PLACER
+  COUNTY EMPLOYEES ONLY", conflicting with the item text), Cobb GA
+  ("Copyright Cobb County. All rights reserved."; the county sells its GIS
+  data), St. Charles MO (non-transferable, non-sub-licensable licence under
+  RSMo 67.1850). Notices added: Colorado statewide (State's own attribution
+  statement + access date; resale of the DATA forbidden, commercial use
+  allowed), CGS seismic zones ("Modified from California Geological
+  Survey…" — the licence's own condition for use in a report), Oregon
+  Metro RLIS (ODbL), Jefferson CO (CC BY 4.0), Sonoma (open terms). No
+  conditions: WPRDC (CC0), CT / Illinois EDP / BRLA (public domain), SF
+  (PDDL), Ada (CC0). The licence scan now also reads the US record's
+  authority and the official hazard checks' sources.
 
 ## Deploy gotcha (Oct 4 2026)
 

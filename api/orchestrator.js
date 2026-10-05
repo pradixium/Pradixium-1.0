@@ -2004,7 +2004,8 @@ export default async function handler(req, res) {
   // each source's own licence / attribution terms (lib/data/licences.js),
   // only for the sources this report's evidence used
   if (marketEvidence) {
-    const used = [marketEvidence.source, ...(marketEvidence.sourceParts || []).map((p) => p.text)].join(" ");
+    const used = [marketEvidence.source, ...(marketEvidence.sourceParts || []).map((p) => p.text), marketEvidence.propertyRecord?.authority,
+      ...(marketEvidence.officialChecks || []).map((x) => [x.source, x.label].filter(Boolean).join(" "))].filter(Boolean).join(" ");
     const lic = licenceNotices(property.country, used, marketData);
     if (lic.length && !(marketEvidence.sourceParts || []).some((p) => p.title === "Licence")) {
       const text = lic.join(" ");
