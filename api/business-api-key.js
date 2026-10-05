@@ -58,21 +58,32 @@ export default async function handler(req, res) {
   }
 
   if (req.method === "POST") {
-    // Revoke any existing key first — one active key per account.
-    await fetch(`${SUPABASE_URL}/rest/v1/api_keys?user_id=eq.${encodeURIComponent(userId)}&revoked_at=is.null`, {
-      method: "PATCH",
-      headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}`, "Content-Type": "application/json", Prefer: "return=minimal" },
-      body: JSON.stringify({ revoked_at: new Date().toISOString() })
-    });
-
+    // FIX: this used to be two separate round trips -- a PATCH to revoke
+    // any existing key, then a POST to insert the new one. Two concurrent
+    // "Generate key" requests (a double-click, or a client retry after a
+    // slow response) could interleave: request B's revoke step could run
+    // AFTER request A's insert had already created A's new key, catching
+    // it too (it matches "revoked_at is null" same as the old key) --
+    // silently killing a key seconds after it was shown to the owner as
+    // their live key, with no error, and the plaintext is shown exactly
+    // once so there's no recovering it. Doing the insert and the
+    // revoke-everyone-else step inside one Postgres function
+    // (rotate_api_key, migration add_rotate_api_key_atomic_function),
+    // under a per-user advisory lock -- the same pattern already used for
+    // consume_monthly_slot's race fix -- makes that interleaving
+    // impossible: concurrent calls for the same user are fully
+    // serialized, and each one's own revoke-others step can never target
+    // a key that request hasn't seen yet. Verified: two calls issued back
+    // to back against a scratch user left exactly one active key, every
+    // time.
     const rawKey = "px_live_" + randomBytes(24).toString("hex");
-    const insertRes = await fetch(`${SUPABASE_URL}/rest/v1/api_keys`, {
+    const rpcRes = await fetch(`${SUPABASE_URL}/rest/v1/rpc/rotate_api_key`, {
       method: "POST",
-      headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}`, "Content-Type": "application/json", Prefer: "return=minimal" },
-      body: JSON.stringify({ user_id: userId, key_hash: hashKey(rawKey), key_prefix: rawKey.slice(0, 16) })
+      headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ p_user_id: userId, p_key_hash: hashKey(rawKey), p_key_prefix: rawKey.slice(0, 16) })
     });
-    if (!insertRes.ok) {
-      const text = await insertRes.text().catch(() => "");
+    if (!rpcRes.ok) {
+      const text = await rpcRes.text().catch(() => "");
       return res.status(502).json({ success: false, error: `Could not create key: ${text.slice(0, 200)}` });
     }
     return res.status(200).json({ success: true, apiKey: rawKey });
