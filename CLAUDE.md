@@ -292,6 +292,19 @@ largest metro first.
   length", Assessor Sales Codes PDF); year built. No value in the GIS
   (Assessor bulk files are paid → not used). Addresses carried by two
   parcels (house + extra lot sold together) show nothing.
+  BENCHMARK (Oct 5 2026): median price of the Assessor's code-R single-
+  parcel sales of the same Nevada state land-use code (Dept. of Taxation
+  Land Use Code Manual: 20 single-family, 21 condominium unit, 24
+  townhouse), Assessor neighborhood (NBRHOOD) else town, 12 months, 10+
+  sales → areaMedianPrice (whole-home benchmark). PREBUILT
+  lib/data/clarkSales.js ← `NODE_USE_ENV_PROXY=1 node
+  scripts/build-clark-sales.mjs` (monthly, ~2.5 min; the county server
+  throttles for a few minutes after it): Sales_view R parcels (dropped if
+  the parcel carries ANY other code in the 18-month view) → roll extract
+  price/month/doc; a doc number on 2+ parcels dropped. First build 27,627
+  sales, 706 groups; LV houses $505,000 (6,115), Henderson $536,515.
+  Check: nbhd 3142.75 houses 117 sales, $530,000 (independent Python
+  recompute nbhd → roll → codes). Owner fields never requested.
 - Cincinnati (#30): Hamilton County OH (39061) `lib/usLocal/hamiltonOH.js` —
   Auditor market value, annual taxes (official check), year built, finished
   sq ft (text). Sales not shown: VALID/SALTYP empty on every 2025+ sale
