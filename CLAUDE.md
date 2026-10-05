@@ -774,6 +774,18 @@ largest metro first.
   (§ 58.1-802.3) in the 9 NVTA localities (§ 33.2-2501); the congestion
   relief fee § 58.1-802.2 is repealed; local recordation 1/3 of state
   (§ 58.1-814, optional per locality) → text only.
+- Health checks (Oct 5 2026, user: "everything must work"): /tmp/claude-0/
+  health.mjs (every dropdown country × flat/house: HTTP, errors, > 25 s,
+  NaN/undefined/[object] text, missing blocks) + /tmp/claude-0/uscities.mjs
+  (20 US addresses typed into the single field the way users do). A
+  4-hourly routine (trig_019R2kdXh4RkRGaCcJWuDMAM) runs them and posts a
+  Hebrew status snapshot. Fixes from the first run: countries with no
+  verified price source (pending-intelligence) now get a plain sentence in
+  the market card instead of empty dashes; Cook County queries are hedged
+  (second request after 2.5 s — 10–17 s → 1–3 s). Tulsa's INCOG parcel
+  server was down (timeouts) — the report shows no record meanwhile.
+  "000" statuses in local curl loops are the sandbox proxy, not the site
+  (38/38 requests that reached Vercel returned 200).
 - Sandbox quirk: Node's built-in fetch here ignores HTTPS_PROXY for some hosts
   (King County, DCAD fail with "upstream connect error"); run local tests with
   `NODE_USE_ENV_PROXY=1`. Vercel production is unaffected — always confirm on
