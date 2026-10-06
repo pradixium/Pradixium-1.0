@@ -487,6 +487,15 @@ largest metro first.
   (APPRAISED_TOTAL_VALUE + TAXYR) + Sales and Transfers: last sale only if
   the parcel's latest transfer is "0-QUALIFIED - ARMSLENGTH" and single
   parcel; otherwise the code is named.
+  BENCHMARK (Oct 6 2026): ZIP × land-use median of the Auditor's
+  "0-QUALIFIED - ARMSLENGTH" single-parcel sales (SALE_TYPE "1+LAND"
+  dropped; the layer repeats a sale on several rows → deduped), 12 months
+  to the latest qualified sale, 10+, PREBUILT lib/data/starkSales.js ←
+  `NODE_USE_ENV_PROXY=1 node scripts/build-stark-sales.mjs` (monthly; the
+  server resets connections now and then → retries). 1-family + condo
+  unit → benchmark, 2-family → context. First build 4,765 sales, 39
+  groups. Check: 44720 1-family 436 sales $294,101.5; 44646 519,
+  $250,000 (Python recompute). FORMER_OWNER/NEW_OWNER never requested.
 - Summit County OH (39153, Akron): `summitOH.js` — Fiscal Office
   parcels_cama/Tax_Parcel_Sales: cntmktvalue (no tax year in layer), floor
   area, year built; town = taxing jurisdiction. Sales not shown (undocumented
