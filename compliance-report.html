@@ -107,7 +107,7 @@ th{color:#8994a3;font-weight:700;font-size:10.5px;letter-spacing:.3px}
     const sources = [
       ["Market Benchmark", data.marketSource],
       ["Buyer Demand", data.demandSource],
-      ["Foreign Buyer Access", data.foreignAccessSource],
+      ["Foreign Buyer Access™", data.foreignAccessSource],
       ["Closing Costs", data.closingCostsSource],
       ["Annual Property Tax", data.propertyTaxSource],
       ["Currency Controls", data.currencyControlsSource]
@@ -117,15 +117,15 @@ th{color:#8994a3;font-weight:700;font-size:10.5px;letter-spacing:.3px}
     const evidenceRows = [
       ["Asking Price", money(data.askingPrice, currency)],
       ["Size", data.size ? data.size + " m²" : "—"],
-      ["Pradixium Score", data.score != null ? data.score + "/100" : "—"],
-      ["Deal Rating", data.dealRating || "—"],
+      ["Pradixium Score™", data.score != null ? data.score + "/100" : "—"],
+      ["Pradixium Deal Rating™", data.dealRating || "—"],
       ["Confidence", data.confidence || "—"],
       ["Government/Market Benchmark", data.governmentBenchmark || "—"],
       ["Government Value", data.governmentValue || "—"],
       ["Transaction Value", data.transactionValue || "—"],
       ["Transaction Period", data.transactionPeriod || "—"],
       ["Market Area", data.marketArea || "—"],
-      ["Foreign Buyer Access Status", data.foreignAccessStatus || "—"],
+      ["Foreign Buyer Access™ Status", data.foreignAccessStatus || "—"],
       ["Pradixium Reality Check™ Verdict", data.realityCheck?.verdict || "—"]
     ];
 
@@ -167,7 +167,7 @@ th{color:#8994a3;font-weight:700;font-size:10.5px;letter-spacing:.3px}
 
       const rowSources = [
         ["Market Benchmark", evidence.source],
-        ["Foreign Buyer Access", fba.source],
+        ["Foreign Buyer Access™", fba.source],
         ["Closing Costs", cc.source || cc.sourceUrl],
         ["Annual Property Tax", pt.source || pt.sourceUrl],
         ["Currency Controls", ctrl.source]
@@ -178,10 +178,10 @@ th{color:#8994a3;font-weight:700;font-size:10.5px;letter-spacing:.3px}
       const rows = [
         ["Asking Price", money(p.price, currency)],
         ["Size", p.size ? p.size + " m²" : "—"],
-        ["Pradixium Score", Number.isFinite(Number(score.score)) ? Math.round(Number(score.score)) + "/100" : "—"],
+        ["Pradixium Score™", Number.isFinite(Number(score.score)) ? Math.round(Number(score.score)) + "/100" : "—"],
         ["Confidence", score.confidence || "—"],
         ["Market Benchmark", evidence.benchmarkValue != null ? money(evidence.benchmarkValue, currency) + (evidence.benchmarkUnit === "perSqm" ? "/m²" : "") : "—"],
-        ["Foreign Buyer Access Status", fba.status || "—"],
+        ["Foreign Buyer Access™ Status", fba.status || "—"],
         ["Pradixium Reality Check™ Verdict", rc.verdict || "—"]
       ];
 
