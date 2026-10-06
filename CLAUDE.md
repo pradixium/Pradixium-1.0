@@ -645,6 +645,20 @@ largest metro first.
   resultRecordCount), Lane (41039, Address (Site) → maptaxlot → Parcels
   total_mkt_land + total_mkt_imp, weekly; NUMACCNTS > 1 → no value). RMV
   only; capped assessed value not shown; no roll year in any layer.
+  Deschutes BENCHMARK (Oct 6 2026): ZIP median of reject-code-33
+  ("CONFIRMED SALE") single-taxlot sales (a Book_Page on 2+ taxlots
+  dropped), 12 months to the table's latest confirmed sale (Jul 2026),
+  10+, PREBUILT lib/data/deschutesSales.js ← `NODE_USE_ENV_PROXY=1 node
+  scripts/build-deschutes-sales.mjs` (monthly). Type: every class row of
+  the taxlot = Oregon property class 101 (residential improved — the
+  statewide code, as in Benton/Linn county code lists; no DOR page
+  reachable) and exactly one dwelling row by the county's own
+  STAT_CLASS_DESC (One/Two story… → house, Townhouse). The server answers
+  GET only (POST → 403), old MapServer → OBJECTID paging. Check: 97702
+  houses 123 sales $720,000; 97703 110, $1,152,000 (Python recompute).
+  NEVER outFields=* on table 9 (Seller/Buyer names).
+  Chatham GA benchmark skipped (Oct 6 2026): the Parcel Digest 2025 holds
+  sales only to Dec 2024 (Q-coded) — too old for a 12-month benchmark.
 - Montgomery County PA (42091, Oct 5 2026) in `moreCounties.js`: county GIS
   "Montgomery County Parcels" (item licence: "a free and open resource") —
   facts + Government Value = TOTAL_ASSE (old base-year assessment) × the PA
