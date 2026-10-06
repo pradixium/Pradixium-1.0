@@ -518,6 +518,11 @@ largest metro first.
   County Geospatial Insights & Solutions; terms "03-ARM'S LENGTH", since
   2004): last arm's-length single-parcel sale + ZIP 12-month median of
   improved residential (context). Recompute check: ZIP 49424 → 490, $385,100.
+  BENCHMARK (Oct 6 2026, same "03" standard as Detroit): ZIP median of
+  those sales of the parcel's own kind (layer flag iscondo, read from the
+  parcel's own sales rows; unknown → both as context), 12 months, 10+; a
+  liberpage on 2+ rows = multi-unit deed → dropped. Check: 49424 houses
+  406 sales $405,000, condos 82 $329,950 (Python recompute).
 - East Baton Rouge Parish LA (22033): `ebrLA.js` — data.brla.gov Tax Parcel
   (ei2c-krsr; physical_address → assessment_num; its FMV field is always 0)
   + EBRP Tax Roll (myfc-nh6n; sum of real-property lines' fair_market_val,
