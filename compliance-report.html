@@ -107,7 +107,7 @@ th{color:#8994a3;font-weight:700;font-size:10.5px;letter-spacing:.3px}
     const sources = [
       ["Market Benchmark", data.marketSource],
       ["Buyer Demand", data.demandSource],
-      ["Foreign Buyer Access™", data.foreignAccessSource],
+      ["Pradixium Foreign Buyer Access™", data.foreignAccessSource],
       ["Closing Costs", data.closingCostsSource],
       ["Annual Property Tax", data.propertyTaxSource],
       ["Currency Controls", data.currencyControlsSource]
@@ -125,7 +125,7 @@ th{color:#8994a3;font-weight:700;font-size:10.5px;letter-spacing:.3px}
       ["Transaction Value", data.transactionValue || "—"],
       ["Transaction Period", data.transactionPeriod || "—"],
       ["Market Area", data.marketArea || "—"],
-      ["Foreign Buyer Access™ Status", data.foreignAccessStatus || "—"],
+      ["Pradixium Foreign Buyer Access™ Status", data.foreignAccessStatus || "—"],
       ["Pradixium Reality Check™ Verdict", data.realityCheck?.verdict || "—"]
     ];
 
@@ -167,7 +167,7 @@ th{color:#8994a3;font-weight:700;font-size:10.5px;letter-spacing:.3px}
 
       const rowSources = [
         ["Market Benchmark", evidence.source],
-        ["Foreign Buyer Access™", fba.source],
+        ["Pradixium Foreign Buyer Access™", fba.source],
         ["Closing Costs", cc.source || cc.sourceUrl],
         ["Annual Property Tax", pt.source || pt.sourceUrl],
         ["Currency Controls", ctrl.source]
@@ -181,7 +181,7 @@ th{color:#8994a3;font-weight:700;font-size:10.5px;letter-spacing:.3px}
         ["Pradixium Score™", Number.isFinite(Number(score.score)) ? Math.round(Number(score.score)) + "/100" : "—"],
         ["Confidence", score.confidence || "—"],
         ["Market Benchmark", evidence.benchmarkValue != null ? money(evidence.benchmarkValue, currency) + (evidence.benchmarkUnit === "perSqm" ? "/m²" : "") : "—"],
-        ["Foreign Buyer Access™ Status", fba.status || "—"],
+        ["Pradixium Foreign Buyer Access™ Status", fba.status || "—"],
         ["Pradixium Reality Check™ Verdict", rc.verdict || "—"]
       ];
 
