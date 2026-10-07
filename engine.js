@@ -936,7 +936,11 @@
     set("grossYield", pct(b.grossYieldPercent) + " (est.)");
   }
 
-  const LOCKED_LIST_ITEM = "<li>🔒 Unlock the full report — FREE for the first 1,000 — to see this</li>";
+  // Evaluated at render time, not at load time, so it reflects whatever
+  // freeGrantRemainingCache says right now (see freeGrantStillOpen()).
+  function lockedListItem() {
+    return freeGrantStillOpen() ? "<li>🔒 Unlock the full report — FREE for the first 1,000 — to see this</li>" : "<li>🔒 Unlock the full report — $29.99 — to see this</li>";
+  }
 
   // Same bands the AI agent is instructed to use for dealRating (see
   // lib/agents/propertyInvestmentAgent.js) — deterministic, so it works
@@ -1005,10 +1009,10 @@
       set("fairDelta", "🔒");
       set("suggestedOffer", "🔒");
       const highlightsEl = $("highlights");
-      if (highlightsEl) highlightsEl.innerHTML = LOCKED_LIST_ITEM;
+      if (highlightsEl) highlightsEl.innerHTML = lockedListItem();
       const risksEl = $("risks");
-      if (risksEl) risksEl.innerHTML = LOCKED_LIST_ITEM;
-      set("investorAction", agent.investorAction || "Unlock the full report — FREE for the first 1,000 — to see the investor action recommendation.");
+      if (risksEl) risksEl.innerHTML = lockedListItem();
+      set("investorAction", agent.investorAction || (freeGrantStillOpen() ? "Unlock the full report — FREE for the first 1,000 — to see the investor action recommendation." : "Unlock the full report — $29.99 — to see the investor action recommendation."));
       return;
     }
 
@@ -1583,6 +1587,37 @@
     }
   }
 
+  // FIX: every plan button's label/placeholder text hardcoded "FREE for
+  // the first 1,000" with no check of whether the pool is actually still
+  // open. Once the 1,000 grants run out, claimFreeReport()/claimFreePlan()
+  // below correctly fall through to real Stripe checkout — but the button
+  // the customer clicked still promised FREE, and the placeholder text
+  // under a locked report still said so too. That's exactly the kind of
+  // silently-wrong customer-facing number this product exists to prevent.
+  // free_grant_remaining() (migration add_free_grant_remaining_function)
+  // is a read-only, side-effect-free count — safe to call anonymously,
+  // never consumes a grant — refreshed once eagerly below and re-checked
+  // in updateReportButtonLabel() so it's fresh by the time buttons render.
+  let freeGrantRemainingCache = null;
+  async function refreshFreeGrantStatus() {
+    try {
+      const { data, error } = await window.pradixiumSupabase.rpc("free_grant_remaining", { p_cap: 1000 });
+      if (!error && data && typeof data.remaining === "number") freeGrantRemainingCache = data.remaining;
+    } catch (e) {}
+  }
+  // startBusinessSignupBtn (top-nav "Business" menu) isn't part of the
+  // results flow updateReportButtonLabel() covers, and its label never
+  // changes based on `paid` — refresh it once here instead.
+  refreshFreeGrantStatus().then(() => {
+    const navBtn = $("startBusinessSignupBtn");
+    if (navBtn) navBtn.innerHTML = freeGrantStillOpen() ? "Start Business Plan — FREE for the first 1,000 →" : "Start Business Plan — $299.99/mo →";
+  });
+  // Defaults to "exhausted" (false) when the count hasn't loaded yet or the
+  // call failed — never claims FREE when we can't actually confirm it.
+  function freeGrantStillOpen() {
+    return freeGrantRemainingCache !== null && freeGrantRemainingCache > 0;
+  }
+
   // First-1,000-customers free grant (api/claim-free-report.js): bypasses
   // Stripe entirely, not just a 100%-off coupon inside it — the owner's
   // call is that even seeing Stripe's checkout page before typing the
@@ -1705,7 +1740,9 @@
     const subscribeBtn = $("subscribeReportBtn");
     const businessBtn = $("businessSubscribeBtn");
     const monthlyBtn = $("monthlySubscribeBtn");
-    let label = "Unlock This Report — FREE for the first 1,000&nbsp; →";
+    if (freeGrantRemainingCache === null) await refreshFreeGrantStatus();
+    const stillFree = freeGrantStillOpen();
+    let label = stillFree ? "Unlock This Report — FREE for the first 1,000&nbsp; →" : "Unlock This Report — $29.99&nbsp; →";
     let monthlyActive = false;
     if (!paid) {
       const quota = await checkMonthlyQuota();
@@ -1713,12 +1750,21 @@
       if (quota.active && quota.remaining > 0) label = `View Full Analysis (${quota.remaining} of 3 monthly reports left)&nbsp; →`;
     }
     if (createBtn) createBtn.innerHTML = paid ? "View Full Analysis&nbsp; →" : label;
-    if (subscribeBtn) subscribeBtn.style.display = paid ? "none" : "inline-block";
-    if (businessBtn) businessBtn.style.display = paid ? "none" : "inline-block";
+    if (subscribeBtn) {
+      subscribeBtn.style.display = paid ? "none" : "inline-block";
+      subscribeBtn.innerHTML = stillFree ? "Annual Plan — FREE for the first 1,000&nbsp; →" : "Start 7-Day Free Trial — then $2,999.99/year&nbsp; →";
+    }
+    if (businessBtn) {
+      businessBtn.style.display = paid ? "none" : "inline-block";
+      businessBtn.innerHTML = stillFree ? "For Companies &amp; Institutions — FREE for the first 1,000&nbsp; →" : "For Companies &amp; Institutions — $299.99/month&nbsp; →";
+    }
     // An existing monthly subscriber must not be invited to buy the same
     // plan again just because they haven't viewed THIS property yet —
     // paid only tracks per-report access, not plan membership.
-    if (monthlyBtn) monthlyBtn.style.display = (paid || monthlyActive) ? "none" : "inline-block";
+    if (monthlyBtn) {
+      monthlyBtn.style.display = (paid || monthlyActive) ? "none" : "inline-block";
+      monthlyBtn.innerHTML = stillFree ? "Monthly Plan (3 reports) — FREE for the first 1,000&nbsp; →" : "Individual Monthly — $29.99/month (3 reports)&nbsp; →";
+    }
   }
 
   async function startCheckout(reportData, plan) {
