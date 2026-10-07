@@ -1724,7 +1724,7 @@ async function checkApiKeyEntitlement(rawKey) {
   }
 }
 
-async function checkEntitlement(authHeader, signature, legacySignature) {
+async function checkEntitlement(authHeader, signature, legacySignature, midSignature) {
   const token = String(authHeader || "").replace(/^Bearer\s+/i, "").trim();
   if (!token) return false;
   if (token.startsWith("px_live_")) return checkApiKeyEntitlement(token);
@@ -1742,8 +1742,10 @@ async function checkEntitlement(authHeader, signature, legacySignature) {
       // monthly plan's per-cycle cap (see api/consume-monthly-slot.js) —
       // permanent access to that specific report, same as "report".
       // legacySignature only matches a report purchased before the Oct
-      // 2026 signature fix — never written for a new purchase.
-      return (row.kind === "report" || row.kind === "monthly_usage") && (row.report_signature === signature || (legacySignature && row.report_signature === legacySignature));
+      // 2026 signature fix; midSignature only matches one purchased after
+      // that fix but before the unitNumber fix right below it — neither is
+      // ever written for a new purchase.
+      return (row.kind === "report" || row.kind === "monthly_usage") && (row.report_signature === signature || (midSignature && row.report_signature === midSignature) || (legacySignature && row.report_signature === legacySignature));
     });
   } catch {
     return false;
@@ -1832,9 +1834,18 @@ export default async function handler(req, res) {
   // recognizing the reports already purchased under the old, narrower
   // format (13 live rows as of this fix) -- it is only ever compared
   // against, never written for a new purchase.
-  const signature = [property.country, property.city, property.address, property.price, property.size, property.bedrooms, property.bathrooms, property.propertyType, property.monthlyRent].join("|");
+  //
+  // FIX (Oct 2026): added property.unitNumber (optional, blank for the
+  // common house/single-unit case) -- two different units in the same
+  // new-build building, same floor plan, were colliding onto this exact
+  // signature (identical price/size/beds/baths/rent, no unit in the
+  // address text) and silently unlocking each other for free once either
+  // was purchased. Must stay in the same field order as engine.js's
+  // reportSignature().
+  const signature = [property.country, property.city, property.address, property.price, property.size, property.bedrooms, property.bathrooms, property.propertyType, property.monthlyRent, property.unitNumber || ""].join("|");
+  const midSignature = [property.country, property.city, property.address, property.price, property.size, property.bedrooms, property.bathrooms, property.propertyType, property.monthlyRent].join("|");
   const legacySignature = [property.country, property.city, property.price, property.size].join("|");
-  const entitlementPromise = checkEntitlement(req.headers.authorization, signature, legacySignature);
+  const entitlementPromise = checkEntitlement(req.headers.authorization, signature, legacySignature, midSignature);
 
   let marketData = body?.marketData || null;
   let marketDataError = null;
@@ -1846,7 +1857,17 @@ export default async function handler(req, res) {
     marketDataError = fetched.error;
   }
 
-  const marketEvidence = nonResidentialEvidence(normalizeMarketEvidence(property.country, marketData, property.propertyType, property), property.propertyType);
+  // no market data at all → say why instead of an empty card: a country with
+  // no verified official price source yet, or a source that did not answer now
+  const noEvidence = () => {
+    const cname = String(property.country || "").trim(), key = cname.toLowerCase();
+    const pending = COUNTRY_ENDPOINTS[key] === "pending-intelligence";
+    const text = pending
+      ? `No verified official real-estate price source has been found for ${cname} yet, so no market benchmark is shown. The official taxes, fees and foreign-buyer rules below still apply.`
+      : `The official price data for ${cname} could not be loaded just now, so no market benchmark is shown — please run the analysis again in a few minutes.`;
+    return { benchmarkValue: null, governmentValue: null, transactionValue: null, transactionPeriod: null, marketArea: null, coverage: "none", source: text, sourceUrl: null };
+  };
+  const marketEvidence = nonResidentialEvidence(normalizeMarketEvidence(property.country, marketData, property.propertyType, property), property.propertyType) || noEvidence();
   // Germany: the municipality's Zensus 2022 average rent — used for the
   // yield only when no rent was entered (flagged as estimated there)
   const deRent = /^germany$/i.test(String(property.country || "").trim()) && !/commercial|land/i.test(String(property.propertyType || "")) ? marketData?.rent : null;
@@ -1880,8 +1901,8 @@ export default async function handler(req, res) {
     ? usRent(marketData?.property?.zip || property.zip, property.bedrooms ?? marketData?.property?.bedrooms, marketData?.property?.city || marketData?.city, marketData?.property?.state || marketData?.region) : null;
   if (usR) {
     const usd = (x) => "$" + Math.round(x).toLocaleString("en-US");
-    const use = !usR.topCoded && !property.monthlyRent;
-    const text = `${usR.source}: median gross rent of ${usR.label} in ${usR.place ? `${usR.place} (the whole city — ${property.address ? "the address's ZIP could not be identified; enter the ZIP" : "enter the street address or ZIP"} for the local figure)` : `ZIP ${usR.zip}`}, ${usR.period}: ${usR.topCoded ? `${usd(usR.value - 1)} or more (the Census top-codes this median — not used as a number)` : `${usd(usR.value)} a month`}. Gross rent includes utilities paid by the tenant and covers existing tenancies over the 5-year period, not today's asking rents.${use ? ` No rent was entered, so the yield uses ${usd(usR.value)}/month (estimated).` : ""}`;
+    const use = !usR.topCoded && !usR.missingLabel && !property.monthlyRent;
+    const text = `${usR.source}: median gross rent of ${usR.label} in ${usR.place ? `${usR.place} (the whole city — ${property.address ? "the address's ZIP could not be identified; enter the ZIP" : "enter the street address or ZIP"} for the local figure)` : `ZIP ${usR.zip}`}, ${usR.period}: ${usR.topCoded ? `${usd(usR.value - 1)} or more (the Census top-codes this median — not used as a number)` : `${usd(usR.value)} a month`}.${usR.missingLabel ? ` The Census publishes no median for ${usR.missingLabel} here (too few sampled homes), so this all-homes figure is context only, not used for the yield.` : ""} Gross rent includes utilities paid by the tenant and covers existing tenancies over the 5-year period, not today's asking rents.${use ? ` No rent was entered, so the yield uses ${usd(usR.value)}/month (estimated).` : ""}`;
     if (use) marketEvidence.rentalBenchmark = { monthlyRentFlat: usR.value, grossYieldPercent: null, source: usR.source };
     marketEvidence.sourceParts = [...(marketEvidence.sourceParts || [{ title: "Market evidence", text: marketEvidence.source }]), { title: "Rent (Census ACS)", text }];
     marketEvidence.source = `${marketEvidence.source} ${text}`;
@@ -2004,7 +2025,8 @@ export default async function handler(req, res) {
   // each source's own licence / attribution terms (lib/data/licences.js),
   // only for the sources this report's evidence used
   if (marketEvidence) {
-    const used = [marketEvidence.source, ...(marketEvidence.sourceParts || []).map((p) => p.text)].join(" ");
+    const used = [marketEvidence.source, ...(marketEvidence.sourceParts || []).map((p) => p.text), marketEvidence.propertyRecord?.authority,
+      ...(marketEvidence.officialChecks || []).map((x) => [x.source, x.label].filter(Boolean).join(" "))].filter(Boolean).join(" ");
     const lic = licenceNotices(property.country, used, marketData);
     if (lic.length && !(marketEvidence.sourceParts || []).some((p) => p.title === "Licence")) {
       const text = lic.join(" ");

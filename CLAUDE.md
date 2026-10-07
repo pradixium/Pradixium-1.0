@@ -292,6 +292,19 @@ largest metro first.
   length", Assessor Sales Codes PDF); year built. No value in the GIS
   (Assessor bulk files are paid → not used). Addresses carried by two
   parcels (house + extra lot sold together) show nothing.
+  BENCHMARK (Oct 5 2026): median price of the Assessor's code-R single-
+  parcel sales of the same Nevada state land-use code (Dept. of Taxation
+  Land Use Code Manual: 20 single-family, 21 condominium unit, 24
+  townhouse), Assessor neighborhood (NBRHOOD) else town, 12 months, 10+
+  sales → areaMedianPrice (whole-home benchmark). PREBUILT
+  lib/data/clarkSales.js ← `NODE_USE_ENV_PROXY=1 node
+  scripts/build-clark-sales.mjs` (monthly, ~2.5 min; the county server
+  throttles for a few minutes after it): Sales_view R parcels (dropped if
+  the parcel carries ANY other code in the 18-month view) → roll extract
+  price/month/doc; a doc number on 2+ parcels dropped. First build 27,627
+  sales, 706 groups; LV houses $505,000 (6,115), Henderson $536,515.
+  Check: nbhd 3142.75 houses 117 sales, $530,000 (independent Python
+  recompute nbhd → roll → codes). Owner fields never requested.
 - Cincinnati (#30): Hamilton County OH (39061) `lib/usLocal/hamiltonOH.js` —
   Auditor market value, annual taxes (official check), year built, finished
   sq ft (text). Sales not shown: VALID/SALTYP empty on every 2025+ sale
@@ -474,6 +487,15 @@ largest metro first.
   (APPRAISED_TOTAL_VALUE + TAXYR) + Sales and Transfers: last sale only if
   the parcel's latest transfer is "0-QUALIFIED - ARMSLENGTH" and single
   parcel; otherwise the code is named.
+  BENCHMARK (Oct 6 2026): ZIP × land-use median of the Auditor's
+  "0-QUALIFIED - ARMSLENGTH" single-parcel sales (SALE_TYPE "1+LAND"
+  dropped; the layer repeats a sale on several rows → deduped), 12 months
+  to the latest qualified sale, 10+, PREBUILT lib/data/starkSales.js ←
+  `NODE_USE_ENV_PROXY=1 node scripts/build-stark-sales.mjs` (monthly; the
+  server resets connections now and then → retries). 1-family + condo
+  unit → benchmark, 2-family → context. First build 4,765 sales, 39
+  groups. Check: 44720 1-family 436 sales $294,101.5; 44646 519,
+  $250,000 (Python recompute). FORMER_OWNER/NEW_OWNER never requested.
 - Summit County OH (39153, Akron): `summitOH.js` — Fiscal Office
   parcels_cama/Tax_Parcel_Sales: cntmktvalue (no tax year in layer), floor
   area, year built; town = taxing jurisdiction. Sales not shown (undocumented
@@ -505,6 +527,11 @@ largest metro first.
   County Geospatial Insights & Solutions; terms "03-ARM'S LENGTH", since
   2004): last arm's-length single-parcel sale + ZIP 12-month median of
   improved residential (context). Recompute check: ZIP 49424 → 490, $385,100.
+  BENCHMARK (Oct 6 2026, same "03" standard as Detroit): ZIP median of
+  those sales of the parcel's own kind (layer flag iscondo, read from the
+  parcel's own sales rows; unknown → both as context), 12 months, 10+; a
+  liberpage on 2+ rows = multi-unit deed → dropped. Check: 49424 houses
+  406 sales $405,000, condos 82 $329,950 (Python recompute).
 - East Baton Rouge Parish LA (22033): `ebrLA.js` — data.brla.gov Tax Parcel
   (ei2c-krsr; physical_address → assessment_num; its FMV field is always 0)
   + EBRP Tax Roll (myfc-nh6n; sum of real-property lines' fair_market_val,
@@ -618,6 +645,35 @@ largest metro first.
   resultRecordCount), Lane (41039, Address (Site) → maptaxlot → Parcels
   total_mkt_land + total_mkt_imp, weekly; NUMACCNTS > 1 → no value). RMV
   only; capped assessed value not shown; no roll year in any layer.
+  Deschutes BENCHMARK (Oct 6 2026): ZIP median of reject-code-33
+  ("CONFIRMED SALE") single-taxlot sales (a Book_Page on 2+ taxlots
+  dropped), 12 months to the table's latest confirmed sale (Jul 2026),
+  10+, PREBUILT lib/data/deschutesSales.js ← `NODE_USE_ENV_PROXY=1 node
+  scripts/build-deschutes-sales.mjs` (monthly). Type: every class row of
+  the taxlot = Oregon property class 101 (residential improved — the
+  statewide code, as in Benton/Linn county code lists; no DOR page
+  reachable) and exactly one dwelling row by the county's own
+  STAT_CLASS_DESC (One/Two story… → house, Townhouse). The server answers
+  GET only (POST → 403), old MapServer → OBJECTID paging. Check: 97702
+  houses 123 sales $720,000; 97703 110, $1,152,000 (Python recompute).
+  NEVER outFields=* on table 9 (Seller/Buyer names).
+  Chatham GA benchmark skipped (Oct 6 2026): the Parcel Digest 2025 holds
+  sales only to Dec 2024 (Q-coded) — too old for a 12-month benchmark.
+- Montgomery County PA (42091, Oct 5 2026) in `moreCounties.js`: county GIS
+  "Montgomery County Parcels" (item licence: "a free and open resource") —
+  facts + Government Value = TOTAL_ASSE (old base-year assessment) × the PA
+  Department of Revenue common level ratio FACTOR 3.36 (documents accepted
+  1 Jul 2026 – 30 Jun 2027; the full 67-county table is in the DoR list
+  "2025 Common Level Ratio Real Estate Valuation Factors, July 2026") —
+  labelled as the State's realty-transfer-tax formula, not an appraisal.
+  Update the factor every July. Check: 1086 Edge Hill Rd 131,700 × 3.36 =
+  442,512. STEB sale codes have no published definitions → last sale shown
+  as "recorded consideration — not screened". Skipped (licence): Chester
+  (CC BY-NC-SA), Bucks ("Not for commercial use"), York (YCPC "internal use
+  … illustration and demonstration purposes only"); Lehigh layer is a
+  test service ("ATestParcel"); Luzerne has no situs address; Tennessee
+  statewide boundaries are "for state agencies with approved access".
+  Douglas NE, Sedgwick KS, Prince William VA layers carry no values.
 - Texas additions (`texas.js`, generic `find` configs): Tarrant (TAD roll as
   published by City of Fort Worth "Parcels_Public_View" — whole county, 2024
   roll as of Sept 2026, shown with its year), Collin (CCAD's own layer; the
@@ -720,6 +776,44 @@ largest metro first.
   mills: only a 2019 collections table exists → not added. us-intelligence:
   a street typed with "City, ST" in the city field now keeps the state
   (200 N Spring St, Los Angeles, CA had no state when the geocoder missed).
+  Oct 5 2026: Montgomery County MD recordation (county Finance "Bill 17-23"
+  table, marginal $4.45 → 6.75 / 10.20 / 10.78 / 11.35 per $500 above
+  $500k / 600k / 750k / 1m, non-principal — = the county's own worked
+  examples $400k $3,560, $575k $5,462.50, $675k $7,330); its county
+  transfer tax varies by price → not computed. Alameda County cities
+  (Oakland, Berkeley, Alameda, Albany, Emeryville, Hayward, Piedmont, San
+  Leandro) from the County Clerk-Recorder's city table, per $1,000 of the
+  WHOLE price at its band (Oakland OMC 4.20.020), plus the county 55¢/$500.
+  Berkeley's Measure W rates start 1 Jan 2027 → update then.
+  Oct 5 2026 (cont.): NYC state supplemental tax (Tax Law § 1402-b, buyer,
+  whole price: 0.25% at $2m → 2.9% at $25m; check = DTF TSB-M-19(1)R
+  example $7m condo → $87,500); Rhode Island tier 2 ($3.75/$500 above
+  $824,000, Advisory 2026-01 — re-check the threshold each January);
+  Santa Monica ($3 / $6 / $56 per $1,000 of the whole price below $5m /
+  $8m / above, city page); San José conveyance tax $1.65/$500 (Muni Code
+  § 4.58.100) + Measure E 0.75 / 1 / 1.5% of the whole price above $2.3m
+  (§ 4.59.100; threshold CPI-indexed every 5 years, next July 2030).
+  Also Oct 5: Sacramento city $2.75/$1,000 whole price (City Code
+  § 3.16.020, County Recorder page); Culver City MARGINAL 0.45 / 1.5 / 3 /
+  4% at $1.5m / $3m / $10m (city page, from 1 Apr 2021); Connecticut
+  municipal conveyance tax 0.25% in every town (DRS SN 2011(3)) — the 19
+  eligible towns' extra up-to-0.25% only named (who adopts is not on an
+  official current list); Virginia regional WMATA fee 10¢/$100, grantor
+  (§ 58.1-802.3) in the 9 NVTA localities (§ 33.2-2501); the congestion
+  relief fee § 58.1-802.2 is repealed; local recordation 1/3 of state
+  (§ 58.1-814, optional per locality) → text only.
+- Health checks (Oct 5 2026, user: "everything must work"): /tmp/claude-0/
+  health.mjs (every dropdown country × flat/house: HTTP, errors, > 25 s,
+  NaN/undefined/[object] text, missing blocks) + /tmp/claude-0/uscities.mjs
+  (20 US addresses typed into the single field the way users do). A
+  4-hourly routine (trig_019R2kdXh4RkRGaCcJWuDMAM) runs them and posts a
+  Hebrew status snapshot. Fixes from the first run: countries with no
+  verified price source (pending-intelligence) now get a plain sentence in
+  the market card instead of empty dashes; Cook County queries are hedged
+  (second request after 2.5 s — 10–17 s → 1–3 s). Tulsa's INCOG parcel
+  server was down (timeouts) — the report shows no record meanwhile.
+  "000" statuses in local curl loops are the sandbox proxy, not the site
+  (38/38 requests that reached Vercel returned 200).
 - Sandbox quirk: Node's built-in fetch here ignores HTTPS_PROXY for some hosts
   (King County, DCAD fail with "upstream connect error"); run local tests with
   `NODE_USE_ENV_PROXY=1`. Vercel production is unaffected — always confirm on
@@ -1602,6 +1696,11 @@ attribution is added as a "Licence" source block by `lib/data/licences.js`
 - Stats SA: older releases forbade selling the data; the CURRENT P0160
   imprint only asks to name Stats SA as the source of the basic data and to
   say the analysis is the user's own → allowed, notice added.
+- User's answers (Oct 5 2026): Dubai — "זה נעשה" (handled by the user;
+  the open DLD question is closed, keep the attribution notice). Poland
+  NBP — keep NBP for now; the user will request written confirmation
+  (with Japan's MLIT key and Lithuania's downloads, after the company is
+  registered).
 - Not commercial-use-safe, still not used: NSW Valuer General (CC BY-NC-ND),
   KSH tailored extracts (CC BY-NC; STADAT tables are CC BY 4.0 — those are
   what we use), INE Portugal's OLD terms (now CC BY 4.0).
@@ -1619,9 +1718,30 @@ attribution is added as a "Licence" source block by `lib/data/licences.js`
   Government and DLD) — but dubaipulse.gov.ae/legal answered 503, so the
   licence text itself was not read. Attribution notice added meanwhile;
   written confirmation from DLD recommended (same as Lithuania).
-- Not yet checked: US county open-data portals, NBP/GUS, Spain
-  INE/MIVAU, Serbia RGZ, Mexico SHF, Brazil SP (source named in the text
-  meanwhile).
+- Oct 5 2026 licence pass: GUS BDL = CC BY 4.0 (stated on bdl.stat.gov.pl)
+  → notice; Mexico SHF → "Términos de Libre Uso MX" citation (dataset,
+  agency, link, date YYYY-MM-DD); Spain INE → RD 1495/2011 general reuse
+  conditions; São Paulo ITBI and Serbia RGZ: no licence text on their
+  pages → source named. OPEN QUESTION for the user: NBP BaRN (Polish city
+  benchmarks) — nbp.pl's legal page sits behind a bot check (not read);
+  NBP's education portal regulation requires written consent for copying
+  beyond personal use. Source named meanwhile; written confirmation from
+  NBP recommended (else fall back to GUS powiat figures, CC BY).
+- US licence pass (Oct 5 2026): every ArcGIS layer's service + item
+  licence text read (scripted over the 102 layer URLs in lib/usLocal +
+  us-intelligence) and the Socrata datasets' licence field. SWITCHED OFF
+  (`licenceBlocked: true`): Placer CA (service terms "INTERNAL - PLACER
+  COUNTY EMPLOYEES ONLY", conflicting with the item text), Cobb GA
+  ("Copyright Cobb County. All rights reserved."; the county sells its GIS
+  data), St. Charles MO (non-transferable, non-sub-licensable licence under
+  RSMo 67.1850). Notices added: Colorado statewide (State's own attribution
+  statement + access date; resale of the DATA forbidden, commercial use
+  allowed), CGS seismic zones ("Modified from California Geological
+  Survey…" — the licence's own condition for use in a report), Oregon
+  Metro RLIS (ODbL), Jefferson CO (CC BY 4.0), Sonoma (open terms). No
+  conditions: WPRDC (CC0), CT / Illinois EDP / BRLA (public domain), SF
+  (PDDL), Ada (CC0). The licence scan now also reads the US record's
+  authority and the official hazard checks' sources.
 
 ## Deploy gotcha (Oct 4 2026)
 
