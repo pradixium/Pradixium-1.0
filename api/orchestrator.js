@@ -1806,6 +1806,26 @@ export default async function handler(req, res) {
     return res.status(400).json({ success: false, error: "property object is required" });
   }
 
+  // FIX (recurring oversight check): neither index.html's number inputs
+  // (no `min` attribute) nor any client-side code rejected a negative or
+  // zero asking price/size -- and nothing here did either. A negative
+  // price flows straight into valueGapPercent() (lib/scoring/
+  // pradixiumScore.js), which only guards against falsy/zero/non-finite
+  // values, not sign: subtracting a negative "asking price" from the
+  // benchmark produces a large POSITIVE gap, which can even cross the
+  // exceptionalValueFlag() threshold and show the customer a confident
+  // "significantly below market" banner computed from garbage input. Same
+  // corruption reaches Gross Yield, the Pradixium Score, and Reality
+  // Check. Reject outright rather than silently computing a wrong number
+  // or quietly nulling it -- this is an input mistake, not absent data.
+  for (const [field, raw] of [["price", property.price ?? property.askingPrice], ["size", property.size]]) {
+    if (raw == null || raw === "") continue;
+    const n = Number(raw);
+    if (!Number.isFinite(n) || n <= 0) {
+      return res.status(400).json({ success: false, error: `property.${field} must be a positive number.` });
+    }
+  }
+
   // The client can still pass pre-fetched marketData for backward
   // compatibility, but the orchestrator is now the source of truth: it
   // fetches fresh government data itself whenever it's missing.
