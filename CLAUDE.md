@@ -62,6 +62,9 @@ The user is non-technical, Hebrew-primary, and has been very explicit about this
   "done" or "officially impossible — reason" in this file. A blocked
   source that needs the user's browser download → ask for it once and keep
   squeezing the same country's other items meanwhile.
+- **Audience is GLOBAL (user, Oct 2 2026): "זה גלובלי לא רק ישראלים".**
+  Prioritise countries by their weight for international property buyers
+  worldwide, not by Israeli demand.
 - Don't over-explain or narrate options at length — give a recommendation and the
   main tradeoff, not an essay.
 - The user pushes back hard (and rightly) if Claude acts before confirming — treat
@@ -289,6 +292,19 @@ largest metro first.
   length", Assessor Sales Codes PDF); year built. No value in the GIS
   (Assessor bulk files are paid → not used). Addresses carried by two
   parcels (house + extra lot sold together) show nothing.
+  BENCHMARK (Oct 5 2026): median price of the Assessor's code-R single-
+  parcel sales of the same Nevada state land-use code (Dept. of Taxation
+  Land Use Code Manual: 20 single-family, 21 condominium unit, 24
+  townhouse), Assessor neighborhood (NBRHOOD) else town, 12 months, 10+
+  sales → areaMedianPrice (whole-home benchmark). PREBUILT
+  lib/data/clarkSales.js ← `NODE_USE_ENV_PROXY=1 node
+  scripts/build-clark-sales.mjs` (monthly, ~2.5 min; the county server
+  throttles for a few minutes after it): Sales_view R parcels (dropped if
+  the parcel carries ANY other code in the 18-month view) → roll extract
+  price/month/doc; a doc number on 2+ parcels dropped. First build 27,627
+  sales, 706 groups; LV houses $505,000 (6,115), Henderson $536,515.
+  Check: nbhd 3142.75 houses 117 sales, $530,000 (independent Python
+  recompute nbhd → roll → codes). Owner fields never requested.
 - Cincinnati (#30): Hamilton County OH (39061) `lib/usLocal/hamiltonOH.js` —
   Auditor market value, annual taxes (official check), year built, finished
   sq ft (text). Sales not shown: VALID/SALTYP empty on every 2025+ sale
@@ -471,6 +487,15 @@ largest metro first.
   (APPRAISED_TOTAL_VALUE + TAXYR) + Sales and Transfers: last sale only if
   the parcel's latest transfer is "0-QUALIFIED - ARMSLENGTH" and single
   parcel; otherwise the code is named.
+  BENCHMARK (Oct 6 2026): ZIP × land-use median of the Auditor's
+  "0-QUALIFIED - ARMSLENGTH" single-parcel sales (SALE_TYPE "1+LAND"
+  dropped; the layer repeats a sale on several rows → deduped), 12 months
+  to the latest qualified sale, 10+, PREBUILT lib/data/starkSales.js ←
+  `NODE_USE_ENV_PROXY=1 node scripts/build-stark-sales.mjs` (monthly; the
+  server resets connections now and then → retries). 1-family + condo
+  unit → benchmark, 2-family → context. First build 4,765 sales, 39
+  groups. Check: 44720 1-family 436 sales $294,101.5; 44646 519,
+  $250,000 (Python recompute). FORMER_OWNER/NEW_OWNER never requested.
 - Summit County OH (39153, Akron): `summitOH.js` — Fiscal Office
   parcels_cama/Tax_Parcel_Sales: cntmktvalue (no tax year in layer), floor
   area, year built; town = taxing jurisdiction. Sales not shown (undocumented
@@ -502,6 +527,11 @@ largest metro first.
   County Geospatial Insights & Solutions; terms "03-ARM'S LENGTH", since
   2004): last arm's-length single-parcel sale + ZIP 12-month median of
   improved residential (context). Recompute check: ZIP 49424 → 490, $385,100.
+  BENCHMARK (Oct 6 2026, same "03" standard as Detroit): ZIP median of
+  those sales of the parcel's own kind (layer flag iscondo, read from the
+  parcel's own sales rows; unknown → both as context), 12 months, 10+; a
+  liberpage on 2+ rows = multi-unit deed → dropped. Check: 49424 houses
+  406 sales $405,000, condos 82 $329,950 (Python recompute).
 - East Baton Rouge Parish LA (22033): `ebrLA.js` — data.brla.gov Tax Parcel
   (ei2c-krsr; physical_address → assessment_num; its FMV field is always 0)
   + EBRP Tax Roll (myfc-nh6n; sum of real-property lines' fair_market_val,
@@ -615,6 +645,35 @@ largest metro first.
   resultRecordCount), Lane (41039, Address (Site) → maptaxlot → Parcels
   total_mkt_land + total_mkt_imp, weekly; NUMACCNTS > 1 → no value). RMV
   only; capped assessed value not shown; no roll year in any layer.
+  Deschutes BENCHMARK (Oct 6 2026): ZIP median of reject-code-33
+  ("CONFIRMED SALE") single-taxlot sales (a Book_Page on 2+ taxlots
+  dropped), 12 months to the table's latest confirmed sale (Jul 2026),
+  10+, PREBUILT lib/data/deschutesSales.js ← `NODE_USE_ENV_PROXY=1 node
+  scripts/build-deschutes-sales.mjs` (monthly). Type: every class row of
+  the taxlot = Oregon property class 101 (residential improved — the
+  statewide code, as in Benton/Linn county code lists; no DOR page
+  reachable) and exactly one dwelling row by the county's own
+  STAT_CLASS_DESC (One/Two story… → house, Townhouse). The server answers
+  GET only (POST → 403), old MapServer → OBJECTID paging. Check: 97702
+  houses 123 sales $720,000; 97703 110, $1,152,000 (Python recompute).
+  NEVER outFields=* on table 9 (Seller/Buyer names).
+  Chatham GA benchmark skipped (Oct 6 2026): the Parcel Digest 2025 holds
+  sales only to Dec 2024 (Q-coded) — too old for a 12-month benchmark.
+- Montgomery County PA (42091, Oct 5 2026) in `moreCounties.js`: county GIS
+  "Montgomery County Parcels" (item licence: "a free and open resource") —
+  facts + Government Value = TOTAL_ASSE (old base-year assessment) × the PA
+  Department of Revenue common level ratio FACTOR 3.36 (documents accepted
+  1 Jul 2026 – 30 Jun 2027; the full 67-county table is in the DoR list
+  "2025 Common Level Ratio Real Estate Valuation Factors, July 2026") —
+  labelled as the State's realty-transfer-tax formula, not an appraisal.
+  Update the factor every July. Check: 1086 Edge Hill Rd 131,700 × 3.36 =
+  442,512. STEB sale codes have no published definitions → last sale shown
+  as "recorded consideration — not screened". Skipped (licence): Chester
+  (CC BY-NC-SA), Bucks ("Not for commercial use"), York (YCPC "internal use
+  … illustration and demonstration purposes only"); Lehigh layer is a
+  test service ("ATestParcel"); Luzerne has no situs address; Tennessee
+  statewide boundaries are "for state agencies with approved access".
+  Douglas NE, Sedgwick KS, Prince William VA layers carry no values.
 - Texas additions (`texas.js`, generic `find` configs): Tarrant (TAD roll as
   published by City of Fort Worth "Parcels_Public_View" — whole county, 2024
   roll as of Sept 2026, shown with its year), Collin (CCAD's own layer; the
@@ -628,6 +687,133 @@ largest metro first.
 - Coverage tracker (session scratch, not in repo): county population from
   Census 2024 estimates vs the modules' matchers — ~55% of US population had
   a local property record as of the Nassau commit (Sept 2026).
+- US city-only input (Oct 4 2026, live audit): "Miami, FL" / "Austin,
+  Texas" / "Phoenix, AZ 85004" typed without a street returned NOTHING (no
+  state → no FHFA). us-intelligence now splits "City, ST|State [ZIP]" into
+  city + state name (+ ZIP), and hpiCity() without a county matches the
+  FHFA metro whose principal cities include the city in that state (exactly
+  one) — "Miami" → Miami-Miami Beach-Kendall MSAD +1.27%. NOTE: the file is
+  minified on long lines — never append a `//` comment mid-line.
+- US RENT (Oct 4 2026, was missing): `lib/us/rents.js` ← `python3
+  scripts/build-us-rents.py 2024` (each December) → lib/data/usRents.json:
+  ACS 5-year table B25031 median GROSS rent by bedrooms per ZCTA (25,996),
+  from the Census table-based summary file on www2.census.gov (the Census
+  API now demands a key → not used). Top-coded medians ("$3,500 or more",
+  margin code -333333333) are stored negative, shown as such, never used
+  as a number. ZIP from the geocoder ("ZCTA5 60610"), bedrooms entered (else
+  the record's, else all homes). Yield basis only when no rent is entered;
+  text says gross rent includes tenant-paid utilities and existing
+  tenancies. Check: 60610 2-bed $3,098, 10019 1-bed $2,810 = the raw .dat.
+  City typed without a ZIP ("Miami, FL") → the same table for the Census
+  PLACE of that name in that state (22,532 places; names from the summary
+  file's Geos list, "(balance)"/consolidated-government names aliased —
+  Nashville, Louisville, Athens, Augusta, Boise City, Urban Honolulu; an
+  incorporated place beats a same-name CDP, otherwise dropped), labelled
+  "the whole city". Check: Miami city 2-bed $1,885, all $1,758 = raw row
+  1600000US1245000.
+- US PROPERTY TAX (Oct 4 2026): the Tax Foundation line (a think tank,
+  not official) is gone. `lib/us/tax.js` ← `python3 scripts/build-us-tax.py
+  2024` (each December) → lib/data/usTaxPrices.json: ACS 5-year B25103
+  (owners' median real estate taxes paid) + B25077 (median value) per ZIP,
+  Census place (same keys as usRents places), county (us-intelligence now
+  returns property.countyFips), state. Ratio of the two medians shown as an
+  indication (+ the amount at the asking price), never for a state-only
+  match; top-coded medians not used. Check: ZIP 60610 $9,122 / $505,900 =
+  1.80%; Miami city $4,586 / $518,100 = 0.89% (raw .dat).
+- US TRANSFER TAX (Oct 4 2026): closingCosts.js `byUsState` — the state's
+  own schedule on the asking price (state from us-intelligence; county via
+  property.countyFips; NYC by county FIPS): FL doc stamps (Miami-Dade
+  60¢ + 45¢ surtax non-single-family), NY state $2/$500 + mansion 1% at
+  $1m + NYC RPTT 1%/1.425% (+ $1.25/$500 at $3m; supplemental 0.25–2.9%
+  at $2m NOT computed), NJ realty transfer fee (marginal per $500, two
+  schedules ≤/> $350k) + graduated percent fee (seller, since 10 Jul
+  2025), WA graduated REET (rates from 1 May 2026; local REET not
+  included), NV $1.95/$500 (+60¢ Clark, +10¢ Washoe/Churchill), IL 50¢ +
+  county 25¢ (Chicago's own tax not included — chicago.gov 403), GA, CA
+  county 55¢/$500 (city taxes not included), TX none (Const. art. VIII
+  § 29), MA $2.28/$500 (Barnstable: sources disagree → nothing).
+  Payer only where the official page says so. Other states → generic
+  line. The old "2–5% closing costs / CFPB surveys" + agent line removed.
+  Hawaii: capitol.hawaii.gov 403 → not added. Checks: NJ $600k → $5,185;
+  WA $900k → $10,528; GA $400k → $400.
+  Oct 4 2026 (second pass, user: "כל ארה״ב, בלי תקלות"): 39 jurisdictions
+  now computed — + PA (1% + local 1%; Philadelphia 3.578%), CT (0.75 /
+  1.25 / 2.25% marginal, seller; town tax not incl.), VA (25¢/$100 +
+  grantor 50¢/$500), NC ($1/$500), DC (1.1% / 1.45% each, recordation +
+  transfer), MD (0.5% state; county taxes not incl.), DE (2.5% state;
+  local ≤1.5% not incl.), MI ($3.75 + 55¢ per $500), TN (37¢/$100), SC
+  ($1.85/$500), MN (0.33% + 0.01% Hennepin/Ramsey), CO (1¢/$100), AZ ($2
+  affidavit fee), OH (1 mill; county ≤3 mills not incl.), KY, WI, AL, OK,
+  IA, NE ($3.32/$1,000 from 18 Jul 2026), AR, NH (0.75% each side), VT
+  (1.47% rental / main-home and 3.62% second-home variants in the text),
+  ME (+ $3.80/$500 above $1m since Nov 2025), RI ($3.75/$500 since Oct
+  2025; tier 2 above the indexed $800k NOT computed), WV ($1.10/$500 + $20;
+  county not incl.), SD, HI (HRS § 247-2 from the DoTax PDF compilation —
+  non-homeowner-exemption table headline, owner-occupier in the text), OR
+  (ORS 306.815; Washington County $1/$1,000). Not listed (no official
+  schedule or "no tax" statement found): AK, ID, IN, KS, LA, MS, MO, MT,
+  NM, ND, UT, WY → "ask the county recorder". Test: every state × 9 prices
+  × 4 county cases, no NaN/undefined. Known geocoder gap: "100 Beacon St,
+  Boston" → Census matches 02136 (one match) — a typed ZIP wins.
+  City-only input has no geocoded county → usRents.json `placeCounty`
+  (Census summary level 155 place-within-county parts, weighted by
+  occupied homes B25003; one county with 80%+ of the place's homes) →
+  `usPlaceCounty()`: Philadelphia 42101, Las Vegas 32003, Miami 12086.
+  The geocoder's place name ("Pittsburgh city") = the incorporated
+  municipality → City of Pittsburgh local 4% (Allegheny County's local
+  rate table: city 3% + school district 1%) only then.
+  LOCAL TAXES (Oct 4 2026, third pass): WA local REET for every city +
+  unincorporated county (CDP place) ← `python3 scripts/build-wa-reet.py
+  <DOR 84-0013 PDF url>` → lib/data/waLocalReet.js (324 locations, May 1
+  2026; Seattle 0.50% — a search summary said 0.25%, the PDF wins); MD
+  county recordation ($/$500) + transfer (%) from the DLS "Other Local Tax
+  Rates" table FY 2026 (FY 2027 not published there yet — said so;
+  Montgomery varies by value → not computed); San Francisco's own
+  whole-price bands (replaces the county 55¢); City of Los Angeles $2.25/
+  $500 + Measure ULA 4% / 5.5% above $5.4m / $10.9m (from 1 Jul 2026),
+  Pomona / Redondo Beach $2.20/$1,000 (LA County Registrar-Recorder city
+  table); Chicago $3.75/$500 buyer + CTA $1.50/$500 seller. Ohio county
+  mills: only a 2019 collections table exists → not added. us-intelligence:
+  a street typed with "City, ST" in the city field now keeps the state
+  (200 N Spring St, Los Angeles, CA had no state when the geocoder missed).
+  Oct 5 2026: Montgomery County MD recordation (county Finance "Bill 17-23"
+  table, marginal $4.45 → 6.75 / 10.20 / 10.78 / 11.35 per $500 above
+  $500k / 600k / 750k / 1m, non-principal — = the county's own worked
+  examples $400k $3,560, $575k $5,462.50, $675k $7,330); its county
+  transfer tax varies by price → not computed. Alameda County cities
+  (Oakland, Berkeley, Alameda, Albany, Emeryville, Hayward, Piedmont, San
+  Leandro) from the County Clerk-Recorder's city table, per $1,000 of the
+  WHOLE price at its band (Oakland OMC 4.20.020), plus the county 55¢/$500.
+  Berkeley's Measure W rates start 1 Jan 2027 → update then.
+  Oct 5 2026 (cont.): NYC state supplemental tax (Tax Law § 1402-b, buyer,
+  whole price: 0.25% at $2m → 2.9% at $25m; check = DTF TSB-M-19(1)R
+  example $7m condo → $87,500); Rhode Island tier 2 ($3.75/$500 above
+  $824,000, Advisory 2026-01 — re-check the threshold each January);
+  Santa Monica ($3 / $6 / $56 per $1,000 of the whole price below $5m /
+  $8m / above, city page); San José conveyance tax $1.65/$500 (Muni Code
+  § 4.58.100) + Measure E 0.75 / 1 / 1.5% of the whole price above $2.3m
+  (§ 4.59.100; threshold CPI-indexed every 5 years, next July 2030).
+  Also Oct 5: Sacramento city $2.75/$1,000 whole price (City Code
+  § 3.16.020, County Recorder page); Culver City MARGINAL 0.45 / 1.5 / 3 /
+  4% at $1.5m / $3m / $10m (city page, from 1 Apr 2021); Connecticut
+  municipal conveyance tax 0.25% in every town (DRS SN 2011(3)) — the 19
+  eligible towns' extra up-to-0.25% only named (who adopts is not on an
+  official current list); Virginia regional WMATA fee 10¢/$100, grantor
+  (§ 58.1-802.3) in the 9 NVTA localities (§ 33.2-2501); the congestion
+  relief fee § 58.1-802.2 is repealed; local recordation 1/3 of state
+  (§ 58.1-814, optional per locality) → text only.
+- Health checks (Oct 5 2026, user: "everything must work"): /tmp/claude-0/
+  health.mjs (every dropdown country × flat/house: HTTP, errors, > 25 s,
+  NaN/undefined/[object] text, missing blocks) + /tmp/claude-0/uscities.mjs
+  (20 US addresses typed into the single field the way users do). A
+  4-hourly routine (trig_019R2kdXh4RkRGaCcJWuDMAM) runs them and posts a
+  Hebrew status snapshot. Fixes from the first run: countries with no
+  verified price source (pending-intelligence) now get a plain sentence in
+  the market card instead of empty dashes; Cook County queries are hedged
+  (second request after 2.5 s — 10–17 s → 1–3 s). Tulsa's INCOG parcel
+  server was down (timeouts) — the report shows no record meanwhile.
+  "000" statuses in local curl loops are the sandbox proxy, not the site
+  (38/38 requests that reached Vercel returned 200).
 - Sandbox quirk: Node's built-in fetch here ignores HTTPS_PROXY for some hosts
   (King County, DCAD fail with "upstream connect error"); run local tests with
   `NODE_USE_ENV_PROXY=1`. Vercel production is unaffected — always confirm on
@@ -771,6 +957,25 @@ servers → not used. Check: Lieusaint 66/86 matched, C €3,222 (23), D €3,18
   (share of home purchases by foreigners 2025 + pp change). Update each
   spring from the next Anuario. MIVAU names like "Palmas, Las" are
   reordered before matching (Las Palmas had no MIVAU figure before).
+- Spain RENT (Oct 4 2026, was missing): `lib/spain/rents.js` ←
+  `python3 scripts/build-es-rents.py <bd_SERPAVI_2011-YYYY.xlsx>` (MIVAU
+  SERPAVI database, cdn.mivau.gob.es — the serpavi page lists it; browser
+  User-Agent) → lib/data/spainRents.json: 2024 tax returns (Modelo 100) of
+  homes let as a habitual residence, relatives excluded — median + p25/p75
+  €/m² a month (Catastro built area) and the number of let homes, flats
+  (VC) vs houses (VU), per municipality (3,346) and census section (28,735;
+  USED since Oct 4 2026: INE 2021 section perimeters from the SECC_CE zip
+  on the same CDN → lib/data/spainSections/<CUMUN>.json.gz (1,766 munis,
+  27,307 sections, ~5 m simplification, 12 MB) ← `python3
+  scripts/build-es-sections.py <SECC_CE_…_WM.shp>`; an exactly located
+  address (Catastro geo type "portal") → its section's rent when 10+ let
+  homes of the type, else the municipality). 10+ homes. Check: Calle de
+  Serrano 50 → section 2807904006, 90 flats, €25.73 (shapely on the
+  unsimplified perimeters + the raw xlsx row). Municipality from the Catastro geo, or the town
+  when only a town is typed (catastroZone now returns `town`). Used for the
+  yield only when no rent is entered. MIVAU aviso legal: commercial reuse
+  allowed, cite source + date of last update (licence notice). Check:
+  Madrid flats €13.97 (300,447), Marbella €9.63 (6,374) = the raw xlsx.
 - Spain MIVAU benchmark is a PROVINCE average → labelled as such; the VDP003
   "transaction value" (province total, unit unstated) is no longer shown.
 - Portugal: `lib/portugal/inePrices.js` ← `python3 scripts/build-pt-prices.py`
@@ -820,6 +1025,24 @@ servers → not used. Check: Lieusaint 66/86 matched, C €3,222 (23), D €3,18
   prevailing-condition range is the benchmark; several → town range as
   context; > 20 zones (Rome, Milan) → asks for the neighbourhood.
   Municipality list: `python3 scripts/build-it-comuni.py`.
+- Italy ADDRESS → OMI zone (Oct 4 2026): a street + number typed → Esri
+  World geocoder (anonymous, not stored; PointAddress/StreetAddress, score
+  90+, same municipality) → the zone perimeter that contains the point —
+  the agency's own map perimeters (zoneomi.php richiesta=6, the request its
+  public map makes). Prebuilt for 49 big cities (Roma 233 zones, Milano 43,
+  Napoli 67 …): lib/data/italyOmiZones/<codcom>.json.gz ← `python3
+  scripts/build-it-omi-zones.py` (re-run each new semester); other towns
+  read live. Within 25 m of another zone → both listed, none applied.
+  Before: Rome/Milan reports had NO benchmark ("enter the neighbourhood").
+  Check: Via del Corso 100 → B31 Tridente €8,300–11,000; Viale di
+  Trastevere 50 → B14 (raw-perimeter ray-cast recompute in Python, same
+  zones). italy-intelligence now accepts an address without a city.
+  Same day: (a) a flat now uses the zone's own "Tipologia prevalente"
+  (Rome B31 is mostly "abitazioni civili" €7,400–9,700 — the luxury
+  "signorili" row €8,300–11,000 used to be picked first); (b) the OMI sheet's
+  RENT range (€/m² a month, same zone/type/condition) → rentalBenchmark →
+  yield when no rent is entered (B31 19.5–25.8 → €22.65; 100 m² €2,265/mo,
+  3.02% on €900k — hand-checked). Rent was missing for Italy before.
 - Italy renovation (Sept 2026): the "Renovated?" input switches the OMI
   benchmark to the agency's own EXCELLENT-condition ("ottimo") range of the
   same type when the zone publishes one (Porto Cervo E7 flats: normale
@@ -852,6 +1075,33 @@ servers → not used. Check: Lieusaint 66/86 matched, C €3,222 (23), D €3,18
   1/2/3+ rooms, unknown → sales-weighted mean of the three), else
   municipality (Swedish names mapped). Detached houses are not in these
   statistics → said so. Check: Tampere flats 2025 €3,062 (3,402 sales).
+- Finland RENT (Oct 4 2026, was missing): `lib/finland/rents.js` ←
+  `python3 scripts/build-fi-rents.py` (quarterly) → lib/data/finlandRents.json
+  — StatFin asvu 15fa: average rent €/m² a month of NON-SUBSIDISED flats,
+  new contracts (else all), by rooms (bedrooms 0/1/2+ → 1/2/3+ rooms), per
+  city (Swedish names mapped; sub-city zones not matched). Flats only →
+  yield basis for a flat when no rent is entered. Check: Helsinki
+  two-room new €21.19 (2026Q2) = the raw cube.
+- Norway RENT (Oct 4 2026): `lib/norway/rents.js` ← `python3
+  scripts/build-no-rents.py` (each spring) → lib/data/norwayRents.json — SSB
+  Rental market survey 09895 (actual averages; 09897 "predicted rents" is a
+  model → not used): monthly rent + annual rent per m² by zone (Oslo+Bærum,
+  Akershus ex Bærum, Bergen, Trondheim, Stavanger) × rooms (bedrooms + 1).
+  Needs the bedrooms; size-class zones (by settlement population) not
+  matched. Check: Oslo 2 rooms NOK 15,260/month (2025) = the raw cube.
+- Sweden RENT (Oct 4 2026): `lib/sweden/rents.js` ← `python3
+  scripts/build-se-rents.py` (each autumn) → lib/data/swedenRents.json — SCB
+  BO0406 Tab01 median annual rent per m² (+ margin of error) of rental flats
+  (hyresrätter, regulated utility-value rents) per municipality (311), 2026.
+  Flats: yield basis when no rent is entered (÷ 12); a house: context.
+  Check: Stockholm SEK 1,772 ±31 = the raw cube.
+- Sweden flats CONTEXT (Oct 4 2026): `swedenCondo()` in lib/sweden/rents.js
+  ← `python3 scripts/build-se-condo.py` → lib/data/swedenCondo.json — SCB
+  BO0501C median price of SOLD tenant-owned flats per metro area (Greater
+  Stockholm / Gothenburg / Malmö, by their municipalities) or county, last
+  two years. A whole-flat price over a whole area → context only (the
+  "no official flat price" gap stays: no per-m² / local figure). Check:
+  Greater Stockholm 2025 39,748 sales, median SEK 3,500k = the raw cube.
 - Iceland (Sept 2026): `scripts/build-is-prices.py` → lib/data/
   icelandPrices.json — HMS Kaupskrá fasteigna (every recorded purchase
   agreement, CSV on HMS's public object storage, updated nightly):
@@ -859,6 +1109,15 @@ servers → not used. Check: Lieusaint 66/86 matched, C €3,222 (23), D €3,18
   months, median ISK/m² per postcode / municipality for Fjölbýli (flats),
   Einbýli (detached), Sérbýli (semi/terraced), 10+ sales. Check: Reykjavík
   flats 822,865 ISK/m² (2,584 sales). Re-run monthly.
+- Ireland RENT (Oct 4 2026, was missing): `lib/ireland/rents.js` ←
+  `python3 scripts/build-ie-rents.py` (quarterly) → lib/data/irelandRents.json
+  — RTB average monthly rent of NEW tenancies, CSO PxStat RIQ02 (JSON-stat,
+  CC BY 4.0), latest quarter (2025Q4, 306 of 446 places with values):
+  locality ("Ballsbridge, Dublin 4") → Dublin postal district → county;
+  type (Apartment / Semi / Terrace / Detached; a plain "house" → all types)
+  × bedrooms, cascading to coarser cells. Yield basis when no rent is
+  entered. Check: Ballsbridge 2-bed apartment €2,830.54 = the raw cube;
+  €650k → 5.23% gross.
 - A fixed figure for flats only is never applied to a house (orchestrator
   `flatsOnly`). Denmark: Statistics Denmark stops at landsdel; EJEN88's
   per-m² key figure is empty for homes. Sweden: bostadsrätter are not in
@@ -882,12 +1141,15 @@ servers → not used. Check: Lieusaint 66/86 matched, C €3,222 (23), D €3,18
   labelled by its real area (Athens, Thessaloniki, small islands/resorts
   → "other areas"; any other town → national, never guessed as "other
   cities"); not used as a house's trend. bankofgreece.gr answers 403 to
-  servers and WebFetch → Q2 2026 not verifiable yet, Q1 2026 kept.
+  servers and WebFetch → see "Greece, squeezed" (Q2 2026 via BIS).
 - Regional fixtures (Serbia, Montenegro, LatAm, Asia…): city figure only
   for that city, national figures as context.
 - Turkey: TCMB EVDS has official TL/m² by province but needs a free API
   key (user must register). **Assigned by the user to the OTHER session
   (Claude A / "Pradixium 1.0"), Sept 2026 — Claude B does not build Turkey.**
+  Oct 2 2026: the user handed Turkey to Claude B. Live Turkey was broken —
+  EVDS moved to evds3.tcmb.gov.tr/igmevdsms-dis/ (header `key`); the old
+  evds2 /service/evds/ URL 302s to an HTML page → fixed.
 - Cyprus (Sept 30 2026): `lib/europe/cyprus.js` ← `scripts/build-cy-rppi.py
   2026Q2` → lib/data/cyprusIndexPrices.json — Central Bank of Cyprus RPPI
   (valuation-based, quarterly): change on a year earlier by DISTRICT
@@ -1307,6 +1569,293 @@ non-commercial; VIC/WA/TAS valuation portals are paid or 403.
 - (7) property record — officially impossible: the caderneta predial
   (VPT, owner) is only available to the owner via the AT portal.
 
+## Georgia, squeezed (Oct 2 2026, Claude B)
+
+- (1) price — officially impossible: Geostat's RPPI (the only official
+  series) is built from web-scraped OFFER prices of new Tbilisi homes
+  (Geostat's own method note) → district medians stay context. The Geostat
+  "Real estate activities" page (categories/405, sent by the user) holds
+  only sector accounts (turnover, value added, employment) — no prices.
+  NAPR publishes transaction COUNTS only (press), napr.gov.ge does not
+  answer here.
+- (2) trend — DONE (Geostat RPPI Q2 2026 flats +4.8%, houses +5.5%), now
+  labelled as the change in ASKING prices.
+- (3) rent — no official rent LEVEL; the trend IS official: Geostat CPI
+  detail indices (same month a year earlier = 100), COICOP row "Apartment
+  rent", national: 110.872 in Sep 2026 → +10.9% (text/context only, not
+  used for the yield). NBG also publishes rent + price indices and a
+  capitalisation rate (annual rent ÷ price) for typical 1- and 3-room
+  flats in Saburtalo and Varketili (Tbilisi) from OFFER prices, monthly,
+  only in the interactive analytics.nbg.gov.ge dashboard (does not answer
+  here). DONE Oct 2 2026 without it: NBG's monthly "Financial Sector
+  Review — Analytical Tables and Charts" PDF (nbg.gov.ge/fm/…/
+  financial-sector-review-eng.pdf, reachable) prints the same series in
+  Table 4.3 "Real Estate Indices" (GEL, Jan 2010 = 100): Aug 2026 price
+  219.4 vs 220.6 → −0.5%, rent 237.5 vs 242.5 → −2.1% → context text in
+  the Georgia fixture. The cap rate is not in the PDF. Update monthly.
+  RPPI files (categories/698): YoY flats 104.81 / houses 105.48 for Q2
+  2026; district file Q2 2026 = the fixture's values (Mtatsminda 6,730,
+  Vake 5,914). NOTE: those xlsx rows hold 22–26 quarters — read the LAST
+  value, not a truncated print.
+- (4) closing — DONE earlier (no transfer tax; NAPR flat registration fee).
+- (5) property tax — DONE, re-verified on matsne (Tax Code art. 202(5):
+  0.05–0.2% below GEL 100,000 family income, 0.8–1% at or above; art.
+  206(1)(a): exempt up to GEL 40,000 preceding-year income).
+- (6) foreign buyers — DONE earlier (OPEN; agricultural land only).
+- (7) property record — not used: the NAPR public-registry extract
+  carries owner names.
+
+## Greece, squeezed (Oct 2 2026, Claude B)
+
+- (1) price — officially impossible: no official transaction price LEVEL
+  (Bank of Greece publishes indices only; the zone prices are a tax base;
+  the minfin transfer-values register is behind a captcha).
+- (2) trend — DONE: BoG Q2 2026 apartments +5.5% (Athens 5.0, Thessaloniki
+  4.7, other cities 5.4, other areas 7.1; new 6.2 / older 5.0) — the
+  official page 403s, figures from its search snippet + the national rate
+  recomputed from the BIS series for Greece (stats.bis.org WS_SPP
+  Q.GR.N.628, from the BoG): 122.3916 / 116.0215 → +5.5%. Update
+  GREECE_HPI each quarter (BIS API answers here).
+- (3) rent — the old "BoG residential rent index 116.1, +8.7%" had NO
+  source: BoG's open data (data.gov.gr) has office + retail rent indices
+  only → removed. Now ELSTAT CPI release (statistics.gr, reachable),
+  Table 5 "Rentals for dwellings": Aug 2026 +6.2% on a year earlier,
+  national, its own source block. No official rent LEVEL → no yield
+  without an entered rent. Update monthly.
+- (4) closing — DONE: transfer tax 3% + 3% municipal = 3.09% on the
+  HIGHER of price and objective value (AADE page); new-build VAT 24%
+  suspended to 31.12.2026 (Law 5246/2025 art. 12, read on taxheaven);
+  notary 0.80/0.70/0.65/0.55% + VAT (ΥΑ 111376/2012 as amended 2015);
+  Cadastre 5‰ (decision 2/12-1-2026). Lawyer/agency lines (market
+  convention) dropped. Total 4.4–4.6% (check: €300k → 4.51%, €2m → 4.42%).
+- (5) ENFIA — DONE: Property Tax Code Law 5219/2025 art. 11 table
+  (€2.00–16.20/m² basic tax over 9 zone-price bands; the old text said
+  "€2–13+"); supplementary tax = legal entities only (art. 12; the old
+  text applied it to individuals); 2026 −50% / 2027 exempt for tax
+  residents' MAIN homes in settlements ≤ 1,500 people (Law 5246/2025
+  art. 10).
+- (6) foreign buyers — DONE earlier (ELRA, Law 1892/1990 border areas).
+- (7) property record — DONE as zone prices (lib/greece/zones.js); the
+  cadastre extract carries owner names and is paid → not used.
+
+## Turkey, squeezed (Oct 2 2026, Claude B — the user handed Turkey over)
+
+- (1) price level — DONE as CONTEXT: TCMB "Konut Birim Fiyatları" +
+  "Değerlemesi Yapılan Konutların Birim Kiraları" (quarterly, all 81
+  provinces): median TL per m² of GROSS area (outliers removed) from the
+  valuation reports banks order for mortgage applications (KFE-Metaveri.pdf
+  definitions) — appraisals, not sale prices → text, never the benchmark.
+  Series codes from TCMB's PUBLIC EVDS tables (igmevdsms-dis/public/charts/
+  portlet/<id>, linked from KFE-Tablo.pdf; no key) saved by the build
+  script; values fetched live with the key (TP.BIRIMFIYAT.<P>, TP.BK.<P>).
+  Live check Oct 2 2026: Muğla 2026-Q2 TL 82,290/m², rent TL 352/m²/month;
+  Türkiye TL 51,850 / TL 258. The public /fe data endpoint needs a session
+  → not used.
+- (2) trend — DONE (moved to EVDS Oct 3 2026, see Licence compliance):
+  `lib/turkey/kfe.js` ← `python3 scripts/build-tr-kfe.py` (was: KFE.pdf): Table 1/2 (Türkiye,
+  İstanbul, Ankara, İzmir) + Grafik 4/8 (19 İBBS region groups, provinces
+  as TCMB lists them; values printed in bar order, pairing checked against
+  the tables, the script stops on a mismatch). Aug 2026: Türkiye +23.0%
+  (real −6.5%), İstanbul +26.3, Muğla region +17.9. Districts buyers type
+  (Bodrum, Alanya, Kadıköy, Çeşme…) → province (DISTRICTS table). Passed as
+  housingPriceIndex.regional. Fallback when EVDS fails: the same release.
+  Base is 2023=100 (old label said 2010).
+- (3) rent — new-tenant rent index (YKKE) change, same release, per region
+  (İstanbul +34.5%) → text; no official rent level → no yield.
+- (4) closing — DONE: tapu harcı 2% buyer + 2% seller on the declared price
+  (≥ tax value), Law 492 Tariff 4 item 20(a), Decision 2012/3735, Law 7566.
+- (5) emlak vergisi — DONE: Law 1319 art. 8 homes 0.1%, ×2 in metropolitan
+  municipalities; 2026 tax value capped at 2× 2025 (temp. art. 23).
+- (6) foreign buyers — DONE earlier.
+- (7) property record — officially impossible: TKGM e-Tapu needs the
+  owner's e-Devlet login.
+
+## Licence compliance (Oct 3 2026, Claude B — user: "תכבד את כל ההוראות והחוקים פה")
+
+Every source's own reuse terms were read on the body's page; the required
+attribution is added as a "Licence" source block by `lib/data/licences.js`
+(only for sources the report's evidence used; the orchestrator calls
+`licenceNotices()` after the evidence is built). Found and fixed:
+- Turkey: TCMB's WEBSITE content (the KFE.pdf release) needs TCMB's written
+  permission for commercial use (tcmb.gov.tr Kullanım Şartları) — the
+  regional figures came from it. EVDS's own terms (docId=18) allow use with
+  the source named, also commercially if no extra fee is charged for the
+  data, and a translation must say it is not TCMB's → everything now comes
+  live from EVDS: TP.KFE.<region> / TP.YKKE.<region> for the 19 İBBS groups
+  (codes from TCMB's public EVDS tables, `build-tr-kfe.py`, no PDF). No key
+  / EVDS down → "unavailable", no fallback figures. The "real change" line
+  (from the PDF text) is gone.
+- France rents: the file used was a PRIVATE company's aggregation
+  (Terralyse "rendement locatif") with its own price method, and it gave
+  houses the FLAT rent → replaced by the ministry's own Carte des loyers
+  2025 files (pred-app / pred-mai, DHUP/ANIL, Licence Ouverte), flats and
+  houses separately, with the prediction interval and "estimated on a wider
+  area" flag. Check: Ambérieu-en-Bugey flats €12.32 = both files.
+- Licence Ouverte needs the date of last update → DVF's date is read from
+  the data.gouv.fr API (cached 6 h).
+- Stats SA: older releases forbade selling the data; the CURRENT P0160
+  imprint only asks to name Stats SA as the source of the basic data and to
+  say the analysis is the user's own → allowed, notice added.
+- User's answers (Oct 5 2026): Dubai — "זה נעשה" (handled by the user;
+  the open DLD question is closed, keep the attribution notice). Poland
+  NBP — keep NBP for now; the user will request written confirmation
+  (with Japan's MLIT key and Lithuania's downloads, after the company is
+  registered).
+- Not commercial-use-safe, still not used: NSW Valuer General (CC BY-NC-ND),
+  KSH tailored extracts (CC BY-NC; STADAT tables are CC BY 4.0 — those are
+  what we use), INE Portugal's OLD terms (now CC BY 4.0).
+- Spain Catastro (Oct 4 2026): the Catastro licence (licdescargaES.pdf
+  cl. 5–7, 12) allows public and commercial use of TRANSFORMED information,
+  must cite the Dirección General del Catastro + the date of access, and a
+  product must not present itself as "información catastral" → notice with
+  the access date (prebuilt map's build date / today for live lookups).
+- Dubai (Oct 4 2026), OPEN QUESTION for the user: dubailand.gov.ae's site
+  terms allow Web Site Materials "solely for your personal, noncommercial
+  use"; the Real Estate Data page shows no licence of its own. Dubai Law
+  No. 26 of 2015 makes government data open by default, and the DLD
+  transactions dataset is classified Open Data (Dubai Pulse
+  "dld_transactions-open", reported as CC BY 4.0 / attribution to the Dubai
+  Government and DLD) — but dubaipulse.gov.ae/legal answered 503, so the
+  licence text itself was not read. Attribution notice added meanwhile;
+  written confirmation from DLD recommended (same as Lithuania).
+- Oct 5 2026 licence pass: GUS BDL = CC BY 4.0 (stated on bdl.stat.gov.pl)
+  → notice; Mexico SHF → "Términos de Libre Uso MX" citation (dataset,
+  agency, link, date YYYY-MM-DD); Spain INE → RD 1495/2011 general reuse
+  conditions; São Paulo ITBI and Serbia RGZ: no licence text on their
+  pages → source named. OPEN QUESTION for the user: NBP BaRN (Polish city
+  benchmarks) — nbp.pl's legal page sits behind a bot check (not read);
+  NBP's education portal regulation requires written consent for copying
+  beyond personal use. Source named meanwhile; written confirmation from
+  NBP recommended (else fall back to GUS powiat figures, CC BY).
+- US licence pass (Oct 5 2026): every ArcGIS layer's service + item
+  licence text read (scripted over the 102 layer URLs in lib/usLocal +
+  us-intelligence) and the Socrata datasets' licence field. SWITCHED OFF
+  (`licenceBlocked: true`): Placer CA (service terms "INTERNAL - PLACER
+  COUNTY EMPLOYEES ONLY", conflicting with the item text), Cobb GA
+  ("Copyright Cobb County. All rights reserved."; the county sells its GIS
+  data), St. Charles MO (non-transferable, non-sub-licensable licence under
+  RSMo 67.1850). Notices added: Colorado statewide (State's own attribution
+  statement + access date; resale of the DATA forbidden, commercial use
+  allowed), CGS seismic zones ("Modified from California Geological
+  Survey…" — the licence's own condition for use in a report), Oregon
+  Metro RLIS (ODbL), Jefferson CO (CC BY 4.0), Sonoma (open terms). No
+  conditions: WPRDC (CC0), CT / Illinois EDP / BRLA (public domain), SF
+  (PDDL), Ada (CC0). The licence scan now also reads the US record's
+  authority and the official hazard checks' sources.
+
+## Deploy gotcha (Oct 4 2026)
+
+vercel.json `includeFiles` is limited to 256 characters per function — a
+longer list FAILS THE WHOLE DEPLOY (the site keeps serving the previous
+version, so nothing looks broken). The orchestrator now uses the pattern
+`{lib/data/*{Rents,Prices,Sales,Shf,Imi,Suburbs,Condo}.json,lib/data/spainSections/**}`
+— name new data files to fit it. After every push, check the live site
+actually shows the new text (or the Vercel deployment state).
+
+## Rent sweep, Oct 4 2026 — checked, NOT available (do not retry)
+
+Netherlands (CBS has rent CHANGES only, no level per region), Denmark
+(HUS1 indices only), Austria (no rent level in Statistik Austria open data),
+Poland (NBP file has no rents), Switzerland (BFS Strukturerhebung to 2022
+only, Lex Koller limits buy-to-let), Israel (CBS index API has no average
+rents; cbs.gov.il unreachable), Rio de Janeiro (no open ITBI data).
+South Africa property rates: Cape Town's 2026/27 tariff is being amended
+after the Western Cape High Court judgment of 30 Apr 2026 (city calculator
+"under construction", Annexure 2 unreachable) → not added.
+
+## Singapore (Oct 3 2026, Claude B — added to the dropdown)
+
+`api/singapore-intelligence.js` + `lib/singapore/sg.js` ← `python3
+scripts/build-sg.py` (quarterly) → lib/data/singapore.json.
+- (1) price — DONE Oct 3 2026 with the user's URA access key (the user
+  holds it — NEVER commit it; ask for it at refresh time): `URA_KEY=… python3
+  scripts/build-sg.py` → PMI_Resi_Transaction (4 batches, ~132k caveats, no
+  names) → per project, 12 months to the latest month (2025-10..2026-09):
+  median S$ per m² of STRATA area of single-unit non-landed sales (Apartment
+  / Condominium / EC), resale+sub-sale and new sale kept apart, 10+ each →
+  463 projects. Benchmark = resale median, else new-sale (labelled). The
+  project's URA market segment (CCR/RCR/OCR) now picks the regional PPI.
+  Check: Treasure at Tampines 124 resales, S$19,405 (separate recompute
+  from the raw batches). Without URA_KEY the script keeps the old sales
+  block. HDB resale prices are public but foreigners cannot buy HDB flats →
+  not used.
+  TERMS (URA API Terms of Service + Singapore Open Data Licence v1.0):
+  commercial use allowed; call the service only from a server (we only
+  call it at build time); every report using the data shows the licence
+  notice ("Contains information from … accessed on … from URA … Singapore
+  Open Data Licence version 1.0" + link) — the "Licence" source block.
+- (2) trend — DONE: URA PPI via SingStat tables M212261 (all / landed /
+  non-landed) and M212271 (CCR / RCR / OCR, only when typed). 2026-Q2:
+  all +2.9%, landed +7.0%, non-landed +1.8% (219.4/213.2 etc.). SingStat
+  answers 403 without an Accept header.
+- (3) rent — DONE: URA "Rentals of Non-Landed Residential Buildings"
+  (data.gov.sg d_149ac00…): median S$ per sq ft per MONTH (unit stated in
+  URA's API docs) of major projects with 10+ contracts, 621 projects
+  2026-Q2. Only when the customer types the project's URA name → × m² ×
+  10.7639 → the yield. Check: 18 Woodsville 5.63 × 80 m² → S$4,848/month.
+- (4) closing — DONE: IRAS BSD marginal bands computed (`tiers` hook in
+  closingCosts.js; IRAS's own example S$4,500,100 → S$209,606) + ABSD
+  60% for foreigners (FTA nationals e.g. US as citizens).
+- (5) property tax — DONE: IRAS rates (non-owner-occupied 12–36% of the
+  Annual Value from 2024; owner-occupied 0–32% from 2025) as text.
+- (6) foreign buyers — DONE earlier (TAX SURCHARGE).
+- (7) property record — officially impossible: no open per-unit record.
+
+## Hong Kong (Oct 3 2026, Claude B — added to the dropdown)
+
+`api/hong-kong-intelligence.js` + `lib/hongkong/rvd.js` ← `python3
+scripts/build-hk.py` (monthly) → lib/data/hongKong.json, from the Rating
+and Valuation Department's Property Market Statistics xls (rvd.gov.hk).
+- (1) price — DONE: average price per m² of SALEABLE area, second-hand
+  sales, region (HK Island / Kowloon / New Territories) × class (A < 40,
+  B 40–69.9, C 70–99.9, D 100–159.9, E ≥ 160 m²), latest month
+  (provisional "*" said so); "( )" = fewer than 20 transactions → context.
+  Benchmark (perSqm) — the entered size is read as saleable area. Place →
+  region via the 18 districts + named areas (longest match). Check: Aug
+  2026 NT class B HK$110,084, Kowloon B HK$137,442 = the raw cells.
+- (2) trend — DONE: RVD price index by class (1999 = 100), y-o-y; all
+  classes Aug 2026 320.5 / 288.8 → +11.0% (recomputed).
+- (3) rent — DONE: RVD average rent per m² a month, same region × class
+  → monthlyRentPerSqm → the yield; RVD class yield as context.
+- (4) closing — DONE: AVD residential scale from 26 Feb 2026 (GovHK page),
+  same for every buyer since 28 Feb 2024; computed (`hkAvd`). Checks:
+  HK$4.2m → HK$40,100; HK$10m → HK$370,000.
+- (5) rates — DONE: 5% of rateable value; progressive 5/8/12% above
+  HK$550,000 RV from 2025; Government rent 3% (Cap. 515).
+- (6) foreign buyers — DONE earlier (OPEN).
+- (7) property record — not used: Land Registry searches are paid and
+  carry owner names.
+
+## Japan (Oct 3 2026, Claude B)
+
+`api/japan-intelligence.js` + `lib/japan/mlit.js` ← `python3
+scripts/build-jp.py` (monthly) → lib/data/japanPrices.json: MLIT 不動産価格
+指数（住宅）, ORIGINAL series (原系列), latest month (Dec 2025, published
+31 Mar 2026 — MLIT's page lists nothing newer as of Oct 2026): narrowest
+published area (Tokyo / Aichi / Osaka prefecture → Greater Tokyo /
+Keihanshin → the 9 regions; a city name beats a ward name — Kita, Minato,
+Chuo exist in Osaka/Nagoya too) × type (condominium / detached), y-o-y +
+sample count. Check: Japan condos 221.24/204.16 → +8.4%, Tokyo +9.8%,
+Osaka +12.9% (hand recompute from the xlsx). No price level: MLIT's
+transaction API (reinfolib) needs a key — company registration first.
+The regional fixture's unsourced "¥36 million average home" and an
+unverified land-price line were removed (the fixture stays for the
+Global Index).
+
+Japan RENT (Oct 4 2026): `lib/japan/rents.js` ← `python3
+scripts/build-jp-rents.py` (next survey 2028) → lib/data/japanRents.json —
+Statistics Bureau 2023 Housing and Land Survey table 122-4 (e-Stat file
+statInfId 000040210062, keyless): average monthly rent per m² of floor
+area of PRIVATE rented homes (民営借家, rent-free excluded) per prefecture /
+municipality / designated-city ward (1,274 areas; towns < 15,000 people
+not surveyed). English names, postcodes and town names (Roppongi →
+Minato) from Japan Post's KEN_ALL_ROME (service/search/zipcode/download/
+roman/ — the old /zipcode/dl/ path 404s). A ward of a designated city only
+with its city typed ("Kita-ku, Osaka"); "Kita" alone → ambiguous; a
+prefecture-only match (Niseko → Hokkaido) is context, never the yield.
+Existing tenancies, 1 Oct 2023 — said so. Check: Minato ¥4,504 (66,230),
+Naha ¥1,320 = the raw xlsx. Licence: e-Stat 出典 + を加工して作成.
+
 ## Brazil — City of São Paulo (Oct 1 2026, Claude B)
 
 `lib/brazil/saoPaulo.js` ← `python3 scripts/build-br-sp-itbi.py <2025.xlsx>
@@ -1347,6 +1896,22 @@ CONTEXT ONLY: mortgaged homes skew to economy/social housing (a Playa del
 Carmen flat read "167% above market") → never the benchmark; the
 municipal (else state) index change IS the trend.
 
+## New Zealand RENT (Oct 4 2026, Claude B)
+
+`lib/newzealand/rents.js` ← `python3 scripts/build-nz-rents.py` (monthly) →
+lib/data/newZealandRents.json — MBIE Tenancy Services rental bond data
+(tenancy.govt.nz, CC BY 3.0 NZ, credit MBIE): median WEEKLY rent of NEW
+private bonds. SA2 (2019 = 2018 codes) from the quarterly file, latest
+quarter, House / Flat / Apartment / ALL × bedrooms, 10+ bonds (1,222 SA2s,
+2026 Q2); council area (TA) from the monthly TLA file, latest month, all
+dwellings only (61 TAs, July 2026). SA2 names + TA: Stats NZ's own ArcGIS
+org (vKb0s8tBIA3bdocZ; SA2 centroid in TA polygon). A typed suburb that is
+ONE SA2 → that SA2; several (Ponsonby East/West, Remuera …) → listed, none
+picked, TA figure used; a part with digits (street line) is never matched.
+× 52 ÷ 12 → yield when no rent is entered. Check: Takapuna West houses
+45 bonds NZ$700, Auckland July 2026 5,592 bonds NZ$640 = the raw CSVs.
+No official NZ price LEVEL yet (REINZ is private; QV is a commercial arm).
+
 ## Canada (Oct 1 2026, Claude B)
 
 `lib/canada/nhpi.js` ← `python3 scripts/build-ca-prices.py` (monthly) →
@@ -1357,6 +1922,18 @@ flat. No official price level per city: CHSP 46-10-0030's "median sale
 price … market sale" cells are all empty (".."); CMHC absorbed-unit prices
 not checked yet. Suburbs not in a CMA name (Mississauga) → the province if
 typed. Check: Toronto 2026-08 −4.3% (index 106.0) = the WDS series.
+
+Canada RENT (Oct 4 2026): `lib/canada/rents.js` ← `python3
+scripts/build-ca-rents.py` (each January) → lib/data/canadaRents.json —
+CMHC Rental Market Survey average rents by bedrooms (bachelor–3) per centre
+(190), Statistics Canada table 34-10-0133 (WDS full-table CSV, keyless),
+"Row and apartment structures of three units and over" = purpose-built
+rental, ALL occupied units (long tenancies included) — said so; not
+rented condos or houses → yield basis for an apartment only, a house gets
+it as context. Ottawa-Gatineau split into its Ontario / Quebec parts;
+Kitchener-Cambridge-Waterloo by each name. Mississauga etc. (inside the
+Toronto CMA, not a centre of their own) → not matched. Check: Toronto
+2-bed C$2,045, Vancouver 3-bed C$2,820 = the raw CSV.
 
 ## Checked Oct 1 2026, not usable (do not retry the same route)
 
@@ -1527,6 +2104,73 @@ when relevant (not direct self-promotion) — matches where people already ask
 exactly the "is this price fair" question Pradixium answers. Not yet acted
 on; no account created or outreach done anywhere.
 
+**Update (Oct 2 2026):** SkyscraperCity sells a Business Premium
+subscription ($199) that grants permission to post promotional content
+directly — the platform's own sanctioned advertising tier, not a
+borderline self-promotion workaround. Decision: worth trying given the
+low cost and directly-relevant audience, but timed to after Sagacitas
+Ltd's CRO registration completes (more credible to present as a
+registered business when opening a paid business account), and run
+alongside — not instead of — the free organic channels (Telegram real-
+estate groups, personal outreach) already in motion. Not yet purchased.
+
+## Telegram Ads campaign — first paid channel, shipped Oct 3 2026
+
+First actual paid-advertising spend (vs. free organic outreach above).
+Platform: ads.telegram.org, the **TON-denominated self-serve cabinet**
+(shows as "CPM in Gram") — not the official EUR Cabinet, which needs a
+€1,000-2,000 minimum deposit and is too big a commitment for "testing the
+water." The TON cabinet's real minimums: ~20 TON one-time top-up to fund
+the Ads account balance, 1 TON/day minimum campaign budget (~$1.45/TON on
+the day this was done — check live, it moves). Funding flow: buy TON via
+Telegram's own `@wallet` bot (card, no separate exchange needed) →
+fragment.com → Pay for Telegram Ads → pick the Telegram Ads account →
+amount in TON. Fragment requires identity verification (KYC) for the TON
+purchase — this is MiCA (EU crypto regulation), not a red flag.
+
+**Real gotchas hit, worth knowing in advance next time:**
+- **Targeting (language, topic, specific-channel) locks permanently once
+  the ad is created** — decide this up front, there's no editing it after.
+- **The Ad Text field has its own character limit (~160) and rejects a
+  literal URL/domain in the text** — the destination goes in the separate
+  "URL you want to promote" field instead (`t.me/<bot or channel>`, not an
+  external pradixium.com link — this field is Telegram-entity-only).
+- **One language per ad, not one ad for several target languages** — the
+  ad text itself doesn't auto-translate per viewer, so running in several
+  languages (this campaign: Hebrew, English, French, German) means
+  creating a separate ad per language, each with its own translated text.
+- **First rejection: "ad destination was rejected — Profile details."**
+  Telegram requires the promoted bot/channel to have BOTH a profile photo
+  AND a non-empty About or Description text — @PradixiumBot had the photo
+  but an empty About. Fixed in BotFather → Edit Info.
+- **BotFather field mix-up that's easy to repeat:** the bot's **Name**
+  field (top of Edit Info, meant to stay short, e.g. "Pradixium") is a
+  different field from **Description** (shown under "What can this bot
+  do?") and **About** (shown on the profile page) — accidentally pasting
+  the long About paragraph into the Name field throws "Sorry, this isn't a
+  proper name for a bot." Also observed: a bot Name containing **".com"
+  gets rejected** by BotFather — keep it to a plain word.
+- **BotFather supports per-language Name/About/Description** via the
+  language dropdown next to "Info" (defaults to "Default") — used this to
+  give the bot a Hebrew About distinct from the English/French/German one,
+  matching each ad's target language.
+- **"Send to Review" has its own rate limit** ("cannot send too
+  frequently") separate from the review outcome itself — a quick retry
+  after a rejection fix just hits this, not a real error; wait and retry.
+- **Ad lifecycle is explicit, not automatic:** created → Review (pending)
+  → Active or On Hold (user's own choice, doesn't auto-start) — "On Hold"
+  right after creation is the expected default, not a stuck state.
+- Geo note from the platform itself: ads here will **not** show to users
+  in Russia or Ukraine (Telegram's own restriction, not something this
+  project chose).
+
+Ad copy used (English, the base version other languages were translated
+from): "Would you buy a property without checking it against real market
+data first? We do it in seconds. Questions? @PradixiumBot" — a curiosity-
+hook style deliberately chosen over a direct pitch. Dropped an earlier
+"in 30 seconds" framing since response time was never actually measured —
+same honesty discipline applied to marketing copy as to the product itself.
+
 ## Business/legal decisions (Sept 2026, user's own calls — not to be revisited without him raising it)
 
 - **Staying an Irish company for now.** Explicitly considered and declined a
@@ -1616,8 +2260,20 @@ Flagged directly to the user, unresolved as of this writing:
     `max_redemptions` edited after creation (confirmed via the API's own
     parameter docs — only `name`/`metadata`/`currency_options` are
     editable), which is why this is a third coupon rather than a bump to
-    an existing one. All three codes stay valid simultaneously; each just
-    stops working once its own cap is hit.
+    an existing one.
+
+  **Oct 3 2026: narrowed to one live code.** The user, understandably
+  frustrated that this session didn't already know about `FIRST1000` from
+  the note above (it wasn't re-read carefully enough before answering —
+  a real lesson, not his error), asked to leave only the 1000 code live.
+  Coupons `001` and `launch100` were **deleted** (not just deactivated —
+  this MCP's Stripe tool only exposes create/list/retrieve/delete for
+  promotion codes, no update/deactivate endpoint) via `DeleteCouponsCoupon`.
+  Deleting the coupon a promotion code points to makes that code stop
+  working for new redemptions without touching anyone who already
+  redeemed it. **As of now, `FIRST1000` (code `FIRST1000`) is the only
+  live promo code** — always verify in Stripe before assuming otherwise,
+  per the standing note above.
 
 ## Pricing tiers (Sept 2026)
 
@@ -1647,11 +2303,31 @@ role) is the one place a slot actually gets spent: called only when the
 user clicks to actually open a report they haven't unlocked yet (never
 just from rendering the button label, or every page view would burn the
 cap). It checks the active `monthly` row's own `created_at` as the cycle
-anchor — floor((now − anchor) / 30 days) picks the current cycle — since
-there is still no Stripe renewal webhook in this project (same known
-limitation already accepted for `subscription`/`business` expiry). Once a
+anchor — floor((now − anchor) / 30 days) picks the current cycle. Once a
 report is spent from the quota it's unlocked for good, same model as a
 one-time `report` purchase.
+
+**Stripe renewal webhook (shipped Sept 30 2026, found by the recurring
+oversight routine before it ever fired for a real customer).** Until this
+fix, the only place any `subscription`/`business`/`monthly` purchase row's
+`expires_at` was ever set was `verify-checkout-session.js`, run once right
+after the initial checkout — Stripe renews a subscription in place with no
+new Checkout Session, so a real subscriber's `expires_at` (35 days for
+business/monthly, 372 for the annual plan) would lapse on schedule even
+though Stripe kept charging them successfully every cycle, locking out a
+paying customer. `api/stripe-webhook.js` now listens for Stripe's
+`invoice.payment_succeeded` event (HMAC-SHA256 signature check via Node's
+own `crypto`, no `stripe` npm dependency, same zero-dependency convention
+as the rest of `api/*.js`) and rolls `expires_at` forward using the same
+duration rule, skipping the invoice that fires for a brand-new
+subscription itself (`billing_reason === "subscription_create"`, already
+handled by `verify-checkout-session.js`) to avoid creating a duplicate
+purchases row in a race between the two. Registered as Stripe webhook
+`we_1ULNmrHtvGmNh6t8pAjBEBgV` → `https://pradixium.com/api/stripe-webhook`,
+signing secret in Vercel's `STRIPE_WEBHOOK_SECRET` — confirmed live via
+the Stripe and Vercel MCP connectors (endpoint `enabled`, env var present
+in production). Hadn't fired for a real customer yet when found (zero
+`subscription`/`business`/`monthly` purchase rows existed at the time).
 
 **Race condition fixed (Sept 30 2026).** The check-then-insert above used
 to be two separate round trips from `api/consume-monthly-slot.js` itself —
@@ -2217,6 +2893,21 @@ adding) and a `recentTransactionPrices.js` / `globalIndexTrends.js` entry
 (price trend). Same honesty bar as everything else — only add what clears
 it against Georgia's own official sources.
 
+**Update (Oct 2026): competitor spotted, worth using as a lead — not a
+source.** The user found `mendo.ge` advertising in an Israeli real-estate
+Telegram group — a free tool specific to Georgia covering: a $150K
+real-estate investment-residency threshold, a 5% rental-income tax, a
+183-day tax-residency day-counter, and bank-readiness/capital-transfer
+pre-checks for Tbilisi/Batumi. This is NOT a source to cite — it's a
+competitor's own marketing claims — but it's a strong hint of exactly
+which Georgian rules/thresholds are real and worth verifying directly
+against Georgia's own official sources (presumably Public Registry/NAPR,
+Georgia Revenue Service rs.ge, and whatever law sets the investment-
+residency threshold) before adding to `foreignBuyerRules.js` or anywhere
+else. If any of these four numbers check out against an official source,
+they're fair game to add with that official citation — same as always,
+never cite mendo.ge itself as the source.
+
 ## For the other session (Claude B): NYC condo/co-op benchmark gap — user calls this launch-blocking (Sept 2026)
 
 **Done by Claude B (Sept 2026)** — see the NYC CONDO / CO-OP note in the US coverage list (option 2 was possible: the DOF roll has a per-unit area).
@@ -2349,6 +3040,27 @@ this sandbox test (it only renders once the AI agent's localized content
 is present, not something easy to mock), but the 7 dictionary values were
 verified directly in the source, not assumed.
 
+## "Pradixium Business Super Intelligent™" — new trademark naming the existing Business suite (Oct 2026)
+
+Not a new feature — the user's own naming for the whole already-shipped
+Business tier suite (white-label branding, API access, bulk/portfolio
+analysis, compliance report, business dashboard preview), consistent with
+this project's rule of naming a thing only once it's actually built.
+`mockups/index.html` ("Business Solutions" landing page):
+- The page's `eyebrow` label (small category tag above the H1) changed
+  from "Business Solutions" to "Pradixium Business Super Intelligent™" —
+  the H1 and body copy are unchanged.
+- Added to the page's trademark footer sentence, alongside the existing
+  five marks: "...Pradixium Deal Rating™ and Pradixium Business Super
+  Intelligent™ are trademarks of Pradixium."
+Verified visually in headless Chromium (both the top-of-page eyebrow and
+the footer trademark line render correctly) before pushing.
+
+Also reconfirmed while documenting this: the slogan "Don't buy the dream.
+Check the reality." was already shipped (Reality Check™ tagline in
+`report.html`'s dictionary, and `index.html`'s homepage) — nothing new
+needed there.
+
 ## Luxembourg closed out, world coverage 190 → 191 (Oct 1 2026)
 
 Luxembourg was the one country this project's own `COUNTRY_ENDPOINTS` list
@@ -2473,3 +3185,150 @@ Routine scheduled scan. Two findings, both verified before touching anything:
   numbers (which would be a derived figure, not a sourced one — against
   this file's own discipline), left it out. A future session with
   working geostat.ge access should pick this back up.
+
+## Entitlement signature collision fix — same-building identical units (Oct 3 2026, PR #41, not yet merged)
+
+Found by this session's own recurring oversight/stress-test routine
+(adversarial reasoning over the entitlement-gate code, per that routine's
+charter — money-touching code is its highest priority). Two different
+units in the same new-build building — same floor plan, so identical
+price/size/bedrooms/bathrooms/estimated rent, and an address that's just
+the building's street address (no unit number) — produced the exact same
+report_signature. Once either unit's report was purchased,
+isReportPaid()/checkEntitlement() silently treated the OTHER unit as
+already paid for: a real revenue leak (standardized-unit new-build condos
+are a common case for this product), not theoretical. This is the exact
+scenario the Oct 2026 "fold in address/beds/baths/propertyType/
+monthlyRent" fix's own comment already named as its motivating case,
+without fully closing it.
+
+Fix: an optional "Unit / Apartment / Floor" field added to the property
+form (index.html), threaded into getInputs(), reportSignature(), the
+cached property object, and — critically — refreshFullReportData()'s
+Stripe-return form refill in engine.js (missing that last one would have
+reintroduced a silent "paid report shows as locked" bug after a Stripe
+redirect, the exact bug class this routine watches for), plus the
+matching server-side signature in api/orchestrator.js. Blank by default,
+zero behavior change for houses/single units. Backward compatible: a
+midReportSignature()/midSignature fallback (mirroring the existing
+legacySignature pattern) keeps every report already purchased under the
+current 9-field format recognized — verified with a standalone script
+mirroring both join formats before pushing. node --check clean, headless
+Chromium screenshot confirms the new field renders correctly in place.
+Pushed as PR #41 — not merged, per standing convention, awaiting the
+user's review.
+
+## Telegram Ads — ad copy iteration and real campaign numbers (Oct 3 2026)
+
+Follow-up to the campaign setup documented above. English ad text went
+through two more revisions same day, each requiring a fresh moderation
+review (editing an ad's text resets it to "On Hold," same as a new ad;
+targeting stays locked either way): a curiosity-driven version ("That
+perfect overseas deal? 9 out of 10 don't survive a Reality Check...") and
+then, once FIRST1000 was confirmed live (see above), a version leading
+with that real offer ("First 1000 reports free. Real government data, no
+sales pitch — see if your deal survives a Reality Check."). Declined the
+user's "add an insult to the reader" idea (e.g. "Are you dumb?") — real
+risk of moderation rejection for abusive content, and insulting the
+audience tends to suppress clicks, not raise them, in direct-response
+advertising generally.
+
+Real numbers so far, not promising: the English ad's actual CTR is
+~0.11% (2 actions / 1,799 views at the time), well below the ~0.5-1%+
+typical benchmark for a well-targeted Telegram channel ad — confirmed via
+Supabase (purchases table: zero new purchases since Sept 30) and Vercel
+Web Analytics (daily pageviews actually declining Sept 28 to Oct 3:
+57,80,38,15,7,0; no referrer bucket cleanly attributable to Telegram,
+likely merged into the 39-visitor "no referrer" bucket since Telegram's
+in-app browser often strips it). The Hebrew ad only went active Oct 3
+(after a slow approval cycle) and had 0 actions at ~40 views as of
+Shabbat — too early and confounded by Shabbat timing to read yet.
+
+This session's recommendation to the user, given above: stop scaling
+Telegram ad spend (currently 1 TON/day, ~$1.45 — too small a budget to
+read real signal from anyway) until the funnel itself is proven. No live
+customer has ever been through the complete flow end to end (same gap
+flagged earlier in this file, under "Known gaps before a real public
+push"). Recommended instead: 5 people from the user's own personal
+network who are actually shopping for overseas property right now, each
+given the property check for free via FIRST1000, with an explicit ask for
+honest feedback afterward — this is the original beachhead plan from the
+Go-to-market section above, not yet actually executed. Not acted on by
+this session (it's outreach the user does personally); just the
+recommendation, given plainly when he asked directly whether the product
+itself might be unnecessary — the honest answer given: the underlying
+cross-border-property-buying behavior is real and documented (active
+Facebook/Telegram communities), but there is no real demand signal for
+Pradixium specifically yet either way, because so few real people have
+been through the paid flow.
+
+Market research done this session, not yet acted on (reference for a
+future session or the user's own outreach), all real/sourced, nothing
+invented:
+- Dubai investor communities found: Facebook's "Dubai Expat Community"
+  (110k+ members, general expat group, not real-estate-specific),
+  Meetup's "Real Estate Investors Meetup in Dubai" (522 members) and
+  "Networking Behomes Real Estate" (427 members), the curated/private
+  "Real Estate Club Dubai," and r/DubaiPropertyHub. No public
+  forum/group found specifically for Chinese or European investors in
+  Dubai — Chinese buyer activity there runs through WeChat/Weibo, which
+  aren't publicly searchable, so nothing invented in that gap.
+- Juwai.com (confirmed real and large: 3.3M monthly visitors, 6M+
+  listings, 111 countries) is the dominant portal connecting Chinese
+  buyers to overseas property, including real, sourced France activity
+  (Chinese buyers are the largest foreign-buyer group in the Paris/
+  Ile-de-France market, 16%, plus 30+ Bordeaux vineyard purchases in two
+  years). It's a paid listing/lead-gen platform for agents/developers
+  (~$550/month for its basic "Asia Pro 10" package, 10 listings), not a
+  free community — and it markets through WeChat/Weibo, not Telegram/
+  Facebook. Confirms the Chinese-buyer market is real and large, but
+  doesn't directly fit Pradixium (we sell a service, not a listed
+  property) without further checking whether Juwai has a separate
+  media/display-ad product rather than a listing package — not yet
+  checked.
+- A Hebrew-language Telegram travel group, "Kivunim Georgia Batumi
+  Tbilisi" (5,662 members, ~200 online) — general Georgia-travel content
+  (vacation deals), not real-estate-investor-specific. Flagged by the
+  user as a possible future channel for Georgia property outreach; left
+  as-is for now, not posted to.
+
+Marketing copy drafted (reusable reference, not yet deployed anywhere): a
+short "who actually checks if the price is fair" pitch — broker/friend
+conflict-of-interest framing, $30-report-as-insurance framing, ending with
+the existing "Don't buy the dream. Check the reality." tagline — in
+Hebrew, English, French, German and Spanish. Not yet used in any live ad
+or outreach message as of this writing.
+
+## Standing git rule (Oct 4 2026, user's explicit instruction, applies to both sessions): never force-push, always a fresh branch
+
+The daily data-scan routine's original design reused one fixed branch name
+(claude/t90-pradiium-foreign-buyer-market-14yv9o), resetting it from main
+each run with `git checkout -B ... origin/main` and force-pushing over
+whatever was there. On Oct 4 2026 that force-push was blocked by this
+session's own safety tooling (flagged as a destructive git operation) --
+reasonably so, since force-push is inherently the kind of operation that
+can silently destroy someone else's work on a shared branch, even when
+in this specific case it would have been safe (a disposable, single-session
+scratch branch).
+
+**The user's explicit, standing instruction after this**: never force-push,
+never try to work around a block the system puts up on purpose -- a block
+is a signal to stop, not a puzzle to route around. Open a brand new branch
+with a fresh name instead whenever the old recurring-branch pattern would
+need a force-push. This applies to BOTH sessions working this repo (this
+one and Claude B's). Practical effect: zero real downside -- every branch
+still gets squash-merged into main the same way regardless of its name, so
+the only difference is a few more branch names accumulating in GitHub's
+branch list over time, which is harmless. The daily-scan routine's prompt
+should be treated as updated to "push to a fresh branch each run" rather
+than reusing and resetting one fixed name -- if you hit the same fixed-branch
+instruction in an older stored routine prompt, follow this note instead.
+
+## iOS app — not started, open question (Oct 4 2026)
+
+User asked if an iOS app for the App Store is feasible. Yes, technically
+(Swift/SwiftUI) — but publishing requires things this session genuinely
+cannot do: an Apple Developer account ($99/yr, user's own), a Mac with
+Xcode to build/sign, and going through Apple's review process. Not yet
+clear whether the user has access to a Mac / wants to set up a Developer
+account. Revisit when he answers that, before writing any actual code.

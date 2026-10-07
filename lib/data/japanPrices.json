@@ -1,0 +1,424 @@
+{
+ "source": "MLIT — 不動産価格指数（住宅） Real Estate Price Index (residential), original series, 2010 = 100",
+ "sourceUrl": "https://www.mlit.go.jp/totikensangyo/totikensangyo_tk5_000085.html",
+ "file": "https://www.mlit.go.jp/totikensangyo/content/001473668.xlsx",
+ "areas": {
+  "全国Japan": {
+   "all": {
+    "index": 145.05,
+    "yearAgo": 137.81,
+    "yoyPercent": 5.3,
+    "sample": 8741
+   },
+   "land": {
+    "index": 118.25,
+    "yearAgo": 116.06,
+    "yoyPercent": 1.9,
+    "sample": 2819
+   },
+   "detached": {
+    "index": 120.48,
+    "yearAgo": 116.93,
+    "yoyPercent": 3.0,
+    "sample": 3193
+   },
+   "condo": {
+    "index": 221.24,
+    "yearAgo": 204.16,
+    "yoyPercent": 8.4,
+    "sample": 2729
+   }
+  },
+  "北海道地方Hokkaido": {
+   "all": {
+    "index": 168.45,
+    "yearAgo": 142.3,
+    "yoyPercent": 18.4,
+    "sample": 488
+   },
+   "land": {
+    "index": 144.97,
+    "yearAgo": 122.69,
+    "yoyPercent": 18.2,
+    "sample": 184
+   },
+   "detached": {
+    "index": 137.03,
+    "yearAgo": 120.99,
+    "yoyPercent": 13.3,
+    "sample": 179
+   },
+   "condo": {
+    "index": 288.09,
+    "yearAgo": 259.78,
+    "yoyPercent": 10.9,
+    "sample": 125
+   }
+  },
+  "東北地方Tohoku": {
+   "all": {
+    "index": 137.22,
+    "yearAgo": 127.68,
+    "yoyPercent": 7.5,
+    "sample": 654
+   },
+   "land": {
+    "index": 119.93,
+    "yearAgo": 118.15,
+    "yoyPercent": 1.5,
+    "sample": 310
+   },
+   "detached": {
+    "index": 124.06,
+    "yearAgo": 115.02,
+    "yoyPercent": 7.9,
+    "sample": 249
+   },
+   "condo": {
+    "index": 263.45,
+    "yearAgo": 248.65,
+    "yoyPercent": 6.0,
+    "sample": 95
+   }
+  },
+  "関東地方Kanto": {
+   "all": {
+    "index": 153.82,
+    "yearAgo": 145.38,
+    "yoyPercent": 5.8,
+    "sample": 3031
+   },
+   "land": {
+    "index": 124.72,
+    "yearAgo": 124.66,
+    "yoyPercent": 0.0,
+    "sample": 712
+   },
+   "detached": {
+    "index": 123.53,
+    "yearAgo": 120.71,
+    "yoyPercent": 2.3,
+    "sample": 1015
+   },
+   "condo": {
+    "index": 215.8,
+    "yearAgo": 198.54,
+    "yoyPercent": 8.7,
+    "sample": 1304
+   }
+  },
+  "北陸地方Hokuriku": {
+   "all": {
+    "index": 127.49,
+    "yearAgo": 123.88,
+    "yoyPercent": 2.9,
+    "sample": 224
+   },
+   "land": {
+    "index": 123.54,
+    "yearAgo": 112.47,
+    "yoyPercent": 9.8,
+    "sample": 112
+   },
+   "detached": {
+    "index": 122.48,
+    "yearAgo": 120.19,
+    "yoyPercent": 1.9,
+    "sample": 92
+   },
+   "condo": {
+    "index": 168.6,
+    "yearAgo": 182.95,
+    "yoyPercent": -7.8,
+    "sample": 20
+   }
+  },
+  "中部地方Chubu": {
+   "all": {
+    "index": 111.71,
+    "yearAgo": 110.26,
+    "yoyPercent": 1.3,
+    "sample": 1182
+   },
+   "land": {
+    "index": 96.72,
+    "yearAgo": 94.16,
+    "yoyPercent": 2.7,
+    "sample": 495
+   },
+   "detached": {
+    "index": 102.96,
+    "yearAgo": 103.89,
+    "yoyPercent": -0.9,
+    "sample": 470
+   },
+   "condo": {
+    "index": 199.4,
+    "yearAgo": 192.09,
+    "yoyPercent": 3.8,
+    "sample": 217
+   }
+  },
+  "近畿地方Kinki": {
+   "all": {
+    "index": 148.51,
+    "yearAgo": 138.66,
+    "yoyPercent": 7.1,
+    "sample": 1770
+   },
+   "land": {
+    "index": 117.29,
+    "yearAgo": 115.59,
+    "yoyPercent": 1.5,
+    "sample": 457
+   },
+   "detached": {
+    "index": 125.92,
+    "yearAgo": 116.35,
+    "yoyPercent": 8.2,
+    "sample": 608
+   },
+   "condo": {
+    "index": 224.55,
+    "yearAgo": 208.41,
+    "yoyPercent": 7.7,
+    "sample": 705
+   }
+  },
+  "中国地方Chugoku": {
+   "all": {
+    "index": 117.33,
+    "yearAgo": 116.97,
+    "yoyPercent": 0.3,
+    "sample": 432
+   },
+   "land": {
+    "index": 103.2,
+    "yearAgo": 98.17,
+    "yoyPercent": 5.1,
+    "sample": 185
+   },
+   "detached": {
+    "index": 104.92,
+    "yearAgo": 107.88,
+    "yoyPercent": -2.7,
+    "sample": 194
+   },
+   "condo": {
+    "index": 235.31,
+    "yearAgo": 228.46,
+    "yoyPercent": 3.0,
+    "sample": 53
+   }
+  },
+  "四国地方Shikoku": {
+   "all": {
+    "index": 110.29,
+    "yearAgo": 117.97,
+    "yoyPercent": -6.5,
+    "sample": 209
+   },
+   "land": {
+    "index": 105.96,
+    "yearAgo": 112.09,
+    "yoyPercent": -5.5,
+    "sample": 100
+   },
+   "detached": {
+    "index": 97.43,
+    "yearAgo": 107.08,
+    "yoyPercent": -9.0,
+    "sample": 76
+   },
+   "condo": {
+    "index": 203.56,
+    "yearAgo": 195.22,
+    "yoyPercent": 4.3,
+    "sample": 33
+   }
+  },
+  "九州・沖縄地方Kyushu-Okinawa": {
+   "all": {
+    "index": 150.73,
+    "yearAgo": 138.74,
+    "yoyPercent": 8.6,
+    "sample": 751
+   },
+   "land": {
+    "index": 127.03,
+    "yearAgo": 108.61,
+    "yoyPercent": 17.0,
+    "sample": 264
+   },
+   "detached": {
+    "index": 121.77,
+    "yearAgo": 119.17,
+    "yoyPercent": 2.2,
+    "sample": 310
+   },
+   "condo": {
+    "index": 271.43,
+    "yearAgo": 261.46,
+    "yoyPercent": 3.8,
+    "sample": 177
+   }
+  },
+  "南関東圏Tokyo including": {
+   "all": {
+    "index": 156.98,
+    "yearAgo": 150.76,
+    "yoyPercent": 4.1,
+    "sample": 2586
+   },
+   "land": {
+    "index": 130.27,
+    "yearAgo": 133.31,
+    "yoyPercent": -2.3,
+    "sample": 531
+   },
+   "detached": {
+    "index": 124.05,
+    "yearAgo": 124.64,
+    "yoyPercent": -0.5,
+    "sample": 797
+   },
+   "condo": {
+    "index": 215.18,
+    "yearAgo": 199.52,
+    "yoyPercent": 7.8,
+    "sample": 1258
+   }
+  },
+  "名古屋圏Nagoya including": {
+   "all": {
+    "index": 118.42,
+    "yearAgo": 116.9,
+    "yoyPercent": 1.3,
+    "sample": 783
+   },
+   "land": {
+    "index": 103.12,
+    "yearAgo": 101.56,
+    "yoyPercent": 1.5,
+    "sample": 302
+   },
+   "detached": {
+    "index": 109.22,
+    "yearAgo": 109.45,
+    "yoyPercent": -0.2,
+    "sample": 305
+   },
+   "condo": {
+    "index": 188.67,
+    "yearAgo": 184,
+    "yoyPercent": 2.5,
+    "sample": 176
+   }
+  },
+  "京阪神圏Osaka including": {
+   "all": {
+    "index": 155.22,
+    "yearAgo": 142.89,
+    "yoyPercent": 8.6,
+    "sample": 1505
+   },
+   "land": {
+    "index": 123.79,
+    "yearAgo": 125.86,
+    "yoyPercent": -1.6,
+    "sample": 354
+   },
+   "detached": {
+    "index": 132.51,
+    "yearAgo": 117.14,
+    "yoyPercent": 13.1,
+    "sample": 496
+   },
+   "condo": {
+    "index": 222.53,
+    "yearAgo": 205.76,
+    "yoyPercent": 8.2,
+    "sample": 655
+   }
+  },
+  "東京都Tokyo": {
+   "all": {
+    "index": 179.89,
+    "yearAgo": 166.43,
+    "yoyPercent": 8.1,
+    "sample": 890
+   },
+   "land": {
+    "index": 144.33,
+    "yearAgo": 143.13,
+    "yoyPercent": 0.8,
+    "sample": 140
+   },
+   "detached": {
+    "index": 133.57,
+    "yearAgo": 135.22,
+    "yoyPercent": -1.2,
+    "sample": 170
+   },
+   "condo": {
+    "index": 230.94,
+    "yearAgo": 210.31,
+    "yoyPercent": 9.8,
+    "sample": 580
+   }
+  },
+  "愛知県Aichi": {
+   "all": {
+    "index": 123.7,
+    "yearAgo": 121.45,
+    "yoyPercent": 1.9,
+    "sample": 559
+   },
+   "land": {
+    "index": 104.95,
+    "yearAgo": 105.33,
+    "yoyPercent": -0.4,
+    "sample": 202
+   },
+   "detached": {
+    "index": 114.34,
+    "yearAgo": 111.56,
+    "yoyPercent": 2.5,
+    "sample": 193
+   },
+   "condo": {
+    "index": 191.84,
+    "yearAgo": 189.91,
+    "yoyPercent": 1.0,
+    "sample": 164
+   }
+  },
+  "大阪府Osaka": {
+   "all": {
+    "index": 157.38,
+    "yearAgo": 145.3,
+    "yoyPercent": 8.3,
+    "sample": 785
+   },
+   "land": {
+    "index": 131.99,
+    "yearAgo": 138.83,
+    "yoyPercent": -4.9,
+    "sample": 169
+   },
+   "detached": {
+    "index": 123.37,
+    "yearAgo": 111.84,
+    "yoyPercent": 10.3,
+    "sample": 245
+   },
+   "condo": {
+    "index": 231.6,
+    "yearAgo": 205.08,
+    "yoyPercent": 12.9,
+    "sample": 371
+   }
+  }
+ },
+ "period": "2025-12"
+}

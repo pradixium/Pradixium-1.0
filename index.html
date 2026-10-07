@@ -168,6 +168,7 @@
     footer .footer-cs a{color:inherit;text-decoration:none}
     footer .footer-tool{display:block;margin-top:6px}
     footer .footer-tool a{color:#8a95a4;text-decoration:underline}
+    footer .footer-legal{display:block;margin-top:10px;color:#b4bac3}
     .testimonials-block{margin:28px 0 6px}
     .testimonials-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
     .testimonial-card{background:#fff;border:1px solid #e5e9ee;border-radius:10px;padding:16px 18px}
@@ -238,8 +239,8 @@
             <button type="button" class="biz-btn" id="bizNavBtn" aria-haspopup="true" aria-expanded="false">Business <span class="chev">⌄</span></button>
             <div class="biz-menu" id="bizMenu" aria-hidden="true">
               <div class="biz-menu-title">For Companies &amp; Institutions</div>
-              <button type="button" id="startBusinessSignupBtn">Start Business Plan — $299.99/mo →</button>
-              <a href="/mockups/index.html">Business Solutions</a>
+              <button type="button" id="startBusinessSignupBtn">Start Business Plan — FREE for the first 1,000 →</button>
+              <a href="/mockups/index.html">Pradixium Business Super Intelligent™</a>
               <a href="/business-branding.html">Already on Business? Sign In</a>
             </div>
           </div>
@@ -260,7 +261,6 @@
               <option value="fi">Suomi</option>
               <option value="zh">中文</option>
               <option value="ru">Русский</option>
-              <option value="he">עברית</option>
             </select>
           </div>
           <button class="bell" aria-label="Notifications">♧</button>
@@ -290,14 +290,14 @@
             <circle cx="150" cy="150" r="120" fill="url(#goldInner)" stroke="#7a560c" stroke-width="1.5"/>
             <circle cx="150" cy="150" r="107" fill="none" stroke="#7a560c" stroke-width="1"/>
             <text font-family="Georgia, 'Times New Roman', serif" font-size="15" font-weight="700" letter-spacing="3.5" fill="#4a3208"><textPath href="#sealTopArc" startOffset="50%" text-anchor="middle">✦ LAUNCH OFFER ✦</textPath></text>
-            <text font-family="Georgia, 'Times New Roman', serif" font-size="12.5" font-weight="700" letter-spacing="2.5" fill="#4a3208"><textPath href="#sealBottomArc" startOffset="50%" text-anchor="middle">USE CODE · FIRST1000</textPath></text>
+            <text font-family="Georgia, 'Times New Roman', serif" font-size="12.5" font-weight="700" letter-spacing="2.5" fill="#4a3208"><textPath href="#sealBottomArc" startOffset="50%" text-anchor="middle">FIRST 1,000 · FREE</textPath></text>
             <image id="launchSealLogo" x="130" y="72" width="40" height="55" href="" style="display:none"/>
             <text x="150" y="184" font-family="Georgia, 'Times New Roman', serif" font-size="50" font-weight="700" fill="#4a3208" text-anchor="middle">1,000</text>
             <text x="150" y="208" font-family="Georgia, 'Times New Roman', serif" font-size="14" font-weight="700" letter-spacing="2" fill="#6b4c12" text-anchor="middle">REPORTS FREE</text>
           </svg>
           <div class="launch-seal-copy">
             <div class="headline">Your first Pradixium report, on us.</div>
-            <div class="sub">A free report for the first 1,000 customers — use code <code>FIRST1000</code> at checkout.</div>
+            <div class="sub">Free for the first 1,000 customers — no code, no card, no checkout page.</div>
           </div>
         </div>
         <script>
@@ -372,6 +372,7 @@
               <option value="Georgia">Georgia</option>
               <option value="Germany">Germany</option>
               <option value="Greece">Greece</option>
+              <option value="Hong Kong">Hong Kong</option>
               <option value="Hungary">Hungary</option>
               <option value="Iceland">Iceland</option>
               <option value="India">India</option>
@@ -410,6 +411,7 @@
               <option value="Russia">Russia</option>
               <option value="San Marino">San Marino</option>
               <option value="Serbia">Serbia</option>
+              <option value="Singapore">Singapore</option>
               <option value="Slovakia">Slovakia</option>
               <option value="Slovenia">Slovenia</option>
               <option value="South Africa">South Africa</option>
@@ -434,6 +436,9 @@
 
             <label class="input-label" for="city">Property Address / City</label>
             <input id="city" class="field" type="text" placeholder="Enter address, city or postal code">
+
+            <label class="input-label" for="unitNumber">Unit / Apartment / Floor — optional (tells this exact unit apart from identical ones in the same building)</label>
+            <input id="unitNumber" class="field" type="text" placeholder="e.g. Apt 5A, Unit 12, 3rd floor">
 
             <label class="input-label" for="askingPrice"><span class="i18n-askingPrice">Asking Price</span> (<span class="cur-sym">€</span>)</label>
             <input id="askingPrice" class="field" type="number" placeholder="176000">
@@ -785,9 +790,9 @@
                   <div class="section-title">INVESTOR ACTION</div>
                   <p id="investorAction" class="action-text">Investment action will appear here.</p>
                   <button id="createReportBtn" class="primary" type="button">View Full Analysis&nbsp; →</button>
-                  <button id="subscribeReportBtn" class="primary" type="button" style="display:none;margin-top:10px;background:#172131">Start 7-Day Free Trial — then $2,999.99/year&nbsp; →</button>
-                  <button id="monthlySubscribeBtn" class="primary" type="button" style="display:none;margin-top:10px;background:#fff;color:#172131;border:1px solid #172131">Individual Monthly — $29.99/month (3 reports)&nbsp; →</button>
-                  <button id="businessSubscribeBtn" class="primary" type="button" style="display:none;margin-top:10px;background:#fff;color:#2463f5;border:1px solid #2463f5">For Companies &amp; Institutions — $299.99/month&nbsp; →</button>
+                  <button id="subscribeReportBtn" class="primary" type="button" style="display:none;margin-top:10px;background:#172131">Annual Plan — FREE for the first 1,000&nbsp; →</button>
+                  <button id="monthlySubscribeBtn" class="primary" type="button" style="display:none;margin-top:10px;background:#fff;color:#172131;border:1px solid #172131">Monthly Plan (3 reports) — FREE for the first 1,000&nbsp; →</button>
+                  <button id="businessSubscribeBtn" class="primary" type="button" style="display:none;margin-top:10px;background:#fff;color:#2463f5;border:1px solid #2463f5">For Companies &amp; Institutions — FREE for the first 1,000&nbsp; →</button>
                 </div>
               </section>
             </div>
@@ -799,7 +804,7 @@
           <div class="testimonials-grid" id="testimonialsGrid"></div>
         </section>
 
-        <footer><span class="footer-cs"><a href="mailto:cs@pradixium.com">Contact</a> · <a href="https://wa.me/447597387983" target="_blank" rel="noopener">WhatsApp</a> · <a href="https://t.me/Pradixium" target="_blank" rel="noopener">Telegram</a></span><span id="footerText">PRADIXIUM™ — GLOBAL PROPERTY INTELLIGENCE</span><span class="footer-tool"><a href="/foreign-buyer-check.html">Can Foreigners Buy Property Here? Free Checker</a> · <a href="/guides/index.html">Country Guides</a> · <a href="/pradixium-vs-zestimate.html">Pradixium vs. Zestimate</a> · <a href="/mockups/index.html">Business Solutions</a> · <a href="/partners.html">Partner Program</a> · <a href="/terms.html">Terms</a> · <a href="/privacy-policy.html">Privacy</a></span></footer>
+        <footer><span class="footer-cs"><a href="mailto:cs@pradixium.com">Contact</a> · <a href="https://wa.me/447597387983" target="_blank" rel="noopener">WhatsApp</a> · <a href="https://t.me/Pradixium" target="_blank" rel="noopener">Telegram</a></span><span id="footerText">PRADIXIUM™ — GLOBAL PROPERTY INTELLIGENCE</span><span class="footer-tool"><a href="/foreign-buyer-check.html">Can Foreigners Buy Property Here? Free Checker</a> · <a href="/guides/index.html">Country Guides</a> · <a href="/pradixium-vs-zestimate.html">Pradixium vs. Zestimate</a> · <a href="/mockups/index.html">Pradixium Business Super Intelligent™</a> · <a href="/partners.html">Partner Program</a> · <a href="/terms.html">Terms</a> · <a href="/privacy-policy.html">Privacy</a></span><span class="footer-legal">Pradixium.com is owned and operated by Sagacitas Ltd &middot; 136 Capel Street, Dublin, D01 T2C9, Ireland</span></footer>
       </main>
     </div>
   </div>

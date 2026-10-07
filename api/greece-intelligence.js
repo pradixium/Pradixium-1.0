@@ -13,35 +13,66 @@
  * until a stable machine-readable feed can be wired in instead.
  */
 const GREECE_HPI = {
-  period: "2026-Q1",
-  nationalAnnualChangePercent: 5.7,
-  athensAnnualChangePercent: 5.2,
-  thessalonikiAnnualChangePercent: 6.4,
+  period: "2026-Q2",
+  nationalAnnualChangePercent: 5.5,
+  athensAnnualChangePercent: 5.0,
+  thessalonikiAnnualChangePercent: 4.7,
   otherCitiesAnnualChangePercent: 5.4,
-  otherAreasAnnualChangePercent: 6.9,
+  otherAreasAnnualChangePercent: 7.1,
+  newAnnualChangePercent: 6.2,
+  oldAnnualChangePercent: 5.0,
   publicationDate: "2026",
-  source: "Bank of Greece — Indices of residential property prices, Q1 2026",
-  officialSource: "https://www.bankofgreece.gr/en/statistics/real-estate-market/residential-and-commercial-property-price-indices-and-other-short-term-indices"
+  // national figure cross-checked with the BIS residential property price
+  // series for Greece (supplied by the Bank of Greece): 122.3916 / 116.0215
+  source: "Bank of Greece — Indices of residential property prices, Q2 2026",
+  officialSource: "https://www.bankofgreece.gr/en/news-and-media/press-office/news-list/news?announcement=ac5ae869-3e94-4550-b486-ef00c4292e07"
 };
 
-// FIX: this project previously claimed Greece had no official rent data —
-// wrong. Bank of Greece does publish a residential rent price index
-// (Δείκτης Ενοικίων Κατοικιών) alongside the sale-price index above. It's
-// still an index (base-year=100), not an absolute €/m² figure, so it
-// can't feed a yield estimate the way France's or Portugal's per-m² rent
-// datasets can — but the YoY change itself is real, sourced, and worth
-// showing rather than omitting. Only a national figure is published at
-// this granularity (no Athens/Thessaloniki rent-index breakdown found,
-// unlike the sale-price index above); update by hand each quarter from
-// the same Bank of Greece real-estate-market statistics page.
+// The Bank of Greece publishes NO residential rent index (its open data
+// has office and retail rent indices only — data.gov.gr, Oct 2026); the
+// earlier "BoG residential rent index 116.1 / +8.7%" had no source and was
+// removed. The official rent figure is ELSTAT's CPI item "Rentals for
+// dwellings" (Table 5 of the monthly CPI release: change on the same
+// month a year earlier). National only; a change, not a rent level →
+// never used for the yield. Update each month from
+// https://www.statistics.gr/en/statistics/-/publication/DKT87/-
 const GREECE_RENT_INDEX = {
-  period: "2025-Q4",
-  indexValue: 116.1,
-  indexValueYearAgo: 106.8,
-  annualChangePercent: 8.7,
-  source: "Bank of Greece — Residential rent price index, Q4 2025",
-  officialSource: "https://www.bankofgreece.gr/en/statistics/real-estate-market"
+  period: "August 2026",
+  annualChangePercent: 6.2,
+  source: "ELSTAT — Consumer Price Index, August 2026 (Table 5, “Rentals for dwellings”)",
+  officialSource: "https://www.statistics.gr/en/statistics/-/publication/DKT87/2026-M08"
 };
+
+// Spitogatos Price Index (SPI) — Greece's largest listings platform's own
+// asking-rent-per-m² figures, as reported by To Vima (major Greek daily),
+// Q2 2026: "Athens' Southern Suburbs, Central Athens, and Northern Suburbs
+// all average €11.8/sq.m." (all three areas converge on the same figure
+// in that report — not a transcription error, just how the index landed
+// that quarter), plus named named higher/lower exceptions the article
+// calls out explicitly. This is an ASKING-rent index built from millions
+// of live listings, outlier-adjusted — real market evidence, but not a
+// government statistic and not a closed transaction: labelled as such,
+// never upgraded to look like ELSTAT/Bank of Greece data.
+const GREECE_SPITOGATOS_RENT = {
+  period: "2026-Q2",
+  athensAreaEurPerM2: 11.8, // Southern/Central/Northern Suburbs of Athens
+  vouliagmeniEurPerM2: 22, // named as the city's most expensive area
+  source: "Spitogatos Price Index (SPI), as reported by To Vima",
+  officialSource: "https://www.tovima.com/society/greeces-hottest-rental-markets-push-housing-further-out-of-reach/",
+  note: "Asking-rent index from live listings (millions of ads, outlier-adjusted across ~20,000 areas) — not a government statistic, not closed transactions. Context for an estimated rent only; never overrides a figure the user enters themselves."
+};
+
+function spitogatosRentFor(city) {
+  const c = String(city || "").trim().toLowerCase();
+  if (!c) return null;
+  if (c.includes("vouliagmeni")) {
+    return { area: "Vouliagmeni", eurPerM2: GREECE_SPITOGATOS_RENT.vouliagmeniEurPerM2 };
+  }
+  if (c.includes("athens") || c.includes("athina") || c.includes("petralona") || c.includes("piraeus") || c.includes("pireas")) {
+    return { area: "Greater Athens (Southern/Central/Northern Suburbs)", eurPerM2: GREECE_SPITOGATOS_RENT.athensAreaEurPerM2 };
+  }
+  return null;
+}
 
 // Bank of Greece's press release splits the country into four buckets:
 // Athens, Thessaloniki, "other cities" and "other areas" — the last one is
@@ -86,6 +117,7 @@ export default async function handler(req, res) {
   // sends an address typed in the city field as both address and city
   const place = address && city && address !== city && !address.toLowerCase().includes(city.toLowerCase()) ? `${address}, ${city}` : (address || city);
   const zone = place ? await Promise.race([greekZone(place).catch(() => null), new Promise((r) => setTimeout(() => r({ status: "timeout" }), 9000))]) : null;
+  const rentLevel = spitogatosRentFor(place || city);
 
   return res.status(200).json({
     success: true,
@@ -97,6 +129,8 @@ export default async function handler(req, res) {
         period: GREECE_HPI.period,
         annualChangePercent: regional?.annualChangePercent ?? GREECE_HPI.nationalAnnualChangePercent,
         nationalAnnualChangePercent: GREECE_HPI.nationalAnnualChangePercent,
+        newAnnualChangePercent: GREECE_HPI.newAnnualChangePercent,
+        oldAnnualChangePercent: GREECE_HPI.oldAnnualChangePercent,
         regionalArea: regional?.area || null,
         unit: "Annual rate of change, apartment prices",
         source: GREECE_HPI.source
@@ -107,13 +141,25 @@ export default async function handler(req, res) {
         available: true,
         annualChangePercent: GREECE_RENT_INDEX.annualChangePercent,
         period: GREECE_RENT_INDEX.period,
-        unit: "Annual rate of change, residential rent index (national — no regional breakdown published at this granularity)",
+        unit: "Annual rate of change, CPI rentals for dwellings (national)",
         source: GREECE_RENT_INDEX.source,
-        note: "An index trend, not an absolute €/m² figure — cannot be used to estimate an actual monthly rent, only to show the direction and pace of rent growth."
+        note: "A price change, not a rent level — it cannot estimate this property's rent."
       },
+      estimatedRent: rentLevel
+        ? {
+            available: true,
+            area: rentLevel.area,
+            eurPerM2PerMonth: rentLevel.eurPerM2,
+            period: GREECE_SPITOGATOS_RENT.period,
+            source: GREECE_SPITOGATOS_RENT.source,
+            sourceUrl: GREECE_SPITOGATOS_RENT.officialSource,
+            basis: "asking-price index (live listings), not closed transactions or a government statistic",
+            note: GREECE_SPITOGATOS_RENT.note
+          }
+        : { available: false, note: "No matched area in the Spitogatos Price Index coverage used here (Greater Athens / Vouliagmeni only so far)." },
       zonePrice: zone,
-      sources: { bankOfGreece: GREECE_HPI.source },
-      sourceUrls: { bankOfGreece: GREECE_HPI.officialSource },
+      sources: { bankOfGreece: GREECE_HPI.source, elstat: GREECE_RENT_INDEX.source, spitogatos: GREECE_SPITOGATOS_RENT.source },
+      sourceUrls: { bankOfGreece: GREECE_HPI.officialSource, elstat: GREECE_RENT_INDEX.officialSource, spitogatos: GREECE_SPITOGATOS_RENT.officialSource },
       coverage: "National/regional trend only — static figures from a dated Bank of Greece release, not a live feed. Verify against the official source before relying on it for a current quarter."
     }
   });

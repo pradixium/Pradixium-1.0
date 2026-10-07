@@ -85,9 +85,9 @@ const FIXTURES = {
       { name: "Tbilisi", towns: ["tbilisi", "tiflis"], value: null,
         note: "district medians run from GEL 3,680/m² (Samgori) to GEL 6,730/m² (Mtatsminda) for flats and GEL 2,778–4,656/m² for houses — enter the district for its own figure" }
     ],
-    coverageNote: "Tbilisi new-build homes only (Geostat RPPI, Q2 2026: flats +4.8%, detached houses +5.5% on a year earlier); Batumi and other cities have no official price series.",
+    coverageNote: "Tbilisi new-build homes only, from web-scraped OFFER prices (Geostat RPPI, Q2 2026: flats +4.8%, detached houses +5.5% on a year earlier — the change in asking prices, not in sale prices; Geostat CPI “Apartment rent”: +10.9% on a year earlier in September 2026, national; National Bank of Georgia indices of OFFER prices and rents of typical 1- and 3-room flats in Tbilisi's Saburtalo and Varketili, in GEL, Financial Sector Review Sept 2026, Table 4.3: August 2026 price −0.5%, rent −2.1% on a year earlier); Batumi and other cities have no official price series.",
     source: "National Statistics Office of Georgia (Geostat) — Residential Property Price Index, Q2 2026",
-    officialSource: "https://www.geostat.ge/media/81560/Residential-Property-Price-Index---II-quarter-of-2026.pdf"
+    officialSource: "https://www.geostat.ge/en/modules/categories/698/residential-property-price-index"
   },
   "bosnia and herzegovina": {
     // BHAS "Prices of new dwellings sold" Q2 2026 (20.8.2026): total value
@@ -400,13 +400,16 @@ const FIXTURES = {
   },
   japan: {
     country: "Japan",
-    period: "2025-11",
-    nationalChangePercent: 5.0,
-    nationalBenchmarkValue: 36000000,
+    period: "2025-12",
+    // MLIT 不動産価格指数（住宅）, original series, all residential, Japan:
+    // 145.05 vs 137.81 a year earlier (lib/data/japanPrices.json). MLIT
+    // publishes no price level → none here (the old "¥36 million average
+    // home" had no source and was removed).
+    nationalChangePercent: 5.3,
     benchmarkUnit: "total",
-    coverageNote: "Benchmark value is the average price of an existing condo/apartment nationwide; an average existing detached house runs closer to ¥30 million. Separately, MLIT's annual land price survey (koji chika) showed nationwide land prices up 2.8% in 2026 — the strongest rise since 1992, residential land specifically +2.1%.",
-    source: "Ministry of Land, Infrastructure, Transport and Tourism (MLIT) — Residential Property Price Index, November 2025",
-    officialSource: "https://www.mlit.go.jp/en/"
+    coverageNote: "Change of MLIT's residential price index (all residential property, from registered transactions); condominiums +8.4%, detached houses +3.0%.",
+    source: "Ministry of Land, Infrastructure, Transport and Tourism (MLIT) — Real Estate Price Index (residential), December 2025",
+    officialSource: "https://www.mlit.go.jp/totikensangyo/totikensangyo_tk5_000085.html"
   },
   "sri lanka": {
     country: "Sri Lanka",

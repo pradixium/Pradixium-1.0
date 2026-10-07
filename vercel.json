@@ -5,16 +5,28 @@
     },
     "api/orchestrator.js": {
       "maxDuration": 60,
-      "includeFiles": "lib/data/{serbiaPrices,zurichCondoPrices,dubaiSales,australiaPrices,saoPauloSales,mexicoShf,canadaPrices,australiaSuburbs,australiaRents,portugalImi}.json"
+      "includeFiles": "{lib/data/*{Rents,Prices,Sales,Shf,Imi,Suburbs,Condo}.json,lib/data/spainSections/**}"
     },
     "api/market-data.js": {
       "includeFiles": "lib/data/spainZones/**"
+    },
+    "api/japan-intelligence.js": {
+      "includeFiles": "lib/data/japanPrices.json"
+    },
+    "api/hong-kong-intelligence.js": {
+      "includeFiles": "lib/data/hongKong.json"
+    },
+    "api/singapore-intelligence.js": {
+      "includeFiles": "lib/data/singapore.json"
+    },
+    "api/turkey-intelligence.js": {
+      "includeFiles": "lib/data/turkeyKfe.json"
     },
     "api/portugal-intelligence.js": {
       "includeFiles": "lib/data/{portugalPrices,portugalRents}.json"
     },
     "api/italy-intelligence.js": {
-      "includeFiles": "lib/data/italyComuni.json"
+      "includeFiles": "{lib/data/italyComuni.json,lib/data/italyOmiZones/**}"
     },
     "api/eurostat-hpi-intelligence.js": {
       "includeFiles": "lib/data/{*Prices,denmarkPlaces}.json"

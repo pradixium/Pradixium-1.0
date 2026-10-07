@@ -1,0 +1,196 @@
+{
+ "source": "Rating and Valuation Department (RVD) — Property Market Statistics, private domestic",
+ "sourceUrl": "https://www.rvd.gov.hk/en/publications/property_market_statistics.html",
+ "prices": {
+  "period": "2026-08",
+  "provisional": true,
+  "v": {
+   "A|Hong Kong Island": {
+    "value": 145769.0,
+    "fewerThan20": false
+   },
+   "A|Kowloon": {
+    "value": 129822.0,
+    "fewerThan20": false
+   },
+   "A|New Territories": {
+    "value": 122603.0,
+    "fewerThan20": false
+   },
+   "B|Hong Kong Island": {
+    "value": 155531.0,
+    "fewerThan20": false
+   },
+   "B|Kowloon": {
+    "value": 137442.0,
+    "fewerThan20": false
+   },
+   "B|New Territories": {
+    "value": 110084.0,
+    "fewerThan20": false
+   },
+   "C|Hong Kong Island": {
+    "value": 180625.0,
+    "fewerThan20": false
+   },
+   "C|Kowloon": {
+    "value": 175618.0,
+    "fewerThan20": false
+   },
+   "C|New Territories": {
+    "value": 124624.0,
+    "fewerThan20": false
+   },
+   "D|Hong Kong Island": {
+    "value": 206043.0,
+    "fewerThan20": false
+   },
+   "D|Kowloon": {
+    "value": 200643.0,
+    "fewerThan20": true
+   },
+   "D|New Territories": {
+    "value": 116190.0,
+    "fewerThan20": false
+   },
+   "E|Hong Kong Island": {
+    "value": 285765.0,
+    "fewerThan20": true
+   },
+   "E|Kowloon": {
+    "value": 257132.0,
+    "fewerThan20": true
+   },
+   "E|New Territories": {
+    "value": 114837.0,
+    "fewerThan20": false
+   }
+  }
+ },
+ "rents": {
+  "period": "2026-08",
+  "provisional": true,
+  "v": {
+   "A|Hong Kong Island": {
+    "value": 568.0,
+    "fewerThan20": false
+   },
+   "A|Kowloon": {
+    "value": 525.0,
+    "fewerThan20": false
+   },
+   "A|New Territories": {
+    "value": 389.0,
+    "fewerThan20": false
+   },
+   "B|Hong Kong Island": {
+    "value": 446.0,
+    "fewerThan20": false
+   },
+   "B|Kowloon": {
+    "value": 418.0,
+    "fewerThan20": false
+   },
+   "B|New Territories": {
+    "value": 312.0,
+    "fewerThan20": false
+   },
+   "C|Hong Kong Island": {
+    "value": 490.0,
+    "fewerThan20": false
+   },
+   "C|Kowloon": {
+    "value": 467.0,
+    "fewerThan20": false
+   },
+   "C|New Territories": {
+    "value": 307.0,
+    "fewerThan20": false
+   },
+   "D|Hong Kong Island": {
+    "value": 508.0,
+    "fewerThan20": false
+   },
+   "D|Kowloon": {
+    "value": 457.0,
+    "fewerThan20": false
+   },
+   "D|New Territories": {
+    "value": 284.0,
+    "fewerThan20": false
+   },
+   "E|Hong Kong Island": {
+    "value": 505.0,
+    "fewerThan20": false
+   },
+   "E|Kowloon": {
+    "value": 450.0,
+    "fewerThan20": true
+   },
+   "E|New Territories": {
+    "value": 271.0,
+    "fewerThan20": false
+   }
+  }
+ },
+ "index": {
+  "period": "2026-08",
+  "provisional": true,
+  "byClass": {
+   "A": 10.1,
+   "B": 11.2,
+   "C": 12.6,
+   "D": 9.6,
+   "E": 9.3,
+   "All": 11.0
+  }
+ },
+ "yields": {
+  "period": "2026-07",
+  "provisional": true,
+  "v": {
+   "A": {
+    "value": 3.4,
+    "fewerThan20": false
+   },
+   "B": {
+    "value": 3.0,
+    "fewerThan20": false
+   },
+   "C": {
+    "value": 2.7,
+    "fewerThan20": false
+   },
+   "D": {
+    "value": 2.6,
+    "fewerThan20": false
+   },
+   "E": {
+    "value": 2.3,
+    "fewerThan20": false
+   }
+  }
+ },
+ "classes": {
+  "A": [
+   0,
+   40
+  ],
+  "B": [
+   40,
+   70
+  ],
+  "C": [
+   70,
+   100
+  ],
+  "D": [
+   100,
+   160
+  ],
+  "E": [
+   160,
+   null
+  ]
+ }
+}

@@ -1,0 +1,411 @@
+{
+ "source": "TCMB — Konut Fiyat Endeksi (KFE, 2023=100) and Yeni Kiracı Kira Endeksi (YKKE), EVDS",
+ "termsUrl": "https://evds3.tcmb.gov.tr/igmevdsms-dis/documents/showDocument?docId=18",
+ "national": {
+  "kfe": "TP.KFE.TR",
+  "ykke": "TP.YKKE.TR"
+ },
+ "regions": [
+  {
+   "code": "TR10",
+   "label": "İstanbul",
+   "provinces": [
+    "İstanbul"
+   ],
+   "kfe": "TP.KFE.TR10",
+   "ykke": "TP.YKKE.TR10"
+  },
+  {
+   "code": "TR51",
+   "label": "Ankara",
+   "provinces": [
+    "Ankara"
+   ],
+   "kfe": "TP.KFE.TR51",
+   "ykke": "TP.YKKE.TR51"
+  },
+  {
+   "code": "TR31",
+   "label": "İzmir",
+   "provinces": [
+    "İzmir"
+   ],
+   "kfe": "TP.KFE.TR31",
+   "ykke": "TP.YKKE.TR31"
+  },
+  {
+   "code": "TR21",
+   "label": "Edirne, Kırklareli, Tekirdağ",
+   "provinces": [
+    "Edirne",
+    "Kırklareli",
+    "Tekirdağ"
+   ],
+   "kfe": "TP.KFE.TR21",
+   "ykke": "TP.YKKE.TR21"
+  },
+  {
+   "code": "TR22",
+   "label": "Balıkesir, Çanakkale",
+   "provinces": [
+    "Balıkesir",
+    "Çanakkale"
+   ],
+   "kfe": "TP.KFE.TR22",
+   "ykke": "TP.YKKE.TR22"
+  },
+  {
+   "code": "TR32",
+   "label": "Aydın, Denizli, Muğla",
+   "provinces": [
+    "Aydın",
+    "Denizli",
+    "Muğla"
+   ],
+   "kfe": "TP.KFE.TR32",
+   "ykke": "TP.YKKE.TR32"
+  },
+  {
+   "code": "TR33",
+   "label": "Afyonkarahisar, Kütahya, Manisa, Uşak",
+   "provinces": [
+    "Afyonkarahisar",
+    "Kütahya",
+    "Manisa",
+    "Uşak"
+   ],
+   "kfe": "TP.KFE.TR33",
+   "ykke": "TP.YKKE.TR33"
+  },
+  {
+   "code": "TR41",
+   "label": "Bursa, Eskişehir, Bilecik",
+   "provinces": [
+    "Bursa",
+    "Eskişehir",
+    "Bilecik"
+   ],
+   "kfe": "TP.KFE.TR41",
+   "ykke": "TP.YKKE.TR41"
+  },
+  {
+   "code": "TR42",
+   "label": "Bolu, Kocaeli, Sakarya, Yalova, Düzce",
+   "provinces": [
+    "Bolu",
+    "Kocaeli",
+    "Sakarya",
+    "Yalova",
+    "Düzce"
+   ],
+   "kfe": "TP.KFE.TR42",
+   "ykke": "TP.YKKE.TR42"
+  },
+  {
+   "code": "TR52",
+   "label": "Konya, Karaman",
+   "provinces": [
+    "Konya",
+    "Karaman"
+   ],
+   "kfe": "TP.KFE.TR52",
+   "ykke": "TP.YKKE.TR52"
+  },
+  {
+   "code": "TR61",
+   "label": "Antalya, Burdur, Isparta",
+   "provinces": [
+    "Antalya",
+    "Burdur",
+    "Isparta"
+   ],
+   "kfe": "TP.KFE.TR61",
+   "ykke": "TP.YKKE.TR61"
+  },
+  {
+   "code": "TR62",
+   "label": "Adana, Mersin",
+   "provinces": [
+    "Adana",
+    "Mersin"
+   ],
+   "kfe": "TP.KFE.TR62",
+   "ykke": "TP.YKKE.TR62"
+  },
+  {
+   "code": "TR63",
+   "label": "Hatay, Kahramanmaraş, Osmaniye",
+   "provinces": [
+    "Hatay",
+    "Kahramanmaraş",
+    "Osmaniye"
+   ],
+   "kfe": "TP.KFE.TR63",
+   "ykke": "TP.YKKE.TR63"
+  },
+  {
+   "code": "TR7",
+   "label": "Nevşehir, Niğde, Kırıkkale, Kırşehir, Aksaray, Kayseri, Sivas, Yozgat",
+   "provinces": [
+    "Nevşehir",
+    "Niğde",
+    "Kırıkkale",
+    "Kırşehir",
+    "Aksaray",
+    "Kayseri",
+    "Sivas",
+    "Yozgat"
+   ],
+   "kfe": "TP.KFE.TR7",
+   "ykke": "TP.YKKE.TR7"
+  },
+  {
+   "code": "TR8",
+   "label": "Zonguldak, Karabük, Bartın, Kastamonu, Çankırı, Sinop, Samsun, Tokat, Çorum, Amasya",
+   "provinces": [
+    "Zonguldak",
+    "Karabük",
+    "Bartın",
+    "Kastamonu",
+    "Çankırı",
+    "Sinop",
+    "Samsun",
+    "Tokat",
+    "Çorum",
+    "Amasya"
+   ],
+   "kfe": "TP.KFE.TR8",
+   "ykke": "TP.YKKE.TR8"
+  },
+  {
+   "code": "TR9",
+   "label": "Trabzon, Ordu, Giresun, Rize, Artvin, Gümüşhane",
+   "provinces": [
+    "Trabzon",
+    "Ordu",
+    "Giresun",
+    "Rize",
+    "Artvin",
+    "Gümüşhane"
+   ],
+   "kfe": "TP.KFE.TR9",
+   "ykke": "TP.YKKE.TR9"
+  },
+  {
+   "code": "TRA",
+   "label": "Erzurum, Erzincan, Bayburt, Ağrı, Kars, Iğdır, Ardahan",
+   "provinces": [
+    "Erzurum",
+    "Erzincan",
+    "Bayburt",
+    "Ağrı",
+    "Kars",
+    "Iğdır",
+    "Ardahan"
+   ],
+   "kfe": "TP.KFE.TRA",
+   "ykke": "TP.YKKE.TRA"
+  },
+  {
+   "code": "TRB",
+   "label": "Malatya, Elazığ, Bingöl, Tunceli, Van, Muş, Bitlis, Hakkari",
+   "provinces": [
+    "Malatya",
+    "Elazığ",
+    "Bingöl",
+    "Tunceli",
+    "Van",
+    "Muş",
+    "Bitlis",
+    "Hakkari"
+   ],
+   "kfe": "TP.KFE.TRB",
+   "ykke": "TP.YKKE.TRB"
+  },
+  {
+   "code": "TRC",
+   "label": "Gaziantep, Adıyaman, Kilis, Şanlıurfa, Diyarbakır, Mardin, Batman, Şırnak, Siirt",
+   "provinces": [
+    "Gaziantep",
+    "Adıyaman",
+    "Kilis",
+    "Şanlıurfa",
+    "Diyarbakır",
+    "Mardin",
+    "Batman",
+    "Şırnak",
+    "Siirt"
+   ],
+   "kfe": "TP.KFE.TRC",
+   "ykke": "TP.YKKE.TRC"
+  }
+ ],
+ "unitPriceCodes": {
+  "Türkiye": "TP.BIRIMFIYAT.TR",
+  "İstanbul": "TP.BIRIMFIYAT.IST",
+  "Ankara": "TP.BIRIMFIYAT.ANK",
+  "İzmir": "TP.BIRIMFIYAT.IZM",
+  "Adana": "TP.BIRIMFIYAT.ADANA",
+  "Adıyaman": "TP.BIRIMFIYAT.ADIYAMAN",
+  "Afyonkarahisar": "TP.BIRIMFIYAT.AFYON",
+  "Ağrı": "TP.BIRIMFIYAT.AGRI",
+  "Amasya": "TP.BIRIMFIYAT.AMASYA",
+  "Antalya": "TP.BIRIMFIYAT.ANTALYA",
+  "Artvin": "TP.BIRIMFIYAT.ARTVIN",
+  "Aydın": "TP.BIRIMFIYAT.AYDIN",
+  "Balıkesir": "TP.BIRIMFIYAT.BALIKESIR",
+  "Bilecik": "TP.BIRIMFIYAT.BILECIK",
+  "Bingöl": "TP.BIRIMFIYAT.BINGOL",
+  "Bitlis": "TP.BIRIMFIYAT.BITLIS",
+  "Bolu": "TP.BIRIMFIYAT.BOLU",
+  "Burdur": "TP.BIRIMFIYAT.BURDUR",
+  "Bursa": "TP.BIRIMFIYAT.BURSA",
+  "Çanakkale": "TP.BIRIMFIYAT.CANAKKALE",
+  "Çankırı": "TP.BIRIMFIYAT.CANKIRI",
+  "Çorum": "TP.BIRIMFIYAT.CORUM",
+  "Denizli": "TP.BIRIMFIYAT.DENIZLI",
+  "Diyarbakır": "TP.BIRIMFIYAT.DIYARBAKIR",
+  "Edirne": "TP.BIRIMFIYAT.EDIRNE",
+  "Elazığ": "TP.BIRIMFIYAT.ELAZIG",
+  "Erzincan": "TP.BIRIMFIYAT.ERZINCAN",
+  "Erzurum": "TP.BIRIMFIYAT.ERZURUM",
+  "Eskişehir": "TP.BIRIMFIYAT.ESKISEHIR",
+  "Gaziantep": "TP.BIRIMFIYAT.ANTEP",
+  "Giresun": "TP.BIRIMFIYAT.GIRESUN",
+  "Gümüşhane": "TP.BIRIMFIYAT.GUMUSHANE",
+  "Hakkari": "TP.BIRIMFIYAT.HAKKARI",
+  "Hatay": "TP.BIRIMFIYAT.HATAY",
+  "Isparta": "TP.BIRIMFIYAT.ISPARTA",
+  "Mersin": "TP.BIRIMFIYAT.MERSIN",
+  "Kars": "TP.BIRIMFIYAT.KARS",
+  "Kastamonu": "TP.BIRIMFIYAT.KASTAMONU",
+  "Kayseri": "TP.BIRIMFIYAT.KAYSERI",
+  "Kırklareli": "TP.BIRIMFIYAT.KIRKLARELI",
+  "Kırşehir": "TP.BIRIMFIYAT.KIRSEHIR",
+  "Kocaeli": "TP.BIRIMFIYAT.KOCAELI",
+  "Konya": "TP.BIRIMFIYAT.KONYA",
+  "Kütahya": "TP.BIRIMFIYAT.KUTAHYA",
+  "Malatya": "TP.BIRIMFIYAT.MALATYA",
+  "Manisa": "TP.BIRIMFIYAT.MANISA",
+  "Kahramanmaraş": "TP.BIRIMFIYAT.MARAS",
+  "Mardin": "TP.BIRIMFIYAT.MARDIN",
+  "Muğla": "TP.BIRIMFIYAT.MUGLA",
+  "Muş": "TP.BIRIMFIYAT.MUS",
+  "Nevşehir": "TP.BIRIMFIYAT.NEVSEHIR",
+  "Niğde": "TP.BIRIMFIYAT.NIGDE",
+  "Ordu": "TP.BIRIMFIYAT.ORDU",
+  "Rize": "TP.BIRIMFIYAT.RIZE",
+  "Sakarya": "TP.BIRIMFIYAT.SAKARYA",
+  "Samsun": "TP.BIRIMFIYAT.SAMSUN",
+  "Siirt": "TP.BIRIMFIYAT.SIIRT",
+  "Sinop": "TP.BIRIMFIYAT.SINOP",
+  "Sivas": "TP.BIRIMFIYAT.SIVAS",
+  "Tekirdağ": "TP.BIRIMFIYAT.TEKIRDAG",
+  "Tokat": "TP.BIRIMFIYAT.TOKAT",
+  "Trabzon": "TP.BIRIMFIYAT.TRABZON",
+  "Tunceli": "TP.BIRIMFIYAT.TUNCELI",
+  "Şanlıurfa": "TP.BIRIMFIYAT.URFA",
+  "Uşak": "TP.BIRIMFIYAT.USAK",
+  "Van": "TP.BIRIMFIYAT.VAN",
+  "Yozgat": "TP.BIRIMFIYAT.YOZGAT",
+  "Zonguldak": "TP.BIRIMFIYAT.ZONGULDAK",
+  "Aksaray": "TP.BIRIMFIYAT.AKSARAY",
+  "Bayburt": "TP.BIRIMFIYAT.BAYBURT",
+  "Karaman": "TP.BIRIMFIYAT.KARAMAN",
+  "Kırıkkale": "TP.BIRIMFIYAT.KIRIKKALE",
+  "Batman": "TP.BIRIMFIYAT.BATMAN",
+  "Şırnak": "TP.BIRIMFIYAT.SIRNAK",
+  "Bartın": "TP.BIRIMFIYAT.BARTIN",
+  "Ardahan": "TP.BIRIMFIYAT.ARDAHAN",
+  "Iğdır": "TP.BIRIMFIYAT.IGDIR",
+  "Yalova": "TP.BIRIMFIYAT.YALOVA",
+  "Karabük": "TP.BIRIMFIYAT.KARABUK",
+  "Kilis": "TP.BIRIMFIYAT.KILIS",
+  "Osmaniye": "TP.BIRIMFIYAT.OSMANIYE",
+  "Düzce": "TP.BIRIMFIYAT.DUZCE"
+ },
+ "unitRentCodes": {
+  "Türkiye": "TP.BK.TR",
+  "İstanbul": "TP.BK.ISTANBUL",
+  "Ankara": "TP.BK.ANKARA",
+  "İzmir": "TP.BK.IZMIR",
+  "Adana": "TP.BK.ADANA",
+  "Adıyaman": "TP.BK.ADIYAMAN",
+  "Afyonkarahisar": "TP.BK.AFYONKARAHISAR",
+  "Ağrı": "TP.BK.AGRI",
+  "Amasya": "TP.BK.AMASYA",
+  "Antalya": "TP.BK.ANTALYA",
+  "Artvin": "TP.BK.ARTVIN",
+  "Aydın": "TP.BK.AYDIN",
+  "Balıkesir": "TP.BK.BALIKESIR",
+  "Bilecik": "TP.BK.BILECIK",
+  "Bingöl": "TP.BK.BINGOL",
+  "Bitlis": "TP.BK.BITLIS",
+  "Bolu": "TP.BK.BOLU",
+  "Burdur": "TP.BK.BURDUR",
+  "Bursa": "TP.BK.BURSA",
+  "Çanakkale": "TP.BK.CANAKKALE",
+  "Çankırı": "TP.BK.CANKIRI",
+  "Çorum": "TP.BK.CORUM",
+  "Denizli": "TP.BK.DENIZLI",
+  "Diyarbakır": "TP.BK.DIYARBAKIR",
+  "Edirne": "TP.BK.EDIRNE",
+  "Elazığ": "TP.BK.ELAZIG",
+  "Erzincan": "TP.BK.ERZINCAN",
+  "Erzurum": "TP.BK.ERZURUM",
+  "Eskişehir": "TP.BK.ESKISEHIR",
+  "Gaziantep": "TP.BK.GAZIANTEP",
+  "Giresun": "TP.BK.GIRESUN",
+  "Gümüşhane": "TP.BK.GUMUSHANE",
+  "Hakkari": "TP.BK.HAKKARI",
+  "Hatay": "TP.BK.HATAY",
+  "Isparta": "TP.BK.ISPARTA",
+  "Mersin": "TP.BK.MERSIN",
+  "Kars": "TP.BK.KARS",
+  "Kastamonu": "TP.BK.KASTAMONU",
+  "Kayseri": "TP.BK.KAYSERI",
+  "Kırklareli": "TP.BK.KIRKLARELI",
+  "Kırşehir": "TP.BK.KIRSEHIR",
+  "Kocaeli": "TP.BK.KOCAELI",
+  "Konya": "TP.BK.KONYA",
+  "Kütahya": "TP.BK.KUTAHYA",
+  "Malatya": "TP.BK.MALATYA",
+  "Manisa": "TP.BK.MANISA",
+  "Kahramanmaraş": "TP.BK.KAHRAMANMARAS",
+  "Mardin": "TP.BK.MARDIN",
+  "Muğla": "TP.BK.MUGLA",
+  "Muş": "TP.BK.MUS",
+  "Nevşehir": "TP.BK.NEVSEHIR",
+  "Niğde": "TP.BK.NIGDE",
+  "Ordu": "TP.BK.ORDU",
+  "Rize": "TP.BK.RIZE",
+  "Sakarya": "TP.BK.SAKARYA",
+  "Samsun": "TP.BK.SAMSUN",
+  "Siirt": "TP.BK.SIIRT",
+  "Sinop": "TP.BK.SINOP",
+  "Sivas": "TP.BK.SIVAS",
+  "Tekirdağ": "TP.BK.TEKIRDAG",
+  "Tokat": "TP.BK.TOKAT",
+  "Trabzon": "TP.BK.TRABZON",
+  "Tunceli": "TP.BK.TUNCELI",
+  "Şanlıurfa": "TP.BK.SANLIURFA",
+  "Uşak": "TP.BK.USAK",
+  "Van": "TP.BK.VAN",
+  "Yozgat": "TP.BK.YOZGAT",
+  "Zonguldak": "TP.BK.ZONGULDAK",
+  "Aksaray": "TP.BK.AKSARAY",
+  "Bayburt": "TP.BK.BAYBURT",
+  "Karaman": "TP.BK.KARAMAN",
+  "Kırıkkale": "TP.BK.KIRIKKALE",
+  "Batman": "TP.BK.BATMAN",
+  "Şırnak": "TP.BK.SIRNAK",
+  "Bartın": "TP.BK.BARTIN",
+  "Ardahan": "TP.BK.ARDAHAN",
+  "Iğdır": "TP.BK.IGDIR",
+  "Yalova": "TP.BK.YALOVA",
+  "Karabük": "TP.BK.KARABUK",
+  "Kilis": "TP.BK.KILIS",
+  "Osmaniye": "TP.BK.OSMANIYE",
+  "Düzce": "TP.BK.DUZCE"
+ }
+}

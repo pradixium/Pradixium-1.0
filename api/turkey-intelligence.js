@@ -4,7 +4,7 @@
  * sold, by province), a different metric entirely. The real official
  * price benchmark is the Central Bank of the Republic of Turkey (TCMB) —
  * "Konut Fiyat Endeksi" (KFE), the Housing Price Index, hedonic-regression
- * based, monthly, base 2010=100 — published via TCMB's EVDS (Elektronik
+ * based, monthly, base 2023=100 — published via TCMB's EVDS (Elektronik
  * Veri Dağıtım Sistemi / Electronic Data Delivery System) API.
  *
  * Series code TP.KFE.TR confirmed directly (not guessed) from a live
@@ -18,17 +18,21 @@
  * same pattern as ANTHROPIC_API_KEY: read from env, degrade honestly to
  * "unavailable" if unset, never block the rest of the report on it.
  *
- * NOT YET CONFIRMED (national-only for now, deliberately, rather than
- * guessing): whether EVDS also carries a province/city-level breakdown
- * of this same series (Istanbul specifically, the highest-volume market)
- * — the EVDS UI showed region-group checkboxes (e.g. "TRC" — Turkey's
- * official NUTS-style statistical regions) alongside this series, which
- * suggests one may exist, but the exact series-code pattern for it was
- * not verified. A future pass can add it once confirmed the same way
- * this national series was: from a live EVDS export, not a guess.
+ * Regions (Oct 3 2026): EVDS carries KFE and YKKE for 19 İBBS region
+ * groups (TP.KFE.TR10 İstanbul … TP.KFE.TRC), codes read from TCMB's public
+ * EVDS tables by scripts/build-tr-kfe.py. Everything shown comes from EVDS:
+ * its terms allow use with the source named; TCMB's website content (the
+ * KFE.pdf release) needs written permission for commercial use → not used.
  */
+import { turkeyRegion, kfePeriodLabel, turkeyUnitCodes } from "../lib/turkey/kfe.js";
+
 const EVDS_SERIES = "TP.KFE.TR";
-const EVDS_BASE_URL = "https://evds2.tcmb.gov.tr/service/evds/";
+// EVDS moved (checked Oct 2 2026): evds2.tcmb.gov.tr/service/evds/ now
+// 302-redirects to the evds3 home page (HTML → every Turkish report showed
+// "source unavailable"); the API lives at evds3 …/igmevdsms-dis/ and
+// answers {"message":"Required request header 'key' is not present"}
+// without a key, "Invalid API Key" with a wrong one.
+const EVDS_BASE_URL = "https://evds3.tcmb.gov.tr/igmevdsms-dis/";
 
 function formatEvdsDate(date) {
   const dd = String(date.getUTCDate()).padStart(2, "0");
@@ -63,6 +67,88 @@ function parseEvdsNumber(value) {
   return Number.isFinite(n) ? n : null;
 }
 
+
+// EVDS rows → { period "YYYY-MM", value } sorted by date ("2026-8" and
+// "2026-08" both handled), latest value + change on the same month a year
+// earlier
+function yoy(items, code) {
+  const key = code.replace(/\./g, "_");
+  const rows = items.map((r) => {
+    const [y, m] = String(r?.Tarih || "").split("-").map(Number);
+    return { y, m, value: parseEvdsNumber(r?.[key]) };
+  }).filter((r) => r.y && r.m && r.value != null).sort((a, b) => a.y - b.y || a.m - b.m);
+  const last = rows[rows.length - 1];
+  if (!last) return null;
+  const ago = rows.find((r) => r.y === last.y - 1 && r.m === last.m);
+  return { period: `${last.y}-${String(last.m).padStart(2, "0")}`, value: last.value,
+    yoyPercent: ago?.value > 0 ? Math.round((last.value / ago.value - 1) * 1000) / 10 : null };
+}
+
+// the property's region group (or the national figure) + new-tenant rents,
+// as the orchestrator's generic regional hook — all from EVDS
+function kfeRegional(m, s) {
+  if (!s.kfe || s.kfe.yoyPercent == null) return null;
+  const r = m?.region && s.rKfe?.yoyPercent != null ? m.region : null;
+  const price = r ? s.rKfe : s.kfe;
+  const rent = r && s.rYkke?.yoyPercent != null ? s.rYkke : s.ykke;
+  const [y, mo] = price.period.split("-").map(Number);
+  const area = r ? (r.provinces.length > 1 ? `${m.province} (TCMB region ${r.code}: ${r.label})` : r.label) : "Türkiye (national)";
+  const sign = (v) => `${v >= 0 ? "+" : ""}${v}%`;
+  return {
+    area, period: kfePeriodLabel(price.period), comparedWith: kfePeriodLabel(`${y - 1}-${String(mo).padStart(2, "0")}`),
+    allTypes: true, sourceName: "TCMB",
+    flatsAnnualChangePercent: price.yoyPercent, housesAnnualChangePercent: price.yoyPercent,
+    national: !r, nationalAll: s.kfe.yoyPercent,
+    note: `${rent?.yoyPercent != null ? `New-tenant rents (TCMB YKKE) ${sign(rent.yoyPercent)} on a year earlier${r && rent !== s.ykke && s.ykke?.yoyPercent != null ? ` (Türkiye ${sign(s.ykke.yoyPercent)})` : ""}. ` : ""}Nominal Turkish lira, not inflation-adjusted`,
+    source: "TCMB — Konut Fiyat Endeksi (KFE) and Yeni Kiracı Kira Endeksi (YKKE), EVDS",
+    sourceUrl: "https://evds3.tcmb.gov.tr/"
+  };
+}
+
+// TCMB's quarterly median unit price and unit rent (TL per m² of GROSS
+// area) from the valuation reports made for mortgage applications —
+// appraisals, not sale prices → context only, said so
+async function unitValues(city, apiKey) {
+  const m = turkeyRegion(city);
+  const codes = turkeyUnitCodes(m?.province);
+  if (!codes || !apiKey) return null;
+  const list = [codes.price, codes.rent, codes.priceTR, codes.rentTR].filter(Boolean);
+  const end = new Date(); const start = new Date(end); start.setUTCMonth(start.getUTCMonth() - 30);
+  const url = `${EVDS_BASE_URL}series=${list.join("-")}&startDate=${formatEvdsDate(start)}&endDate=${formatEvdsDate(end)}&type=json`;
+  const json = await fetchJson(url, apiKey, 6000);
+  const items = Array.isArray(json?.items) ? json.items : [];
+  const series = (code) => items.map((r) => ({ period: r?.Tarih, value: parseEvdsNumber(r?.[code.replace(/\./g, "_")]) })).filter((r) => r.period && r.value != null);
+  const pick = (code) => {
+    if (!code) return null;
+    const rows = series(code);
+    const last = rows[rows.length - 1];
+    if (!last) return null;
+    const prev = rows.length >= 5 ? rows[rows.length - 5] : null;   // the same quarter a year earlier
+    return { period: last.period, value: last.value, yearAgo: prev?.value ?? null, yearAgoPeriod: prev?.period ?? null };
+  };
+  const out = { province: codes.province, price: pick(codes.price), rent: pick(codes.rent), priceTR: pick(codes.priceTR), rentTR: pick(codes.rentTR) };
+  return out.price || out.rent ? out : null;
+}
+function unitText(u) {
+  if (!u) return "";
+  const tl = (v) => `TL ${Math.round(v).toLocaleString("en-US")}`;
+  const parts = [];
+  if (u.price) parts.push(`median value ${tl(u.price.value)}/m² of gross area (${u.price.period}${u.priceTR ? `; Türkiye ${tl(u.priceTR.value)}` : ""})`);
+  if (u.rent) parts.push(`median rent ${tl(u.rent.value)}/m² a month (${u.rent.period}${u.rentTR ? `; Türkiye ${tl(u.rentTR.value)}` : ""})`);
+  return parts.length ? `. TCMB, ${u.province}: ${parts.join(", ")} — from the valuation reports for mortgage applications (appraisals, not sale prices), so context only` : "";
+}
+
+// No figures without EVDS: TCMB's website release (KFE.pdf) may not be
+// used commercially without TCMB's written permission
+function unavailable(message, error) {
+  return {
+    market: "Turkey Residential Property Market",
+    status: "SOURCE_TEMPORARILY_UNAVAILABLE",
+    message, ...(error ? { error } : {}),
+    sourceUrls: { tcmb: "https://www.tcmb.gov.tr/wps/wcm/connect/en/tcmb+en/main+menu/statistics/real+sector+statistics/residential+property+price+index" }
+  };
+}
+
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "s-maxage=21600, stale-while-revalidate=86400");
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -75,54 +161,33 @@ export default async function handler(req, res) {
       success: true,
       country: "Turkey",
       city,
-      data: {
-        market: "Turkey Residential Property Market",
-        status: "SOURCE_TEMPORARILY_UNAVAILABLE",
-        message: "TCMB EVDS API key is not configured on the server.",
-        sourceUrls: { tcmb: "https://www.tcmb.gov.tr/wps/wcm/connect/en/tcmb+en/main+menu/statistics/real+sector+statistics/residential+property+price+index" }
-      }
+      data: unavailable("TCMB EVDS API key is not configured on the server.")
     });
   }
 
   try {
+    const m = turkeyRegion(city);
+    const d = m?.doc;
+    const codes = [d?.national?.kfe || EVDS_SERIES, d?.national?.ykke, m?.region?.kfe, m?.region?.ykke].filter(Boolean);
     const end = new Date();
     const start = new Date(end);
-    start.setUTCMonth(start.getUTCMonth() - 14); // 14 months back covers a real YoY comparison with a margin for reporting lag
+    start.setUTCMonth(start.getUTCMonth() - 15); // a year-earlier month with a margin for the release lag
 
-    const url = `${EVDS_BASE_URL}series=${EVDS_SERIES}&startDate=${formatEvdsDate(start)}&endDate=${formatEvdsDate(end)}&type=json`;
-    const json = await fetchJson(url, apiKey);
+    const url = `${EVDS_BASE_URL}series=${codes.join("-")}&startDate=${formatEvdsDate(start)}&endDate=${formatEvdsDate(end)}&type=json`;
+    const [json, units] = await Promise.all([fetchJson(url, apiKey), unitValues(city, apiKey).catch(() => null)]);
     const items = Array.isArray(json?.items) ? json.items : [];
-
-    const rows = items
-      .map((row) => ({ period: row?.Tarih ?? null, value: parseEvdsNumber(row?.[EVDS_SERIES.replace(/\./g, "_")]) }))
-      .filter((row) => row.period && row.value !== null)
-      .sort((a, b) => String(a.period).localeCompare(String(b.period)));
-
-    const latest = rows[rows.length - 1] || null;
-
-    if (!latest) {
+    const s = {
+      kfe: yoy(items, codes[0]), ykke: d?.national?.ykke ? yoy(items, d.national.ykke) : null,
+      rKfe: m?.region ? yoy(items, m.region.kfe) : null, rYkke: m?.region ? yoy(items, m.region.ykke) : null
+    };
+    if (!s.kfe) {
       return res.status(200).json({
-        success: true,
-        country: "Turkey",
-        city,
-        data: {
-          market: "Turkey Residential Property Market",
-          status: "SOURCE_TEMPORARILY_UNAVAILABLE",
-          message: "TCMB EVDS responded, but no usable Housing Price Index rows were found.",
-          sourceUrls: { tcmb: "https://www.tcmb.gov.tr/wps/wcm/connect/en/tcmb+en/main+menu/statistics/real+sector+statistics/residential+property+price+index" }
-        }
+        success: true, country: "Turkey", city,
+        data: unavailable("TCMB EVDS responded, but no usable Housing Price Index rows were found.")
       });
     }
-
-    const yearAgo = rows.find((row) => {
-      const [y, m] = String(row.period).split("-").map(Number);
-      const [ly, lm] = String(latest.period).split("-").map(Number);
-      return y === ly - 1 && m === lm;
-    });
-    const annualChangePercent = yearAgo && yearAgo.value > 0
-      ? Math.round(((latest.value - yearAgo.value) / yearAgo.value) * 1000) / 10
-      : null;
-
+    const regional = kfeRegional(m, s);
+    if (regional && units) regional.note += unitText(units);
     return res.status(200).json({
       success: true,
       country: "Turkey",
@@ -130,20 +195,22 @@ export default async function handler(req, res) {
       data: {
         market: "Turkey Residential Property Market",
         housingPriceIndex: {
-          period: latest.period,
-          indexValue: latest.value,
-          annualChangePercent,
-          unit: "Housing Price Index (hedonic regression), base 2010=100 — nominal Turkish Lira terms, not inflation-adjusted",
+          period: s.kfe.period,
+          indexValue: s.kfe.value,
+          annualChangePercent: s.kfe.yoyPercent,
+          unit: "Housing Price Index (hedonic regression), base 2023=100 — nominal Turkish Lira terms, not inflation-adjusted",
+          regional,
           source: "TCMB (Central Bank of the Republic of Turkey) — Konut Fiyat Endeksi (KFE), via EVDS"
         },
-        cityLevelStatus: "REGIONAL_DATA_LAYER_PENDING",
-        cityLevelNote: "TCMB's EVDS may carry a province/city-level breakdown of this index (Istanbul in particular) — not yet confirmed and not used here; this is the national figure only.",
+        unitValues: units,
+        cityLevelStatus: "REGIONAL",
+        cityLevelNote: "Region figures: TCMB's KFE / YKKE series per İBBS region group (provinces as TCMB lists them), EVDS.",
         sources: { tcmb: "TCMB — Konut Fiyat Endeksi (KFE), via EVDS" },
         sourceUrls: {
           tcmb: "https://www.tcmb.gov.tr/wps/wcm/connect/en/tcmb+en/main+menu/statistics/real+sector+statistics/residential+property+price+index",
           methodology: "https://www.tcmb.gov.tr/wps/wcm/connect/TR/TCMB+TR/Main+Menu/Istatistikler/Reel+Sektor+Istatistikleri/Konut+Fiyat+Endeksi/Metaveri"
         },
-        coverage: "National index only — no per-city or per-property benchmark available from this source."
+        coverage: "Official price and rent trends by region; TCMB publishes no price level per m²."
       }
     });
   } catch (error) {
@@ -151,13 +218,7 @@ export default async function handler(req, res) {
       success: true,
       country: "Turkey",
       city,
-      data: {
-        market: "Turkey Residential Property Market",
-        status: "SOURCE_TEMPORARILY_UNAVAILABLE",
-        message: "TCMB EVDS could not be fetched at this moment.",
-        error: String(error?.message || error),
-        sourceUrls: { tcmb: "https://www.tcmb.gov.tr/wps/wcm/connect/en/tcmb+en/main+menu/statistics/real+sector+statistics/residential+property+price+index" }
-      }
+      data: unavailable("TCMB EVDS could not be fetched at this moment.", String(error?.message || error))
     });
   }
 }
