@@ -1724,7 +1724,7 @@ async function checkApiKeyEntitlement(rawKey) {
   }
 }
 
-async function checkEntitlement(authHeader, signature, legacySignature) {
+async function checkEntitlement(authHeader, signature, legacySignature, midSignature) {
   const token = String(authHeader || "").replace(/^Bearer\s+/i, "").trim();
   if (!token) return false;
   if (token.startsWith("px_live_")) return checkApiKeyEntitlement(token);
@@ -1742,8 +1742,10 @@ async function checkEntitlement(authHeader, signature, legacySignature) {
       // monthly plan's per-cycle cap (see api/consume-monthly-slot.js) —
       // permanent access to that specific report, same as "report".
       // legacySignature only matches a report purchased before the Oct
-      // 2026 signature fix — never written for a new purchase.
-      return (row.kind === "report" || row.kind === "monthly_usage") && (row.report_signature === signature || (legacySignature && row.report_signature === legacySignature));
+      // 2026 signature fix; midSignature only matches one purchased after
+      // that fix but before the unitNumber fix right below it — neither is
+      // ever written for a new purchase.
+      return (row.kind === "report" || row.kind === "monthly_usage") && (row.report_signature === signature || (midSignature && row.report_signature === midSignature) || (legacySignature && row.report_signature === legacySignature));
     });
   } catch {
     return false;
@@ -1832,9 +1834,18 @@ export default async function handler(req, res) {
   // recognizing the reports already purchased under the old, narrower
   // format (13 live rows as of this fix) -- it is only ever compared
   // against, never written for a new purchase.
-  const signature = [property.country, property.city, property.address, property.price, property.size, property.bedrooms, property.bathrooms, property.propertyType, property.monthlyRent].join("|");
+  //
+  // FIX (Oct 2026): added property.unitNumber (optional, blank for the
+  // common house/single-unit case) -- two different units in the same
+  // new-build building, same floor plan, were colliding onto this exact
+  // signature (identical price/size/beds/baths/rent, no unit in the
+  // address text) and silently unlocking each other for free once either
+  // was purchased. Must stay in the same field order as engine.js's
+  // reportSignature().
+  const signature = [property.country, property.city, property.address, property.price, property.size, property.bedrooms, property.bathrooms, property.propertyType, property.monthlyRent, property.unitNumber || ""].join("|");
+  const midSignature = [property.country, property.city, property.address, property.price, property.size, property.bedrooms, property.bathrooms, property.propertyType, property.monthlyRent].join("|");
   const legacySignature = [property.country, property.city, property.price, property.size].join("|");
-  const entitlementPromise = checkEntitlement(req.headers.authorization, signature, legacySignature);
+  const entitlementPromise = checkEntitlement(req.headers.authorization, signature, legacySignature, midSignature);
 
   let marketData = body?.marketData || null;
   let marketDataError = null;
