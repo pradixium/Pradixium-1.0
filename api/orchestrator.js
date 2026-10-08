@@ -1897,6 +1897,19 @@ export default async function handler(req, res) {
     marketEvidence.source = `${marketEvidence.source} ${text}`;
   }
 
+  // US: no local sales benchmark → the area's Census median home value
+  // (owners' own estimates, ACS 5-year B25077) as CONTEXT only
+  if (/^(united states|usa|us)$/i.test(String(property.country || "").trim()) && marketEvidence && marketEvidence.benchmarkValue == null && !/commercial|land/i.test(String(property.propertyType || ""))) {
+    const mp = marketData?.property || {};
+    const uv = usPropertyTax({ zip: mp.zip || property.zip, placeKey: usPlaceKey(mp.city || marketData?.city, mp.state || marketData?.region), place: `${String(mp.city || marketData?.city || "").replace(/\s+(city|town|village|borough|CDP)$/, "")}, ${mp.state || marketData?.region}`, countyFips: mp.countyFips, county: mp.county, stateCode: mp.stateCode, state: mp.state || marketData?.region });
+    if (uv && uv.value && uv.level !== "state") {
+      const usd = (x) => "$" + Math.round(x).toLocaleString("en-US");
+      const text = `${uv.source}: median value of owner-occupied homes in ${uv.area}, ${uv.period}: ${uv.valueTop ? `${usd(uv.value - 1)} or more (top-coded)` : usd(uv.value)}. This is owners' own estimate of what their home would sell for, all home types, sizes and ages together, averaged over five years — context only: not a sale price and not used as the benchmark.`;
+      marketEvidence.sourceParts = [...(marketEvidence.sourceParts || [{ title: "Market evidence", text: marketEvidence.source }]), { title: "Home values (Census ACS)", text }];
+      marketEvidence.source = `${marketEvidence.source} ${text}`;
+    }
+  }
+
   // New Zealand: median weekly rent of new private tenancies (MBIE bond
   // data) — suburb (SA2) by type × bedrooms, else the council area
   const nzR = /^new zealand$/i.test(String(property.country || "").trim()) && !/commercial|land/i.test(String(property.propertyType || "")) && marketEvidence

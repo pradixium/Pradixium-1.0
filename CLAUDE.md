@@ -720,6 +720,19 @@ largest metro first.
   indication (+ the amount at the asking price), never for a state-only
   match; top-coded medians not used. Check: ZIP 60610 $9,122 / $505,900 =
   1.80%; Miami city $4,586 / $518,100 = 0.89% (raw .dat).
+  Oct 8 2026: every US report WITHOUT a local sales benchmark now also
+  shows the same B25077 median value of owner-occupied homes (ZIP, else
+  city, else county; never state-only) as a "Home values (Census ACS)"
+  CONTEXT block — owners' own estimates, all types, 5-year; never the
+  benchmark. Check: ZIP 77002 $305,000; Phoenix city $420,700.
+  Checked Oct 8 2026, no benchmark possible (do not retry): Philadelphia
+  RTT (no arm's-length code), Denver sales layer (no validity code +
+  GRANTOR/GRANTEE names), Illinois PTAX line 8 "B" mixes houses + condos
+  and line_1_unit is filled on most rows (cannot split), Franklin OH
+  ValidSale still ends Jul 2025, Wisconsin RETR (session-only app; DOR:
+  a RETR is not an arm's-length flag), MN eCRV / WA DOR ratio files: no
+  public bulk download found. US coverage (Census 2024 pop): property
+  record 60.4%, local sales benchmark 19.6%.
 - US TRANSFER TAX (Oct 4 2026): closingCosts.js `byUsState` — the state's
   own schedule on the asking price (state from us-intelligence; county via
   property.countyFips; NYC by county FIPS): FL doc stamps (Miami-Dade
