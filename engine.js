@@ -1103,7 +1103,9 @@
     const missing = !validCountry ? ["country", "Choose the country from the list."]
       : !inputs.city ? ["city", "Enter the property's address or city."]
       : !inputs.price ? ["askingPrice", "Enter the asking price."]
-      : !inputs.size ? ["size", "Enter the size in m²."] : null;
+      : inputs.price <= 0 ? ["askingPrice", "Asking price must be a positive number."]
+      : !inputs.size ? ["size", "Enter the size in m²."]
+      : inputs.size <= 0 ? ["size", "Size must be a positive number."] : null;
     if (missing) {
       const errEl = $("error");
       if (errEl) errEl.textContent = missing[1];
