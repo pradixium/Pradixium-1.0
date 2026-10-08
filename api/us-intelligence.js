@@ -231,7 +231,14 @@ async function nycDofSales(geo,zip,propertyType){
     const used=rows.filter(r=>count[key(r)]===1),pid=r=>borough+s(r.block).padStart(5,'0')+s(r.lot).padStart(4,'0');
     const condo=used.filter(r=>NYC_CONDO_CATEGORIES.includes(r.building_class_category)),coop=used.filter(r=>NYC_COOP_CATEGORIES.includes(r.building_class_category));
     const ids=[...new Set(condo.map(pid))],chunks=[];for(let i=0;i<ids.length;i+=250)chunks.push(ids.slice(i,i+250));
-    const fy=new Date().getFullYear();
+    // FIX (US coverage review, Oct 2026): was year>='${fy}' (this calendar
+    // year only) — DOF's new assessment roll isn't fully loaded into this
+    // dataset for months after the year starts, so early in the year every
+    // condo lookup silently returned 0 rows and reported "insufficient
+    // sales" even though last year's roll (still the newest available)
+    // would have worked. Widen to fy-1 — the per-parcel "latest year wins"
+    // logic below still always picks the freshest record available.
+    const fy=new Date().getFullYear()-1;
     // the city's Socrata server answers the same query in 1–8 s → a second
     // request after 2.5 s, first answer wins
     const hedged=u=>Promise.any([json(u,6500),new Promise(r=>setTimeout(r,2500)).then(()=>json(u,5000))]).catch(()=>null);
