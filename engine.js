@@ -813,6 +813,19 @@
 
   function computeCommercialNOI(price, c) {
     if (c.grossRent == null || c.opex == null) return null;
+    // FIX (recurring oversight check): none of these inputs had a sign
+    // check (only a `max="100"` on vacancy in the HTML, no `min="0"`
+    // anywhere) -- a negative opex or loanAmount flows straight through
+    // the arithmetic below (noi = egi - opex subtracts a negative, i.e.
+    // adds to NOI; equity = price - loanAmount likewise inflates) and
+    // produces a confidently-wrong, better-than-reality Cap Rate/DSCR/
+    // Cash-on-Cash for a commercial investor reading a paid report.
+    // Treat a negative value as invalid input, same as the main asking
+    // price/size fix -- hide the section rather than show a corrupted
+    // number.
+    for (const v of [c.grossRent, c.opex, c.units, c.vacancyPct, c.otherIncome, c.loanAmount, c.loanRatePct, c.loanYears]) {
+      if (v != null && v < 0) return null;
+    }
     const vacancyPct = c.vacancyPct ?? 0;
     const vacancyLoss = c.grossRent * (vacancyPct / 100);
     const egi = c.grossRent - vacancyLoss + (c.otherIncome || 0);
@@ -1103,7 +1116,9 @@
     const missing = !validCountry ? ["country", "Choose the country from the list."]
       : !inputs.city ? ["city", "Enter the property's address or city."]
       : !inputs.price ? ["askingPrice", "Enter the asking price."]
-      : !inputs.size ? ["size", "Enter the size in m²."] : null;
+      : inputs.price <= 0 ? ["askingPrice", "Asking price must be a positive number."]
+      : !inputs.size ? ["size", "Enter the size in m²."]
+      : inputs.size <= 0 ? ["size", "Size must be a positive number."] : null;
     if (missing) {
       const errEl = $("error");
       if (errEl) errEl.textContent = missing[1];

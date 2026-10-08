@@ -441,10 +441,10 @@
             <input id="unitNumber" class="field" type="text" placeholder="e.g. Apt 5A, Unit 12, 3rd floor">
 
             <label class="input-label" for="askingPrice"><span class="i18n-askingPrice">Asking Price</span> (<span class="cur-sym">€</span>)</label>
-            <input id="askingPrice" class="field" type="number" placeholder="176000">
+            <input id="askingPrice" class="field" type="number" min="1" placeholder="176000">
 
             <label class="input-label" for="size">Property Size (m²)</label>
-            <input id="size" class="field" type="number" placeholder="42">
+            <input id="size" class="field" type="number" min="1" placeholder="42">
 
             <label class="input-label" for="propertyType">Property Type</label>
             <select id="propertyType" class="field">
@@ -486,21 +486,21 @@
                  unless propertyType is Commercial (engine.js toggles this). -->
             <div id="commercialFields" style="display:none">
               <label class="input-label" for="cGrossRent">Annual Gross Rent (<span class="cur-sym">€</span>)</label>
-              <input id="cGrossRent" class="field" type="number" placeholder="e.g. 120000">
+              <input id="cGrossRent" class="field" type="number" min="0" placeholder="e.g. 120000">
               <label class="input-label" for="cUnits">Units / Beds / Rooms — optional</label>
-              <input id="cUnits" class="field" type="number" placeholder="e.g. 40 (care home beds, hotel rooms…)">
+              <input id="cUnits" class="field" type="number" min="0" placeholder="e.g. 40 (care home beds, hotel rooms…)">
               <label class="input-label" for="cVacancyPct">Vacancy &amp; Credit Loss (%)</label>
-              <input id="cVacancyPct" class="field" type="number" placeholder="e.g. 5 — 0 if the rent above is actual income" max="100">
+              <input id="cVacancyPct" class="field" type="number" min="0" placeholder="e.g. 5 — 0 if the rent above is actual income" max="100">
               <label class="input-label" for="cOtherIncome">Other Annual Income — optional (<span class="cur-sym">€</span>)</label>
-              <input id="cOtherIncome" class="field" type="number" placeholder="e.g. 3000 (parking, signage...)">
+              <input id="cOtherIncome" class="field" type="number" min="0" placeholder="e.g. 3000 (parking, signage...)">
               <label class="input-label" for="cOpex">Annual Operating Expenses (<span class="cur-sym">€</span>)</label>
-              <input id="cOpex" class="field" type="number" placeholder="e.g. 40000">
+              <input id="cOpex" class="field" type="number" min="0" placeholder="e.g. 40000">
               <label class="input-label" for="cLoanAmount">Loan Amount — optional (<span class="cur-sym">€</span>)</label>
-              <input id="cLoanAmount" class="field" type="number" placeholder="e.g. 700000">
+              <input id="cLoanAmount" class="field" type="number" min="0" placeholder="e.g. 700000">
               <label class="input-label" for="cLoanRate">Loan Interest Rate — optional (%)</label>
-              <input id="cLoanRate" class="field" type="number" placeholder="e.g. 6.5">
+              <input id="cLoanRate" class="field" type="number" min="0" placeholder="e.g. 6.5">
               <label class="input-label" for="cLoanYears">Loan Term — optional (years)</label>
-              <input id="cLoanYears" class="field" type="number" placeholder="e.g. 20">
+              <input id="cLoanYears" class="field" type="number" min="0" placeholder="e.g. 20">
             </div>
 
             <!-- Pradixium NOI™ — Land Development Pro Forma. Hidden unless
