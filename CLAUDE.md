@@ -731,7 +731,17 @@ largest metro first.
   and line_1_unit is filled on most rows (cannot split), Franklin OH
   ValidSale still ends Jul 2025, Wisconsin RETR (session-only app; DOR:
   a RETR is not an arm's-length flag), MN eCRV / WA DOR ratio files: no
-  public bulk download found. US coverage (Census 2024 pop): property
+  public bulk download found. Also Oct 8 2026: Indiana SDF (Gateway
+  download form has no sales file — interactive search only), Polk IA
+  (Assessor CSV carries seller/buyer NAMES → deleted, not used),
+  Montgomery OH (Auditor "TaxParcelSales_public" qualified sales end Dec
+  2023), Bernalillo NM (taxable value only, capped), New Castle DE /
+  Snohomish / King sales layers (no values or no validity code), Pima
+  "Sold Parcels" (validation codes but ends Apr 2025), Franklin OH
+  "ValidSalePoints_CYHV" (appraisal-valid sales to Dec 2025, ~97% =
+  ValidSale 'Y', but ~1 in 10 prices differ from the recorded sale by up
+  to 60%, unexplained → not used; dashboard layers hold one month each).
+  US coverage (Census 2024 pop): property
   record 60.4%, local sales benchmark 19.6%.
 - US TRANSFER TAX (Oct 4 2026): closingCosts.js `byUsState` — the state's
   own schedule on the asking price (state from us-intelligence; county via
