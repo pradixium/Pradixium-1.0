@@ -1625,6 +1625,22 @@
   refreshFreeGrantStatus().then(() => {
     const navBtn = $("startBusinessSignupBtn");
     if (navBtn) navBtn.innerHTML = freeGrantStillOpen() ? "Start Business Plan — FREE for the first 1,000 →" : "Start Business Plan — $299.99/mo →";
+    // Launch seal on the homepage: was a static "1,000" regardless of how
+    // many grants were actually left — now shows the real, live remaining
+    // count from the same free_grant_remaining() call above (never a
+    // number this product can't back up). Hides the whole seal once the
+    // pool is exhausted rather than show "0" as if that were still an offer.
+    const sealWrap = document.querySelector(".launch-seal-wrap");
+    if (sealWrap) {
+      if (!freeGrantStillOpen()) {
+        sealWrap.style.display = "none";
+      } else {
+        const countEl = $("sealRemainingCount");
+        const subEl = $("sealRemainingSub");
+        if (countEl) countEl.textContent = freeGrantRemainingCache.toLocaleString("en-US");
+        if (subEl) subEl.textContent = `${freeGrantRemainingCache.toLocaleString("en-US")} of 1,000 free reports left — no code, no card, no checkout page.`;
+      }
+    }
   });
   // Defaults to "exhausted" (false) when the count hasn't loaded yet or the
   // call failed — never claims FREE when we can't actually confirm it.
