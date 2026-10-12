@@ -1,6 +1,6 @@
 /* PRADIXIUM™ — Stripe Checkout session creator
  * Three ways to pay for the full report (report.html):
- * - "report": one-time $49.99 unlock for a single property — priced against
+ * - "report": one-time $99.99 unlock for a single property — priced against
  *   the size of the decision (a once-a-decade purchase), not against a
  *   recurring-subscription habit. Raised from $29.99 Oct 2026.
  * - "monthly": $29.99/month for individuals, capped at 3 reports per cycle
@@ -27,7 +27,7 @@
  * hardcode it — Stripe secret keys must never appear in client code or
  * git history.
  */
-const REPORT_PRICE_USD_CENTS = 4999; // $49.99 one-time
+const REPORT_PRICE_USD_CENTS = 9999; // $99.99 one-time
 const MONTHLY_PRICE_USD_CENTS = 2999; // $29.99 / month (individual, capped at 3 reports/cycle)
 const SUBSCRIPTION_PRICE_USD_CENTS = 299999; // $2,999.99 / year (individual)
 const BUSINESS_PRICE_USD_CENTS = 29999; // $299.99 / month (companies & institutions — banks, funds, agencies)
@@ -145,7 +145,7 @@ export default async function handler(req, res) {
       // 7-day free trial, card collected upfront — Stripe auto-charges the
       // full annual price the moment the trial ends unless the customer
       // cancels first. Aimed at repeat users (agents with a constant stream
-      // of new listings to check), not the one-time $49.99 report below, which
+      // of new listings to check), not the one-time $99.99 report below, which
       // has no trial since there's nothing recurring to try out.
       params.set("subscription_data[trial_period_days]", "7");
     }

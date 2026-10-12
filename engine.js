@@ -952,7 +952,7 @@
   // Evaluated at render time, not at load time, so it reflects whatever
   // freeGrantRemainingCache says right now (see freeGrantStillOpen()).
   function lockedListItem() {
-    return freeGrantStillOpen() ? "<li>🔒 Unlock the full report — FREE for the first 1,000 — to see this</li>" : "<li>🔒 Unlock the full report — $49.99 — to see this</li>";
+    return freeGrantStillOpen() ? "<li>🔒 Unlock the full report — FREE for the first 1,000 — to see this</li>" : "<li>🔒 Unlock the full report — $99.99 — to see this</li>";
   }
 
   // Same bands the AI agent is instructed to use for dealRating (see
@@ -1025,7 +1025,7 @@
       if (highlightsEl) highlightsEl.innerHTML = lockedListItem();
       const risksEl = $("risks");
       if (risksEl) risksEl.innerHTML = lockedListItem();
-      set("investorAction", agent.investorAction || (freeGrantStillOpen() ? "Unlock the full report — FREE for the first 1,000 — to see the investor action recommendation." : "Unlock the full report — $49.99 — to see the investor action recommendation."));
+      set("investorAction", agent.investorAction || (freeGrantStillOpen() ? "Unlock the full report — FREE for the first 1,000 — to see the investor action recommendation." : "Unlock the full report — $99.99 — to see the investor action recommendation."));
       return;
     }
 
@@ -1295,7 +1295,7 @@
     });
   }
 
-  // Investment Scenarios (report.html) — a second way to earn the $49.99
+  // Investment Scenarios (report.html) — a second way to earn the $99.99
   // beyond a nicer layout of the same numbers. Cash purchase yield already
   // exists above; these three add real comparison points:
   //  - Financed: a declared-assumption mortgage math, not a personalized
@@ -1756,7 +1756,7 @@
     const monthlyBtn = $("monthlySubscribeBtn");
     if (freeGrantRemainingCache === null) await refreshFreeGrantStatus();
     const stillFree = freeGrantStillOpen();
-    let label = stillFree ? "Unlock This Report — FREE for the first 1,000&nbsp; →" : "Unlock This Report — $49.99&nbsp; →";
+    let label = stillFree ? "Unlock This Report — FREE for the first 1,000&nbsp; →" : "Unlock This Report — $99.99&nbsp; →";
     let monthlyActive = false;
     if (!paid) {
       const quota = await checkMonthlyQuota();
@@ -1835,7 +1835,7 @@
     if (!(await isReportPaid(data))) {
       // Not paid yet another way — but an active individual monthly plan
       // with slots left covers this report for free instead of charging
-      // the one-time $49.99. Re-checked here (not just trusted from the
+      // the one-time $99.99. Re-checked here (not just trusted from the
       // button label) so a stale label can never grant access it hasn't
       // actually earned.
       const quota = await checkMonthlyQuota();
