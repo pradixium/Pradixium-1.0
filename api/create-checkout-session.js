@@ -1,6 +1,8 @@
 /* PRADIXIUM™ — Stripe Checkout session creator
  * Three ways to pay for the full report (report.html):
- * - "report": one-time $29.99 unlock for a single property.
+ * - "report": one-time $49.99 unlock for a single property — priced against
+ *   the size of the decision (a once-a-decade purchase), not against a
+ *   recurring-subscription habit. Raised from $29.99 Oct 2026.
  * - "monthly": $29.99/month for individuals, capped at 3 reports per cycle
  *   (see api/consume-monthly-slot.js for how that cap is enforced) — the
  *   flexible entry point for someone who isn't ready to commit to a year.
@@ -11,19 +13,21 @@
  * the stripe npm package — this project has zero dependencies by design,
  * and Stripe's API is simple enough not to need an SDK.
  *
- * The app already requires a signed-in Supabase account before any
- * analysis (see auth-supabase.js's account gate), so every caller here
- * has a real session. This endpoint verifies that session's access
- * token directly with Supabase and stamps the resulting user id into
- * the Stripe session's metadata — verify-checkout-session.js reads that
- * metadata back from Stripe's own record (never from anything the
- * client claims) to know who to grant access to.
+ * The app lets anyone see the free Pradixium Score/Deal Rating preview
+ * with no account (see engine.js's analyzeProperty()) — a signed-in
+ * Supabase account is only required to unlock the full report, which is
+ * what every caller of this endpoint is doing. This endpoint verifies
+ * that session's access token directly with Supabase and stamps the
+ * resulting user id into the Stripe session's metadata —
+ * verify-checkout-session.js reads that metadata back from Stripe's own
+ * record (never from anything the client claims) to know who to grant
+ * access to.
  *
  * Requires STRIPE_SECRET_KEY as a Vercel environment variable. Never
  * hardcode it — Stripe secret keys must never appear in client code or
  * git history.
  */
-const REPORT_PRICE_USD_CENTS = 2999; // $29.99 one-time
+const REPORT_PRICE_USD_CENTS = 4999; // $49.99 one-time
 const MONTHLY_PRICE_USD_CENTS = 2999; // $29.99 / month (individual, capped at 3 reports/cycle)
 const SUBSCRIPTION_PRICE_USD_CENTS = 299999; // $2,999.99 / year (individual)
 const BUSINESS_PRICE_USD_CENTS = 29999; // $299.99 / month (companies & institutions — banks, funds, agencies)
@@ -141,7 +145,7 @@ export default async function handler(req, res) {
       // 7-day free trial, card collected upfront — Stripe auto-charges the
       // full annual price the moment the trial ends unless the customer
       // cancels first. Aimed at repeat users (agents with a constant stream
-      // of new listings to check), not the one-time $29.99 report below, which
+      // of new listings to check), not the one-time $49.99 report below, which
       // has no trial since there's nothing recurring to try out.
       params.set("subscription_data[trial_period_days]", "7");
     }

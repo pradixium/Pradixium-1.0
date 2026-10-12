@@ -952,7 +952,7 @@
   // Evaluated at render time, not at load time, so it reflects whatever
   // freeGrantRemainingCache says right now (see freeGrantStillOpen()).
   function lockedListItem() {
-    return freeGrantStillOpen() ? "<li>🔒 Unlock the full report — FREE for the first 1,000 — to see this</li>" : "<li>🔒 Unlock the full report — $29.99 — to see this</li>";
+    return freeGrantStillOpen() ? "<li>🔒 Unlock the full report — FREE for the first 1,000 — to see this</li>" : "<li>🔒 Unlock the full report — $49.99 — to see this</li>";
   }
 
   // Same bands the AI agent is instructed to use for dealRating (see
@@ -1025,7 +1025,7 @@
       if (highlightsEl) highlightsEl.innerHTML = lockedListItem();
       const risksEl = $("risks");
       if (risksEl) risksEl.innerHTML = lockedListItem();
-      set("investorAction", agent.investorAction || (freeGrantStillOpen() ? "Unlock the full report — FREE for the first 1,000 — to see the investor action recommendation." : "Unlock the full report — $29.99 — to see the investor action recommendation."));
+      set("investorAction", agent.investorAction || (freeGrantStillOpen() ? "Unlock the full report — FREE for the first 1,000 — to see the investor action recommendation." : "Unlock the full report — $49.99 — to see the investor action recommendation."));
       return;
     }
 
@@ -1130,13 +1130,12 @@
     const errEl = $("error");
     if (errEl) errEl.textContent = "";
 
-    // Browsing and filling in a property is free; seeing the analysis needs a free account.
-    const analysisToken = await getAccessToken();
-    if (!analysisToken) {
-      if (window.pradixiumShowAuthGate) window.pradixiumShowAuthGate("Create a free account to see your analysis.");
-      else alert("Please sign in first.");
-      throw new Error("Not signed in");
-    }
+    // Browsing, filling in a property, and seeing the Pradixium Score /
+    // Deal Rating / confidence are all free with no account — the
+    // orchestrator call below already runs unauthenticated (checkEntitlement()
+    // just resolves paid:false and redactForPreview() strips only the
+    // fields worth paying for). An account is only required to unlock the
+    // full report later (see openReport()).
 
     // 1) Fast, rule-based render — the person sees real numbers within
     //    a second, not a blank screen.
@@ -1296,7 +1295,7 @@
     });
   }
 
-  // Investment Scenarios (report.html) — a second way to earn the $29.99
+  // Investment Scenarios (report.html) — a second way to earn the $49.99
   // beyond a nicer layout of the same numbers. Cash purchase yield already
   // exists above; these three add real comparison points:
   //  - Financed: a declared-assumption mortgage math, not a personalized
@@ -1757,7 +1756,7 @@
     const monthlyBtn = $("monthlySubscribeBtn");
     if (freeGrantRemainingCache === null) await refreshFreeGrantStatus();
     const stillFree = freeGrantStillOpen();
-    let label = stillFree ? "Unlock This Report — FREE for the first 1,000&nbsp; →" : "Unlock This Report — $29.99&nbsp; →";
+    let label = stillFree ? "Unlock This Report — FREE for the first 1,000&nbsp; →" : "Unlock This Report — $49.99&nbsp; →";
     let monthlyActive = false;
     if (!paid) {
       const quota = await checkMonthlyQuota();
@@ -1836,7 +1835,7 @@
     if (!(await isReportPaid(data))) {
       // Not paid yet another way — but an active individual monthly plan
       // with slots left covers this report for free instead of charging
-      // the one-time $29.99. Re-checked here (not just trusted from the
+      // the one-time $49.99. Re-checked here (not just trusted from the
       // button label) so a stale label can never grant access it hasn't
       // actually earned.
       const quota = await checkMonthlyQuota();
