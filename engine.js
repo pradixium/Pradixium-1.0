@@ -1642,10 +1642,14 @@
       }
     }
   });
-  // Defaults to "exhausted" (false) when the count hasn't loaded yet or the
-  // call failed — never claims FREE when we can't actually confirm it.
+  // User's call (Oct 2026): the first-1,000-free launch offer is over.
+  // Hardcoded off rather than deleted — every call site above (seal,
+  // button labels, locked-report placeholder text) already falls back
+  // correctly to the real price when this is false, so turning it off
+  // here is enough; api/claim-free-report.js's FREE_GRANT_CAP is set to
+  // 0 too, so a direct API call can't claim one either.
   function freeGrantStillOpen() {
-    return freeGrantRemainingCache !== null && freeGrantRemainingCache > 0;
+    return false;
   }
 
   // First-1,000-customers free grant (api/claim-free-report.js): bypasses

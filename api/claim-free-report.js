@@ -26,7 +26,11 @@
  */
 const SUPABASE_URL = "https://wjafpyfawtacauygzgqd.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_v1qAMQNVqT7WAsfaGyGK_g_8p_zFD8K";
-const FREE_GRANT_CAP = 1000;
+// User's call (Oct 2026): launch offer is over. Set to 0 rather than
+// deleted — claim_free_report()/claim_free_plan() already deny any claim
+// once the claimed count reaches the cap, so 0 closes it for everyone,
+// including a direct API call that skips the (already-disabled) UI.
+const FREE_GRANT_CAP = 0;
 const PLAN_KINDS = new Set(["monthly", "subscription", "business"]);
 
 async function getAuthenticatedUserId(authHeader) {
