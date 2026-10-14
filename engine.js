@@ -38,6 +38,42 @@
     const symbol = currencySymbol(currencyForCountry($("country")?.value));
     document.querySelectorAll(".cur-sym").forEach((el) => { el.textContent = symbol; });
   }
+
+  // Payment currency: what the CUSTOMER is charged in, picked explicitly via
+  // the selector in the header — never inferred from location (a Belgian
+  // buyer physically in the UK still wants EUR, not GBP just because their
+  // IP geolocates to London). Separate on purpose from updatePriceLabels()
+  // above, which is about the PROPERTY's own currency on the analysis form —
+  // unrelated to what currency the subscription/report purchase is billed
+  // in. Fixed price points per currency, not a live FX conversion (set Oct
+  // 2026, based on then-current USD/GBP/EUR reference rates from the Bank of
+  // England and ECB) — re-check and update this table if rates move a lot.
+  const PAYMENT_CURRENCY_TABLE = {
+    usd: { symbol: "$", report: "99.99", monthly: "29.99", subscription: "2,999.99", business: "299.99" },
+    gbp: { symbol: "£", report: "74.99", monthly: "22.99", subscription: "2,249.99", business: "224.99" },
+    eur: { symbol: "€", report: "89.99", monthly: "26.99", subscription: "2,699.99", business: "269.99" }
+  };
+  function getPaymentCurrency() {
+    const stored = localStorage.getItem("pradixiumPaymentCurrency");
+    return PAYMENT_CURRENCY_TABLE[stored] ? stored : "usd";
+  }
+  function paymentPriceLabel(plan) {
+    const t = PAYMENT_CURRENCY_TABLE[getPaymentCurrency()];
+    return t.symbol + t[plan];
+  }
+  function setPaymentCurrency(code) {
+    if (!PAYMENT_CURRENCY_TABLE[code]) return;
+    localStorage.setItem("pradixiumPaymentCurrency", code);
+    updateReportButtonLabel();
+    const navBtn = $("startBusinessSignupBtn");
+    if (navBtn && !freeGrantStillOpen()) navBtn.innerHTML = `Start Business Plan — ${paymentPriceLabel("business")}/mo →`;
+  }
+  function wireCurrencySelector() {
+    const sel = $("paymentCurrencySelector");
+    if (!sel) return;
+    sel.value = getPaymentCurrency();
+    sel.addEventListener("change", () => setPaymentCurrency(sel.value));
+  }
   const pct = (v) => { const n = num(v); return n === null ? "—" : n.toFixed(2) + "%"; };
   const escapeHtml = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[c]));
 
@@ -952,7 +988,7 @@
   // Evaluated at render time, not at load time, so it reflects whatever
   // freeGrantRemainingCache says right now (see freeGrantStillOpen()).
   function lockedListItem() {
-    return freeGrantStillOpen() ? "<li>🔒 Unlock the full report — FREE for the first 1,000 — to see this</li>" : "<li>🔒 Unlock the full report — $99.99 — to see this</li>";
+    return freeGrantStillOpen() ? "<li>🔒 Unlock the full report — FREE for the first 1,000 — to see this</li>" : `<li>🔒 Unlock the full report — ${paymentPriceLabel("report")} — to see this</li>`;
   }
 
   // Same bands the AI agent is instructed to use for dealRating (see
@@ -1025,7 +1061,7 @@
       if (highlightsEl) highlightsEl.innerHTML = lockedListItem();
       const risksEl = $("risks");
       if (risksEl) risksEl.innerHTML = lockedListItem();
-      set("investorAction", agent.investorAction || (freeGrantStillOpen() ? "Unlock the full report — FREE for the first 1,000 — to see the investor action recommendation." : "Unlock the full report — $99.99 — to see the investor action recommendation."));
+      set("investorAction", agent.investorAction || (freeGrantStillOpen() ? "Unlock the full report — FREE for the first 1,000 — to see the investor action recommendation." : `Unlock the full report — ${paymentPriceLabel("report")} — to see the investor action recommendation.`));
       return;
     }
 
@@ -1624,7 +1660,7 @@
   // changes based on `paid` — refresh it once here instead.
   refreshFreeGrantStatus().then(() => {
     const navBtn = $("startBusinessSignupBtn");
-    if (navBtn) navBtn.innerHTML = freeGrantStillOpen() ? "Start Business Plan — FREE for the first 1,000 →" : "Start Business Plan — $299.99/mo →";
+    if (navBtn) navBtn.innerHTML = freeGrantStillOpen() ? "Start Business Plan — FREE for the first 1,000 →" : `Start Business Plan — ${paymentPriceLabel("business")}/mo →`;
     // Launch seal on the homepage: was a static "1,000" regardless of how
     // many grants were actually left — now shows the real, live remaining
     // count from the same free_grant_remaining() call above (never a
@@ -1776,7 +1812,7 @@
     const monthlyBtn = $("monthlySubscribeBtn");
     if (freeGrantRemainingCache === null) await refreshFreeGrantStatus();
     const stillFree = freeGrantStillOpen();
-    let label = stillFree ? "Unlock This Report — FREE for the first 1,000&nbsp; →" : "Unlock This Report — $99.99&nbsp; →";
+    let label = stillFree ? "Unlock This Report — FREE for the first 1,000&nbsp; →" : `Unlock This Report — ${paymentPriceLabel("report")}&nbsp; →`;
     let monthlyActive = false;
     if (!paid) {
       const quota = await checkMonthlyQuota();
@@ -1786,18 +1822,18 @@
     if (createBtn) createBtn.innerHTML = paid ? "View Full Analysis&nbsp; →" : label;
     if (subscribeBtn) {
       subscribeBtn.style.display = paid ? "none" : "inline-block";
-      subscribeBtn.innerHTML = stillFree ? "Annual Plan — FREE for the first 1,000&nbsp; →" : "Start 7-Day Free Trial — then $2,999.99/year&nbsp; →";
+      subscribeBtn.innerHTML = stillFree ? "Annual Plan — FREE for the first 1,000&nbsp; →" : `Start 7-Day Free Trial — then ${paymentPriceLabel("subscription")}/year&nbsp; →`;
     }
     if (businessBtn) {
       businessBtn.style.display = paid ? "none" : "inline-block";
-      businessBtn.innerHTML = stillFree ? "For Companies &amp; Institutions — FREE for the first 1,000&nbsp; →" : "For Companies &amp; Institutions — $299.99/month&nbsp; →";
+      businessBtn.innerHTML = stillFree ? "For Companies &amp; Institutions — FREE for the first 1,000&nbsp; →" : `For Companies &amp; Institutions — ${paymentPriceLabel("business")}/month&nbsp; →`;
     }
     // An existing monthly subscriber must not be invited to buy the same
     // plan again just because they haven't viewed THIS property yet —
     // paid only tracks per-report access, not plan membership.
     if (monthlyBtn) {
       monthlyBtn.style.display = (paid || monthlyActive) ? "none" : "inline-block";
-      monthlyBtn.innerHTML = stillFree ? "Monthly Plan (3 reports) — FREE for the first 1,000&nbsp; →" : "Individual Monthly — $29.99/month (3 reports)&nbsp; →";
+      monthlyBtn.innerHTML = stillFree ? "Monthly Plan (3 reports) — FREE for the first 1,000&nbsp; →" : `Individual Monthly — ${paymentPriceLabel("monthly")}/month (3 reports)&nbsp; →`;
     }
   }
 
@@ -1821,7 +1857,7 @@
       const r = await fetchWithTimeout("/api/create-checkout-session", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ propertyTitle: reportData.title, plan, reportSignature: reportSignature(reportData), referralCode: localStorage.getItem("pradixiumReferralCode") || null })
+        body: JSON.stringify({ propertyTitle: reportData.title, plan, reportSignature: reportSignature(reportData), referralCode: localStorage.getItem("pradixiumReferralCode") || null, currency: getPaymentCurrency() })
       }, 15000);
       const json = await r.json().catch(() => null);
       if (!json?.url) {
@@ -2268,6 +2304,7 @@
     prefillCountryFromUrl();
     captureReferralCode();
     updatePriceLabels();
+    wireCurrencySelector();
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);

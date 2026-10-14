@@ -27,10 +27,18 @@
  * hardcode it — Stripe secret keys must never appear in client code or
  * git history.
  */
-const REPORT_PRICE_USD_CENTS = 9999; // $99.99 one-time
-const MONTHLY_PRICE_USD_CENTS = 2999; // $29.99 / month (individual, capped at 3 reports/cycle)
-const SUBSCRIPTION_PRICE_USD_CENTS = 299999; // $2,999.99 / year (individual)
-const BUSINESS_PRICE_USD_CENTS = 29999; // $299.99 / month (companies & institutions — banks, funds, agencies)
+// Fixed price per currency, not a live FX conversion — the customer picks
+// their billing currency explicitly (engine.js's currency selector,
+// independent of location: a Belgian buyer physically in the UK can still
+// choose EUR). Figures set Oct 2026 off then-current Bank of
+// England/ECB reference rates, rounded to a normal price point — re-check
+// and update if rates move a lot. Keep this table's shape in sync with
+// engine.js's PAYMENT_CURRENCY_TABLE.
+const PRICE_TABLE_CENTS = {
+  usd: { report: 9999, monthly: 2999, subscription: 299999, business: 29999 },
+  gbp: { report: 7499, monthly: 2299, subscription: 224999, business: 22499 },
+  eur: { report: 8999, monthly: 2699, subscription: 269999, business: 26999 }
+};
 
 // Same public project URL/anon key already committed in supabase-config.js
 // for the client — these are meant to be public (RLS is what actually
@@ -85,6 +93,10 @@ export default async function handler(req, res) {
   const referralCodeRaw = String(body?.referralCode || "").trim().slice(0, 40);
   const referralCode = /^[A-Za-z0-9_-]+$/.test(referralCodeRaw) ? referralCodeRaw : null;
 
+  const currencyRaw = String(body?.currency || "usd").toLowerCase();
+  const currency = PRICE_TABLE_CENTS[currencyRaw] ? currencyRaw : "usd";
+  const prices = PRICE_TABLE_CENTS[currency];
+
   const proto = req.headers["x-forwarded-proto"] || "https";
   const origin = `${proto}://${req.headers.host}`;
 
@@ -113,7 +125,7 @@ export default async function handler(req, res) {
   // guessing a tax code.
   params.set("managed_payments[enabled]", "false");
   params.set("line_items[0][quantity]", "1");
-  params.set("line_items[0][price_data][currency]", "usd");
+  params.set("line_items[0][price_data][currency]", currency);
   params.set("metadata[user_id]", userId);
   params.set("metadata[plan]", plan);
   if (plan === "report") params.set("metadata[report_signature]", reportSignature);
@@ -128,7 +140,7 @@ export default async function handler(req, res) {
       // with no trial — an institutional buyer isn't the same sale motion
       // as an individual trying the product out.
       params.set("line_items[0][price_data][product_data][name]", "Pradixium Business — Unlimited Reports (Monthly)");
-      params.set("line_items[0][price_data][unit_amount]", String(BUSINESS_PRICE_USD_CENTS));
+      params.set("line_items[0][price_data][unit_amount]", String(prices.business));
       params.set("line_items[0][price_data][recurring][interval]", "month");
     } else if (plan === "monthly") {
       // Individual, capped at 3 reports/cycle (enforced in
@@ -136,11 +148,11 @@ export default async function handler(req, res) {
       // this plan already costs the same as one single report, so there's
       // nothing to "try" that a trial would add.
       params.set("line_items[0][price_data][product_data][name]", "Pradixium Individual Monthly — Up to 3 Reports");
-      params.set("line_items[0][price_data][unit_amount]", String(MONTHLY_PRICE_USD_CENTS));
+      params.set("line_items[0][price_data][unit_amount]", String(prices.monthly));
       params.set("line_items[0][price_data][recurring][interval]", "month");
     } else {
       params.set("line_items[0][price_data][product_data][name]", "Pradixium Unlimited Reports — Annual");
-      params.set("line_items[0][price_data][unit_amount]", String(SUBSCRIPTION_PRICE_USD_CENTS));
+      params.set("line_items[0][price_data][unit_amount]", String(prices.subscription));
       params.set("line_items[0][price_data][recurring][interval]", "year");
       // 7-day free trial, card collected upfront — Stripe auto-charges the
       // full annual price the moment the trial ends unless the customer
@@ -159,7 +171,7 @@ export default async function handler(req, res) {
   } else {
     params.set("mode", "payment");
     params.set("line_items[0][price_data][product_data][name]", `Pradixium Full Property Report — ${propertyTitle}`);
-    params.set("line_items[0][price_data][unit_amount]", String(REPORT_PRICE_USD_CENTS));
+    params.set("line_items[0][price_data][unit_amount]", String(prices.report));
   }
 
   try {
