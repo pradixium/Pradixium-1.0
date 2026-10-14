@@ -39,14 +39,19 @@
     document.querySelectorAll(".cur-sym").forEach((el) => { el.textContent = symbol; });
   }
 
-  // Payment currency: what the CUSTOMER is charged in, picked explicitly via
-  // the selector in the header — never inferred from location (a Belgian
-  // buyer physically in the UK still wants EUR, not GBP just because their
-  // IP geolocates to London). Separate on purpose from updatePriceLabels()
-  // above, which is about the PROPERTY's own currency on the analysis form —
-  // unrelated to what currency the subscription/report purchase is billed
-  // in. Fixed price points per currency, not a live FX conversion (set Oct
-  // 2026, based on then-current USD/GBP/EUR reference rates from the Bank of
+  // Payment currency: what the CUSTOMER is charged in. Default is "auto" —
+  // Stripe's own Adaptive Pricing detects the buyer's location and shows
+  // the local-currency equivalent of our USD price, no selector needed for
+  // the common case. The selector is an explicit OVERRIDE for when location
+  // guesses wrong (an American paying from Barcelona, a Belgian buyer in
+  // the UK) — picking USD/GBP/EUR there locks in that currency and tells
+  // the server to disable Adaptive Pricing for that checkout session, so
+  // Stripe never re-localizes a choice the customer made on purpose.
+  // Separate on purpose from updatePriceLabels() above, which is about the
+  // PROPERTY's own currency on the analysis form — unrelated to what
+  // currency the subscription/report purchase is billed in. Fixed price
+  // points per explicit currency, not a live FX conversion (set Oct 2026,
+  // based on then-current USD/GBP/EUR reference rates from the Bank of
   // England and ECB) — re-check and update this table if rates move a lot.
   const PAYMENT_CURRENCY_TABLE = {
     usd: { symbol: "$", report: "99.99", monthly: "29.99", subscription: "2,999.99", business: "299.99" },
@@ -55,14 +60,18 @@
   };
   function getPaymentCurrency() {
     const stored = localStorage.getItem("pradixiumPaymentCurrency");
-    return PAYMENT_CURRENCY_TABLE[stored] ? stored : "usd";
+    return (stored === "usd" || stored === "gbp" || stored === "eur") ? stored : "auto";
   }
+  // Displayed price always shows the USD reference figure while "auto" is
+  // selected — Stripe decides the actual localized amount at checkout, and
+  // nothing on our side knows what that will be ahead of time.
   function paymentPriceLabel(plan) {
-    const t = PAYMENT_CURRENCY_TABLE[getPaymentCurrency()];
+    const cur = getPaymentCurrency();
+    const t = PAYMENT_CURRENCY_TABLE[cur === "auto" ? "usd" : cur];
     return t.symbol + t[plan];
   }
   function setPaymentCurrency(code) {
-    if (!PAYMENT_CURRENCY_TABLE[code]) return;
+    if (code !== "auto" && !PAYMENT_CURRENCY_TABLE[code]) return;
     localStorage.setItem("pradixiumPaymentCurrency", code);
     updateReportButtonLabel();
     const navBtn = $("startBusinessSignupBtn");

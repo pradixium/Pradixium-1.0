@@ -93,8 +93,16 @@ export default async function handler(req, res) {
   const referralCodeRaw = String(body?.referralCode || "").trim().slice(0, 40);
   const referralCode = /^[A-Za-z0-9_-]+$/.test(referralCodeRaw) ? referralCodeRaw : null;
 
-  const currencyRaw = String(body?.currency || "usd").toLowerCase();
-  const currency = PRICE_TABLE_CENTS[currencyRaw] ? currencyRaw : "usd";
+  // "auto" (the default — see engine.js's getPaymentCurrency()), missing, or
+  // anything else not explicitly one of our three supported currencies
+  // means the customer never overrode it: price in USD and leave Stripe's
+  // Adaptive Pricing account setting in control, so it can still localize
+  // to the buyer's detected location. Only an exact usd/gbp/eur match is
+  // treated as an explicit, deliberate choice — see the adaptive_pricing
+  // override below.
+  const currencyRaw = String(body?.currency || "").toLowerCase();
+  const explicitCurrency = PRICE_TABLE_CENTS[currencyRaw] ? currencyRaw : null;
+  const currency = explicitCurrency || "usd";
   const prices = PRICE_TABLE_CENTS[currency];
 
   const proto = req.headers["x-forwarded-proto"] || "https";
@@ -124,6 +132,12 @@ export default async function handler(req, res) {
   // up with Stripe Tax, so disable it for these sessions rather than
   // guessing a tax code.
   params.set("managed_payments[enabled]", "false");
+  // The customer explicitly picked a currency (overriding the "auto"
+  // default) — that choice is final, so tell Stripe not to re-localize it
+  // to whatever it guesses from the buyer's IP. Left unset (the "auto"
+  // case) falls back to this Stripe account's own Adaptive Pricing
+  // dashboard setting, which can still localize the USD price.
+  if (explicitCurrency) params.set("adaptive_pricing[enabled]", "false");
   params.set("line_items[0][quantity]", "1");
   params.set("line_items[0][price_data][currency]", currency);
   params.set("metadata[user_id]", userId);
