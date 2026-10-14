@@ -2158,10 +2158,19 @@
   // it until checkout, even if the person browses for a while before
   // paying. Never overwrites an existing code with a blank one, but a new
   // ?ref= link does replace an older stored code (last-touch attribution).
+  // Also logs one visit per click of the ?ref= link itself (not deduped,
+  // not tied to the eventual purchase) so a partner's dashboard shows real
+  // traffic, not just conversions — a partner's own webmaster can sanity
+  // check this against their own outbound-link click count.
   function captureReferralCode() {
     const code = new URLSearchParams(window.location.search).get("ref");
     if (code && /^[A-Za-z0-9_-]{1,40}$/.test(code)) {
       localStorage.setItem("pradixiumReferralCode", code);
+      fetch("/api/track-referral-visit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code })
+      }).catch(() => {}); // best-effort; a failed visit log never blocks browsing
     }
   }
 

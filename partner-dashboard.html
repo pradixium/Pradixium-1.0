@@ -63,18 +63,22 @@ th{color:#8994a3;font-weight:700;font-size:11px}
         <button id="copyLinkBtn" type="button">Copy</button>
       </div>
       <div class="stats">
+        <div class="stat"><div class="n" id="statVisits">0</div><div class="l">TOTAL VISITS</div></div>
         <div class="stat"><div class="n" id="statReferrals">0</div><div class="l">TOTAL REFERRALS</div></div>
+        <div class="stat"><div class="n" id="statConversion">—</div><div class="l">CONVERSION RATE</div></div>
+      </div>
+      <div class="stats">
         <div class="stat"><div class="n" id="statRate">—</div><div class="l">COMMISSION RATE</div></div>
         <div class="stat"><div class="n" id="statEarned">$0</div><div class="l">EST. COMMISSION</div></div>
       </div>
-      <p class="note">Estimated commission is calculated from current list prices ($99.99/report, $2,999.99/subscription) at your commission rate — actual payouts are confirmed manually by our team.</p>
+      <p class="note">Total visits counts every click on your referral link, logged the moment the page loads — real traffic, not an estimate. Estimated commission is calculated from current list prices ($99.99/report, $2,999.99/subscription) at your commission rate — actual payouts are confirmed manually by our team.</p>
     </div>
 
     <div class="card">
       <label>Referral history</label>
       <table>
-        <thead><tr><th>Date</th><th>Type</th></tr></thead>
-        <tbody id="historyBody"><tr><td colspan="2">No referrals yet.</td></tr></tbody>
+        <thead><tr><th>Date</th><th>Type</th><th>Price</th><th>Your commission</th></tr></thead>
+        <tbody id="historyBody"><tr><td colspan="4">No referrals yet.</td></tr></tbody>
       </table>
     </div>
   </div>
@@ -137,14 +141,22 @@ th{color:#8994a3;font-weight:700;font-size:11px}
     $("referralLink").textContent = link;
     $("statRate").textContent = Math.round(partner.commission_rate * 100) + "%";
 
-    const { data: purchases } = await client
-      .from("purchases")
-      .select("kind, created_at")
-      .eq("referral_code", partner.code)
-      .order("created_at", { ascending: false });
+    const [{ data: purchases }, { count: visitCount }] = await Promise.all([
+      client
+        .from("purchases")
+        .select("kind, created_at")
+        .eq("referral_code", partner.code)
+        .order("created_at", { ascending: false }),
+      client
+        .from("referral_visits")
+        .select("*", { count: "exact", head: true })
+        .eq("code", partner.code)
+    ]);
 
     const rows = purchases || [];
     $("statReferrals").textContent = rows.length;
+    $("statVisits").textContent = (visitCount || 0).toLocaleString("en-US");
+    $("statConversion").textContent = visitCount ? ((rows.length / visitCount) * 100).toFixed(1) + "%" : "—";
 
     const revenue = rows.reduce((sum, p) => sum + (PRICE_BY_KIND[p.kind] ?? REPORT_PRICE), 0);
     $("statEarned").textContent = "$" + Math.round(revenue * partner.commission_rate).toLocaleString("en-US");
@@ -154,7 +166,9 @@ th{color:#8994a3;font-weight:700;font-size:11px}
       historyBody.innerHTML = rows.map((p) => {
         const date = new Date(p.created_at).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
         const type = LABEL_BY_KIND[p.kind] || "Report ($99.99)";
-        return `<tr><td>${date}</td><td>${type}</td></tr>`;
+        const price = PRICE_BY_KIND[p.kind] ?? REPORT_PRICE;
+        const commission = price * partner.commission_rate;
+        return `<tr><td>${date}</td><td>${type}</td><td>$${price.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td><td>$${commission.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td></tr>`;
       }).join("");
     }
   }
