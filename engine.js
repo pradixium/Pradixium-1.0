@@ -1324,11 +1324,23 @@
     const priceEl = $("askingPrice");
     const price = num(priceEl?.value);
     const size = num($("size")?.value);
-    const monthlyRent = rentForType();
+    // FIX: this used to read only the DOM's monthlyRent field, which is
+    // blank whenever the user left rent empty and the on-screen preview's
+    // applyEstimatedRent() filled in an estimated figure from a country's
+    // rental benchmark instead — the paid report would then show "—" for
+    // rent/yield on a property where the free preview already showed a
+    // real, computed estimate, an inconsistency between what the customer
+    // saw before paying and what the thing they paid for actually says.
+    const typedRent = rentForType();
+    const scoreBreakdownForRent = window.pradixiumLastScore?.breakdown;
+    const rentIsEstimated = !typedRent && !!scoreBreakdownForRent?.rentIsEstimated && !!scoreBreakdownForRent?.estimatedMonthlyRent;
+    const monthlyRent = typedRent || (rentIsEstimated ? scoreBreakdownForRent.estimatedMonthlyRent : null);
     const annualRent = monthlyRent ? monthlyRent * 12 : null;
     const agent = window.pradixiumLastAgent || {};
     const hasScore = agent.score !== null && agent.score !== undefined && Number.isFinite(Number(agent.score));
-    const gross = price && annualRent ? (annualRent / price) * 100 : null;
+    const gross = rentIsEstimated && Number.isFinite(scoreBreakdownForRent?.grossYieldPercent)
+      ? scoreBreakdownForRent.grossYieldPercent
+      : (price && annualRent ? (annualRent / price) * 100 : null);
     // No verified running-cost figure exists for this property — left null
     // rather than computed off an invented expense ratio (see the same
     // decision in renderRuleBasedResult() and cashOnCashReturnPercent()).
@@ -1366,6 +1378,7 @@
       size,
       priceM2: price && size ? price / size : null,
       rent: monthlyRent,
+      rentIsEstimated,
       fairValue: agent.fairValue ?? null,
       fairDelta: (agent.fairValue && price) ? ((price - agent.fairValue) / agent.fairValue) * 100 : null,
       gross,
