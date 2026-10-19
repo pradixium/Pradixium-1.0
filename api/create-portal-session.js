@@ -38,7 +38,7 @@ export default async function handler(req, res) {
     // Checkout Session and, from that, the Stripe customer to open a
     // portal session for.
     const purchasesResp = await fetch(
-      `${SUPABASE_URL}/rest/v1/purchases?user_id=eq.${encodeURIComponent(userId)}&kind=in.(subscription,business)&order=created_at.desc&limit=1&select=stripe_session_id`,
+      `${SUPABASE_URL}/rest/v1/purchases?user_id=eq.${encodeURIComponent(userId)}&kind=in.(subscription,business,monthly)&order=created_at.desc&limit=1&select=stripe_session_id`,
       { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } }
     );
     const rows = await purchasesResp.json().catch(() => null);
