@@ -3186,6 +3186,26 @@ Routine scheduled scan. Two findings, both verified before touching anything:
   this file's own discipline), left it out. A future session with
   working geostat.ge access should pick this back up.
 
+## Georgia gap closed (Oct 19 2026) — Geostat district offer prices, flagged as weaker evidence
+
+The Oct 2 scan above left Georgia out for lack of a confirmed source URL and no
+national/city-blended figure. Re-researched via WebSearch (not blocked this
+session): Geostat's Residential Property Price Index only ever publishes a %
+index, never an absolute national/city figure, but its per-district GEL/m²
+breakdown (new-build apartments, Tbilisi only) is real and independently
+corroborated by three outlets (1tv.ge, georgiatoday.ge, cbw.ge) citing the same
+Q1 2026 release. Added to `lib/data/recentTransactionPrices.js` as `georgia`:
+Saburtalo (GEL 4,333/m², a representative middle-market district) as the
+primary entry, Mtatsminda (6,814) and Vake (5,958) — the two priciest — as
+`alternatives`. `basis` is explicit that these are web-scraped ASKING prices,
+not registered transactions, and not a national/city-wide blend — the file's
+own documented exception for exactly this case, same tier of evidence as an
+asking-price index elsewhere in this file. Verified via
+`getRecentTransactionPrice("Georgia")`. The Q2 2026 release exists
+(geostat.ge/media/81560/...) but only its % headline figures were reachable
+from search, not a per-district table — a future session with direct
+geostat.ge PDF access could refresh to Q2 once confirmable.
+
 ## Entitlement signature collision fix — same-building identical units (Oct 3 2026, PR #41, not yet merged)
 
 Found by this session's own recurring oversight/stress-test routine
