@@ -2091,10 +2091,23 @@
   // it until checkout, even if the person browses for a while before
   // paying. Never overwrites an existing code with a blank one, but a new
   // ?ref= link does replace an older stored code (last-touch attribution).
+  //
+  // FIX: this used to only ever store the code for later checkout-time
+  // attribution — nothing logged the arrival itself, so a partner's actual
+  // click-through traffic (as opposed to just their eventual paying
+  // customers) was invisible. Fires a best-effort, non-blocking visit log
+  // only on an actual incoming ?ref= link, not on every later page view
+  // from the stored localStorage value, so a visitor browsing the site
+  // for days doesn't inflate the count.
   function captureReferralCode() {
     const code = new URLSearchParams(window.location.search).get("ref");
     if (code && /^[A-Za-z0-9_-]{1,40}$/.test(code)) {
       localStorage.setItem("pradixiumReferralCode", code);
+      fetch("/api/track-referral-visit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code })
+      }).catch(() => {});
     }
   }
 
