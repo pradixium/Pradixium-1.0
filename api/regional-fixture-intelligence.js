@@ -12,11 +12,12 @@ import path from "node:path";
  * — it needs manual refreshing and should be verified against the
  * officialSource before relying on it for a current quarter.
  *
- * Countries with no verifiable figure at all (Moldova, Belarus, Kosovo,
- * Liechtenstein, San Marino, Armenia, Georgia, Azerbaijan, Uzbekistan,
- * Kyrgyzstan, Tajikistan, Turkmenistan, Maldives) are deliberately left
- * out rather than guessed — they stay "not available" until a real
- * number is found.
+ * Countries with no verifiable figure at all (Belarus, Liechtenstein,
+ * San Marino, Kyrgyzstan, Tajikistan, Turkmenistan, Maldives) are
+ * deliberately left out rather than guessed — they stay "not available"
+ * until a real number is found. (Armenia, Georgia, Moldova, Azerbaijan,
+ * Uzbekistan, Cayman Islands and Kosovo were in that category too until
+ * a real number was found for each — see their own entries below.)
  */
 const FIXTURES = {
   // ── Africa (Sept 2026, Claude B) — official price TRENDS by metro/city:
@@ -181,13 +182,13 @@ const FIXTURES = {
   },
   albania: {
     country: "Albania",
-    period: "2025-H2",
-    nationalChangePercent: null,
+    period: "2026-H1",
+    nationalChangePercent: 10,
     cityName: "Tirana",
-    cityChangePercent: 4.4,
+    cityChangePercent: 9,
     benchmarkUnit: "perSqm",
-    coverageNote: "Bank of Albania's real estate survey covers Tirana only; no verified nationwide figure.",
-    source: "Bank of Albania — Real Estate Market Survey, H2 2025",
+    coverageNote: "Bank of Albania publishes two related series: a real estate agent/builder survey (Tirana only) and a nationwide Fisher house price index. H1 2026: nationwide Fisher index unchanged vs H2 2025 but +10% year-on-year; Tirana prices +10% vs H2 2025, +9% year-on-year (weaker than the six-month gain). Figures cross-confirmed across three independent outlets (Tirana Times, Albanian Daily News, Investropa) all citing the Bank of Albania; the Bank's own survey-archive page was confirmed (Oct 27 2026) to list nothing past 2021, so no direct primary-document link is available for this specific release — same honesty tier as Monaco/Georgia elsewhere in this file.",
+    source: "Bank of Albania — Real Estate Market Survey & Fisher House Price Index, H1 2026 (reported by multiple independent outlets; primary PDF not located)",
     officialSource: "https://www.bankofalbania.org/Financial_Stability/Analysis_and_studies/Surveys/Survey_on_the_developments_in_the_real_estate_market_in_Albania.html"
   },
   andorra: {
@@ -226,6 +227,102 @@ const FIXTURES = {
     source: "IMSEE (Monégasque Institute of Statistics and Economic Studies) — Observatoire de l'immobilier / Real Estate Observatory 2025 (published Feb 2026)",
     officialSource: "https://imsee.mc/en/content/download/293646/file/Real%20estate%20Observatory%202025.pdf?inLanguage=eng-GB&version=11"
   },
+  // National Bank of Moldova (BNM) — Residential Property Price Index
+  // (RPPI): a real, live-published quarterly index (chain-linked
+  // Laspeyres-type, hedonic, 2019=100), confirmed via its own technical
+  // note and metadata PDFs (bnm.md / statistica.gov.md) plus multiple
+  // dated release pages on bnm.md. Covers Chișinău only, built from
+  // online listing (offer) prices each quarter, not closed transactions.
+  // Latest figure found (Q3 2025) came via Global Property Guide citing
+  // BNM data — the BNM's own Q3 2025 release page wasn't reachable
+  // directly to confirm the number, so this is the same honesty tier as
+  // Albania elsewhere in this file: real official index, secondary-cited
+  // current figure. Moves this out of pending-intelligence.js.
+  moldova: {
+    country: "Moldova",
+    period: "2025-Q3",
+    nationalChangePercent: 33.9,
+    realChangePercent: 24.1,
+    cityName: "Chișinău",
+    benchmarkUnit: "perSqm",
+    askingPrices: true,
+    coverageNote: "National Bank of Moldova's Residential Property Price Index (RPPI) covers only the municipality of Chișinău — a chain-linked Laspeyres-type hedonic index, 2019=100, built from properties offered for sale on listing platforms each quarter, not closed transactions. Q3 2025: +33.9% year-on-year nominal (+24.1% inflation-adjusted). Reported via Global Property Guide citing BNM data; BNM's own release page for this specific quarter was not reachable directly to confirm, so verify against bnm.md before relying on it for a current quarter.",
+    source: "National Bank of Moldova (BNM) — Residential Property Price Index (RPPI), Q3 2025 (reported by Global Property Guide citing BNM data; primary release page not confirmed directly)",
+    officialSource: "https://www.bnm.md/en/print/content/residential-property-price-index-rppi-1st-quarter-2024"
+  },
+  // State Statistical Committee of the Republic of Azerbaijan (SSC) —
+  // quarterly housing market price index (avg. price per m², primary +
+  // secondary markets), methodology confirmed via the Committee's own
+  // quality-report PDF (stat.gov.az). Latest figure (Q3 2026) came via
+  // Trend.az citing the Committee and a Central Bank of Azerbaijan
+  // (CBAR)-sourced release; the Committee's own release page for this
+  // quarter wasn't reachable directly. Same honesty tier as Moldova/
+  // Albania above. Moves this out of pending-intelligence.js.
+  azerbaijan: {
+    country: "Azerbaijan",
+    period: "2026-Q3",
+    nationalChangePercent: 8.4,
+    nationalTypeTrends: { primary: 10.4, secondary: 8.4 },
+    benchmarkUnit: "perSqm",
+    coverageNote: "Azerbaijan's State Statistical Committee (SSC) publishes a quarterly housing market price index (average price per m² across primary and secondary markets). Q3 2026: +8.4% year-on-year nationally (primary market +10.4%, secondary +8.4%); quarter-on-quarter +1.4% (primary +1.3%, secondary +1.4%). Reported via Trend.az citing the Committee and a Central Bank of Azerbaijan (CBAR)-sourced release; the Committee's own stat.gov.az release page for this quarter was not reachable directly to confirm, so verify there before relying on it for a current quarter.",
+    source: "State Statistical Committee of the Republic of Azerbaijan — Housing market price index, Q3 2026 (reported by Trend.az citing the Committee and CBAR; primary release page not confirmed directly)",
+    officialSource: "https://www.stat.gov.az/menu/2/quality/en/lecture/price_01_en.pdf"
+  },
+  // National Statistics Committee of the Republic of Uzbekistan —
+  // National Residential Property Price Index (2024=100), a real,
+  // currently-published quarterly index with a direct official PDF
+  // press release and a live data portal (siat.stat.uz). From Q2 2026
+  // it switched to an IMF-backed hedonic-regression methodology and
+  // added private houses; still built from advertised listing prices
+  // (Tashkent entirely from OLX.uz), not closed transactions — no
+  // average price per m² is published, nationally or by region, so this
+  // is change-only, same as North Macedonia/Russia/Kazakhstan above.
+  uzbekistan: {
+    country: "Uzbekistan",
+    period: "2026-Q2",
+    nationalChangePercent: 4,
+    nationalTypeTrends: { apartments: 5.5, primaryMarket: 7.1, secondaryMarket: 4.2 },
+    cityName: "Tashkent",
+    cityChangePercent: 3.9,
+    benchmarkUnit: "perSqm",
+    askingPrices: true,
+    askingNote: "built from advertised listing prices, not closed transactions — Tashkent's figures come entirely from OLX.uz listings",
+    coverageNote: "National Statistics Committee's National Residential Property Price Index (2024=100) stood at 106.8 in Q2 2026 (+4% year-on-year, +1.3% quarter-on-quarter nationally). Tashkent apartments +3.9% year-on-year vs +7% for the rest of the country; apartments overall +5.5%; primary market +7.1%, secondary market +4.2%. From Q2 2026 the Committee switched to an IMF-backed hedonic-regression methodology and added private houses for the first time. The Committee has said it has no current plans to publish an average price per m², nationally or by region.",
+    source: "National Statistics Committee of the Republic of Uzbekistan — National Residential Property Price Index, Q2 2026 (official press release)",
+    officialSource: "https://stat.uz/img/news/press-release_rppi_q2_2026_en_p78584.pdf"
+  },
+  // Cayman Islands Government, Lands and Survey Department — Residential
+  // Property Price Index (RPPI), launched Sept 2025 with IMF technical
+  // assistance, built from stamp-duty transaction data back to 1998
+  // (starting with condominiums). A real government department index,
+  // not an industry or academic one. District-level values exist in the
+  // official release but weren't confirmed in this search, so only the
+  // national figure is given here — check the official link for any
+  // district breakdown before relying on this for one.
+  "cayman islands": {
+    country: "Cayman Islands",
+    period: "2025",
+    nationalChangePercent: -1.4,
+    benchmarkUnit: "perSqm",
+    coverageNote: "Cayman Islands Government Lands and Survey Department's Residential Property Price Index (RPPI) — launched September 2025 with IMF technical assistance, built from stamp-duty transaction data back to 1998, starting with condominiums. 2025: national index 282.8, down from 286.7 in 2024 (-1.4%). Covers George Town, West Bay, Seven Mile Beach, Bodden Town, East End, North Side, Cayman Brac and Little Cayman, but this search did not confirm each district's own index value — check caymanlandinfo.ky for any district breakdown before relying on one.",
+    source: "Cayman Islands Government, Lands and Survey Department — Residential Property Price Index (RPPI), 2025 annual release",
+    officialSource: "https://www.caymanlandinfo.ky/services/valuation/residential-property-price-index-(rppi)"
+  },
+  // Kosovo Agency of Statistics (KAS) — its first official Residential
+  // Property Price Index, built with IMF technical assistance (missions
+  // through 2023 and October 2025). Weaker confirmation than Uzbekistan/
+  // Cayman above: only a secondary citation (RTV21) for the current
+  // figure, KAS's own release page not reached directly — same honesty
+  // tier as Albania/Moldova/Azerbaijan elsewhere in this file.
+  kosovo: {
+    country: "Kosovo",
+    period: "2026-Q2",
+    nationalChangePercent: 7.3,
+    benchmarkUnit: "perSqm",
+    coverageNote: "Kosovo Agency of Statistics (KAS) built its first official Residential Property Price Index (RPPI) with IMF technical assistance (missions through 2023 and October 2025). Q2 2026: +7.3% year-on-year nationally, with regions outside Pristina rising more sharply than the capital. Reported via RTV21 citing KAS data; KAS's own release page for this index was not reachable directly to confirm, so verify there before relying on it for a current quarter.",
+    source: "Kosovo Agency of Statistics (KAS) — Residential Property Price Index (RPPI), Q2 2026 (reported by RTV21 citing KAS; primary release page not confirmed directly)",
+    officialSource: "https://askapi.rks-gov.net/"
+  },
   russia: {
     country: "Russia",
     period: "2025-Q4",
@@ -255,21 +352,107 @@ const FIXTURES = {
   },
   mexico: {
     country: "Mexico",
-    period: "2026-Q1",
-    nationalChangePercent: 8.7,
-    nationalBenchmarkValue: 2024337,
+    period: "2026-Q2",
+    nationalChangePercent: 7.3,
+    nationalBenchmarkValue: 1960032,
     benchmarkUnit: "total",
-    coverageNote: "National average appraised value; median appraised value is 1,331,000 pesos. Valley of Mexico +5.1% YoY, Guadalajara +12.5% YoY this quarter.",
-    source: "Sociedad Hipotecaria Federal (SHF) — Índice SHF de Precios de la Vivienda, Q1 2026",
-    officialSource: "https://www.gob.mx/shf"
+    coverageNote: "National average appraised value for mortgaged homes, January–June 2026 (H1 accumulated, as SHF itself presents it alongside the Q2 figure) — median appraised value is 1,299,580 pesos. Q2 2026 alone: national +7.3% YoY (H1 accumulated +7.9%); new housing +8.3%, used +7.5%; single houses +8.4%, condos/apartments +7.4%. By metro area (H1 2026): Guadalajara +11.1%, Tijuana +9.7%, Puebla-Tlaxcala +8.5%, Monterrey +8.3%, León +7.9%, Querétaro +5.6%, Toluca +5.1%, Valle de México +4.6%. Confirmed directly from SHF's own press release (pasted in full by the user, Oct 27 2026) — primary-sourced, not a secondary citation.",
+    source: "Sociedad Hipotecaria Federal (SHF) — Índice SHF de Precios de la Vivienda, Q2 2026 (press release 05/2026, 10 Aug 2026)",
+    officialSource: "https://www.gob.mx/shf",
+    // Table 3 of the same press release: SHF's own H1-2026 year-on-year
+    // change by municipality (74 of them, every one it published) —
+    // percent only, no €/m²-equivalent peso level, so these use `change`
+    // with no `value` (see the handler's noteAddition branch above,
+    // added specifically to render this cleanly rather than leaving a
+    // dangling "Name: ."). `requires` guards every municipality name
+    // that collides with a common word or a same-named municipality
+    // elsewhere in Mexico (Juárez, Benito Juárez, García, Centro, Carmen,
+    // Guadalupe, La Paz, El Marqués) so a bare address string can't
+    // false-match the wrong one.
+    regions: [
+      { name: "Reynosa (Tamps.)", towns: ["reynosa"], change: 12.8 },
+      { name: "León (Gto.)", towns: ["leon"], requires: ["guanajuato"], change: 7.9 },
+      { name: "Matamoros (Tamps.)", towns: ["matamoros"], requires: ["tamaulipas"], change: 12.2 },
+      { name: "Tapachula (Chis.)", towns: ["tapachula"], change: 7.8 },
+      { name: "Solidaridad (Q.Roo) — Playa del Carmen", towns: ["solidaridad", "playa del carmen"], requires: ["playa del carmen", "quintana roo", "q roo", "q.roo"], change: 11.7 },
+      { name: "Temixco (Mor.)", towns: ["temixco"], change: 7.5 },
+      { name: "Tlajomulco de Zúñiga (Jal.)", towns: ["tlajomulco"], change: 11.6 },
+      { name: "Saltillo (Coah.)", towns: ["saltillo"], change: 7.4 },
+      { name: "Kanasín (Yuc.)", towns: ["kanasin"], change: 11.4 },
+      { name: "Manzanillo (Col.)", towns: ["manzanillo"], change: 7.4 },
+      { name: "Benito Juárez (Q.Roo) — Cancún", towns: ["cancun", "benito juarez"], requires: ["cancun", "quintana roo", "q roo", "q.roo"], change: 11.4 },
+      { name: "Emiliano Zapata (Mor.)", towns: ["emiliano zapata"], requires: ["morelos"], change: 7.4 },
+      { name: "Huejotzingo (Pue.)", towns: ["huejotzingo"], change: 11.0 },
+      { name: "Nacajuca (Tab.)", towns: ["nacajuca"], change: 7.2 },
+      { name: "San Pedro Tlaquepaque (Jal.)", towns: ["tlaquepaque"], change: 11.0 },
+      { name: "Zumpango (Méx.)", towns: ["zumpango"], change: 7.1 },
+      { name: "Aguascalientes (Ags.)", towns: ["aguascalientes"], change: 10.7 },
+      { name: "Campeche (Camp.)", towns: ["campeche"], change: 7.1 },
+      { name: "Bahía de Banderas (Nay.) — Nuevo Vallarta / Punta Mita", towns: ["bahia de banderas", "nuevo vallarta", "punta mita", "punta de mita"], change: 10.7 },
+      { name: "Zihuatanejo de Azueta (Gro.)", towns: ["zihuatanejo"], change: 7.0 },
+      { name: "Guadalajara (Jal.)", towns: ["guadalajara"], change: 10.7 },
+      { name: "Tlacolula de Matamoros (Oax.)", towns: ["tlacolula"], change: 7.0 },
+      { name: "Tepic (Nay.)", towns: ["tepic"], change: 10.4 },
+      { name: "Tuxtla Gutiérrez (Chis.)", towns: ["tuxtla gutierrez"], change: 6.9 },
+      { name: "Mexicali (B.C.)", towns: ["mexicali"], change: 10.4 },
+      { name: "Carmen (Camp.) — Ciudad del Carmen", towns: ["ciudad del carmen"], requires: ["ciudad del carmen", "campeche"], change: 6.9 },
+      { name: "Zapopan (Jal.)", towns: ["zapopan"], change: 10.2 },
+      { name: "Monterrey (N.L.)", towns: ["monterrey"], change: 6.9 },
+      { name: "Juárez (N.L.)", towns: ["juarez"], requires: ["nuevo leon"], change: 10.0 },
+      { name: "San Luis Potosí (S.L.P.)", towns: ["san luis potosi"], change: 6.7 },
+      { name: "Mineral de la Reforma (Hgo.)", towns: ["mineral de la reforma"], change: 9.9 },
+      { name: "Acapulco de Juárez (Gro.)", towns: ["acapulco"], change: 6.7 },
+      { name: "La Paz (B.C.S.)", towns: ["la paz"], requires: ["baja california sur", "b.c.s", "bcs"], change: 9.8 },
+      { name: "Veracruz (Ver.)", towns: ["veracruz"], change: 6.6 },
+      { name: "Cajeme (Son.) — Ciudad Obregón", towns: ["cajeme", "ciudad obregon"], change: 9.8 },
+      { name: "El Marqués (Qro.)", towns: ["el marques"], requires: ["queretaro"], change: 6.4 },
+      { name: "Jesús María (Ags.)", towns: ["jesus maria"], requires: ["aguascalientes"], change: 9.7 },
+      { name: "Guadalupe (Zac.)", towns: ["guadalupe"], requires: ["zacatecas"], change: 6.3 },
+      { name: "Tijuana (B.C.)", towns: ["tijuana"], change: 9.7 },
+      { name: "Gómez Palacio (Dgo.)", towns: ["gomez palacio"], change: 6.2 },
+      { name: "Los Cabos (B.C.S.) — Cabo San Lucas / San José del Cabo", towns: ["los cabos", "cabo san lucas", "san jose del cabo"], change: 9.6 },
+      { name: "Centro (Tab.) — Villahermosa", towns: ["villahermosa"], requires: ["villahermosa", "tabasco"], change: 6.1 },
+      { name: "Mazatlán (Sin.)", towns: ["mazatlan"], change: 9.6 },
+      { name: "Coatzacoalcos (Ver.)", towns: ["coatzacoalcos"], change: 6.0 },
+      { name: "Mérida (Yuc.)", towns: ["merida"], change: 9.3 },
+      { name: "Tecámac (Méx.)", towns: ["tecamac"], change: 5.6 },
+      { name: "García (N.L.)", towns: ["garcia"], requires: ["nuevo leon"], change: 9.1 },
+      { name: "San Juan Bautista Tuxtepec (Oax.)", towns: ["tuxtepec"], change: 5.4 },
+      { name: "Hermosillo (Son.)", towns: ["hermosillo"], change: 9.1 },
+      { name: "Querétaro (Qro.)", towns: ["queretaro"], change: 5.4 },
+      { name: "Culiacán (Sin.)", towns: ["culiacan"], change: 9.0 },
+      { name: "Corregidora (Qro.)", towns: ["corregidora"], change: 5.4 },
+      { name: "Juárez (Chih.) — Ciudad Juárez", towns: ["ciudad juarez"], change: 8.8 },
+      { name: "Zacatecas (Zac.)", towns: ["zacatecas"], requires: ["zacatecas"], change: 4.8 },
+      { name: "Uruapan (Mich.)", towns: ["uruapan"], change: 8.7 },
+      { name: "Metepec (Méx.)", towns: ["metepec"], change: 4.8 },
+      { name: "Morelia (Mich.)", towns: ["morelia"], change: 8.5 },
+      { name: "Toluca (Méx.)", towns: ["toluca"], change: 4.7 },
+      { name: "Puebla (Pue.)", towns: ["puebla"], change: 8.5 },
+      { name: "Durango (Dgo.)", towns: ["durango"], change: 4.7 },
+      { name: "Villa de Álvarez (Col.)", towns: ["villa de alvarez"], change: 8.4 },
+      { name: "Iztapalapa (CDMX)", towns: ["iztapalapa"], change: 4.2 },
+      { name: "Chihuahua (Chih.)", towns: ["chihuahua"], requires: ["chihuahua"], change: 8.3 },
+      { name: "Apizaco (Tlax.)", towns: ["apizaco"], change: 4.2 },
+      { name: "Tizayuca (Hgo.)", towns: ["tizayuca"], change: 8.3 },
+      { name: "Cuauhtémoc (CDMX)", towns: ["cuauhtemoc"], requires: ["cdmx", "ciudad de mexico", "mexico city", "distrito federal"], change: 4.2 },
+      { name: "Apodaca (N.L.)", towns: ["apodaca"], change: 8.2 },
+      { name: "Tlaxcala (Tlax.)", towns: ["tlaxcala"], change: 4.1 },
+      { name: "Torreón (Coah.)", towns: ["torreon"], change: 7.9 },
+      { name: "Benito Juárez (CDMX)", towns: ["benito juarez"], requires: ["cdmx", "ciudad de mexico", "mexico city", "distrito federal"], change: 4.1 },
+      { name: "Celaya (Gto.)", towns: ["celaya"], change: 7.9 },
+      { name: "Miguel Hidalgo (CDMX)", towns: ["miguel hidalgo"], requires: ["cdmx", "ciudad de mexico", "mexico city", "distrito federal"], change: 4.1 },
+      { name: "Soledad de Graciano Sánchez (S.L.P.)", towns: ["soledad de graciano sanchez"], change: 7.9 },
+      { name: "Gustavo A. Madero (CDMX)", towns: ["gustavo a madero", "gustavo madero"], requires: ["cdmx", "ciudad de mexico", "mexico city", "distrito federal"], change: 4.1 }
+    ]
   },
   brazil: {
     country: "Brazil",
-    period: "2026-Q1",
-    nationalChangePercent: 5.62,
+    period: "2026-09",
+    nationalChangePercent: 5.51,
     benchmarkUnit: "perSqm",
-    coverageNote: "FipeZap (FIPE + the ZAP real estate listings site) is Brazil's most widely cited house-price benchmark, not a government statistic — no official government equivalent could be confirmed.",
-    source: "FipeZap Index (Fundação Instituto de Pesquisas Econômicas) — Q1 2026",
+    coverageNote: "FipeZap (FIPE + the ZAP real estate listings site) is Brazil's most widely cited house-price benchmark, not a government statistic — no official government equivalent could be confirmed. FipeZap is monthly, not quarterly; September 2026's release put the trailing-12-month change at 5.51% (month itself +0.58%, the strongest since August's 0.53%). Reported via secondary coverage (FIPE's own release page wasn't directly opened), so treat the exact decimal as indicative rather than final.",
+    source: "FipeZap Index (Fundação Instituto de Pesquisas Econômicas) — September 2026 release (trailing 12 months)",
     officialSource: "https://www.fipe.org.br/en-us/indexes-and-indicators/fipezap/"
   },
   australia: {
@@ -293,31 +476,31 @@ const FIXTURES = {
   },
   argentina: {
     country: "Argentina",
-    period: "2025-Q2",
+    period: "2026-Q1",
     nationalChangePercent: null,
     cityName: "Buenos Aires (CABA)",
-    cityChangePercent: 8.4,
+    cityChangePercent: 4.6,
     benchmarkUnit: "perSqm",
-    coverageNote: "Figure covers the City of Buenos Aires only (CABA); no verified nationwide government figure.",
-    source: "Instituto de Estadística y Censos de la Ciudad de Buenos Aires (IDECBA) — apartment price survey, Q2 2025",
+    coverageNote: "Figure covers the City of Buenos Aires only (CABA); no verified nationwide government figure. Q1 2026 reported via a single secondary outlet (Nueva Ciudad) citing IDECBA's own report directly — not independently cross-confirmed by a second outlet the way Albania's update was, so treat this one figure with a little more caution than most entries here.",
+    source: "Instituto de Estadística y Censos de la Ciudad de Buenos Aires (IDECBA) — apartment price survey, Q1 2026",
     officialSource: "https://www.estadisticaciudad.gob.ar/"
   },
   chile: {
     country: "Chile",
-    period: "2025-Q2",
-    nationalChangePercent: 2.7,
+    period: "2026-Q1",
+    nationalChangePercent: 2.4,
     benchmarkUnit: "perSqm",
-    coverageNote: "Houses +1.3% YoY, apartments +3.9% YoY this quarter.",
-    source: "Banco Central de Chile — Índice de Precios de Vivienda (IPV), Q2 2025",
+    coverageNote: "Houses +4.3% YoY, apartments +0.8% YoY this quarter (index base 2008=100: houses 226.6, apartments 218.9, general 222.5). By zone: Macrozona Sur +7.0%, Macrozona Centro +2.6%, Región Metropolitana +2.1%, Macrozona Norte -6.1%. Confirmed directly from the Banco Central's own IPV page (screenshotted by the user, Oct 27 2026) — this one is primary-sourced, not a secondary citation.",
+    source: "Banco Central de Chile — Índice de Precios de Vivienda (IPV), Q1 2026",
     officialSource: "https://www.bcentral.cl/en/areas/estadisticas/estadisticas-experimentales/ipv"
   },
   colombia: {
     country: "Colombia",
-    period: "2026-Q1",
-    nationalChangePercent: 8.47,
+    period: "2026-Q2",
+    nationalChangePercent: 8.8,
     benchmarkUnit: "perSqm",
-    coverageNote: "New-housing index only. Apartments +8.50% YoY, houses +7.15% YoY this quarter.",
-    source: "DANE — Índice de Precios de Vivienda Nueva (IPVN), Q1 2026",
+    coverageNote: "New-housing index only. National year-on-year figure (8.80%, down from 10.02% in Q2 2025) reported by El Nuevo Siglo citing DANE's IPVN bulletin directly. DANE's own quarter-on-quarter breakdown by type (houses +3.68%, apartments +2.37% vs Q1 2026) is official but is NOT the same metric as the year-on-year figure stored here, so it's deliberately left out rather than mixed in.",
+    source: "DANE — Índice de Precios de Vivienda Nueva (IPVN), Q2 2026",
     officialSource: "https://www.dane.gov.co/index.php/estadisticas-por-tema/precios-y-costos/indice-de-precios-de-la-vivienda-nueva-ipvn"
   },
   peru: {
@@ -359,6 +542,15 @@ const FIXTURES = {
     coverageNote: "Covers apartments in the Metropolitan Region (Gran Santo Domingo) only, in Dominican pesos (RD$) — no verified nationwide figure. Sourced from ONE's Registro de Oferta de Edificaciones (registered building supply), not confirmed closed-sale transactions. Prices vary sharply by municipality: Santo Domingo (Distrito Nacional) RD$132,730/m² down to Los Alcarrizos RD$31,738/m²; within Santo Domingo, Piantini tops out around RD$172,377/m².",
     source: "Oficina Nacional de Estadística (ONE) — Registro de Oferta de Edificaciones (ROE), H1 2026",
     officialSource: "https://www.one.gob.do/"
+  },
+  "puerto rico": {
+    country: "Puerto Rico",
+    period: "2026-Q2",
+    nationalChangePercent: 0.94,
+    benchmarkUnit: "total",
+    coverageNote: "FHFA's All-Transactions House Price Index (repeat-sales of financed single-family home purchases) — an index/trend only, no absolute price level published for Puerto Rico. Index value 258.95, up from 256.53 a year earlier; down from 287.93 the prior quarter (methodology volatility at this sample size, not a literal one-quarter price drop).",
+    source: "Federal Housing Finance Agency (FHFA) — House Price Index, Puerto Rico, Q2 2026",
+    officialSource: "https://www.fhfa.gov/data/hpi"
   },
   thailand: {
     country: "Thailand",
@@ -498,8 +690,19 @@ export default async function handler(req, res) {
       const val = houseQ && r.houseValue != null ? r.houseValue : r.value;
       const typeWord = r.houseValue != null ? (houseQ ? " (detached houses)" : " (flats)") : "";
       const chg = fixture.typeChanges ? (houseQ ? fixture.typeChanges.houses : fixture.typeChanges.flats) : r.change;
+      // Most regions here carry a €/m² price level (val); a few (e.g.
+      // Mexico's municipal breakdown) only have a year-on-year change,
+      // with no price level at all — val stays null/undefined there, so
+      // this branches to a plain percent sentence instead of the
+      // level-shaped one, rather than leaving a dangling "Name: ." when
+      // val is missing.
+      const noteAddition = val != null
+        ? ` ${r.name}${typeWord}: ${cur}${val.toLocaleString("en-US")}/m²${r.note ? ` (${r.note})` : ""}${r.prev != null ? ` (a year earlier: ${cur}${r.prev.toLocaleString("en-US")}/m²)` : ""}${chg == null && !fixture.typeChanges ? " — the change is not shown: too few sales for a stable comparison" : ""}.`
+        : chg != null
+          ? ` ${r.name}: ${chg > 0 ? "+" : ""}${chg}% year-on-year${r.note ? ` (${r.note})` : ""}.`
+          : "";
       Object.assign(fixture, { cityName: r.name, cityBenchmarkValue: val, cityChangePercent: chg, regionMatch: true,
-        coverageNote: `${fixture.coverageNote} ${r.name}${typeWord}: ${val != null ? `${cur}${val.toLocaleString("en-US")}/m²` : ""}${r.note ? ` (${r.note})` : ""}${r.prev != null ? ` (a year earlier: ${cur}${r.prev.toLocaleString("en-US")}/m²)` : ""}${r.change == null && r.value != null && !fixture.typeChanges ? " — the change is not shown: too few sales for a stable comparison" : ""}.` });
+        coverageNote: `${fixture.coverageNote}${noteAddition}` });
     }
   }
 

@@ -2294,9 +2294,24 @@ Flagged directly to the user, unresolved as of this writing:
   promotion codes, no update/deactivate endpoint) via `DeleteCouponsCoupon`.
   Deleting the coupon a promotion code points to makes that code stop
   working for new redemptions without touching anyone who already
-  redeemed it. **As of now, `FIRST1000` (code `FIRST1000`) is the only
-  live promo code** — always verify in Stripe before assuming otherwise,
-  per the standing note above.
+  redeemed it.
+
+  **Update (Oct 27 2026): `FIRST1000`/`launch1000` is gone too** — the user
+  cancelled it directly in the Stripe Dashboard at some point after the
+  note above was written, and this session wrongly treated that note as
+  still current instead of checking live state first, which is exactly the
+  mistake the standing note exists to prevent. Confirmed directly in the
+  Stripe Dashboard (screenshots) rather than assumed: the only coupon that
+  exists now is **"Partners"** (coupon id `y5nV9lPW`, created 14 Oct 2026,
+  100% off, `once`), with promotion code **`YHO10`** (`promo_1UQLt2H...`) —
+  zero redemptions, no customers, so no live pricing or reporting is
+  affected either way. The user deleted it directly in the Stripe Dashboard
+  the same day, confirmed via screenshot (Coupons tab: "No coupons").
+  **As of now, there are zero coupons/promo codes live in Stripe.**
+  Always verify in Stripe before assuming otherwise — this file is a
+  journal of what was true when written, never a live source of truth for
+  anything that can change outside this repo (coupons, Vercel env vars,
+  anything administration-side).
 
 ## Pricing tiers (Sept 2026)
 
@@ -3346,6 +3361,286 @@ branch list over time, which is harmless. The daily-scan routine's prompt
 should be treated as updated to "push to a fresh branch each run" rather
 than reusing and resetting one fixed name -- if you hit the same fixed-branch
 instruction in an older stored routine prompt, follow this note instead.
+
+## Puerto Rico moved from pending-intelligence to regional-fixture-intelligence (Oct 27 2026)
+
+Checked the 23 `pending-intelligence` countries against FIXTURES for a
+mismatch (none found — every pending country genuinely has no sourced
+figure yet, data and endpoint map agree). Then actually researched two
+candidates rather than just auditing: Vietnam's GSO has a planned
+residential price index (IMF TA report) but no evidence it's published yet
+— stays pending, correctly. Puerto Rico has a real one: FHFA (a US federal
+agency) publishes a quarterly House Price Index for Puerto Rico same as for
+US states — index only, no absolute price level, same honesty tier as
+South Africa/Morocco/Kenya elsewhere in this file. Added `"puerto rico"` to
+`api/regional-fixture-intelligence.js` FIXTURES (Q2 2026, index 258.95,
++0.94% YoY, source https://www.fhfa.gov/data/hpi) and flipped its
+`COUNTRY_ENDPOINTS` entry in `api/orchestrator.js` from
+`pending-intelligence` to `regional-fixture-intelligence`. Verified via
+`node --check` on both files and a direct call to
+`getRegionalFixture("puerto rico")` returning the fixture correctly. No
+"X countries" copy anywhere references the 94/95 valuation-coverage count
+(only the 191 foreign-buyer-rules count is ever printed on-page), so no
+page copy needed updating. Tally: regional-fixture-intelligence 32→33,
+pending-intelligence 23→22.
+
+## Global refresh pass on regional-fixture-intelligence (Oct 27 2026)
+
+Checked every stale-looking `period` in Europe/North America, then Asia,
+against the latest official release, to see which are genuinely out of
+date vs. just old-looking because nothing newer exists yet. Confirmed
+`eurostat-hpi-intelligence` needs no checking — it fetches Eurostat's API
+live on every request, never a static fixture. Already current, no change
+needed: Canada (file's July 2026 beats the June 2026 figure found),
+India (file's Q3 FY26 matches NHB's own latest release), Kazakhstan
+(file's Dec 2025 15.74% matches the bureau's own latest), North Macedonia
+and Peru (both already at the latest quarter the official body has
+published — Q4 2025 — nothing newer exists yet, not a staleness bug).
+Russia and Ukraine excluded from this pass entirely (user's call, Oct 27
+2026 — wartime data instability, not worth chasing). Mexico and Sri Lanka
+have a newer number but not one that safely matches this file's existing
+fields (Mexico: a Q2 2026 percentage with no matching official peso
+level; Sri Lanka: Q1 2026 is an asking-price index, a different metric
+from the transaction-index figure already on file) — left alone rather
+than mixing metrics.
+
+**Albania — real finding, not just another blocked site.** The
+`officialSource` already on file
+(.../Survey_on_the_developments_in_the_real_estate_market_in_Albania.html)
+is reachable (confirmed by the user directly, screenshotted) and its own
+archive of survey PDFs stops at **"6HI 2021"** — nothing newer has ever
+been published there. Every H2-2025/H1-2026 Albania figure found by any
+session (this one included) traces back to press/blog coverage citing
+the Bank of Albania, never that page itself. So the H2 2025 figure
+already in this file is no more primary-sourced than the H1 2026 number
+this session found and declined to use — both are secondary citations of
+the same kind. The page is confirmed dead-ended at 2021, not transiently
+blocked — a future session should not re-attempt it expecting different
+results.
+
+**Update, same session, minutes later:** the user pushed back (fairly) on
+leaving it unimproved, and a second search specifically for INSTAT
+(Albania's stats institute, which co-compiles the index per the user's own
+find) surfaced three independent outlets — Tirana Times, Albanian Daily
+News, Investropa — all citing the *same specific numbers* for H1 2026: a
+nationwide Fisher index unchanged six-month but +10% YoY, and Tirana +10%
+six-month/+9% YoY. Three independent outlets agreeing on identical
+specific figures (not just a vague direction) is the same cross-confirmation
+bar already used for Monaco and Georgia elsewhere in this file, so this
+session updated the `albania` entry from 2025-H2 (Tirana +4.4% YoY only, no
+national figure) to **2026-H1** (nationwide +10% YoY added, Tirana revised
+to +9% YoY), with the coverage note explicit about the secondary-citation
+tier and the dead-ended primary page. Verified via `node --check` and a
+direct `getRegionalFixture("albania")` call. Lesson for next time: a
+blocked/dead-ended primary page is a reason to search harder for
+independent corroboration, not a reason to stop — re-read this file's own
+Monaco/Georgia precedent before declining an update on "can't reach
+primary source" alone.
+
+**South America pass, same session.** Brazil updated: FipeZap is monthly
+not quarterly, so swapped the odd "2026-Q1" framing for the actual latest
+release (September 2026, trailing-12-month +5.51%, source page not
+directly opened — secondary coverage only, noted in the entry). Argentina,
+Chile, Colombia checked and left alone on purpose, not from lack of
+effort: Argentina's only fresher 2026 numbers found are from private
+portals (Zonaprop/UADE), not IDECBA (the official source already cited) —
+swapping to a lower-authority source would be a downgrade, not an update.
+Chile's Banco Central confirmed Q1 2026's IPV was published 31 Jul 2026,
+but no search surfaced the actual percentage, only that it exists.
+Colombia's Q2 2026 bulletin is out (DANE's own PDF URL located:
+bol-IPVN-IItrim2026.pdf) with quarter-on-quarter figures (+2.41% national,
+houses +3.68%, apartments +2.37%), but this file stores year-on-year
+(confirmed: Q1 2026's 8.47% already on file matches DANE's own Q1 annual
+figure exactly) — no YoY figure for Q2 surfaced in any snippet, so
+updating would have meant silently swapping metrics. All three are a
+"found the release, not the matching number" gap, not a "nothing newer
+exists" one — worth another pass by a session that can open the DANE PDF
+directly.
+
+**Update, same session, user pushed back again ("these are major
+countries, solve it").** Second, more targeted round on Argentina and
+Colombia found the matching numbers after all:
+
+- **Argentina**: Nueva Ciudad's coverage of IDECBA's own Q1 2026 report
+  gives Buenos Aires City apartment prices +4.6% — the same metric
+  (IDECBA, CABA) this file already tracks. Updated `2025-Q2` (+8.4%) →
+  `2026-Q1` (+4.6%). Single-outlet citation, not cross-confirmed by a
+  second source the way Albania was — noted explicitly in the coverage
+  note so a future session doesn't read it as equally solid.
+- **Colombia**: El Nuevo Siglo, citing DANE's own IPVN bulletin directly,
+  gives the national year-on-year figure for Q2 2026: +8.80% (down from
+  10.02% in Q2 2025) — finally the matching metric (YoY, not the QoQ
+  figures found in the first pass). Updated `2026-Q1` (8.47%) →
+  `2026-Q2` (8.8%). The QoQ by-type breakdown (houses/apartments) found
+  earlier is real but still not re-added, since it's still the wrong
+  metric to mix into a YoY field.
+- **Chile**: three separate targeted search angles this session (direct
+  IPV search, news-style phrasing, Knight Frank as a possible proxy) all
+  came up empty for the Banco Central's own Q1 2026 percentage — only
+  confirmation that the release exists (published 31 Jul 2026) and one
+  explicitly-different-index figure (Knight Frank's own international
+  series, 1.4% YoY) that would be wrong to substitute in. Genuinely stuck,
+  not under-tried — left as `2025-Q2`. The real fix is opening
+  bcentral.cl's IPV page directly, which needs a session or a person who
+  can reach it; this sandbox cannot.
+
+Verified both changes via `node --check` and direct `getRegionalFixture()`
+calls for argentina/colombia/chile (chile confirmed unchanged).
+
+## Added 10 missing countries to the dropdown (Oct 27 2026)
+
+User's full-Latin-America review surfaced a real gap: Costa Rica, Panama,
+Guatemala, Honduras, El Salvador, Nicaragua, Belize, Venezuela, Cuba and
+Haiti weren't in `index.html`'s `#countryOptions` datalist AT ALL — not
+even as an honest "pending" like the other 22 (now 32) gap countries.
+They were already present in `lib/data/foreignBuyerRules.js` (the 191
+count is unaffected), just missing from the valuation-report side
+entirely. Confirmed via WebSearch (Costa Rica and El Salvador explicitly
+via Global Property Guide stating no house price statistics are
+published; the rest came up empty on a targeted per-country search) that
+none of the 10 has an official house-price source today — same honesty
+bar as every other `pending-intelligence` entry, not a shortcut.
+
+Three files needed the same 10 additions, found the hard way after the
+first fix looked complete but still 404'd:
+1. `api/orchestrator.js` `COUNTRY_ENDPOINTS` — all 10 added as
+   `"pending-intelligence"`.
+2. `index.html`'s `#countryOptions` datalist — all 10 added
+   alphabetically (confirmed only file with this datalist via
+   repo-wide grep, so no other page needed the same edit).
+3. `api/pending-intelligence.js`'s own `PENDING_COUNTRIES` map — missed
+   on the first pass; without this, calling the endpoint for any of the
+   10 returned a bare 404 "Country not covered" instead of the honest
+   `NOT_YET_CONNECTED` response the other 32 pending countries give.
+   Caught by actually calling the handler function for all 10 names
+   rather than assuming orchestrator.js's routing change was sufficient.
+
+Verified via `node --check` on all three files plus a direct call to
+`pending-intelligence.js`'s handler for all 10 country names, confirming
+`200 NOT_YET_CONNECTED` (not 404) for each. Final tally: 103 countries in
+the dropdown (was 93), `pending-intelligence` 22→32,
+`regional-fixture-intelligence` unchanged at 33.
+
+**Chile closed out right after** — the user opened
+bcentral.cl/en/areas/estadisticas/estadisticas-experimentales/ipv
+directly and screenshotted the actual Q1 2026 IPV release table, ending
+the "genuinely stuck, direct access blocked" status from two entries
+above. Real numbers, straight from the primary source, not a secondary
+citation: national +2.4% YoY (index 222.5, base 2008=100), houses +4.3%,
+apartments +0.8%, with a geographic breakdown (Macrozona Sur +7.0% down
+to Macrozona Norte -6.1%). Updated `2025-Q2` (+2.7%) → `2026-Q1` (+2.4%).
+**Mexico closed out right after too** — the user pasted SHF's full Q2 2026
+press release text directly. National +7.3% YoY (H1 accumulated +7.9%),
+national average appraised value 1,960,032 pesos (H1 accumulated, exactly
+as SHF itself presents it alongside the quarterly figure — this file's
+earlier hesitation to use an H1 blend was about an *unconfirmed secondary*
+H1 number; this one is primary and explicitly the figure SHF itself pairs
+with the Q2 release, so it's the right value to store). Updated `2026-Q1`
+(8.7%, 2,024,337 pesos) → `2026-Q2` (7.3%, 1,960,032 pesos), with new/used,
+house-type and metro-area breakdowns added to the coverage note. Both
+Mexico and Chile are now primary-sourced, closing out every item flagged
+as "genuinely stuck" in this session's Latin America pass.
+
+## Mexico: 74-municipality regional breakdown added (Oct 27 2026)
+
+The user then pasted SHF's Table 3 in full — H1 2026 year-on-year change
+for every municipality the index covers. This is percent-only data (no
+€/m²-equivalent peso level per municipality), which the existing
+`regions` matching code (built for Montenegro/Georgia, where every region
+carries a price level) couldn't render without producing a dangling
+"Name: ." in the coverage note. Fixed that first, narrowly: in the
+handler's region-match block, `noteAddition` now branches on whether `val`
+exists — level-shaped sentence when it does (byte-identical to the old
+behavior, regression-tested against Georgia/Montenegro so neither changed
+output), a plain "Name: +X% year-on-year" sentence when there's only a
+`change` and no `value`. This is the first `regions` entry in the file
+without price levels; the branch is there for exactly this case and future
+percent-only countries can reuse it without new code.
+
+Added all 74 municipalities from Table 3 as `mexico.regions` entries with
+`towns`/`change` (no `value`). Spent real effort on disambiguation rather
+than a naive name-to-match dump, because several of these are genuinely
+ambiguous: **Benito Juárez** appears twice (Quintana Roo = Cancún itself;
+CDMX = a central borough) — both gated behind `requires` so a bare
+"Benito Juárez" with no state/city context matches neither, confirmed by
+test. **Juárez** similarly: Nuevo León's small town requires
+"nuevo leon"; Chihuahua's (Ciudad Juárez) keyed on the actual commonly-used
+name instead. **García** (N.L.) requires "nuevo leon" since it's also an
+extremely common Mexican surname that could appear in unrelated street
+addresses. **Centro** (Tabasco) is keyed on "villahermosa" (what people
+actually call it) rather than the generic word "centro", which would have
+false-matched almost any address with "centro" (downtown) in it. Added
+recognizable aliases for foreign-buyer-relevant spots the formal
+municipio name wouldn't surface on its own: Solidaridad → "playa del
+carmen", Bahía de Banderas → "nuevo vallarta"/"punta mita", Los Cabos →
+"cabo san lucas"/"san jose del cabo", Cajeme → "ciudad obregon".
+
+Verified with a 12-case test battery via direct handler calls — every
+disambiguation case (both Juárez pairs, García bare-vs-qualified, Centro
+via Villahermosa, Cancún via both its alias and formal name) resolved
+exactly as intended, and a plain national-level call (`city` empty)
+correctly returns no regional match. Regression-checked Georgia/Montenegro
+unchanged. `node --check` clean throughout.
+
+**Noted but not fixed (correction, Nov 2026 — the claim below was wrong):**
+this originally said `pending-intelligence.js`'s `PENDING_COUNTRIES` map
+still listed `uruguay`, `"dominican republic"`, `"puerto rico"`, `bahamas`,
+`"cayman islands"`, `"trinidad and tobago"`, `barbados`, `jamaica` as all
+dead code because `orchestrator.js` supposedly routed every one of them to
+`regional-fixture-intelligence` instead. Checked `orchestrator.js` directly
+(Nov 2026): only `uruguay`, `"dominican republic"` and `"puerto rico"` were
+actually routed there — `bahamas`, `"trinidad and tobago"`, `barbados` and
+`jamaica` were still genuinely on `pending-intelligence` and in active use,
+not dead code. (`"cayman islands"` has since been connected for real — see
+the Nov 2026 entry below — so it belongs in the "actually connected" group
+now, not because this note was right about it being dead code earlier.)
+Lesson: don't assert what a routing map contains without grepping it.
+
+## Five more pending countries connected: Moldova, Azerbaijan, Uzbekistan, Cayman Islands, Kosovo (Nov 2026)
+
+Researched the remaining `pending-intelligence` list for real official
+sources, same honesty bar as every other fixture in this file — found five:
+
+- **Moldova**: National Bank of Moldova's Residential Property Price Index
+  (RPPI), real quarterly series, Chișinău only, hedonic, 2019=100. Q3 2025:
+  +33.9% YoY nominal (+24.1% real). Figure via Global Property Guide citing
+  BNM; BNM's own page for that exact quarter wasn't reachable to confirm
+  directly.
+- **Azerbaijan**: State Statistical Committee's quarterly housing price
+  index (primary+secondary). Q3 2026: +8.4% YoY nationally. Figure via
+  Trend.az citing the Committee/CBAR; Committee's own release page for
+  that quarter not reached directly.
+- **Uzbekistan**: National Statistics Committee's National RPPI
+  (2024=100) — real official press release PDF + live data portal
+  (siat.stat.uz), strongest sourcing of this batch. Q2 2026: index 106.8,
+  +4% YoY, +1.3% QoQ. Switched to IMF-backed hedonic methodology this
+  quarter.
+- **Cayman Islands**: Lands and Survey Department's official RPPI,
+  launched Sept 2025 with IMF assistance, built from stamp-duty data back
+  to 1998. 2025: index 282.8, -1.4% YoY. A real government department
+  index, not industry/academic.
+- **Kosovo**: KAS's first official RPPI (IMF-assisted). Q2 2026: +7.3%
+  YoY. Weakest of the five — only a secondary citation (RTV21), KAS's own
+  release page not reached directly.
+
+All five added to `api/regional-fixture-intelligence.js` FIXTURES,
+`api/orchestrator.js` COUNTRY_ENDPOINTS flipped from `pending-intelligence`
+to `regional-fixture-intelligence`, and removed from
+`pending-intelligence.js`'s `PENDING_COUNTRIES` map. Checked (again,
+directly) that no other already-pending country was silently already
+routed elsewhere — only these five were actually movable; Bolivia, Ecuador,
+Paraguay, Guatemala, Barbados, Vietnam, Bahamas, Panama, Trinidad and
+Tobago, Jamaica were all re-checked and genuinely still have no official
+source (CPI-housing components or academic working papers, not a
+published price index — not good enough, stay pending). Bolivia in
+particular: the user pointed at INE Bolivia's "Vivienda" menu section as a
+possible lead; that section is housing-census conditions (materials,
+overcrowding), not prices, and BCB's own 2014 research paper states
+outright "Bolivia no cuenta con un indicador oficial del precio de los
+bienes inmuebles" — about as direct a confirmation of "no official source"
+as this project will find. Verified with `node --check` on all three
+touched files plus a direct handler call for each of the five new
+countries, confirming `success:true` with real data.
 
 ## iOS app — not started, open question (Oct 4 2026)
 

@@ -182,26 +182,56 @@ const COUNTRY_ENDPOINTS = {
   "kenya": "regional-fixture-intelligence",
   "nigeria": "pending-intelligence",
   "egypt": "pending-intelligence",
-  "azerbaijan": "pending-intelligence",
-  "uzbekistan": "pending-intelligence",
+  // Moldova and Azerbaijan: moved off pending-intelligence — each has a
+  // real official quarterly housing price index (National Bank of
+  // Moldova's RPPI; Azerbaijan's State Statistical Committee housing
+  // price index) — see their fixture entries and comments in
+  // api/regional-fixture-intelligence.js for sourcing and caveats.
+  "azerbaijan": "regional-fixture-intelligence",
+  // Uzbekistan: National Statistics Committee's National RPPI (2024=100)
+  // — official press release + live data portal (siat.stat.uz).
+  "uzbekistan": "regional-fixture-intelligence",
   "kyrgyzstan": "pending-intelligence",
   "tajikistan": "pending-intelligence",
   "turkmenistan": "pending-intelligence",
-  "moldova": "pending-intelligence",
+  "moldova": "regional-fixture-intelligence",
   "belarus": "pending-intelligence",
-  "kosovo": "pending-intelligence",
+  // Kosovo: KAS's first official RPPI (IMF-assisted) — see fixture entry
+  // for the secondary-citation caveat.
+  "kosovo": "regional-fixture-intelligence",
   "liechtenstein": "pending-intelligence",
   "san marino": "pending-intelligence",
   "ecuador": "pending-intelligence",
   "bolivia": "pending-intelligence",
   "paraguay": "pending-intelligence",
   "bahamas": "pending-intelligence",
-  "puerto rico": "pending-intelligence",
-  "cayman islands": "pending-intelligence",
+  "puerto rico": "regional-fixture-intelligence",
+  // Cayman Islands: Lands and Survey Department's official RPPI
+  // (launched Sept 2025, IMF-assisted, stamp-duty data since 1998).
+  "cayman islands": "regional-fixture-intelligence",
   "trinidad and tobago": "pending-intelligence",
   "barbados": "pending-intelligence",
   "jamaica": "pending-intelligence",
   "maldives": "pending-intelligence",
+  // Central America, the Caribbean's remaining gaps, and Venezuela —
+  // added Oct 27 2026 after the user flagged that these were missing
+  // from the dropdown entirely (not even honestly "pending") rather than
+  // overlooked. Confirmed via WebSearch, same as every other
+  // pending-intelligence entry: no official (government or central bank)
+  // house-price index exists for any of these today. Costa Rica and El
+  // Salvador were confirmed via Global Property Guide explicitly stating
+  // no house price statistics are published; the rest came up empty on a
+  // targeted search for each country's central bank / stats institute.
+  "costa rica": "pending-intelligence",
+  "panama": "pending-intelligence",
+  "guatemala": "pending-intelligence",
+  "honduras": "pending-intelligence",
+  "el salvador": "pending-intelligence",
+  "nicaragua": "pending-intelligence",
+  "belize": "pending-intelligence",
+  "venezuela": "pending-intelligence",
+  "cuba": "pending-intelligence",
+  "haiti": "pending-intelligence",
   // Israel's Central Bureau of Statistics (הלמ״ס) runs a real, public,
   // keyless API — its own dedicated adapter, not a fixture.
   "israel": "israel-intelligence",
