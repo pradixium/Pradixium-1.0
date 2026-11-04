@@ -24,15 +24,14 @@ const PENDING_COUNTRIES = {
   // verifiable Ministry of Construction / GSO release
   maldives: "Maldives",
   vietnam: "Vietnam",
-  armenia: "Armenia",
-  azerbaijan: "Azerbaijan",
-  uzbekistan: "Uzbekistan",
+  // Armenia, Azerbaijan, Moldova, Uzbekistan, Kosovo and Cayman Islands
+  // used to be here too — each now has a real official source and is
+  // routed to regional-fixture-intelligence instead (see orchestrator.js's
+  // COUNTRY_ENDPOINTS and this project's FIXTURES for the sourcing).
   kyrgyzstan: "Kyrgyzstan",
   tajikistan: "Tajikistan",
   turkmenistan: "Turkmenistan",
-  moldova: "Moldova",
   belarus: "Belarus",
-  kosovo: "Kosovo",
   liechtenstein: "Liechtenstein",
   "san marino": "San Marino",
   uruguay: "Uruguay",
@@ -42,10 +41,24 @@ const PENDING_COUNTRIES = {
   "dominican republic": "Dominican Republic",
   bahamas: "Bahamas",
   "puerto rico": "Puerto Rico",
-  "cayman islands": "Cayman Islands",
   "trinidad and tobago": "Trinidad and Tobago",
   barbados: "Barbados",
-  jamaica: "Jamaica"
+  jamaica: "Jamaica",
+  // Central America, remaining Caribbean/Venezuela — added Oct 27 2026,
+  // same basis as every entry above: searched, no official house-price
+  // source found. Costa Rica and El Salvador confirmed via Global
+  // Property Guide explicitly stating no house price statistics are
+  // published there.
+  "costa rica": "Costa Rica",
+  panama: "Panama",
+  guatemala: "Guatemala",
+  honduras: "Honduras",
+  "el salvador": "El Salvador",
+  nicaragua: "Nicaragua",
+  belize: "Belize",
+  venezuela: "Venezuela",
+  cuba: "Cuba",
+  haiti: "Haiti"
 };
 
 function normalizeCountry(value) {
